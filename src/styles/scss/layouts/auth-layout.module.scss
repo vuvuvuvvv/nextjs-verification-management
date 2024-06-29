@@ -1,0 +1,74 @@
+@import "@styles/scss/variables/global.variables.scss";
+
+.wrap-container {
+    background-image: url("/images/backdrop_cover.png") !important;
+    background-repeat: no-repeat;
+    background-size: cover;
+    background-position: 75%;
+
+    a {
+        color: $blue !important;
+        border: none !important;
+        outline: none !important;
+    }
+
+    &::before {
+        background-color: rgba($color: #000000, $alpha: .1);
+        position: fixed;
+        content: "";
+        width: 100vw;
+        height: 100vh;
+        top: 0;
+        left: 0;
+        z-index: -1;
+    }
+
+    .wrapper {
+        margin: auto;
+        min-height: 100dvh;
+        color: #000;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 0;
+        margin: 0;
+
+        .aside-content {
+            display: block;
+        }
+
+        .box-form {
+            width: 100%;
+            max-width: 500px;
+            border-radius: 8px;
+            background-color: rgba($color: #fff, $alpha: 0.6);
+            box-shadow: 0 0 20px rgba($color: #464646a5, $alpha: 0.4);
+
+            form {
+                div {
+                    position: relative !important;
+                }
+
+                input[type=text],
+                input[type=password],
+                input[type=email] {
+                    padding-left: 40px !important;
+                    height: 46px;
+
+                    &::placeholder {
+                        color: $grey;
+                    }
+                }
+
+                .placeholder-icon {
+                    position: absolute !important;
+                    bottom: 15px;
+                    width: 20px;
+                    left: 13px;
+                    color: $blue;
+                }
+            }
+        }
+    }
+}

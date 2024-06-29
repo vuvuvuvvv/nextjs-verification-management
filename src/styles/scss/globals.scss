@@ -1,0 +1,39 @@
+@import "@styles/scss/variables/global.variables.scss";
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+html,
+body {
+    max-width: 100vw;
+}
+
+body {
+    min-height: 100dvh;
+    background-color: $body_bg_color !important;
+    position: relative;
+}
+
+footer {
+    position: fixed;
+    height: $footer_height;
+    bottom: 0px;
+    left: 0;
+    background-color: $footer_bg_color;
+    z-index: 99;
+}
+
+a,
+button {
+    outline: none;
+    box-shadow: none;
+    border: none;
+    text-decoration: none;
+
+    :focus {
+        border: none;
+    }
+}

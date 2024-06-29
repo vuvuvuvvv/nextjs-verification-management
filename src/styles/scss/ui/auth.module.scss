@@ -1,0 +1,35 @@
+@import "@styles/scss/variables/global.variables.scss";
+
+.break-form {
+    color: $grey;
+    position: relative;
+    padding: 10px;
+    margin: 0;
+    text-align: center;
+
+    &::after,
+    &::before {
+        content: "";
+        position: absolute;
+        width: calc(30% - 20px);
+        height: calc(1px / 2);
+        background-color: $grey;
+        top: 50%;
+        transform: translateY(-50%);
+    }
+
+    &::after {
+        left: 35px;
+    }
+
+    &::before {
+        right: 35px;
+    }
+}
+
+.btn-google-auth {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}

@@ -1,0 +1,38 @@
+// Color
+$grey: #757c82;
+$dark-blue: #305680;
+$blue: #0980de;
+
+/* Layout variables */
+// Navbar
+$nav_height: 60px;
+$nav_bg_color: #f5f5f5;
+
+// Body
+$body_bg_color: #E4E9F7;
+
+// Footer
+$footer_height: 40px;
+$footer_bg_color: #f5f5f5;
+
+$screen_break_point: 1200px;
+/* End layout */
+
+
+/* Sidebar variables */ 
+$sb_width: 300px;
+$sb_height: calc(100vh - #{$nav_height} - #{$footer_height});
+
+//Sidebar child height
+$sb_header_height: 60px;
+$sb_footer_height: 0px;
+$sb_body_height: calc(100% - $sb_header_height - $sb_footer_height);
+
+//Sidebar color
+$sb_bg_color: #fff;
+$sb_bg_active: #e8f5fe;
+$sb_footer_color: #e8f5fe;
+$sb_cover_color: #fbfbfb;
+$sb_text_active: $blue;
+$sb_text_color: $grey;
+/* End sidebar */
