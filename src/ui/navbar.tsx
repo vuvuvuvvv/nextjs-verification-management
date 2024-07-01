@@ -32,7 +32,7 @@ const Navbar: React.FC<NavbarProps> = ({ className }) => {
 
     const { user, loading } = useUser();
 
-    console.log(user);
+    // console.log(user);
 
     const handleLogout = useCallback(async () => {
         await logout();

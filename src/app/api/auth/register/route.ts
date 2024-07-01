@@ -1,5 +1,6 @@
-import api from '../../route';
+// import api from '../../route';           // loop redirect because there is no jwt
 import Cookies from 'js-cookie';
+import axios from 'axios';
 
 import { RegisterCredentials } from '@lib/types';
 
@@ -7,7 +8,7 @@ const API_AUTH_URL = `${process.env.BASE_URL}/api/auth`;
 
 export const register = async (credentials: RegisterCredentials) => {
     try {
-        const response = await api.post(`${API_AUTH_URL}/register`, credentials);
+        const response = await axios.post(`${API_AUTH_URL}/register`, credentials);
 
         if (response.data.access_token) {
             Cookies.set('accessToken', response.data.access_token);

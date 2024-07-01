@@ -1,7 +1,7 @@
 import axios from 'axios';
 import Cookies from 'js-cookie';
 import path from 'path';
-import { logout } from './auth/logout/route';
+import { logout, refreshJWT } from './auth/route';
 
 const BASE_URL = process.env.BASE_URL;
 const API_URL = `${BASE_URL}/api`;
@@ -18,7 +18,6 @@ api.interceptors.request.use(config => {
     return config; // Trả về config đã được chỉnh sửa để tiếp tục thực hiện yêu cầu
 });
 
-
 api.interceptors.response.use(
     response => response, // Nếu yêu cầu thành công, trả về response nguyên thủy
     async error => { // Nếu có lỗi xảy ra
@@ -27,15 +26,25 @@ api.interceptors.response.use(
             originalRequest._retry = true; // Đánh dấu là đã thử lại
             try {
                 const refreshToken = Cookies.get('refreshToken'); // Lấy refreshToken từ cookies
-                const response = await axios.post(`${API_URL}/refresh`, {}, { // Gửi yêu cầu refresh token
-                    headers: {
-                        'Authorization': `Bearer ${refreshToken}` // Gửi refreshToken trong Authorization header
-                    },
-                });
-                Cookies.set('accessToken', response.data.access_token); // Lưu accessToken mới vào cookies
-                originalRequest.headers.Authorization = `Bearer ${response.data.access_token}`; // Cập nhật Authorization header cho yêu cầu gốc
+                if (!refreshToken) {
+                    console.error('No refresh token available');
+                    logout();
+                    window.location.href = '/login';
+                    return Promise.reject(error);
+                }
+                // const response = await axios.post(`${API_URL}/refresh`, {}, { // Gửi yêu cầu refresh token
+                //     headers: {
+                //         'Authorization': `Bearer ${refreshToken}` // Gửi refreshToken trong Authorization header
+                //     },
+                // });
+
+                const newAccessToken = await refreshJWT();
+
+                Cookies.set('accessToken', newAccessToken); // Lưu accessToken mới vào cookies
+                originalRequest.headers.Authorization = `Bearer ${newAccessToken}`; // Cập nhật Authorization header cho yêu cầu gốc
                 return axios(originalRequest); // Thử lại yêu cầu gốc với accessToken mới
             } catch (e) {
+                console.error('Error refreshing token:', e);
                 logout(); // Đăng xuất người dùng (xóa cookies)
                 window.location.href = '/login'; // Chuyển hướng đến trang đăng nhập
             }
@@ -43,6 +52,5 @@ api.interceptors.response.use(
         return Promise.reject(error); // Nếu không phải lỗi 401 Unauthorized, reject promise với lỗi
     }
 );
-
 
 export default api;
