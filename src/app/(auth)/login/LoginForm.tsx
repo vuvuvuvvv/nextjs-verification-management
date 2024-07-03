@@ -10,7 +10,9 @@ import { faGoogle } from '@fortawesome/free-brands-svg-icons';
 import Link from 'next/link';
 import { faLock, faUser } from '@fortawesome/free-solid-svg-icons';
 
-import { login } from '@/app/api/auth/login/route';
+// import { login } from '@/app/api/auth/login/route';
+
+import { signIn } from 'next-auth/react';
 
 import { LoginCredentials } from '@lib/types';
 
@@ -45,13 +47,19 @@ export default function LoginForm({ className }: FormProps) {
         const credentials: LoginCredentials = { username, password };
 
         try {
-            const response = await login(credentials);
-            if (response.status == 200) {
-                router.push('/');
-                setResponse(response);
+            const response = await signIn('credentials', {
+                ...credentials,
+                redirect: false
+            });
+            if (response?.status === 200) {
+                alert("oke")
+                // router.push('/');
+                setResponse(response as any);
             } else {
-                setResponse(response);
-                setError(response.msg);
+                setResponse(response as any);
+
+                alert("err")
+                setError(response?.error || "An error occurred");
             }
         } catch (err) {
             console.log(err);

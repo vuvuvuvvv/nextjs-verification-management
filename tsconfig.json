@@ -18,10 +18,11 @@
       }
     ],
     "paths": {
-      "@/*": ["./src/*"],
+      "@/*": ["./*"],
       "@lib/*": ["./lib/*"],
       "@components/*": ["./src/components/*"],
       "@ui/*": ["./src/ui/*"],
+      "@api/*": ["./src/app/api/*"],
       "@styles/*": ["./src/styles/*"]
     }
   },

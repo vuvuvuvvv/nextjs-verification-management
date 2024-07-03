@@ -3,7 +3,7 @@ import Cookies from 'js-cookie';
 
 import { RegisterCredentials } from '@lib/types';
 
-const API_AUTH_URL = `${process.env.BASE_URL}/api/auth`;
+const API_AUTH_URL = `${process.env.NEXT_API_URL}/auth`;
 
 export const register = async (credentials: RegisterCredentials) => {
     try {

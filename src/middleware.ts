@@ -1,42 +1,86 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
-import { getMe } from './app/api/auth/get-me/route';
+import { jwtVerify, SignJWT } from 'jose';
+import { getMe } from '@api/auth/get-me/route';
 
-export async function middleware(req: NextRequest) {
-    const tokenCookie = req.cookies.get('accessToken');
+const SECRET_KEY = new TextEncoder().encode(process.env.JWT_SECRET_KEY);
 
-    const allCookies = req.cookies.getAll()
-    console.log(allCookies)
+async function fetchUser(request: NextRequest) {
+    const res = await getMe(request);
+    return res.data;
+}
 
-    if (!tokenCookie) {
-        return NextResponse.redirect(`${req.nextUrl.origin}/login`);
+async function handleAuth(request: NextRequest, cookie: string | undefined) {
+    if (cookie) {
+        try {
+            const { payload } = await jwtVerify(cookie, SECRET_KEY);
+            const currentTime = Math.floor(Date.now() / 1000);
+            if (payload.exp && payload.exp > currentTime) {
+                return { token: cookie, user: null };
+            } else {
+                const user = await fetchUser(request);
+                const newToken = await new SignJWT(user)
+                    .setProtectedHeader({ alg: 'HS256' })
+                    .setExpirationTime('30m')
+                    .sign(SECRET_KEY);
+                return { token: newToken, user };
+            }
+        } catch (error) {
+            // LOG
+            // console.error("ERROR:: ", error);
+            return { token: null, user: null };
+        }
     } else {
-        // try {
-        //     const response = await getMe();
-
-        //     if (response.status === 200) {
-        //         console.log("a")
-        //         const user = response.user;
-
-        //         // if (req.nextUrl.pathname.startsWith('/admin') && user.role !== 'ADMIN') {
-        //         //     return NextResponse.redirect(req.nextUrl.origin);   // to "/"
-        //         // }
-        //         return NextResponse.next();
-        //     } else {
-        //         console.log("b")
-        //         // Handle case when the getMe request fails (non-200 status code)
-        //         return NextResponse.redirect(`${req.nextUrl.origin}/login`);
-        //     }
-        // } catch (error) {
-        //     console.log("c")
-        //     // Handle any other errors
-        //     console.error('Error fetching user data:', error);
-        //     return NextResponse.redirect(`${req.nextUrl.origin}/login`);
-        // }
-        return NextResponse.next();
+        try {
+            const user = await fetchUser(request);
+            const newToken = await new SignJWT(user)
+                .setProtectedHeader({ alg: 'HS256' })
+                .setExpirationTime('30m')
+                .sign(SECRET_KEY);
+            return { token: newToken, user };
+        } catch (error) {
+            return { token: null, user: null };
+        }
     }
 }
 
-export const config = {
-    matcher: ['/', '/about', '/admin'],
+export async function middleware(request: NextRequest) {
+    const { pathname } = request.nextUrl;
+    const cookie = request.cookies.get('user-session-token')?.value; // Thay đổi tên cookie
+
+    const response = NextResponse.next();
+
+    const { token, user } = await handleAuth(request, cookie);
+    // LOG:
+    console.log("Log", { token, user });
+
+    if (!token) {
+        if (pathname === '/login' || pathname === '/register') {
+            return response;
+        }
+
+        return NextResponse.redirect(new URL('/login', request.url));
+    }
+
+    if (pathname.startsWith('/admin')) {
+        if (user?.role !== 'ADMIN') {
+            return NextResponse.redirect(new URL('/login', request.url));
+        }
+    }
+
+    if (pathname === '/login' || pathname === '/register') {
+        return NextResponse.redirect(new URL('/', request.url));
+    }
+    if (user) {
+        response.cookies.set('user-session-token', token, { httpOnly: true }); // Thay đổi tên cookie
+    }
+
+    return response;
 }
+
+export const config = {
+    matcher: [
+        '/((?!_next/static|_next/image|js|css|images|favicon.ico).*)',
+        // '/admin'
+    ],
+};

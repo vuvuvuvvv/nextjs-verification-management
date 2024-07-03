@@ -3,7 +3,7 @@
 import layout from "@styles/scss/layouts/home-layout.module.scss";
 
 // Import Sidebar
-import Sidebar from "@/ui/sidebar";
+import Sidebar from "@ui/sidebar";
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
@@ -16,10 +16,10 @@ import {
     from '@fortawesome/free-solid-svg-icons';
 import Link from "next/link";
 
-import { useUser } from "@/context/user-context";
+// import { useUser } from "@/context/user-context";
 
 import React, { useCallback } from "react";
-import { logout } from "@/app/api/auth/logout/route";
+// import { logout } from "@/app/api/auth/logout/route";
 import { useRouter } from "next/navigation";
 
 interface NavbarProps {
@@ -30,12 +30,12 @@ interface NavbarProps {
 const Navbar: React.FC<NavbarProps> = ({ className }) => {
     const router = useRouter();
 
-    const { user, loading } = useUser();
+    // const { user, loading } = useUser();
 
-    console.log(user);
+    // console.log(user);
 
     const handleLogout = useCallback(async () => {
-        await logout();
+        // await logout();
         router.push("/login");
     }, [router]);
 

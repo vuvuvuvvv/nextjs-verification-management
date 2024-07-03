@@ -3,8 +3,8 @@ import Cookies from 'js-cookie';
 import path from 'path';
 import { logout } from './auth/logout/route';
 
-const BASE_URL = process.env.BASE_URL;
-const API_URL = `${BASE_URL}/api`;
+const NEXT_API_URL = process.env.NEXT_API_URL;
+const API_URL = `${NEXT_API_URL}`;
 
 const api = axios.create({
     baseURL: API_URL, // Thiết lập baseURL cho instance axios

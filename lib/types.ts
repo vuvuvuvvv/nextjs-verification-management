@@ -9,3 +9,11 @@ export interface RegisterCredentials {
     password: string;
     email: string;
 }
+
+
+export interface User {
+    id: number;
+    username: string;
+    email: string;
+    role: string;
+}

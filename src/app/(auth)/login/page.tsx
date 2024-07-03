@@ -1,5 +1,5 @@
 import { Metadata } from 'next'
-import LoginForm from '@/app/(auth)/login/LoginForm';
+import LoginForm from './LoginForm';
 import layout from "@styles/scss/ui/auth.module.scss";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faGoogle } from '@fortawesome/free-brands-svg-icons';
