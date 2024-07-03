@@ -30,14 +30,9 @@ interface NavbarProps {
 const Navbar: React.FC<NavbarProps> = ({ className }) => {
     const router = useRouter();
 
-    const { user, loading } = useUser();
+    const { user, loading, logoutUser } = useUser();
 
-    console.log(user);
-
-    const handleLogout = useCallback(async () => {
-        await logout();
-        router.push("/login");
-    }, [router]);
+    // console.log(cookieUser.username);
 
     return (
         <nav id={layout["navbar"]} className={`container-fluid ${className ? className : ""}`}>
@@ -96,7 +91,7 @@ const Navbar: React.FC<NavbarProps> = ({ className }) => {
                                 <FontAwesomeIcon icon={faMailBulk}></FontAwesomeIcon>
                                 Đổi Email
                             </a>
-                            <button onClick={handleLogout} className={`dropdown-item ${layout['dD_item']}`}>
+                            <button onClick={logoutUser} className={`dropdown-item ${layout['dD_item']}`}>
                                 <FontAwesomeIcon icon={faSignOut}></FontAwesomeIcon>
                                 Đăng xuất
                             </button>

@@ -1,48 +1,77 @@
 import axios from 'axios';
 import Cookies from 'js-cookie';
-import path from 'path';
 import { logout } from './auth/logout/route';
 
-const BASE_URL = process.env.BASE_URL;
-const API_URL = `${BASE_URL}/api`;
+const API_URL = process.env.NEXT_PUBLIC_URL;
+const API_AUTH_URL = `${process.env.NEXT_PUBLIC_API_URL}/auth`;
+let isLoggingOut = false; // Biến cờ toàn cục
+let isRefreshing = false;
+let refreshSubscribers: ((token: string) => void)[] = [];
 
 const api = axios.create({
-    baseURL: API_URL, // Thiết lập baseURL cho instance axios
+    baseURL: API_URL,
 });
 
 api.interceptors.request.use(config => {
-    const token = Cookies.get('accessToken'); // Lấy giá trị accessToken từ cookies
+    const token = Cookies.get('accessToken');
     if (token) {
-        config.headers.Authorization = `Bearer ${token}`; // Thêm Authorization header vào config của request
+        config.headers.Authorization = `Bearer ${ token }`;
     }
-    return config; // Trả về config đã được chỉnh sửa để tiếp tục thực hiện yêu cầu
+    return config;
 });
 
-
 api.interceptors.response.use(
-    response => response, // Nếu yêu cầu thành công, trả về response nguyên thủy
-    async error => { // Nếu có lỗi xảy ra
-        const originalRequest = error.config; // Lưu trữ yêu cầu gốc
-        if (error.response.status === 401 && !originalRequest._retry) { // Nếu lỗi là 401 Unauthorized và chưa thử lại
-            originalRequest._retry = true; // Đánh dấu là đã thử lại
-            try {
-                const refreshToken = Cookies.get('refreshToken'); // Lấy refreshToken từ cookies
-                const response = await axios.post(`${API_URL}/refresh`, {}, { // Gửi yêu cầu refresh token
-                    headers: {
-                        'Authorization': `Bearer ${refreshToken}` // Gửi refreshToken trong Authorization header
-                    },
+    response => response,
+    async error => {
+        const originalRequest = error.config;
+        if (error.response.status === 401 && !originalRequest._retry) {
+            if (isRefreshing) {
+                return new Promise((resolve, reject) => {
+                    refreshSubscribers.push((token: string) => {
+                        originalRequest.headers.Authorization = `Bearer ${token}`;
+                        resolve(axios(originalRequest));
+                    });
                 });
-                Cookies.set('accessToken', response.data.access_token); // Lưu accessToken mới vào cookies
-                originalRequest.headers.Authorization = `Bearer ${response.data.access_token}`; // Cập nhật Authorization header cho yêu cầu gốc
-                return axios(originalRequest); // Thử lại yêu cầu gốc với accessToken mới
-            } catch (e) {
-                logout(); // Đăng xuất người dùng (xóa cookies)
-                window.location.href = '/login'; // Chuyển hướng đến trang đăng nhập
+            }
+
+            originalRequest._retry = true;
+            isRefreshing = true;
+
+            const refreshToken = Cookies.get('refreshToken');
+            if (!refreshToken) {
+                logout();
+                window.location.href = '/login';
+                return Promise.reject(error);
+            }
+
+            try {
+                const response = await axios.post(`${API_AUTH_URL}/refresh`, {}, {
+                    headers: {
+                        'Authorization': `Bearer ${refreshToken}`
+                    },
+                    withCredentials: true
+                });
+
+                const newAccessToken = response.data.access_token;
+                Cookies.set('accessToken', newAccessToken);
+
+                api.defaults.headers.common['Authorization'] = `Bearer ${newAccessToken}`;
+                originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
+
+                refreshSubscribers.forEach(callback => callback(newAccessToken));
+                refreshSubscribers = [];
+                isRefreshing = false;
+
+                return axios(originalRequest);
+            } catch (err) {
+                logout();
+                window.location.href = '/login';
+                return Promise.reject(err);
             }
         }
-        return Promise.reject(error); // Nếu không phải lỗi 401 Unauthorized, reject promise với lỗi
+
+        return Promise.reject(error);
     }
 );
-
 
 export default api;

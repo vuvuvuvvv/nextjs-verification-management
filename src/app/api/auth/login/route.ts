@@ -2,19 +2,20 @@ import Cookies from 'js-cookie';
 import api from '../../route';
 import { LoginCredentials } from '@lib/types';
 
-const API_AUTH_URL = `${process.env.BASE_URL}/api/auth`;
+const API_AUTH_URL = `${process.env.NEXT_PUBLIC_API_URL}/auth`;
 
 export const login = async (credentials: LoginCredentials) => {
 
     try {
 
-        const response = await api.post(`${API_AUTH_URL}/login`, credentials);
+        const response = await api.post(`${API_AUTH_URL}/login`, credentials, { withCredentials: true });
 
-        if (response.data.access_token) {
-            Cookies.set('accessToken', response.data.access_token);
-            Cookies.set('refreshToken', response.data.refresh_token);
+        if (response.status == 200) {
+            Cookies.set('accessToken', response.data.access_token, { expires: 1 }); // Set cookie with expiration
+            Cookies.set('refreshToken', response.data.refresh_token, { expires: 7 }); // Set cookie with expiration
+            Cookies.set('user', JSON.stringify(response.data.user), { expires: 7 }); // Set cookie with expiration
         }
-        return response.data;
+        return response;
 
     } catch (error: any) {
         if (error.response?.data?.msg) {
