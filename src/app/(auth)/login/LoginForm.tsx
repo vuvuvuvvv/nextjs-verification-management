@@ -48,14 +48,14 @@ export default function LoginForm({ className }: FormProps) {
             const response = await login(credentials);
             if (response.status == 200) {
                 router.push('/');
-                setResponse(response);
+            } else if (response.status == 401) {
+                setError("Tài khoản hoặc mật khẩu không chính xác!");
             } else {
-                setResponse(response);
-                setError(response.msg);
+                setError("Đã có lỗi xảy ra. Vui lòng thử lại!");
             }
         } catch (err) {
             console.log(err);
-            setError("Something went wrong! Please try again.");
+            setError("Đã có lỗi xảy ra. Vui lòng thử lại!");
         }
     };
 

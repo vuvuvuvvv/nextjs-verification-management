@@ -3,16 +3,15 @@ import type { NextRequest } from 'next/server';
 import { getMe } from './app/api/auth/get-me/route';
 
 export async function middleware(req: NextRequest) {
-    const tokenCookie = req.cookies.get('accessToken');
+    const tokenCookie = req.cookies.get('accessToken')?.value;
 
     const allCookies = req.cookies.getAll()
-    console.log(allCookies)
+    console.log("all cookie: ", allCookies);
 
     if (!tokenCookie) {
         return NextResponse.redirect(`${req.nextUrl.origin}/login`);
     } else {
         // try {
-        //     const response = await getMe();
 
         //     if (response.status === 200) {
         //         console.log("a")

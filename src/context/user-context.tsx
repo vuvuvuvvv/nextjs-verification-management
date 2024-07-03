@@ -2,9 +2,12 @@
 
 // context/user-context.tsx
 import React, { createContext, useContext, useEffect, useState } from 'react';
+import Cookies from 'js-cookie';
+import { logout } from '@/app/api/auth/logout/route';
 
 // Define user type
 export interface User {
+    id: number;
     username: string;
     email: string;
     role: string;
@@ -15,6 +18,7 @@ export type UserContextType = {
     user: User | null;
     loading: boolean;
     updateUser: (updatedUser: User | null) => void;
+    logoutUser:  () => void;
 };
 
 // Create context
@@ -26,15 +30,35 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        setLoading(false);
-    }, [user]);
+        const getUserFromCookie = Cookies.get('user');
+        if (getUserFromCookie) {
+            const cookieUser: User = JSON.parse(getUserFromCookie);
+            setUser(cookieUser);
+            setLoading(false);
+        } else {
+            logoutUser();
+        }
+    }, []);
 
     const updateUser = (updatedUser: User | null) => {
         setUser(updatedUser);
+        if (updatedUser) {
+            Cookies.set('user', JSON.stringify(updatedUser));
+        } else {
+            Cookies.remove('user');
+        }
     };
 
-    return (
-        <UserContext.Provider value={{ user, loading, updateUser }}>
+    const logoutUser = async () => {
+        const res = await logout();
+        if (typeof res !== 'object' || res.status !== 200) {
+            console.log("error logout");
+        }
+    };
+    return (loading) ? (
+        <div>Loading...</div>
+    ) : (
+        <UserContext.Provider value={{ user, loading, updateUser, logoutUser }}>
             {children}
         </UserContext.Provider>
     );
