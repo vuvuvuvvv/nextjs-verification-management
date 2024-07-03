@@ -1,20 +1,24 @@
 import Cookies from 'js-cookie';
-import api from '../../route';
+import axios from 'axios';
 import { LoginCredentials } from '@lib/types';
+import { getMe } from '../route';
 
-const API_AUTH_URL = `${process.env.BASE_URL}/api/auth`;
+const API_AUTH_URL = `${process.env.NEXT_PUBLIC_API_URL}/auth`;
 
 export const login = async (credentials: LoginCredentials) => {
 
     try {
+        console.log(API_AUTH_URL);
+        const response = await axios.post(`${API_AUTH_URL}/login`, credentials, {withCredentials: true});
+        // const response = await axios.post(`${API_AUTH_URL}/logout`, {}, {withCredentials: true});
+        console.log("Res login: ",response);
 
-        const response = await api.post(`${API_AUTH_URL}/login`, credentials);
-
-        if (response.data.access_token) {
-            Cookies.set('accessToken', response.data.access_token);
-            Cookies.set('refreshToken', response.data.refresh_token);
+        if(response.status === 200) {
+            const res = await getMe();
+            console.log(res);
         }
-        return response.data;
+
+        // return response.data;
 
     } catch (error: any) {
         if (error.response?.data?.msg) {

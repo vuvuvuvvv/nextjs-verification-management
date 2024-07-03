@@ -9,7 +9,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faGoogle } from '@fortawesome/free-brands-svg-icons';
 import { faEnvelope, faLock, faUser } from '@fortawesome/free-solid-svg-icons';
 
-import { register } from '@/app/api/auth/register/route';
+import { register } from '@api/auth/route';
 
 import { RegisterCredentials } from '@lib/types';
 

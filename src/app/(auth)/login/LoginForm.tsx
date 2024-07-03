@@ -6,11 +6,11 @@ import { useRouter } from 'next/navigation';
 import layout from "@styles/scss/layouts/auth-layout.module.scss";
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faGoogle } from '@fortawesome/free-brands-svg-icons';
+
 import Link from 'next/link';
 import { faLock, faUser } from '@fortawesome/free-solid-svg-icons';
 
-import { login } from '@/app/api/auth/login/route';
+import { login } from '@api/auth/route';
 
 import { LoginCredentials } from '@lib/types';
 
@@ -46,6 +46,7 @@ export default function LoginForm({ className }: FormProps) {
 
         try {
             const response = await login(credentials);
+            console.log(response);
             if (response.status == 200) {
                 router.push('/');
                 setResponse(response);

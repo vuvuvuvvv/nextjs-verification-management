@@ -1,5 +1,7 @@
 "use client"
 
+import { getMe } from '@/app/api/auth/route';
+import { useRouter } from 'next/navigation';
 // context/user-context.tsx
 import React, { createContext, useContext, useEffect, useState } from 'react';
 
@@ -26,17 +28,36 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        setLoading(false);
-    }, [user]);
+        const fetchUser = async () => {
+            try {
+                const response = await getMe();
+                if (response && response.status == 200 && 'data' in response) {
+                    setUser(response.data);
+                } else {
+                    useRouter().push('/logout');
+                    setUser(null);
+                }
+            } catch (error) {
+                useRouter().push('/logout');
+                setUser(null);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchUser();
+    }, []);
 
     const updateUser = (updatedUser: User | null) => {
         setUser(updatedUser);
     };
 
-    return (
+    return !loading ? (
         <UserContext.Provider value={{ user, loading, updateUser }}>
             {children}
         </UserContext.Provider>
+    ) : (
+        <>Loading...</>
     );
 };
 

@@ -1,23 +1,22 @@
 import Cookies from 'js-cookie';
-import api from '../../route';                 // use instance
+import axios from 'axios';
 
-const API_AUTH_URL = `${process.env.BASE_URL}/api/auth`;
+// import api from '../../route';                 // use instance
+
+const API_AUTH_URL = `${process.env.NEXT_PUBLIC_API_URL}/auth`;
 
 export const getMe = async () => {
     try {
-        const response = await api.get(`${API_AUTH_URL}/me`);
-        return response.data;
+        const response = await axios.get(`${API_AUTH_URL}/me`, {withCredentials: true});
+        console.log("response: ", response);
+        // if(response.status == 200 && 'data' in response) {
+        //     return response.data;
+        // } else {
+        //     return null;
+        // }
+
+        return response;
     } catch (error: any) {
-        if (error.response?.data?.msg) {
-            return {
-                "status": error.response.data.msg,
-                "msg": error.response.data.msg || 'Error!'
-            };
-        } else {
-            return {
-                "status": null,
-                "msg": 'Có lỗi đã xảy ra. Hãy thử lại!'
-            };
-        }
+        return null
     }
 };

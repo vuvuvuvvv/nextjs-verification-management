@@ -1,13 +1,14 @@
-// import axios from 'axios';
-import api from '../../route';
+import axios from 'axios';
 import Cookies from 'js-cookie';
 
-const API_AUTH_URL = `${process.env.BASE_URL}/api/auth`;
+const API_AUTH_URL = `${process.env.NEXT_PUBLIC_API_URL}/auth`;
 
 export const logout = async () => {
-    const response = await api.post(`${API_AUTH_URL}/logout`);
+    const response = await axios.post(`${API_AUTH_URL}/logout`);
+    console.log(response);
     if (response.status == 200) {
-        Cookies.remove('accessToken');
-        Cookies.remove('refreshToken');
+        // Remove cookie
+        // Cookies.remove('accessToken');
+        // Cookies.remove('refreshToken');
     }
 };
