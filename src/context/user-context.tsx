@@ -18,7 +18,7 @@ export type UserContextType = {
     user: User | null;
     loading: boolean;
     updateUser: (updatedUser: User | null) => void;
-    logoutUser:  () => void;
+    logoutUser: () => void;
 };
 
 // Create context
@@ -32,9 +32,13 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
     useEffect(() => {
         const getUserFromCookie = Cookies.get('user');
         if (getUserFromCookie) {
-            const cookieUser: User = JSON.parse(getUserFromCookie);
-            setUser(cookieUser);
-            setLoading(false);
+            try {
+                const cookieUser: User = JSON.parse(getUserFromCookie);
+                setUser(cookieUser);
+                setLoading(false);
+            } catch (error) {
+                logoutUser();
+            }
         } else {
             logoutUser();
         }
@@ -42,11 +46,6 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
     const updateUser = (updatedUser: User | null) => {
         setUser(updatedUser);
-        if (updatedUser) {
-            Cookies.set('user', JSON.stringify(updatedUser));
-        } else {
-            Cookies.remove('user');
-        }
     };
 
     const logoutUser = async () => {
@@ -62,6 +61,9 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
             {children}
         </UserContext.Provider>
     );
+    return <UserContext.Provider value={{ user, loading, updateUser, logoutUser }}>
+        {children}
+    </UserContext.Provider>;
 };
 
 // Custom hook to use UserContext

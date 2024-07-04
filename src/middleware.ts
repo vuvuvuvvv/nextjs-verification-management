@@ -1,41 +1,68 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 import { getMe } from './app/api/auth/get-me/route';
+import { logout } from './app/api/auth/logout/route';
+
+const ADMIN_ROLE = 'ADMIN';
+const CUSTOM_404_PATH = '/404'; // Đường dẫn cho trang 404 tùy chỉnh
+const CUSTOM_500_PATH = '/500'; // Đường dẫn cho trang 500 tùy chỉnh
+
+const ADMIN_PATHS = ['/admin'];
+const UNPROTECTED_PATHS = [
+    '/login',
+    '/register'
+];
+const PROTECTED_PATHS = [
+    '/reset/email',
+    '/reset/password'
+];// Thêm các đường dẫn hợp lệ khác
+
+const ERROR_PATHS = [CUSTOM_404_PATH, CUSTOM_500_PATH];
+const VALID_PATHS = [
+    ...ADMIN_PATHS,
+    ...UNPROTECTED_PATHS,
+    ...PROTECTED_PATHS,
+    ...ERROR_PATHS,
+    "/about",
+    "/"
+];
+
 
 export async function middleware(req: NextRequest) {
     const tokenCookie = req.cookies.get('accessToken')?.value;
+    const refreshTokenCookie = req.cookies.get('refreshToken')?.value;
+    const userCookie = req.cookies.get('user')?.value;
+    const { pathname } = req.nextUrl;
 
-    const allCookies = req.cookies.getAll()
-    console.log("all cookie: ", allCookies);
+    if(!tokenCookie && !refreshTokenCookie && !userCookie) {
+        if (UNPROTECTED_PATHS.includes(pathname)) {
+            return NextResponse.next();
+        }
+        logout();
+    }
 
-    if (!tokenCookie) {
-        return NextResponse.redirect(`${req.nextUrl.origin}/login`);
-    } else {
-        // try {
+    try {
+        const user = userCookie ? JSON.parse(userCookie) : null;
+        if (ADMIN_PATHS.includes(pathname) && user?.role !== ADMIN_ROLE) {
+            return NextResponse.redirect(new URL('/login', req.url));
+        }
 
-        //     if (response.status === 200) {
-        //         console.log("a")
-        //         const user = response.user;
+        if (UNPROTECTED_PATHS.includes(pathname)) {
+            return NextResponse.redirect(new URL('/', req.url));
+        }
 
-        //         // if (req.nextUrl.pathname.startsWith('/admin') && user.role !== 'ADMIN') {
-        //         //     return NextResponse.redirect(req.nextUrl.origin);   // to "/"
-        //         // }
-        //         return NextResponse.next();
-        //     } else {
-        //         console.log("b")
-        //         // Handle case when the getMe request fails (non-200 status code)
-        //         return NextResponse.redirect(`${req.nextUrl.origin}/login`);
-        //     }
-        // } catch (error) {
-        //     console.log("c")
-        //     // Handle any other errors
-        //     console.error('Error fetching user data:', error);
-        //     return NextResponse.redirect(`${req.nextUrl.origin}/login`);
-        // }
+        if (!VALID_PATHS.includes(pathname)) {
+            return NextResponse.redirect(new URL(CUSTOM_404_PATH, req.url));
+        }
+
         return NextResponse.next();
+    } catch (error) {
+        logout();
     }
 }
 
 export const config = {
-    matcher: ['/', '/about', '/admin'],
+    matcher: [
+        '/((?!_next/static|_next/image|js|css|images|favicon.ico).*)',
+    ],
 }

@@ -1,16 +1,15 @@
 import Cookies from 'js-cookie';
-// import api from '@/app/api/route';
-import axios from 'axios';
-import { LoginCredentials } from '@lib/types';
+import api from '@/app/api/route';
+import { logout } from '../../logout/route';
+import { ResetEmailCredentials } from '@lib/types';
+import { useUser } from '@/context/user-context';
 
 const API_AUTH_URL = `${process.env.NEXT_PUBLIC_API_URL}/auth`;
 
-export const login = async (credentials: LoginCredentials) => {
+export const resetEmail = async (credentials: ResetEmailCredentials) => {
 
     try {
-
-        const response = await axios.post(`${API_AUTH_URL}/login`, credentials, { withCredentials: true });
-
+        const response = await api.post(`${API_AUTH_URL}/reset/email`, credentials, { withCredentials: true });
         if (response.data.access_token && response.data.user && response.data.refresh_token) {
             Cookies.set('accessToken', response.data.access_token, { expires: 1 });
             Cookies.set('user', JSON.stringify(response.data.user), { expires: 7 });
@@ -18,7 +17,7 @@ export const login = async (credentials: LoginCredentials) => {
             
             return {
                 "status": response.status,
-                "msg": response.data.msg || "Đăng nhập thành công!",
+                "msg": response.data.msg || "Email của bạn đã được đổi!",
                 "user": response.data.user
             }
         } else {
@@ -29,11 +28,12 @@ export const login = async (credentials: LoginCredentials) => {
             }
         }
 
+
     } catch (error: any) {
         if (error.response?.data?.msg) {
             return {
                 "status": error.response.status,
-                "msg": error.response.data.msg || 'Lỗi đăng nhập!'
+                "msg": error.response.data.msg || 'Thay đổi email thất bại!'
             };
         } else {
             return {

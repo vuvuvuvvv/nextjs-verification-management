@@ -14,6 +14,7 @@
     "@fortawesome/free-solid-svg-icons": "^6.5.2",
     "@fortawesome/react-fontawesome": "^0.2.2",
     "@types/jsonwebtoken": "^9.0.6",
+    "animate.css": "^4.1.1",
     "axios": "^1.7.2",
     "bootstrap": "^5.3.3",
     "cookies-next": "^4.2.1",
@@ -26,7 +27,8 @@
     "react": "^18",
     "react-bootstrap": "^2.10.3",
     "react-dom": "^18",
-    "sass": "^1.77.6"
+    "sass": "^1.77.6",
+    "sweetalert2": "^11.12.1"
   },
   "devDependencies": {
     "@types/js-cookie": "^3.0.6",

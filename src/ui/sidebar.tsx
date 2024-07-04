@@ -82,7 +82,7 @@ export default function Sidebar({
 
                 <ul className={`w-100 ${sb['nav-menu']}`}>
                     <li className={`${sb['nav-item']}`}>
-                        <Link href={"#"} className={`btn ${sb['nav-link']}`}>
+                        <Link href={"/"} className={`btn ${sb['nav-link']}`}>
                             <span className={`${sb['nl-icon']}`}>
                                 <FontAwesomeIcon icon={faHome} />
                             </span>

@@ -4,12 +4,12 @@ import { logout } from './auth/logout/route';
 
 const API_URL = process.env.NEXT_PUBLIC_URL;
 const API_AUTH_URL = `${process.env.NEXT_PUBLIC_API_URL}/auth`;
-let isLoggingOut = false; // Biến cờ toàn cục
 let isRefreshing = false;
 let refreshSubscribers: ((token: string) => void)[] = [];
 
 const api = axios.create({
     baseURL: API_URL,
+    withCredentials: true, 
 });
 
 api.interceptors.request.use(config => {
@@ -54,6 +54,7 @@ api.interceptors.response.use(
 
                 const newAccessToken = response.data.access_token;
                 Cookies.set('accessToken', newAccessToken);
+                Cookies.set('user', JSON.stringify(response.data.user));
 
                 api.defaults.headers.common['Authorization'] = `Bearer ${newAccessToken}`;
                 originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
@@ -65,7 +66,7 @@ api.interceptors.response.use(
                 return axios(originalRequest);
             } catch (err) {
                 logout();
-                window.location.href = '/login';
+                // window.location.href = '/login';
                 return Promise.reject(err);
             }
         }
