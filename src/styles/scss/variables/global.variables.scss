@@ -2,18 +2,22 @@
 $grey: #757c82;
 $dark-blue: #305680;
 $blue: #0980de;
+$light-blue: #78c6fd;
 
 /* Layout variables */
 // Navbar
 $nav_height: 60px;
-$nav_bg_color: #f5f5f5;
+// $nav_bg_color: #f5f5f5;
+$nav_bg_color: $blue;
+$nav_text_color: #fff !important;
 
 // Body
-$body_bg_color: #E4E9F7;
+$body_bg_color: #f0f2f5;
 
 // Footer
 $footer_height: 40px;
-$footer_bg_color: #f5f5f5;
+// $footer_bg_color: #f5f5f5;
+$footer_bg_color: $blue;
 
 $screen_break_point: 1200px;
 /* End layout */

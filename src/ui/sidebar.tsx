@@ -25,6 +25,7 @@ import Link from 'next/link';
 interface SidebarProps {
     // "?" can be undefind
     className?: string;
+    title?: string;
 }
 
 interface CollapseState {
@@ -32,7 +33,8 @@ interface CollapseState {
 };
 
 export default function Sidebar({
-    className
+    className,
+    title
 }: SidebarProps) {
     const [show, setShow] = useState(false);
 
@@ -49,19 +51,19 @@ export default function Sidebar({
     };
 
     return <>
-        <button className={`bg-transparent d-xl-none`} onClick={toggleOpen}>
+        <button className={`bg-transparent d-xl-none ${sb['btn-toggle']}`} onClick={toggleOpen}>
             <FontAwesomeIcon icon={faBars} fontSize={24}></FontAwesomeIcon>
         </button>
         {show && (
             <div className={`${sb['sb-backdrop']}`} onClick={() => setShow(!show)}></div>
         )}
-        <div className={`${sb['wrap-sidebar']} ${className ? className : ""} ${show ? sb["sb-show"] : ""}`}>
-            <div className={`${sb['sb-header']}`}>
+        <div className={`${sb['wrap-sidebar']} ${className ? className : ""} ${show ? sb["sb-show"] : ""} border-end`}>
+            <div className={`${sb['sb-header']} border-bottom`}>
                 <Offcanvas.Title className={sb['sb-title']}>
                     <img src="/images/favicon.png" alt="profileImg" />
-                    Sidebar
+                    {title ? title : ""}
                 </Offcanvas.Title>
-                <button onClick={toggleOpen} className={`btn ${''}`}>
+                <button onClick={toggleOpen} className={`btn border-0 shadow-0 ${''}`}>
                     <FontAwesomeIcon icon={faTimes} fontSize={24}></FontAwesomeIcon>
                 </button>
             </div>
@@ -90,7 +92,7 @@ export default function Sidebar({
                         </Link>
                     </li>
                     <li className={`${sb['nav-item']}`}>
-                        <Link href={"#"} className={`btn ${sb['nav-link']}`}>
+                        <Link href={"/kiem-dinh/dong-ho-nuoc"} className={`btn ${sb['nav-link']}`}>
                             <span className={`${sb['nl-icon']}`}>
                                 <FontAwesomeIcon icon={faEdit} />
                             </span>

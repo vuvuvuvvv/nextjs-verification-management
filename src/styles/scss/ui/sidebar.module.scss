@@ -5,6 +5,10 @@
         left: -100%;
         top: 0 !important;
         height: calc($sb_height + $nav_height + $footer_height) !important;
+
+        .sb-body {
+            overflow-y: auto !important;
+        }
     }
 }
 
@@ -48,6 +52,10 @@
     }
 }
 
+.btn-toggle {
+    color: $nav_text_color;
+}
+
 .wrap-sidebar {
     width: $sb_width !important;
     background-color: $sb_bg_color;
@@ -58,6 +66,7 @@
     height: $sb_height;
     transition: 0.5s all ease;
     z-index: 999;
+    
 
     svg {
         color: $sb_text_color;
@@ -88,7 +97,6 @@
     .sb-body {
         width: 100%;
         height: $sb_body_height;
-        overflow: unset;
         padding: 0;
         margin: 0;
         position: relative;

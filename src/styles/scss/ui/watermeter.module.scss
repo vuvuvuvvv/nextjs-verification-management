@@ -1,0 +1,49 @@
+@import "@styles/scss/variables/global.variables.scss";
+
+.wraper {
+    label {
+        font-size: 18px;
+        margin: 0;
+    }
+
+    .search-seri {
+        border: none;
+
+        input {
+            margin: 8px 0;
+
+            &:focus {
+                box-shadow: none !important;
+            }
+        }
+    }
+
+    #process-tab {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border: none;
+
+        .active {
+            background-color: #fff !important;
+            color: #000 !important;
+        }
+
+        .nav-link {
+            flex: 1;
+            font-size: 18px;
+            transition: 0.3s all ease;
+            padding: 10px 0;
+            background-color: $light-blue;
+            color: $grey
+        }
+    }
+
+    #process-tab-content {
+        background-color: #fff;
+
+        .tab-content {
+            transition: 0.3s all ease;
+        }
+    }
+}

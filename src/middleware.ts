@@ -14,8 +14,9 @@ const UNPROTECTED_PATHS = [
 ];
 const PROTECTED_PATHS = [
     '/reset/email',
-    '/reset/password'
-];// Thêm các đường dẫn hợp lệ khác
+    '/reset/password',
+    '/kiem-dinh/dong-ho-nuoc'
+];
 
 const ERROR_PATHS = [CUSTOM_404_PATH, CUSTOM_500_PATH];
 const VALID_PATHS = [

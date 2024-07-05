@@ -10,6 +10,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faEnvelope, faLock } from '@fortawesome/free-solid-svg-icons';
 import Swal from 'sweetalert2';
 import { useUser } from '@/context/user-context';
+import Head from 'next/head';
 
 interface FormProps {
     className?: string
