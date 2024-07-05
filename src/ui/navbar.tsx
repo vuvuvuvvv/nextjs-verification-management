@@ -1,6 +1,6 @@
 "use client"
 // Import Layout css
-import layout from "@styles/scss/layouts/home-layout.module.scss";
+import layout from "@styles/scss/ui/navbar.module.scss";
 
 // Import Sidebar
 import Sidebar from "@/ui/sidebar";
@@ -35,7 +35,7 @@ const Navbar: React.FC<NavbarProps> = ({ className }) => {
     // console.log(cookieUser.username);
 
     return (
-        <nav id={layout["navbar"]} className={`container-fluid ${className ? className : ""}`}>
+        <nav id={layout["navbar"]} className={`container-fluid sticky-top ${className ? className : ""}`}>
             <div className="row m-0 p-0 w-100 d-flex align-items-center justify-content-between">
                 <div className="col-6 d-flex align-items-center justify-content-start gap-1">
                     <Sidebar></Sidebar>
@@ -50,7 +50,7 @@ const Navbar: React.FC<NavbarProps> = ({ className }) => {
                     <div className={`dropdown ${layout["dD_account"]}`}>
                         <button className={`${layout["dD_button"]} btn dropdown-toggle`} type="button" data-bs-toggle="dropdown" aria-expanded="false">
                             <FontAwesomeIcon icon={faUser} fontSize={24}></FontAwesomeIcon>
-                            <span className={`${layout['p_name']} d-none d-sm-block`}>admin@gmail.com</span>
+                            <span className={`${layout['p_name']} d-none d-sm-block`}>{user?.username}</span>
                         </button>
 
                         <div className={`${layout['dD_menu']} dropdown-menu border-0 shadow`}>
@@ -64,30 +64,30 @@ const Navbar: React.FC<NavbarProps> = ({ className }) => {
                                             <tr className="d-sm-none">
                                                 <th>Name:</th>
                                                 <td>
-                                                    <span className={`${layout['b_name']}`}>Admin</span>
+                                                    <span className={`${layout['b_name']}`}>{user?.username}</span>
                                                 </td>
                                             </tr>
                                             <tr>
                                                 <th>Email:</th>
                                                 <td>
-                                                    <span className={`${layout['b_email']}`}>admin@gmail.com</span>
+                                                    <span className={`${layout['b_email']}`}>{user?.email}</span>
                                                 </td>
                                             </tr>
                                             <tr>
                                                 <th>Role:</th>
                                                 <td>
-                                                    <span className={`${layout['b_role']}`}>Admin</span></td>
+                                                    <span className={`${layout['b_role']}`}>{user?.role}</span></td>
                                             </tr>
                                         </tbody>
                                     </table>
                                 </div>
                             </div>
                             <hr className="my-2" />
-                            <a href="#" className={`dropdown-item ${layout['dD_item']}`}>
+                            <a href="/reset/password" className={`dropdown-item ${layout['dD_item']}`}>
                                 <FontAwesomeIcon icon={faKey}></FontAwesomeIcon>
                                 Đổi mật khẩu
                             </a>
-                            <a href="#" className={`dropdown-item ${layout['dD_item']}`}>
+                            <a href="/reset/email" className={`dropdown-item ${layout['dD_item']}`}>
                                 <FontAwesomeIcon icon={faMailBulk}></FontAwesomeIcon>
                                 Đổi Email
                             </a>

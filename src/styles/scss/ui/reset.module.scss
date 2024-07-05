@@ -1,0 +1,26 @@
+@import "@styles/scss/variables/global.variables.scss";
+
+.form {
+    div {
+        position: relative !important;
+    }
+
+    input[type=text],
+    input[type=password],
+    input[type=email] {
+        padding-left: 40px !important;
+        height: 46px;
+
+        &::placeholder {
+            color: $grey;
+        }
+    }
+
+    .placeholder-icon {
+        position: absolute !important;
+        bottom: 15px;
+        width: 20px;
+        left: 13px;
+        color: $blue;
+    }
+}

@@ -4,6 +4,7 @@ const inter = Inter({ subsets: ["latin"] });
 
 // Import global css
 import "@styles/scss/globals.scss";
+import 'animate.css';
 
 // Import Bootstrap v5.3.3
 import 'bootstrap/dist/css/bootstrap.min.css';
@@ -14,8 +15,6 @@ import '@lib/fontawesome';
 import '@fortawesome/fontawesome-svg-core/styles.css';
 import { config } from '@fortawesome/fontawesome-svg-core';
 config.autoAddCss = false;
-
-// import { UserProvider } from "@/context/user-context";
 
 export default function RootLayout({
     children,
@@ -29,9 +28,7 @@ export default function RootLayout({
                 <script src="/js/bootstrap.bundle.min.js"></script>
             </head>
             <body className={`${inter.className}`}>
-                {/* <UserProvider> */}
-                    {children}
-                {/* </UserProvider> */}
+                {children}
                 <footer className={`shadow w-100 d-flex align-items-center text-center justify-content-center`}>
                     Copyright @ 2024 by 404 Notfound
                 </footer>

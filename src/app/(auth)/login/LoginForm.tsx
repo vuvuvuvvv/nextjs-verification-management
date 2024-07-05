@@ -11,7 +11,7 @@ import Link from 'next/link';
 import { faLock, faUser } from '@fortawesome/free-solid-svg-icons';
 
 import { login } from '@/app/api/auth/login/route';
-
+import Swal from 'sweetalert2';
 import { LoginCredentials } from '@lib/types';
 
 interface FormProps {
@@ -23,16 +23,36 @@ export default function LoginForm({ className }: FormProps) {
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
 
-    const [response, setResponse] = useState(null);
-
     const [error, setError] = useState("");
     const router = useRouter();
 
     useEffect(() => {
-        if (response) {
-            console.log(response);
+        if (error) {
+            Swal.fire({
+                icon: "error",
+                title: "Lỗi",
+                text: error,
+                showClass: {
+                    popup: `
+                    animate__animated
+                    animate__fadeInUp
+                    animate__faster
+                  `
+                },
+                hideClass: {
+                    popup: `
+                    animate__animated
+                    animate__fadeOutDown
+                    animate__faster
+                  `
+                },
+                confirmButtonColor: "#0980de",
+                confirmButtonText: "OK"
+            }).then(() => {
+                setError("");
+            });
         }
-    }, [response]);
+    }, [error]);
 
     const closeAlert = () => {
         setError("");
@@ -47,14 +67,34 @@ export default function LoginForm({ className }: FormProps) {
         try {
             const response = await login(credentials);
             if (response.status == 200) {
-                router.push('/');
+                Swal.fire({
+                    // title: "Auto close alert!",
+                    icon: "success",
+                    showClass: {
+                        popup: `
+                          animate__animated
+                          animate__fadeInUp
+                          animate__faster
+                        `
+                    },
+                    html: "Đăng nhập thành công! Đang chuyển hướng về trang chủ.",
+                    timer: 1500,
+                    // timerProgressBar: true,
+                    didOpen: () => {
+                        Swal.showLoading();
+                    },
+                }).then((result) => {
+                    if (result.dismiss === Swal.DismissReason.timer) {
+                        router.push('/');
+                    }
+                });
+                // router.push('/');
             } else if (response.status == 401) {
                 setError("Tài khoản hoặc mật khẩu không chính xác!");
             } else {
                 setError("Đã có lỗi xảy ra. Vui lòng thử lại!");
             }
         } catch (err) {
-            console.log(err);
             setError("Đã có lỗi xảy ra. Vui lòng thử lại!");
         }
     };
@@ -84,7 +124,7 @@ export default function LoginForm({ className }: FormProps) {
             <div className="mb-3">
                 <label htmlFor="password" className="form-label">Mật khẩu:</label>
                 <input
-                    type="text"
+                    type="password"
                     className="form-control py-2"
                     id="password"
                     placeholder='Nhập mật khẩu'

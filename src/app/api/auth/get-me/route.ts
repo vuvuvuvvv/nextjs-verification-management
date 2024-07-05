@@ -1,5 +1,5 @@
 import Cookies from 'js-cookie';
-import api from '../../route';
+import api from '@/app/api/route';
 
 const API_AUTH_URL = `${process.env.NEXT_PUBLIC_API_URL}/auth`;
 
@@ -14,12 +14,12 @@ export const getMe = async (accessToken: string) => {
     } catch (error: any) {
         if (error.response?.data?.msg) {
             return {
-                "status": error.response.data.msg,
+                "status": error.response.status,
                 "msg": error.response.data.msg || 'Error!'
             };
         } else {
             return {
-                "status": null,
+                "status": error.response.status,
                 "msg": 'Có lỗi đã xảy ra. Hãy thử lại!'
             };
         }

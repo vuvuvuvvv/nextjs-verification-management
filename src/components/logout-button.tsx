@@ -13,7 +13,7 @@ export default function LogoutButton({ className, children }: ButtonProps) {
     const router = useRouter();
 
     const handleLogout = useCallback(async () => {
-        await logout();
+        logout();
         router.push("/login");
     }, [router]);
 
