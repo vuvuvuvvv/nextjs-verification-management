@@ -11,6 +11,7 @@ export interface ResetPasswordCredentials {
 export interface LoginCredentials {
     username: string;
     password: string;
+    remember: boolean;
 }
 
 export interface RegisterCredentials {

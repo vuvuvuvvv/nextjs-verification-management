@@ -1,0 +1,45 @@
+@import "@styles/scss/variables/global.variables.scss";
+
+.tab-form {
+
+    .wrap-form {
+        overflow: hidden;
+        position: relative;
+
+        .tab-radio {
+            height: 60px;
+            background-color: #dadada;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 10px;
+            position: relative;
+            z-index: 3;
+        }
+
+        .active {
+            background-color: $light-blue !important;
+            color: #fff !important;
+        }
+
+        .tab-cover {
+            width: 100% !important;
+            height: 100% !important;
+            top: 0;
+            left: 0;
+            position: absolute;
+            background-color: rgba(221, 221, 221, 0.45);
+            transition: 0.3s all ease;
+            z-index: 99;
+        }
+
+        .fade {
+            z-index: 3;
+        }
+
+        .show {
+            z-index: 2;
+        }
+    }
+
+}

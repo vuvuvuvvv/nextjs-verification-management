@@ -104,14 +104,14 @@ export default function ResetEmail({ className }: FormProps) {
 
     return (
         <>
-            <h4 className='text-center'>Đổi mật khẩu</h4>
+            <h5 className='text-center'>Đổi mật khẩu</h5>
             <form className={`${className ? className : ""} ${reset['form']}`} onSubmit={handleSubmit}>
                 <div className="mb-3">
                     <label htmlFor="password" className="form-label">Mật khẩu cũ:</label>
                     <input
                         type="password"
                         className="form-control py-2"
-                        id="password"
+                        id="old-password"
                         placeholder='Nhập mật khẩu cũ'
                         value={oldPassword}
                         onChange={(e) => setOldPassword(e.target.value)}
@@ -124,7 +124,7 @@ export default function ResetEmail({ className }: FormProps) {
                     <input
                         type="password"
                         className="form-control py-2"
-                        id="password"
+                        id="new-password"
                         placeholder='Nhập mật khẩu mới'
                         value={newPassword}
                         onChange={(e) => setNewPassword(e.target.value)}

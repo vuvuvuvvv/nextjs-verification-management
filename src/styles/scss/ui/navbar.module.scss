@@ -5,7 +5,7 @@
     display: flex;
     justify-content: space-between;
     background-color: $nav_bg_color;
-    // box-shadow: 0 0 10px rgba($color: #707070, $alpha: 0.2);
+    box-shadow: $nav_box_shadow;
     color: $nav_text_color;
 
     .nav-title {

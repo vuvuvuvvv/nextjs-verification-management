@@ -12,16 +12,27 @@ export const register = async (credentials: RegisterCredentials) => {
 
         if (response.status == 200) {
             Cookies.set('accessToken', response.data.access_token, { expires: 1 });
-            Cookies.set('refreshToken', response.data.refresh_token, { expires: 7 });
-            Cookies.set('user', JSON.stringify(response.data.user), { expires: 7 });
+            Cookies.set('refreshToken', response.data.refresh_token, { expires: undefined });
+            Cookies.set('user', JSON.stringify(response.data.user), { expires: undefined });
+            
+            return {
+                "status": response.status,
+                "msg": response.data.msg || "Đăng ký thành công!",
+                "user": response.data.user
+            }
+        } else {
+            return {
+                "status": response.status,
+                "msg": response.data.msg || "Có lỗi đã xảy ra. Hãy thử lại!",
+
+            }
         }
-        return response.data;
 
     } catch (error: any) {
         if (error.response?.data?.msg) {
             return {
                 "status": error.response.status,
-                "msg": error.response.data.msg || 'Lỗi đăng k!'
+                "msg": error.response.data.msg || 'Lỗi đăng nhập!'
             };
         } else {
             return {

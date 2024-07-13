@@ -2,7 +2,7 @@
 
 @media (max-width: $screen_break_point) {
     .wrap-sidebar {
-        left: -100%;
+        left: -$sb_width;
         top: 0 !important;
         height: calc($sb_height + $nav_height + $footer_height) !important;
 
@@ -23,6 +23,7 @@
 
     .sb-backdrop {
         display: none !important;
+        // background-color: #ffffff44;
     }
 }
 
@@ -46,7 +47,8 @@
 @keyframes show {
     0% {
         opacity: 0;
-    } 
+    }
+
     100% {
         opacity: 1;
     }
@@ -66,7 +68,8 @@
     height: $sb_height;
     transition: 0.5s all ease;
     z-index: 999;
-    
+    border-top: 1px solid rgba(194, 194, 194, 0.5);
+
 
     svg {
         color: $sb_text_color;
@@ -90,6 +93,14 @@
                 object-fit: cover;
                 border-radius: 6px;
                 margin-right: 10px;
+            }
+
+            h5 {
+                display: -webkit-box;
+                -webkit-box-orient: vertical;
+                -webkit-line-clamp: 2;
+                overflow: hidden;
+                color: $dark-blue;
             }
         }
     }
@@ -115,7 +126,6 @@
             }
 
             input {
-                font-size: 15px;
                 color: $sb_text_active;
                 font-weight: 400;
                 outline: none;
@@ -139,7 +149,16 @@
                 transition: all 0.5s ease;
                 margin: 8px 0;
                 min-height: 50px;
-                position: relative; //
+                position: relative;
+
+                .active {
+                    background-color: $blue !important;
+                    color: #fff !important;
+
+                    svg {
+                        color: #fff !important;
+                    }
+                }
 
                 a,
                 button {
@@ -201,13 +220,13 @@
                         padding: 10px;
                         border-radius: 6px;
                         background-color: $sb_bg_color;
-                        transition: all 0.3s ease;
-                        opacity: 0;
+                        box-shadow: $box_shadow;
+                        display: none;
                     }
 
                     .show {
-                        opacity: 1 !important;
                         left: calc(100% + 10px);
+                        display: block;
                     }
                 }
 
@@ -236,12 +255,26 @@
 
                         svg {
                             font-size: 18px;
+                            transition: all 0.3s ease;
                         }
+                    }
+
+                    .nl-child-icon {
+                        display: flex;
+                        width: 50px;
+                        height: 50px;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
                     }
 
                     &:hover {
                         background-color: $sb_bg_active;
-                        color: $sb_text_active !important;
+                        color: $sb_text_active;
+
+                        svg {
+                            color: $sb_text_active;
+                        }
                     }
                 }
             }
@@ -272,7 +305,6 @@
 
             .name,
             .job {
-                font-size: 16px;
                 font-weight: 400;
                 color: $sb_text_color;
                 white-space: nowrap;

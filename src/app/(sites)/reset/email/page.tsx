@@ -98,7 +98,7 @@ export default function ResetEmail({ className }: FormProps) {
 
     return (
         <>
-            <h4 className='text-center'>Đổi Email</h4>
+            <h5 className='text-center'>Đổi Email</h5>
             <form className={`${className ? className : ""} ${reset['form']}`} onSubmit={handleSubmit}>
                 <div className="mb-3">
                     <label htmlFor="password" className="form-label">Nhập Email mới:</label>

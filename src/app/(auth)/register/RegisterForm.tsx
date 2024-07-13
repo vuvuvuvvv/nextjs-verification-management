@@ -10,6 +10,7 @@ import { faGoogle } from '@fortawesome/free-brands-svg-icons';
 import { faEnvelope, faLock, faUser } from '@fortawesome/free-solid-svg-icons';
 
 import { register } from '@/app/api/auth/register/route';
+import Swal from 'sweetalert2';
 
 import { RegisterCredentials } from '@lib/types';
 
@@ -23,15 +24,10 @@ export default function RegisterForm({ className }: FormProps) {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
-    const [response, setResponse] = useState(null);
 
     const [error, setError] = useState('');
     const [isPwNotMatch, setPwNotMatch] = useState(false);
     const router = useRouter();
-
-    useEffect(() => {
-        console.log(response);
-    }, [response]);
 
     const closeAlert = () => {
         setError("");
@@ -49,18 +45,39 @@ export default function RegisterForm({ className }: FormProps) {
             setError('');
 
             const credentials : RegisterCredentials = {username, password, email}
+
             try {
-                const response = await register(credentials)
+                const response = await register(credentials);
                 if (response.status == 200) {
-                    router.push('/');
-                    setResponse(response);
+                    Swal.fire({
+                        // title: "Auto close alert!",
+                        icon: "success",
+                        showClass: {
+                            popup: `
+                              animate__animated
+                              animate__fadeInUp
+                              animate__faster
+                            `
+                        },
+                        html: "Đăng ký thành công! Đang chuyển hướng về trang chủ.",
+                        timer: 1500,
+                        // timerProgressBar: true,
+                        didOpen: () => {
+                            Swal.showLoading();
+                        },
+                    }).then((result) => {
+                        if (result.dismiss === Swal.DismissReason.timer) {
+                            router.push('/');
+                        }
+                    });
+                    // router.push('/');
+                } else if (response.status == 401) {
+                    setError("Tài khoản hoặc mật khẩu không chính xác!");
                 } else {
-                    setResponse(response);
-                    setError(response.msg);
+                    setError("Đã có lỗi xảy ra. Vui lòng thử lại!");
                 }
             } catch (err) {
-                console.log(err);
-                setError("Something went wrong! Please try again.");
+                setError("Đã có lỗi xảy ra. Vui lòng thử lại!");
             }
         }
     };

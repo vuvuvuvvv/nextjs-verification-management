@@ -9,21 +9,20 @@ import { UserProvider } from "@/context/user-context";
 
 
 import { usePathname } from "next/navigation";
-import Head from "next/head";
+
+import { Suspense } from "react";
 
 const routeTitles: { [key: string]: string } = {
     "/": "Trang chủ",
     "/about": "Về chng tôi",
-    "/contact": "Liên hệ",
-    "/kiem-dinh/dong-ho-nuoc": "Kiểm định đồng hồ nước",
+    "/verification/watermeter/dn-bigger-than-30": "Kiểm định đồng hồ nước - DN > 32",
+    "/verification/watermeter/dn-smaller-than-30": "Kiểm định đồng hồ nước - DN < 32",
     "/reset/password": "Đổi mật khẩu",
     "/reset/email": "Đổi email"
 };
-
-
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode; }>) {
     const pathname = usePathname();
-    const title = routeTitles[pathname] || "Trang kiểm định";
+    const title = routeTitles[pathname] || "Website Quản Lý Kiểm Định";
 
     return (
         <>
@@ -32,7 +31,9 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
                 <Navbar title={title} />
                 <main className={layout["wraper"]}>
                     <div className={`${layout['content']}`}>
-                        {children}
+                        <Suspense fallback={<div>Loading...</div>}>
+                            {children}
+                        </Suspense>
                     </div>
                 </main>
             </UserProvider>

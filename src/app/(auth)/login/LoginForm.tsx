@@ -22,6 +22,7 @@ interface FormProps {
 export default function LoginForm({ className }: FormProps) {
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
+    const [remember, setRemember] = useState(false);
 
     const [error, setError] = useState("");
     const router = useRouter();
@@ -62,7 +63,7 @@ export default function LoginForm({ className }: FormProps) {
         event.preventDefault();
         setError("");
 
-        const credentials: LoginCredentials = { username, password };
+        const credentials: LoginCredentials = { username, password, remember };
 
         try {
             const response = await login(credentials);
@@ -136,7 +137,7 @@ export default function LoginForm({ className }: FormProps) {
             </div>
             <div className="mb-3 d-flex align-items-center justify-content-between">
                 <div className="form-check">
-                    <input className="form-check-input" type="checkbox" value="" id="defaultCheck1" />
+                    <input className="form-check-input" type="checkbox" value="" id="defaultCheck1" onChange={(e) => setRemember(e.target.checked)} />
                     <label className="form-check-label" htmlFor="defaultCheck1">
                         Nhớ tài khoản
                     </label>

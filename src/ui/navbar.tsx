@@ -32,13 +32,15 @@ const Navbar: React.FC<NavbarProps> = ({ className, title = "Trang kiểm địn
             <nav id={layout["navbar"]} className={`container-fluid sticky-top ${className ? className : ""}`}>
                 <div className="row m-0 p-0 w-100 d-flex align-items-center justify-content-between">
                     <div className="col-9 d-flex align-items-center justify-content-start gap-1">
+
                         <Sidebar title={title}></Sidebar>
+
                         <Link href={"/"} className={"btn m-0 p-0 border-0"}>
                             <div className={`${layout["nav-brand"]} ps-2 ps-xl-0`}>
-                                <img src="/images/favicon.png" alt="profileImg" />
+                                <img src="/images/logo.png" alt="profileImg" />
                             </div>
                         </Link>
-                        <h4 className={`d-none d-sm-block fw-bold m-0 p-0 ms-2 ${layout['nav-title']}`}>{title}</h4>
+                        <h5 className={`d-none d-sm-block fw-bold m-0 p-0 ms-2 ${layout['nav-title']}`}>{title}</h5>
                     </div>
                     <div className="col-3 d-flex align-items-center justify-content-end">
                         <div className={`dropdown ${layout["dD_account"]}`}>
@@ -50,7 +52,7 @@ const Navbar: React.FC<NavbarProps> = ({ className, title = "Trang kiểm địn
                             <div className={`${layout['dD_menu']} dropdown-menu border-0 shadow`}>
                                 <div className={`${layout['dD_profile']}`}>
                                     <div className={`${layout['box-avt']}`}>
-                                        <img src="/images/favicon.png" alt="profileImg" />
+                                        <img src="/images/logo.png" alt="profileImg" />
                                     </div>
                                     <div className={`${layout['box-info']}`}>
                                         <table>
@@ -85,7 +87,7 @@ const Navbar: React.FC<NavbarProps> = ({ className, title = "Trang kiểm địn
                                     <FontAwesomeIcon icon={faMailBulk}></FontAwesomeIcon>
                                     Đổi Email
                                 </a>
-                                <button onClick={logoutUser} className={`dropdown-item ${layout['dD_item']}`}>
+                                <button type="button" onClick={logoutUser} className={`dropdown-item ${layout['dD_item']}`}>
                                     <FontAwesomeIcon icon={faSignOut}></FontAwesomeIcon>
                                     Đăng xuất
                                 </button>

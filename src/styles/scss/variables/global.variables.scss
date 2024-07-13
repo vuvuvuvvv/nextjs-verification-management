@@ -2,22 +2,27 @@
 $grey: #757c82;
 $dark-blue: #305680;
 $blue: #0980de;
-$light-blue: #78c6fd;
+$light-blue: #459cdb;
+$lighter-blue: #e8f5fe;
+$box_shadow: 0 0 10px 0 rgba(194, 194, 194, 0.5);
 
 /* Layout variables */
 // Navbar
 $nav_height: 60px;
 // $nav_bg_color: #f5f5f5;
-$nav_bg_color: $blue;
-$nav_text_color: #fff !important;
+// $nav_bg_color: $blue;
+// $nav_text_color: #fff !important;
+$nav_bg_color: #fff;
+$nav_text_color: $dark-blue !important;
+$nav_box_shadow: $box_shadow;
 
 // Body
 $body_bg_color: #f0f2f5;
 
 // Footer
-$footer_height: 40px;
+$footer_height: 36px;
 // $footer_bg_color: #f5f5f5;
-$footer_bg_color: $blue;
+$footer_bg_color: $dark-blue;
 
 $screen_break_point: 1200px;
 /* End layout */
@@ -28,14 +33,14 @@ $sb_width: 300px;
 $sb_height: calc(100vh - #{$nav_height} - #{$footer_height});
 
 //Sidebar child height
-$sb_header_height: 60px;
+$sb_header_height: 80px;
 $sb_footer_height: 0px;
 $sb_body_height: calc(100% - $sb_header_height - $sb_footer_height);
 
 //Sidebar color
 $sb_bg_color: #fff;
-$sb_bg_active: #e8f5fe;
-$sb_footer_color: #e8f5fe;
+$sb_bg_active: $lighter-blue;
+$sb_footer_color: $lighter-blue;
 $sb_cover_color: #fbfbfb;
 $sb_text_active: $blue;
 $sb_text_color: $grey;

@@ -2,21 +2,23 @@
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
-    faHome, faBars, faSearch, faImage,
-    faFileAlt, faEdit, faCog, faSignOutAlt,
+    faHome, faBars, faImage,
+    faFileAlt, faEdit, faCog,
     faTimes, faUserFriends, faCaretDown, faCaretUp,
     faQrcode, faComment, faSlidersH,
-    faFile,
-    faCertificate,
     faTint,
     faWind,
     faWeight,
     faClock,
     faCaretLeft,
-    faCaretRight
+    faCaretRight,
+    faFile,
+    faCertificate
 }
     from '@fortawesome/free-solid-svg-icons';
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
+import { usePathname } from 'next/navigation';
+
 import Offcanvas from 'react-bootstrap/Offcanvas';
 
 import sb from "@styles/scss/ui/sidebar.module.scss";
@@ -25,30 +27,115 @@ import Link from 'next/link';
 interface SidebarProps {
     // "?" can be undefind
     className?: string;
-    title?: string;
+    title?: string
 }
 
 interface CollapseState {
     [key: number | string]: boolean;
 };
 
+const menuItems = [
+    {
+        title: "Trang chủ",
+        icon: faHome,
+        href: "/"
+    },
+    {
+        title: "Kiểm định",
+        icon: faEdit,
+        children: [
+            {
+                title: "Đồng hồ",
+                icon: faClock,
+                grandChildren: [
+                    { title: "DN > 32", href: "/verification/watermeter/dn-bigger-than-30", icon: faTint },
+                    { title: "DN < 32", href: "/verification/watermeter/dn-smaller-than-30", icon: faTint },
+                ]
+            },
+            { title: "DN < 32", href: "/verification/watermeter/dn-smaller-than-30", icon: faTint },
+        ]
+    },
+    {
+        title: "Hiệu chuẩn",
+        icon: faImage,
+        children: [
+            { title: "Đồng hồ nước", href: "#", icon: faTint },
+            { title: "Đồng hồ khí", href: "#", icon: faWind },
+            { title: "Thiết bị đo lưu lượng", href: "#", icon: faClock },
+            { title: "Thiết bị đo áp suất", href: "#", icon: faWeight },
+        ]
+    },
+    {
+        title: "Quản lý chứng từ",
+        icon: faFileAlt,
+        children: [
+            { title: "Biên bản kiểm định", href: "#", icon: faFile },
+            { title: "Giấy chứng nhận hiệu chuẩn", href: "#", icon: faCertificate },
+        ]
+    },
+    {
+        title: "Xuất báo cáo",
+        icon: faComment,
+        href: "#"
+    },
+    {
+        title: "Quét mã QR",
+        icon: faQrcode,
+        href: "#"
+    },
+    {
+        title: "Tài khoản",
+        icon: faUserFriends,
+        href: "#"
+    },
+    {
+        title: "Hướng dẫn sử dụng",
+        icon: faCog,
+        href: "#"
+    },
+    {
+        title: "Chính sách bảo mật",
+        icon: faSlidersH,
+        href: "#"
+    }
+]
+
 export default function Sidebar({
     className,
     title
 }: SidebarProps) {
     const [show, setShow] = useState(false);
-
+    const sidebarRef = useRef<HTMLDivElement>(null);
     const [collapseState, setCollapseState] = useState<CollapseState>({});
 
     const toggleOpen = () => {
         setShow(!show);
+        setCollapseState({});
     }
 
-    const toggleCollapse = (id: number) => {
-        setCollapseState(prevState => ({
-            [id]: !prevState[id]
-        }));
+    const handleClickOutside = (event: MouseEvent) => {
+        if (sidebarRef.current && !sidebarRef.current.contains(event.target as Node)) {
+            setCollapseState({});
+        }
     };
+
+    useEffect(() => {
+        document.addEventListener('mousedown', handleClickOutside);
+        return () => {
+            document.removeEventListener('mousedown', handleClickOutside);
+        };
+    }, []);
+
+    const toggleCollapse = (id: number | string) => {
+        setCollapseState(prevState => {
+            if (id.toString().includes("-")) {
+                return { ...prevState, [id]: !prevState[id] };
+            }
+            return { [id]: !prevState[id] };
+        });
+    };
+
+    const pathname = usePathname();
 
     return <>
         <button className={`bg-transparent d-xl-none ${sb['btn-toggle']}`} onClick={toggleOpen}>
@@ -57,145 +144,92 @@ export default function Sidebar({
         {show && (
             <div className={`${sb['sb-backdrop']}`} onClick={() => setShow(!show)}></div>
         )}
-        <div className={`${sb['wrap-sidebar']} ${className ? className : ""} ${show ? sb["sb-show"] : ""} border-end`}>
-            <div className={`${sb['sb-header']} border-bottom`}>
+        <div ref={sidebarRef} className={`${sb['wrap-sidebar']} p-0 ${className ? className : ""} ${show ? sb["sb-show"] : ""}`}>
+            <div className={`${sb['sb-header']} py-3 border-bottom`}>
                 <Offcanvas.Title className={sb['sb-title']}>
-                    <img src="/images/favicon.png" alt="profileImg" />
-                    {title ? title : ""}
+                    <img src="/images/logo.png" alt="profileImg" />
+                    <h5 className='fw-bold m-0 p-0'>{title ? title : ""}</h5>
                 </Offcanvas.Title>
                 <button onClick={toggleOpen} className={`btn border-0 shadow-0 ${''}`}>
                     <FontAwesomeIcon icon={faTimes} fontSize={24}></FontAwesomeIcon>
                 </button>
             </div>
             <div className={`${sb['sb-body']}`}>
-                {/* <div className={`${sb['nav-profile']}`}>
-                    <span>
-                        <FontAwesomeIcon icon={faSearch} fontSize={20}></FontAwesomeIcon>
-                    </span>
-                    <input type="text" placeholder="Search..." />
-                </div> */}
-
-                {/* <div className={`${sb['nav-search']}`}>
-                    <span>
-                        <FontAwesomeIcon icon={faSearch} fontSize={20}></FontAwesomeIcon>
-                    </span>
-                    <input type="text" placeholder="Search..." />
-                </div> */}
 
                 <ul className={`w-100 ${sb['nav-menu']}`}>
-                    <li className={`${sb['nav-item']}`}>
-                        <Link href={"/"} className={`btn ${sb['nav-link']}`}>
-                            <span className={`${sb['nl-icon']}`}>
-                                <FontAwesomeIcon icon={faHome} />
-                            </span>
-                            <span className={sb["nl-title"]}>Trang chủ</span>
-                        </Link>
-                    </li>
-                    <li className={`${sb['nav-item']}`}>
-                        <Link href={"/kiem-dinh/dong-ho-nuoc"} className={`btn ${sb['nav-link']}`}>
-                            <span className={`${sb['nl-icon']}`}>
-                                <FontAwesomeIcon icon={faEdit} />
-                            </span>
-                            <span className={sb["nl-title"]}>Kiểm định</span>
-                        </Link>
-                    </li>
-                    <li className={`${sb['nav-item']}`}>
-                        <button
-                            className={`${sb["nav-link"]} btn ${sb['btn-collapse']} ${(collapseState[1]) ? sb['btn-showed'] : ""}`}
-                            type="button"
-                            onClick={() => toggleCollapse(1)}
-                        >
-                            <span className={`${sb['nl-icon']}`}>
-                                <FontAwesomeIcon icon={faImage} />
-                            </span>
-                            <span className={`${sb["nl-title"]}`}>Hiệu chuẩn
-                                <FontAwesomeIcon className='ms-3 d-none d-md-flex' icon={(collapseState[1]) ? faCaretLeft : faCaretRight} />
-                                <FontAwesomeIcon className='ms-3 d-md-none' icon={(collapseState[1]) ? faCaretUp : faCaretDown} />
-                            </span>
-                        </button>
-                        <div className={`${sb['collapse-menu']} ${sb['collapse']} ${collapseState[1] ? sb['show'] : ''}`}>
-                            <Link href={"#"} className={`btn ${sb['clp-link']}`}>
-                                <FontAwesomeIcon icon={faTint} className={`me-3`} />Đồng hồ nước
-                            </Link>
-                            <Link href={"#"} className={`btn ${sb['clp-link']}`}>
-                                <FontAwesomeIcon icon={faWind} className={`me-3`} />Đồng hồ khí
-                            </Link>
-                            <Link href={"#"} className={`btn ${sb['clp-link']}`}>
-                                <FontAwesomeIcon icon={faClock} className={`me-3`} />Thiết bị đo lưu lượng
-                            </Link>
-                            <Link href={"#"} className={`btn ${sb['clp-link']}`}>
-                                <FontAwesomeIcon icon={faWeight} className={`me-3`} />Thiết bị đo áp suất
-                            </Link>
-                        </div>
-                    </li>
-                    <li className={`${sb['nav-item']}`}>
-                        <button
-                            className={`${sb["nav-link"]} btn ${sb['btn-collapse']} ${(collapseState[2]) ? sb['btn-showed'] : ""}`}
-                            type="button"
-                            onClick={() => toggleCollapse(2)}
-                        >
-                            <span className={`${sb['nl-icon']}`}>
-                                <FontAwesomeIcon icon={faFileAlt} />
-                            </span>
-                            <span className={`${sb["nl-title"]}`}>Quản lý chứng từ
-                                <FontAwesomeIcon className='ms-3 d-none d-md-flex' icon={(collapseState[2]) ? faCaretLeft : faCaretRight} />
-                                <FontAwesomeIcon className='ms-3 d-md-none' icon={(collapseState[2]) ? faCaretUp : faCaretDown} />
-                            </span>
-                        </button>
-                        <div className={`${sb['collapse-menu']} ${sb['collapse']} ${collapseState[2] ? sb['show'] : ''}`}>
-                            <Link href={"#"} className={`btn ${sb['clp-link']}`}>
-                                <FontAwesomeIcon icon={faFile} className={`me-3`} />Biên bản kiểm định
-                            </Link>
-                            <Link href={"#"} className={`btn ${sb['clp-link']}`}>
-                                <FontAwesomeIcon icon={faCertificate} className={`me-3`} />Giấy chứng nhận hiệu chuẩn
-                            </Link>
-                        </div>
-                    </li>
-                    <li className={`${sb['nav-item']}`}>
-                        <Link href={"#"} className={`btn ${sb['nav-link']}`}>
-                            <span className={`${sb['nl-icon']}`}>
-                                <FontAwesomeIcon icon={faComment} />
-                            </span>
-                            <span className={sb["nl-title"]}>Xuất báo cáo</span>
-                        </Link>
-                    </li>
-                    <li className={`${sb['nav-item']}`}>
-                        <Link href={"#"} className={`btn ${sb['nav-link']}`}>
-                            <span className={`${sb['nl-icon']}`}>
-                                <FontAwesomeIcon icon={faQrcode} />
-                            </span>
-                            <span className={sb["nl-title"]}>Quét mã QR</span>
-                        </Link>
-                    </li>
-                    <li className={`${sb['nav-item']}`}>
-                        <Link href={"#"} className={`btn ${sb['nav-link']}`}>
-                            <span className={`${sb['nl-icon']}`}>
-                                <FontAwesomeIcon icon={faUserFriends} />
-                            </span>
-                            <span className={sb["nl-title"]}>Tài khoản</span>
-                        </Link>
-                    </li>
-                    <li className={`${sb['nav-item']}`}>
-                        <Link href={"#"} className={`btn ${sb['nav-link']}`}>
-                            <span className={`${sb['nl-icon']}`}>
-                                <FontAwesomeIcon icon={faCog} />
-                            </span>
-                            <span className={sb["nl-title"]}>Hướng dẫn sử dụng</span>
-                        </Link>
-                    </li>
-                    <li className={`${sb['nav-item']}`}>
-                        <Link href={"#"} className={`btn ${sb['nav-link']}`}>
-                            <span className={`${sb['nl-icon']}`}>
-                                <FontAwesomeIcon icon={faSlidersH} />
-                            </span>
-                            <span className={sb["nl-title"]}>Chính sách bảo mật</span>
-                        </Link>
-                    </li>
+
+                    {menuItems.map((item, index) => {
+
+                        const isActive = item.children?.some(child => child.href === pathname);
+                        return <li className={`${sb['nav-item']}`} key={index}>
+
+                            {item.children ? (
+                                <>
+                                    <button
+                                        className={`${sb["nav-link"]} btn ${sb['btn-collapse']} ${(collapseState[index]) ? sb['btn-showed'] : ""} ${isActive ? sb['active'] : ""}`}
+                                        type="button"
+                                        onClick={() => toggleCollapse(index)}
+                                    >
+                                        <span className={`${sb['nl-icon']}`}>
+                                            <FontAwesomeIcon icon={item.icon} />
+                                        </span>
+                                        <span className={`${sb["nl-title"]}`}>{item.title}
+                                            <FontAwesomeIcon className='ms-3 d-none d-xl-flex' icon={(!collapseState[index]) ? faCaretDown : faCaretRight} />
+                                            <FontAwesomeIcon className='ms-3 d-xl-none' icon={faCaretDown} />
+                                        </span>
+                                    </button>
+                                    <div className={`${sb['collapse-menu']} ${sb['collapse']} ${collapseState[index] ? sb['show'] : ''}`}>
+                                        {item.children.map((child, childIndex) => (
+                                            child.grandChildren ? (
+                                                <>
+                                                    <button
+                                                        className={`${sb["nav-link"]} p-0 w-100 ${sb["clp-link"]} btn ${sb['btn-collapse']} ${(collapseState[index + "-" + childIndex]) ? sb['btn-showed'] : ""}}`}
+                                                        type="button"
+                                                        onClick={() => toggleCollapse(index + "-" + childIndex)}
+                                                    >
+                                                        <span className={`${sb['nl-child-icon']}`}>
+                                                            <FontAwesomeIcon icon={child.icon} fontSize={14} />
+                                                        </span>
+                                                        <span className={`${sb["nl-title"]}`}>{child.title}
+                                                            <FontAwesomeIcon className='ms-3 d-none d-xl-flex' icon={(!collapseState[index + "-" + childIndex]) ? faCaretDown : faCaretRight} />
+                                                            <FontAwesomeIcon className='ms-3 d-xl-none' icon={faCaretDown} />
+                                                        </span>
+                                                    </button>
+                                                    <div className={`${sb['collapse-menu']} w-100 ${sb['collapse']} ${collapseState[index + "-" + childIndex] ? sb['show'] : ''}`}>
+                                                        {child.grandChildren.map((grandChild, grandChildIndex) => {
+                                                            return <Link href={grandChild.href} className={`btn ${sb['clp-link']}`} key={index + "-" + childIndex + "-" + grandChildIndex} onClick={toggleOpen}>
+                                                                <FontAwesomeIcon icon={grandChild.icon} className={`me-3`} />{grandChild.title}
+                                                            </Link>
+                                                        })}
+
+                                                    </div>
+                                                </>
+                                            ) : (
+                                                <Link href={child.href} className={`btn ${sb['clp-link']}`} key={index + "-" + childIndex} onClick={toggleOpen}>
+                                                    <FontAwesomeIcon icon={child.icon} className={`me-3`} />{child.title}
+                                                </Link>
+                                            )
+                                        ))}
+                                    </div>
+                                </>
+                            ) : (
+                                <Link href={item.href} className={`btn ${sb['nav-link']} ${item.href == pathname ? sb['active'] : ""}`} onClick={toggleOpen}>
+                                    <span className={`${sb['nl-icon']}`}>
+                                        <FontAwesomeIcon icon={item.icon} />
+                                    </span>
+                                    <span className={sb["nl-title"]}>{item.title}</span>
+                                </Link>
+                            )}
+
+                        </li>
+                    })}
+
                 </ul>
             </div>
+
             {/* <div className={`${sb["sb-footer"]}`}>
                 <div className={`${sb['profile']}`}>
-                    <img src="/images/favicon.png" alt="profileImg" />
+                    <img src="/images/logo.png" alt="profileImg" />
                     <div className={sb["name_job"]}>
                         <div className={sb["name"]}>Vuvuvuvvv</div>
                         <div className={sb["job"]}>Admin</div>

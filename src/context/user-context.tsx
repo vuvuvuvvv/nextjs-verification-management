@@ -55,15 +55,12 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
         }
     };
     return (loading) ? (
-        <div>Loading...</div>
+        <div>Đang lấy dữ liệu người dùng...</div>
     ) : (
         <UserContext.Provider value={{ user, loading, updateUser, logoutUser }}>
             {children}
         </UserContext.Provider>
     );
-    return <UserContext.Provider value={{ user, loading, updateUser, logoutUser }}>
-        {children}
-    </UserContext.Provider>;
 };
 
 // Custom hook to use UserContext

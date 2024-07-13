@@ -31,7 +31,7 @@ export default function RootLayout({
             <body className={`${inter.className}`}>
                 {children}
                 <footer className={`shadow w-100 d-flex align-items-center text-center justify-content-center`}>
-                    Copyright @ 2024 by 404 Notfound
+                    Copyright @ 2024 by DHT Company
                 </footer>
             </body>
         </html >

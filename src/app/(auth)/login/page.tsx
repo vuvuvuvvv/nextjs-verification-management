@@ -13,9 +13,9 @@ export default function Login() {
     return (
         <>
             <div className='w-100 py-4'>
-                <h4 className='text-center text-uppercase'>
+                <h5 className='text-center text-uppercase'>
                     Đăng nhập
-                </h4>
+                </h5>
             </div>
             <LoginForm className='w-100'></LoginForm>
             <div className="mt-3 d-flex align-items-center justify-content-center gap-1"><span>Chưa có tài khoản?</span>
