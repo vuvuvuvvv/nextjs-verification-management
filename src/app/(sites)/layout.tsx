@@ -15,8 +15,8 @@ import { Suspense } from "react";
 const routeTitles: { [key: string]: string } = {
     "/": "Trang chủ",
     "/about": "Về chng tôi",
-    "/verification/watermeter/dn-bigger-than-30": "Kiểm định đồng hồ nước - DN > 32",
-    "/verification/watermeter/dn-smaller-than-30": "Kiểm định đồng hồ nước - DN < 32",
+    "/verification/watermeter/dn-bigger-than-32": "Kiểm định đồng hồ nước - DN > 32",
+    "/verification/watermeter/dn-smaller-than-32": "Kiểm định đồng hồ nước - DN < 32",
     "/reset/password": "Đổi mật khẩu",
     "/reset/email": "Đổi email"
 };

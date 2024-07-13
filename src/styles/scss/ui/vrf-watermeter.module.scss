@@ -1,23 +1,139 @@
 @import "@styles/scss/variables/global.variables.scss";
 
 .wraper {
-    label {
-        margin: 0;
-    }
+    .search-process {
+        overflow: hidden;
 
-    .search-seri {
-        border: none;
-
-        input {
-            margin: 8px 0;
+        .form-label {
+            font-size: 16px;
+            font-weight: 600;
+            color: $grey;
             width: 100%;
-            max-width: 600px;
 
-            &:focus {
+            input {
+                margin-top: .5rem;
+                height: 46px;
+                color: rgba(0, 0, 0, 0.87);
                 box-shadow: none !important;
+                border: 1px solid #dee2e6;
+            }
+        }
+
+        .search-created-date {
+
+            .pick-created-date {
+
+                .date-picker {
+                    height: 46px !important;
+
+                    div:first-child {
+                        height: 46px !important;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        font: unset !important;
+                        letter-spacing: normal !important;
+
+
+                        input {
+                            padding: 6px 12px;
+                        }
+
+                        fieldset {
+                            border-color: #dee2e6;
+                            border-width: 1px;
+                        }
+                    }
+                }
+
+                .picker-field {
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    gap: 10px;
+                }
+
+
+                // input {
+                //     font: unset !important;
+                //     font-size: 16px !important;
+                //     height: 34px !important;
+                //     padding: 6px 12px !important;
+
+                //     &:focus + label {
+                //         color: red !important;
+                //     }
+                // }
             }
         }
     }
+
+    .process-table {
+
+        .table-header {
+
+            th {
+                background-color: $blue !important;
+                color: #fff !important;
+            }
+
+
+            th:not(:last-child) {
+                cursor: pointer;
+                transition: 0.3s all ease;
+    
+                &:hover {
+                    background-color: $light_blue;
+                }
+            }
+        }
+
+        th {
+            padding: 18px 12px;
+        }
+
+        td {
+            padding: 12px;
+        }
+    }
+
+    .pagination {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+
+        .active {
+            background-color: $blue !important;
+            color: #fff !important;
+        }
+
+        span,
+        .btn {
+            width: 36px;
+            height: 36px;
+            background-color: #fff;
+            transition: 0.3s all ease;
+            border-radius: unset !important;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .btn {
+            &:hover {
+                background-color: $light_blue;
+            }
+        }
+    }
+
+
+
+
+    ///////////////////////////////
+
+
+    // Process tab
 
     #process-tab {
         display: flex;
@@ -55,6 +171,7 @@
             from {
                 opacity: 0;
             }
+
             to {
                 opacity: 1;
             }

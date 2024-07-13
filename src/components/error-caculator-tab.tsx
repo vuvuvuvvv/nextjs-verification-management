@@ -1,6 +1,6 @@
 "use client"
 
-import ErrorCaculatorForm from "@/components/dn-bigger-than-30/error-caculator-form";
+import ErrorCaculatorForm from "@/components/dn-bigger-than-32/error-caculator-form";
 import { faCaretDown, faCaretUp } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import ect from "@styles/scss/components/error-caculator-tab.module.scss"

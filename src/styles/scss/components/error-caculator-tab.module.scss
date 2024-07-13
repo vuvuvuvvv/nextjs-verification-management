@@ -18,7 +18,7 @@
         }
 
         .active {
-            background-color: $light-blue !important;
+            background-color: $blue !important;
             color: #fff !important;
         }
 
@@ -28,7 +28,7 @@
             top: 0;
             left: 0;
             position: absolute;
-            background-color: rgba(221, 221, 221, 0.45);
+            background-color: $bg_cover;
             transition: 0.3s all ease;
             z-index: 99;
         }

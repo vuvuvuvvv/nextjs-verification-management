@@ -1,7 +1,7 @@
 "use client"
 
 import ErrorCaculatorTab from "@/components/error-caculator-tab";
-import ErrorCaculatorForm from "@/components/dn-bigger-than-30/error-caculator-form";
+import ErrorCaculatorForm from "@/components/dn-smaller-than-32/error-caculator-form";
 import wm from "@styles/scss/ui/vrf-watermeter.module.scss"
 
 import { useState } from "react";
@@ -26,8 +26,8 @@ export default function WaterMeter({ className }: WaterMeterProps) {
     };
 
     return (
-        <div className={`${className ? className : ""} ${wm['wraper']} container p-0 px-2 py-3 w-100`}>
-            <div className={`row m-0 mb-3 p-3 w-100 bg-white sr-cover`}>
+        <div className={`${className ? className : ""} ${wm['wraper']} container-fluid p-0 px-2 py-3 w-100`}>
+            <div className={`container mb-3 p-3 w-100 bg-white sr-cover`}>
                 <div className={`form-control border-0 ${wm['search-seri']}`}>
                     <label htmlFor="seriNumber" className={`form-label fs-3 fw-bold`}>Số seri:</label>
                     <input type="text" id="seriNumber" className={`form-control`} placeholder="Nhập số seri" />

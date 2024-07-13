@@ -9,15 +9,21 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@emotion/react": "^11.11.4",
+    "@emotion/styled": "^11.11.5",
     "@fortawesome/fontawesome-svg-core": "^6.5.2",
     "@fortawesome/free-brands-svg-icons": "^6.5.2",
     "@fortawesome/free-solid-svg-icons": "^6.5.2",
     "@fortawesome/react-fontawesome": "^0.2.2",
+    "@mui/material": "^5.16.1",
+    "@mui/styled-engine-sc": "^6.0.0-alpha.18",
+    "@mui/x-date-pickers": "^7.10.0",
     "@types/jsonwebtoken": "^9.0.6",
     "animate.css": "^4.1.1",
     "axios": "^1.7.2",
     "bootstrap": "^5.3.3",
     "cookies-next": "^4.2.1",
+    "dayjs": "^1.11.11",
     "jose": "^5.6.2",
     "js-cookie": "^3.0.5",
     "jsonwebtoken": "^9.0.2",
@@ -26,8 +32,10 @@
     "next-auth": "^4.24.7",
     "react": "^18",
     "react-bootstrap": "^2.10.3",
+    "react-datetime-picker": "^6.0.1",
     "react-dom": "^18",
     "sass": "^1.77.6",
+    "styled-components": "^6.1.11",
     "sweetalert2": "^11.12.1"
   },
   "devDependencies": {
