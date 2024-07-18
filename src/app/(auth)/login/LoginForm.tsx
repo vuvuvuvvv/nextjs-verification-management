@@ -93,7 +93,7 @@ export default function LoginForm({ className }: FormProps) {
             } else if (response.status == 401) {
                 setError("Tài khoản hoặc mật khẩu không chính xác!");
             } else {
-                setError("Đã có lỗi xảy ra. Vui lòng thử lại!");
+                setError(response.msg);
             }
         } catch (err) {
             setError("Đã có lỗi xảy ra. Vui lòng thử lại!");
@@ -102,12 +102,6 @@ export default function LoginForm({ className }: FormProps) {
 
     return (
         <form className={(className) ? className : ""} onSubmit={handleSubmit}>
-            {error &&
-                <div className="alert alert-danger w-100 alert-dismissible fade show" role="alert">
-                    {error}
-                    <button type="button" onClick={closeAlert} className="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                </div>
-            }
             <div className="mb-3">
                 <label htmlFor="username" className="form-label">Tên đăng nhập:</label>
                 <input

@@ -29,9 +29,33 @@ export default function RegisterForm({ className }: FormProps) {
     const [isPwNotMatch, setPwNotMatch] = useState(false);
     const router = useRouter();
 
-    const closeAlert = () => {
-        setError("");
-    }
+    useEffect(() => {
+        if (error) {
+            Swal.fire({
+                icon: "error",
+                title: "Lỗi",
+                text: error,
+                showClass: {
+                    popup: `
+                    animate__animated
+                    animate__fadeInUp
+                    animate__faster
+                  `
+                },
+                hideClass: {
+                    popup: `
+                    animate__animated
+                    animate__fadeOutDown
+                    animate__faster
+                  `
+                },
+                confirmButtonColor: "#0980de",
+                confirmButtonText: "OK"
+            }).then(() => {
+                setError("");
+            });
+        }
+    }, [error]);
 
 
     const handleChangeConfirmPassword = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -74,7 +98,7 @@ export default function RegisterForm({ className }: FormProps) {
                 } else if (response.status == 401) {
                     setError("Tài khoản hoặc mật khẩu không chính xác!");
                 } else {
-                    setError("Đã có lỗi xảy ra. Vui lòng thử lại!");
+                    setError(response.msg);
                 }
             } catch (err) {
                 setError("Đã có lỗi xảy ra. Vui lòng thử lại!");
@@ -84,12 +108,6 @@ export default function RegisterForm({ className }: FormProps) {
 
     return (
         <form className={className ? className : ""} onSubmit={handleSubmit}>
-            {error &&
-                <div className="alert alert-danger w-100 alert-dismissible fade show" role="alert">
-                    {error}
-                    <button type="button" onClick={closeAlert} className="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                </div>
-            }
             <div className="mb-3">
                 <label htmlFor="username" className="form-label">Tên đăng nhập:</label>
                 <input

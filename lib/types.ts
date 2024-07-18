@@ -19,3 +19,25 @@ export interface RegisterCredentials {
     password: string;
     email: string;
 }
+
+export interface ReportDataType {
+    "id": number,
+    "createdAt": string,
+    "updatedAt": string,
+    "createdBy": string,
+    "updatedBy": string,
+    "numberOfClocks": number,
+    "status": string,
+}
+
+export interface WaterMeterDataType {
+    "id": number,
+    "serialNumber": string,
+    "type": string,
+    "class": string,
+    "createdAt": string,
+    "updatedAt": string,
+    "createdBy": string,
+    "updatedBy": string,
+    "status": string,
+}

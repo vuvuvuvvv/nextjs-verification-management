@@ -3,11 +3,11 @@
 .wrap-form {
     background-color: #fafafa;
     padding: 20px 10px;
-    // border-radius: 5px;
+    border-radius: 4px;
     display: flex;
     flex-direction: column;
     gap: 10px;
-
+    
     .box-input-form {
         display: flex;
         align-items: center;
@@ -51,5 +51,10 @@
         button {
             flex: 1;
         }
+    }
+
+    .btn-save {
+        background-color: $green;
+        color: #fff
     }
 }

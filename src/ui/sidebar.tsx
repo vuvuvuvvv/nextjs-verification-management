@@ -181,7 +181,7 @@ export default function Sidebar({
                                     <div className={`${sb['collapse-menu']} ${sb['collapse']} ${collapseState[index] ? sb['show'] : ''}`}>
                                         {item.children.map((child, childIndex) => (
                                             child.grandChildren ? (
-                                                <>
+                                                <div key={index + "-" + childIndex}>
                                                     <button
                                                         className={`${sb["nav-link"]} p-0 w-100 ${sb["clp-link"]} btn ${sb['btn-collapse']} ${(collapseState[index + "-" + childIndex]) ? sb['btn-showed'] : ""}}`}
                                                         type="button"
@@ -203,7 +203,7 @@ export default function Sidebar({
                                                         })}
 
                                                     </div>
-                                                </>
+                                                </div>
                                             ) : (
                                                 <Link href={child.href} className={`btn ${sb['clp-link']}`} key={index + "-" + childIndex} onClick={toggleOpen}>
                                                     <FontAwesomeIcon icon={child.icon} className={`me-3`} />{child.title}
