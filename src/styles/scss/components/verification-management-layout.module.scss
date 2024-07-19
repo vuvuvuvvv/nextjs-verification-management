@@ -37,71 +37,6 @@
         }
     }
 
-    .btn-collapse-info {
-        transition: .3s all ease;
-        padding: 0;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        width: 36px;
-        height: 36px;
-        position: relative;
-        box-shadow: none !important;
-        outline: none !important;
-        border: none !important;
-
-        svg {
-            transition: .3s all ease;
-        }
-
-        &::after,
-        &::before {
-            position: absolute;
-            top: 50%;
-            right: calc(100% + 10px);
-            display: none;
-            transition: .3s all ease;
-        }
-
-        &::after {
-            content: attr(data-tooltip);
-            transform: translateY(-50%);
-            width: max-content;
-            background-color: #fff;
-            padding: 4px 8px;
-            border: 1px solid #dee2e6;
-            border-radius: 4px;
-        }
-
-        &::before {
-            content: "";
-            width: 20px;
-            height: 20px;
-            background-color: #dee2e6;
-            transform: translateY(-50%) rotate(45deg);
-        }
-
-        &:hover {
-            // background-color: $grey !important;
-
-            svg {
-                // color: #fff !important;
-                color: #000 !important;
-            }
-
-            &::after,
-            &::before {
-                display: flex;
-            }
-        }
-    }
-
-    .end-line {
-        width: 60px;
-        height: calc(1px / 2);
-        background-color: #000;
-    }
-
     .picker-field {
         display: flex;
         align-items: center;
@@ -234,51 +169,6 @@
                     border-radius: 20px;
 
                 }
-            }
-        }
-    }
-
-    ///////////////////////////////
-    // Process tab
-
-    #process-tab {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        border: none;
-        overflow: hidden;
-
-        .active {
-            background-color: $blue !important;
-            color: #fff !important;
-            z-index: 1 !important;
-        }
-
-        .nav-link {
-            z-index: 0;
-            flex: 1;
-            font-size: 16px;
-            transition: 0.3s all ease;
-            padding: 10px 0;
-            background-color: $light_blue;
-            color: $light_grey;
-        }
-    }
-
-    #process-tab-content {
-        background-color: #fff;
-
-        .show {
-            animation: show-tab 0.5s ease-in;
-        }
-
-        @keyframes show-tab {
-            from {
-                opacity: 0;
-            }
-
-            to {
-                opacity: 1;
             }
         }
     }

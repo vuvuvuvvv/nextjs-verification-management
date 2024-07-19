@@ -16,10 +16,10 @@ import Loading from "@/components/loading";
 const routeTitles: { [key: string]: string } = {
     "/": "Trang chủ",
     "/about": "Về chng tôi",
-    "/verification/watermeter/dn-bigger-than-32": "Kiểm định đồng hồ nước - DN > 32",
-    "/verification/watermeter/dn-smaller-than-32": "Kiểm định đồng hồ nước - DN < 32",
-    "/verification/watermeter/dn-bigger-than-32/new-process": "Thêm mẻ - DN > 32",
-    "/verification/watermeter/dn-smaller-than-32/new-process": "Thêm mẻ - DN < 32",
+    "/verification/watermeter/dn-bigger-than-32": "Kiểm định đồng hồ nước - DN > 15 m³/h",
+    "/verification/watermeter/dn-smaller-than-32": "Kiểm định đồng hồ nước - DN < 15 m³/h",
+    "/verification/watermeter/dn-bigger-than-32/new-process": "Thêm mới - DN > 15 m³/h",
+    "/verification/watermeter/dn-smaller-than-32/new-process": "Thêm nhóm - DN < 15 m³/h",
     "/reset/password": "Đổi mật khẩu",
     "/reset/email": "Đổi email"
 };
@@ -33,7 +33,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
             <UserProvider>
                 <Navbar title={title} />
                 <main className={layout["wraper"]}>
-                    <div className={`${layout['content']} position-relative`}>
+                    <div className={`${layout['content']} position-relative p-0 pb-4`}>
                         <Suspense fallback={<Loading/>}>
                             {children}
                         </Suspense>

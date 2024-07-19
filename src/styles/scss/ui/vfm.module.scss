@@ -1,0 +1,100 @@
+@import "@styles/scss/variables/global.variables.scss";
+
+.wraper {
+
+    .seri-number-input {
+        .form-label {
+            width: 70px !important;
+        }
+
+        input {
+            width: calc(100% - 90px);
+        }
+    }
+
+    select,
+    input:not([type="checkbox"], [type="radio"]) {
+        height: 42px;
+        color: rgba(0, 0, 0, 0.87);
+        box-shadow: none !important;
+        border: 1px solid #dee2e6;
+        border-radius: 4PX !important;
+    }
+
+    .search-process {
+        // overflow: hidden;
+
+        .form-label {
+            // font-size: 16px;
+            // font-weight: 600;
+            color: $grey;
+            width: 100%;
+
+            select,
+            input {
+                margin-top: .5rem;
+            }
+        }
+    }
+
+    .btn-collapse-info {
+        transition: .3s all ease;
+        padding: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: max-content;
+        height: 36px;
+        position: relative;
+        box-shadow: none !important;
+        outline: none !important;
+        border: none !important;
+
+        svg {
+            transition: .3s all ease;
+        }
+
+        &:hover {
+            svg {
+                color: #000 !important;
+            }
+
+            &::after,
+            &::before {
+                display: flex;
+            }
+        }
+    }
+
+    .end-line {
+        width: 60px;
+        height: calc(1px / 2);
+        background-color: #000;
+    }
+
+    .date-picker {
+        height: 42px !important;
+        border: 1px solid #dee2e6;
+        border-radius: 4px;
+
+        div:first-child {
+            height: 42px !important;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font: unset !important;
+            letter-spacing: normal !important;
+
+
+            input {
+                padding: 6px 12px;
+                border: none !important;
+                // padding-left: 48px !important;
+            }
+
+            fieldset {
+                display: none;
+            }
+        }
+    }
+}

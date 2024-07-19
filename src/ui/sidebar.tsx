@@ -48,11 +48,11 @@ const menuItems = [
                 title: "Đồng hồ",
                 icon: faClock,
                 grandChildren: [
-                    { title: "DN > 32", href: "/verification/watermeter/dn-bigger-than-32", icon: faTint },
-                    { title: "DN < 32", href: "/verification/watermeter/dn-smaller-than-32", icon: faTint },
+                    { title: "DN > 15 m³/h", href: "/verification/watermeter/dn-bigger-than-32", icon: faTint },
+                    { title: "DN < 15 m³/h", href: "/verification/watermeter/dn-smaller-than-32", icon: faTint },
                 ]
             },
-            { title: "DN < 32", href: "/verification/watermeter/dn-smaller-than-32", icon: faTint },
+            { title: "Phê duyệt mẫu", href: "/verification/pdm", icon: faFileAlt },
         ]
     },
     {
@@ -160,7 +160,7 @@ export default function Sidebar({
 
                     {menuItems.map((item, index) => {
 
-                        const isActive = item.children?.some(child => child.href === pathname);
+                        const isActive = item.children?.some(child => 'href' in child && child.href === pathname);
                         return <li className={`${sb['nav-item']}`} key={index}>
 
                             {item.children ? (
@@ -180,10 +180,10 @@ export default function Sidebar({
                                     </button>
                                     <div className={`${sb['collapse-menu']} ${sb['collapse']} ${collapseState[index] ? sb['show'] : ''}`}>
                                         {item.children.map((child, childIndex) => (
-                                            child.grandChildren ? (
+                                            'grandChildren' in child ? (
                                                 <div key={index + "-" + childIndex}>
                                                     <button
-                                                        className={`${sb["nav-link"]} p-0 w-100 ${sb["clp-link"]} btn ${sb['btn-collapse']} ${(collapseState[index + "-" + childIndex]) ? sb['btn-showed'] : ""}}`}
+                                                        className={`${sb["nav-link"]} p-0 w-100 ${sb["clp-link"]} btn ${sb['btn-collapse']} ${(collapseState[index + "-" + childIndex]) ? sb['btn-showed'] : ""}`}
                                                         type="button"
                                                         onClick={() => toggleCollapse(index + "-" + childIndex)}
                                                     >
@@ -196,7 +196,7 @@ export default function Sidebar({
                                                         </span>
                                                     </button>
                                                     <div className={`${sb['collapse-menu']} w-100 ${sb['collapse']} ${collapseState[index + "-" + childIndex] ? sb['show'] : ''}`}>
-                                                        {child.grandChildren.map((grandChild, grandChildIndex) => {
+                                                        {child.grandChildren?.map((grandChild, grandChildIndex) => {
                                                             return <Link href={grandChild.href} className={`btn ${sb['clp-link']}`} key={index + "-" + childIndex + "-" + grandChildIndex} onClick={toggleOpen}>
                                                                 <FontAwesomeIcon icon={grandChild.icon} className={`me-3`} />{grandChild.title}
                                                             </Link>

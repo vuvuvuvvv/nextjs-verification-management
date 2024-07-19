@@ -19,11 +19,12 @@ const Pagination: React.FC<PaginationProps> = ({ className, currentPage, totalPa
             <button type="button" className={`${pg['btn']}`} onClick={() => handlePageChange(currentPage - 1)} disabled={currentPage === 1}>
                 ❬
             </button>
-
-            {currentPage > 2 && totalPage > numOfButton
+            {/* TODO  */}
+            {/* {currentPage > 2 && totalPage >= numOfButton
                 &&
                 <span>...</span>
-            }
+            } */}
+
 
             {/* {(currentPage >= 3) &&
                 <button
@@ -33,7 +34,8 @@ const Pagination: React.FC<PaginationProps> = ({ className, currentPage, totalPa
                     {currentPage - 2}
                 </button>
             } */}
-            {currentPage >= 2 &&
+
+            {/* {currentPage >= 2 &&
                 <button
                     type="button"
                     className={`${pg['btn']}`}
@@ -53,7 +55,8 @@ const Pagination: React.FC<PaginationProps> = ({ className, currentPage, totalPa
                     onClick={() => handlePageChange(currentPage + 1)}>
                     {currentPage + 1}
                 </button>
-            }
+            } */}
+
             {/* {currentPage <= totalPage - 2 &&
                 <button
                     type="button"
@@ -62,11 +65,14 @@ const Pagination: React.FC<PaginationProps> = ({ className, currentPage, totalPa
                     {currentPage + 2}
                 </button>
             } */}
-
-            {currentPage < totalPage - 1 && totalPage > numOfButton
+            {/* {currentPage < totalPage - 1 && totalPage >= numOfButton
                 &&
                 <span>...</span>
-            }
+            } */}
+
+            <span>Trang {currentPage} / {totalPage}</span>
+
+
             <button type="button" className={`${pg['btn']}`} onClick={() => handlePageChange(currentPage + 1)} disabled={currentPage === totalPage}>
                 ❭
             </button>

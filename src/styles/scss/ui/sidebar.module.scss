@@ -15,6 +15,7 @@
 @media (min-width: $screen_break_point) {
     .wrap-sidebar {
         left: 0%;
+        border-right: 1px solid $border_grey;
 
         .sb-header {
             display: none !important;

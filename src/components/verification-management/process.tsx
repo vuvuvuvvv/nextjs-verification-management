@@ -1,7 +1,7 @@
 "use client"
 
 import { useEffect, useState, useCallback, Suspense } from "react";
-import vrfWm from "@styles/scss/ui/vrf-watermeter.module.scss"
+import vml from "@styles/scss/components/verification-management-layout.module.scss"
 
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
@@ -19,6 +19,7 @@ import { ReportDataType } from "@lib/types";
 
 import { usePathname } from "next/navigation";
 import Link from "next/link";
+import { entryOptions, statusOptions } from "@lib/system-constant";
 
 const Loading = React.lazy(() => import("@/components/loading"));
 
@@ -27,12 +28,6 @@ interface ProcessManagementProps {
     data: ReportDataType[],
     className?: string,
 }
-
-const statusOptions = [
-    { value: '1', label: 'Q1' },
-    { value: '2', label: 'Q2' },
-    { value: '3', label: 'Q3' }
-];
 
 interface FilterForm {
     processId: string;
@@ -62,45 +57,50 @@ export default function ProcessManagement({ data, className }: ProcessManagement
 
     const resetTotalPage = () => {
         setCurrentPage(1);
-        return Math.ceil(data.length / entry);
+        if (rootData.length == entry) {
+            return 1;
+        }
+        return Math.ceil(rootData.length / entry);
     }
 
     const [totalPage, setTotalPage] = useState(resetTotalPage);
 
     useEffect(() => {
         setTotalPage(resetTotalPage);
-    }, [entry])
+    }, [rootData, entry])
 
 
     const sortData = useCallback((key: string) => {
-        setLoading(true);
-        let direction: 'asc' | 'desc' = 'asc';
+        if (!loading) {
+            setLoading(true);
+            let direction: 'asc' | 'desc' = 'asc';
 
-        if (sortConfig && sortConfig.key === key) {
-            direction = sortConfig.direction === 'asc' ? 'desc' : 'asc';
-        }
-
-        const sortedData = [...data].sort((a, b) => {
-            if (key === 'createdAt' || key === 'updatedAt') {
-                const dateA = dayjs(a[key as keyof typeof a], 'DD-MM-YYYY');
-                const dateB = dayjs(b[key as keyof typeof b], 'DD-MM-YYYY');
-                return direction === 'asc' ? dateA.diff(dateB) : dateB.diff(dateA);
-            } else {
-                return direction === 'asc'
-                    ? a[key as keyof typeof a] < b[key as keyof typeof a] ? -1 : 1
-                    : a[key as keyof typeof a] > b[key as keyof typeof a] ? -1 : 1;
+            if (sortConfig && sortConfig.key === key) {
+                direction = sortConfig.direction === 'asc' ? 'desc' : 'asc';
             }
-        });
 
-        setRootData(sortedData);
-        setSortConfig({ key, direction });
-        setLoading(false);
-    }, [data, sortConfig]);
+            const sortedData = [...rootData].sort((a, b) => {
+                if (key === 'createdAt' || key === 'updatedAt') {
+                    const dateA = dayjs(a[key as keyof typeof a], 'DD-MM-YYYY');
+                    const dateB = dayjs(b[key as keyof typeof b], 'DD-MM-YYYY');
+                    return direction === 'asc' ? dateA.diff(dateB) : dateB.diff(dateA);
+                } else {
+                    return direction === 'asc'
+                        ? a[key as keyof typeof a] < b[key as keyof typeof a] ? -1 : 1
+                        : a[key as keyof typeof a] > b[key as keyof typeof a] ? -1 : 1;
+                }
+            });
+
+            setRootData(sortedData);
+            setSortConfig({ key, direction });
+            setLoading(false);
+        }
+    }, [rootData, sortConfig]);
 
     useEffect(() => {
         setLoading(true);
         const debounce = setTimeout(() => {
-            let filteredData = rootData;
+            let filteredData = data;
 
             if (filterForm.processId) {
                 filteredData = filteredData.filter(item => {
@@ -139,8 +139,9 @@ export default function ProcessManagement({ data, className }: ProcessManagement
                 });
             }
 
-            setTotalPage(resetTotalPage);
             setRootData(filteredData);
+
+            setSortConfig(null);
             setLoading(false);
         }, 500);
         return () => clearTimeout(debounce);
@@ -168,18 +169,18 @@ export default function ProcessManagement({ data, className }: ProcessManagement
         setCurrentPage(newPage);
     };
 
-    const paginatedData = data.slice((currentPage - 1) * entry, currentPage * entry);
+    const paginatedData = rootData.slice((currentPage - 1) * entry, currentPage * entry);
 
     return (
         <LocalizationProvider dateAdapter={AdapterDayjs} localeText={viVN.components.MuiLocalizationProvider.defaultProps.localeText}>
             {/* <div className={`${className ? className : ""} mb-3 container-fluid p-0 px-2 py-3 w-100`}> */}
             <div className={`${className ? className : ""} mb-3 p-0 w-100`}>
-                {/* <div className={`${vrfWm['wraper']} py-3 w-100 bg-white sr-cover`}> */}
-                <h3 className="px-3 pt-3 mb-0">Quản lý mẻ:</h3>
-                <div className={`${vrfWm['wraper']} py-3 w-100 bg-white`}>
-                    <div className={`row m-0 px-md-3 w-100 mb-3 ${vrfWm['search-process']}`}>
+                {/* <div className={`${vml['wraper']} py-3 w-100 bg-white sr-cover`}> */}
+                {/* <h3 className="px-3 pt-3 mb-0">Quản lý nhóm:</h3> */}
+                <div className={`${vml['wraper']} py-3 w-100 bg-white`}>
+                    <div className={`row m-0 px-md-3 w-100 mb-3 ${vml['search-process']}`}>
                         <div className="col-12 mb-3 col-md-6 col-xl-4 d-flex">
-                            <label className={`${vrfWm['form-label']}`} htmlFor="process-id">
+                            <label className={`${vml['form-label']}`} htmlFor="process-id">
                                 ID:
                                 <input
                                     type="text"
@@ -192,7 +193,7 @@ export default function ProcessManagement({ data, className }: ProcessManagement
                             </label>
                         </div>
                         <div className="col-12 mb-3 col-md-6 col-xl-4">
-                            <label className={`${vrfWm['form-label']}`} htmlFor="implementer">
+                            <label className={`${vml['form-label']}`} htmlFor="implementer">
                                 Người kiểm định:
                                 <input
                                     type="text"
@@ -206,7 +207,7 @@ export default function ProcessManagement({ data, className }: ProcessManagement
                         </div>
 
                         <div className="col-12 mb-3 col-md-6 col-xl-4">
-                            <label className={`${vrfWm['form-label']}`} htmlFor="status">
+                            <label className={`${vml['form-label']}`} htmlFor="status">
                                 Trạng thái
                                 <Select
                                     isMulti
@@ -253,16 +254,16 @@ export default function ProcessManagement({ data, className }: ProcessManagement
                             </label>
                         </div>
 
-                        <div className={`col-12 col-md-8 mb-3 m-0 row p-0 ${vrfWm['search-created-date']}`}>
-                            <label className={`${vrfWm['form-label']} col-12`}>
+                        <div className={`col-12 col-md-8 mb-3 m-0 row p-0 ${vml['search-created-date']}`}>
+                            <label className={`${vml['form-label']} col-12`}>
                                 Cập nhật cuối:
                             </label>
-                            <div className={`col-12 row m-0 mt-2 p-0 ${vrfWm['pick-created-date']}`}>
-                                <div className={`col-12 col-md-6 mb-3 mb-md-0 ${vrfWm['picker-field']}`}>
+                            <div className={`col-12 row m-0 mt-2 p-0 ${vml['pick-created-date']}`}>
+                                <div className={`col-12 col-md-6 mb-3 mb-md-0 ${vml['picker-field']}`}>
                                     <label>Từ:</label>
 
                                     <DatePicker
-                                        className={`${vrfWm['date-picker']}`}
+                                        className={`${vml['date-picker']}`}
                                         value={filterForm.fromDate ? dayjs(filterForm.fromDate) : null}
                                         format="DD-MM-YYYY"
 
@@ -272,10 +273,10 @@ export default function ProcessManagement({ data, className }: ProcessManagement
                                     />
                                 </div>
 
-                                <div className={`col-12 col-md-6 ${vrfWm['picker-field']}`}>
+                                <div className={`col-12 col-md-6 ${vml['picker-field']}`}>
                                     <label>Đến:</label>
                                     <DatePicker
-                                        className={`${vrfWm['date-picker']}`}
+                                        className={`${vml['date-picker']}`}
                                         value={filterForm.toDate ? dayjs(filterForm.toDate) : undefined}
                                         format="DD-MM-YYYY"
                                         minDate={filterForm.fromDate ? dayjs(filterForm.fromDate).add(1, 'day') : undefined}
@@ -288,16 +289,40 @@ export default function ProcessManagement({ data, className }: ProcessManagement
                             </div>
                         </div>
                         <div className={`col-12 col-md-4 mb-3 m-0 p-0 row`}>
-                            <label className={`${vrfWm['form-label']}`} htmlFor="implementer">
+                            <label className={`${vml['form-label']}`}>
                                 Số lượng lọc:
-                                <select className="form-select" value={entry ?? 5} onChange={(e) => setEntry(Number(e.target.value))}>
-                                    <option value="5">5</option>
-                                    <option value="10">10</option>
-                                    <option value="15">15</option>
-                                    <option value="20">20</option>
-                                    <option value="25">25</option>
-                                    <option value="50">50</option>
-                                </select>
+                                <Select
+                                    name="entry"
+                                    options={entryOptions as unknown as readonly GroupBase<never>[]}
+                                    className="basic-multi-select"
+                                    classNamePrefix="select"
+                                    value={entryOptions.find(option => option.value === entry) || 5}
+                                    onChange={(selectedOptions: any) => setEntry(selectedOptions ? selectedOptions.value : 5)}
+                                    styles={{
+                                        control: (provided) => ({
+                                            ...provided,
+                                            height: '42px',
+                                            minHeight: '42px',
+                                            marginTop: '0.5rem',
+                                            borderColor: '#dee2e6 !important',
+                                            boxShadow: 'none !important'
+                                        }),
+                                        valueContainer: (provided) => ({
+                                            ...provided,
+                                            height: '42px',
+                                            padding: '0 8px'
+                                        }),
+                                        input: (provided) => ({
+                                            ...provided,
+                                            margin: '0',
+                                            padding: '0'
+                                        }),
+                                        indicatorsContainer: (provided) => ({
+                                            ...provided,
+                                            height: '42px'
+                                        })
+                                    }}
+                                />
                             </label>
                         </div>
 
@@ -309,19 +334,19 @@ export default function ProcessManagement({ data, className }: ProcessManagement
                                 href={path + "/new-process"}
                                 className="btn bg-main-green text-white"
                             >
-                                Thêm mẻ
+                                Thêm nhóm
                             </Link>
                         </div>
                     </div>
 
-                    <div className={`m-0 p-0 w-100 w-100 mt-4 bg-white position-relative ${vrfWm['wrap-process-table']}`}>
+                    <div className={`m-0 p-0 px-2 w-100 w-100 mt-4 bg-white position-relative ${vml['wrap-process-table']}`}>
                         {loading && <Suspense fallback={<div>Loading...</div>}><Loading /></Suspense>}
                         {paginatedData.length > 0 ? (
-                            <table className={`table table-striped table-bordered table-hover ${vrfWm['process-table']}`}>
+                            <table className={`table table-striped table-hover ${vml['process-table']}`}>
                                 <thead>
-                                    <tr className={`${vrfWm['table-header']}`}>
+                                    <tr className={`${vml['table-header']}`}>
                                         <th onClick={() => sortData('id')}>
-                                            <div className={`${vrfWm['table-label']}`}>
+                                            <div className={`${vml['table-label']}`}>
                                                 <span>
                                                     ID
                                                 </span>
@@ -334,7 +359,7 @@ export default function ProcessManagement({ data, className }: ProcessManagement
                                             </div>
                                         </th>
                                         <th onClick={() => sortData('createdBy')}>
-                                            <div className={`${vrfWm['table-label']}`}>
+                                            <div className={`${vml['table-label']}`}>
                                                 <span>
                                                     Người kiểm định
                                                 </span>
@@ -347,7 +372,7 @@ export default function ProcessManagement({ data, className }: ProcessManagement
                                             </div>
                                         </th>
                                         <th onClick={() => sortData('numberOfClocks')}>
-                                            <div className={`${vrfWm['table-label']}`}>
+                                            <div className={`${vml['table-label']}`}>
                                                 <span>Số đồng hồ
                                                 </span>
                                                 {sortConfig && sortConfig.key === 'numberOfClocks' && sortConfig.direction === 'asc' && (
@@ -359,7 +384,7 @@ export default function ProcessManagement({ data, className }: ProcessManagement
                                             </div>
                                         </th>
                                         <th onClick={() => sortData('status')}>
-                                            <div className={`${vrfWm['table-label']}`}>
+                                            <div className={`${vml['table-label']}`}>
                                                 <span>
                                                     Trạng thái
                                                 </span>
@@ -372,7 +397,7 @@ export default function ProcessManagement({ data, className }: ProcessManagement
                                             </div>
                                         </th>
                                         <th onClick={() => sortData('updatedAt')}>
-                                            <div className={`${vrfWm['table-label']}`}>
+                                            <div className={`${vml['table-label']}`}>
                                                 <span>
                                                     Cập nhật cuối
                                                 </span>
@@ -396,7 +421,7 @@ export default function ProcessManagement({ data, className }: ProcessManagement
                                             <td>{item.status.split(',').map((s: string) => statusOptions.find(option => option.value === s)?.label).join(', ')}</td>
                                             <td>{item.updatedAt}</td>
                                             <td>
-                                                <div className={`${vrfWm['action']}`}>
+                                                <div className={`${vml['action']}`}>
                                                     <Link href={path + "/detail/" + item.id} className={`btn m-0 p-0`}>
                                                         <FontAwesomeIcon icon={faEye}></FontAwesomeIcon>
                                                     </Link>

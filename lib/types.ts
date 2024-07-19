@@ -34,7 +34,7 @@ export interface WaterMeterDataType {
     "id": number,
     "serialNumber": string,
     "type": string,
-    "class": string,
+    "accuracyClass": string,
     "createdAt": string,
     "updatedAt": string,
     "createdBy": string,

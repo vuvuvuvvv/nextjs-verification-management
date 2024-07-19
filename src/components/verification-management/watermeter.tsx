@@ -1,7 +1,7 @@
 "use client"
 
 import { useEffect, useState, useCallback, Suspense } from "react";
-import vrfWm from "@styles/scss/ui/vrf-watermeter.module.scss"
+import vml from "@styles/scss/components/verification-management-layout.module.scss";
 
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
@@ -20,6 +20,8 @@ import { WaterMeterDataType } from "@lib/types";
 import { usePathname } from "next/navigation";
 import Link from "next/link";
 
+import { statusOptions, typeOptions, accuracyClassOptions, entryOptions } from "@lib/system-constant";
+
 const Loading = React.lazy(() => import("@/components/loading"));
 
 
@@ -28,17 +30,11 @@ interface WaterMeterManagementProps {
     className?: string,
 }
 
-const statusOptions = [
-    { value: '1', label: 'Q1' },
-    { value: '2', label: 'Q2' },
-    { value: '3', label: 'Q3' }
-];
-
 interface FilterForm {
     waterMeterId: string;
     serialNumber: string;
     type: string;
-    class: string;
+    accuracyClass: string;
     implementer: string;
     status: string[];
     fromDate: Date | null;
@@ -58,7 +54,7 @@ export default function WaterMeterManagement({ data, className }: WaterMeterMana
         waterMeterId: "",
         serialNumber: "",
         type: "",
-        class: "",
+        accuracyClass: "",
         implementer: "",
         status: [],
         fromDate: null,
@@ -68,57 +64,69 @@ export default function WaterMeterManagement({ data, className }: WaterMeterMana
 
     const resetTotalPage = () => {
         setCurrentPage(1);
-        return Math.ceil(data.length / entry);
+        if (rootData.length <= entry) {
+            return 1;
+        }
+        return Math.ceil(rootData.length / entry);
     }
 
     const [totalPage, setTotalPage] = useState(resetTotalPage);
 
     useEffect(() => {
         setTotalPage(resetTotalPage);
-    }, [entry])
-
+    }, [rootData, entry])
 
     const sortData = useCallback((key: string) => {
-        setLoading(true);
-        let direction: 'asc' | 'desc' = 'asc';
+        if (!loading) {
+            setLoading(true);
+            let direction: 'asc' | 'desc' = 'asc';
 
-        if (sortConfig && sortConfig.key === key) {
-            direction = sortConfig.direction === 'asc' ? 'desc' : 'asc';
-        }
-
-        const sortedData = [...data].sort((a, b) => {
-            if (key === 'createdAt' || key === 'updatedAt') {
-                const dateA = dayjs(a[key as keyof typeof a], 'DD-MM-YYYY');
-                const dateB = dayjs(b[key as keyof typeof b], 'DD-MM-YYYY');
-                return direction === 'asc' ? dateA.diff(dateB) : dateB.diff(dateA);
-            } else {
-                return direction === 'asc'
-                    ? a[key as keyof typeof a] < b[key as keyof typeof a] ? -1 : 1
-                    : a[key as keyof typeof a] > b[key as keyof typeof a] ? -1 : 1;
+            if (sortConfig && sortConfig.key === key) {
+                direction = sortConfig.direction === 'asc' ? 'desc' : 'asc';
             }
-        });
 
-        setRootData(sortedData);
-        setSortConfig({ key, direction });
-        setLoading(false);
-    }, [data, sortConfig]);
+            const sortedData = [...rootData].sort((a, b) => {
+                if (key === 'createdAt' || key === 'updatedAt') {
+                    const dateA = dayjs(a[key as keyof typeof a], 'DD-MM-YYYY');
+                    const dateB = dayjs(b[key as keyof typeof b], 'DD-MM-YYYY');
+                    return direction === 'asc' ? dateA.diff(dateB) : dateB.diff(dateA);
+                } else {
+                    return direction === 'asc'
+                        ? a[key as keyof typeof a] < b[key as keyof typeof a] ? -1 : 1
+                        : a[key as keyof typeof a] > b[key as keyof typeof a] ? -1 : 1;
+                }
+            });
+
+            setRootData(sortedData);
+            setSortConfig({ key, direction });
+            setLoading(false);
+        }
+    }, [rootData, sortConfig]);
 
     useEffect(() => {
         setLoading(true);
         const debounce = setTimeout(() => {
-            let filteredData = rootData;
+            let filteredData = data;
 
             if (filterForm.waterMeterId) {
                 filteredData = filteredData.filter(item => {
-                    const keywords = filterForm.waterMeterId.toLowerCase().replace(/[^\d]/g, '').split(' ').filter(Boolean);
+                    const keywords = filterForm.waterMeterId.trim().toLowerCase().replace(/[^\d]/g, '').split(' ').filter(Boolean);
                     const itemId = item.id;
                     return keywords.some(keyword => itemId.toString().includes(keyword));
                 });
             }
 
+            if (filterForm.serialNumber) {
+                filteredData = filteredData.filter(item => {
+                    const keyword = filterForm.serialNumber.trim().toLowerCase();
+                    const itemSerial = item.serialNumber.toLowerCase().replace(/[^a-zA-Z0-9 ]/g, '');
+                    return itemSerial.includes(keyword);
+                });
+            }
+
             if (filterForm.implementer) {
                 filteredData = filteredData.filter(item => {
-                    const keywords = filterForm.implementer.toLowerCase().split(' ').filter(Boolean);
+                    const keywords = filterForm.implementer.trim().toLowerCase().split(' ').filter(Boolean);
                     const itemImplementer = item.createdBy.toLowerCase().replace(/[^a-zA-Z0-9 ]/g, '');
                     return keywords.some(keyword => itemImplementer.includes(keyword));
                 });
@@ -129,6 +137,14 @@ export default function WaterMeterManagement({ data, className }: WaterMeterMana
                     const itemStatus = item.status.split(',');
                     return filterForm.status.every(s => itemStatus.includes(s));
                 });
+            }
+
+            if (filterForm.type) {
+                filteredData = filteredData.filter(item => item.type === filterForm.type);
+            }
+
+            if (filterForm.accuracyClass) {
+                filteredData = filteredData.filter(item => item.accuracyClass === filterForm.accuracyClass);
             }
 
             if (filterForm.fromDate || filterForm.toDate) {
@@ -145,8 +161,8 @@ export default function WaterMeterManagement({ data, className }: WaterMeterMana
                 });
             }
 
-            setTotalPage(resetTotalPage);
             setRootData(filteredData);
+            setSortConfig(null);
             setLoading(false);
         }, 500);
         return () => clearTimeout(debounce);
@@ -164,7 +180,7 @@ export default function WaterMeterManagement({ data, className }: WaterMeterMana
             waterMeterId: "",
             serialNumber: "",
             type: "",
-            class: "",
+            accuracyClass: "",
             implementer: "",
             status: [],
             fromDate: null,
@@ -177,18 +193,19 @@ export default function WaterMeterManagement({ data, className }: WaterMeterMana
         setCurrentPage(newPage);
     };
 
-    const paginatedData = data.slice((currentPage - 1) * entry, currentPage * entry);
+    const paginatedData = rootData.slice((currentPage - 1) * entry, currentPage * entry);
 
     return (
         <LocalizationProvider dateAdapter={AdapterDayjs} localeText={viVN.components.MuiLocalizationProvider.defaultProps.localeText}>
             {/* <div className={`${className ? className : ""} mb-3 container-fluid p-0 px-2 py-3 w-100`}> */}
             <div className={`${className ? className : ""} mb-3 p-0 w-100`}>
-                {/* <div className={`${vrfWm['wraper']} py-3 w-100 bg-white sr-cover`}> */}
-                <h3 className="px-3 pt-3 mb-0">Quản lý mẻ:</h3>
-                <div className={`${vrfWm['wraper']} py-3 w-100 bg-white`}>
-                    <div className={`row m-0 px-md-3 w-100 mb-3 ${vrfWm['search-process']}`}>
+                {/* <div className={`${vml['wraper']} py-3 w-100 bg-white sr-cover`}> */}
+                {/* <h3 className="px-3 pt-3 mb-0">Quản lý nhóm:</h3> */}
+                <div className={`${vml['wraper']} py-3 w-100 bg-white`}>
+
+                    <div className={`row m-0 px-md-3 w-100 mb-3 ${vml['search-process']}`}>
                         <div className="col-12 mb-3 col-md-6 col-xl-4 d-flex">
-                            <label className={`${vrfWm['form-label']}`} htmlFor="process-id">
+                            <label className={`${vml['form-label']}`} htmlFor="process-id">
                                 ID:
                                 <input
                                     type="text"
@@ -200,8 +217,21 @@ export default function WaterMeterManagement({ data, className }: WaterMeterMana
                                 />
                             </label>
                         </div>
+                        <div className="col-12 mb-3 col-md-6 col-xl-4 d-flex">
+                            <label className={`${vml['form-label']}`} htmlFor="serial-number">
+                                Serial number:
+                                <input
+                                    type="text"
+                                    id="serial-number"
+                                    className="form-control"
+                                    placeholder="Nhập số seri"
+                                    value={filterForm.serialNumber}
+                                    onChange={(e) => handleFilterChange('serialNumber', e.target.value)}
+                                />
+                            </label>
+                        </div>
                         <div className="col-12 mb-3 col-md-6 col-xl-4">
-                            <label className={`${vrfWm['form-label']}`} htmlFor="implementer">
+                            <label className={`${vml['form-label']}`} htmlFor="implementer">
                                 Người kiểm định:
                                 <input
                                     type="text"
@@ -215,14 +245,15 @@ export default function WaterMeterManagement({ data, className }: WaterMeterMana
                         </div>
 
                         <div className="col-12 mb-3 col-md-6 col-xl-4">
-                            <label className={`${vrfWm['form-label']}`} htmlFor="status">
-                                Trạng thái
+                            <label className={`${vml['form-label']}`}>
+                                Trạng thái:
                                 <Select
                                     isMulti
                                     name="status"
                                     options={statusOptions as unknown as readonly GroupBase<never>[]}
                                     className="basic-multi-select"
                                     classNamePrefix="select"
+                                    isClearable
                                     value={selectedStatus}
                                     onChange={(selectedOptions: any) => {
                                         if (selectedOptions) {
@@ -262,16 +293,94 @@ export default function WaterMeterManagement({ data, className }: WaterMeterMana
                             </label>
                         </div>
 
-                        <div className={`col-12 col-md-8 mb-3 m-0 row p-0 ${vrfWm['search-created-date']}`}>
-                            <label className={`${vrfWm['form-label']} col-12`}>
+                        <div className="col-12 mb-3 col-md-6 col-xl-4">
+                            <label className={`${vml['form-label']}`}>
+                                Kiểu:
+                                <Select
+                                    name="type"
+                                    options={typeOptions as unknown as readonly GroupBase<never>[]}
+                                    className="basic-multi-select"
+                                    classNamePrefix="select"
+                                    isClearable
+                                    value={typeOptions.find(option => option.value === filterForm.type) || null}
+                                    onChange={(selectedOptions: any) => handleFilterChange('type', selectedOptions ? selectedOptions.value : null)}
+                                    styles={{
+                                        control: (provided) => ({
+                                            ...provided,
+                                            height: '42px',
+                                            minHeight: '42px',
+                                            marginTop: '0.5rem',
+                                            borderColor: '#dee2e6 !important',
+                                            boxShadow: 'none !important'
+                                        }),
+                                        valueContainer: (provided) => ({
+                                            ...provided,
+                                            height: '42px',
+                                            padding: '0 8px'
+                                        }),
+                                        input: (provided) => ({
+                                            ...provided,
+                                            margin: '0',
+                                            padding: '0'
+                                        }),
+                                        indicatorsContainer: (provided) => ({
+                                            ...provided,
+                                            height: '42px'
+                                        })
+                                    }}
+                                />
+                            </label>
+                        </div>
+
+                        <div className="col-12 mb-3 col-md-6 col-xl-4">
+                            <label className={`${vml['form-label']}`}>
+                                Cấp chính xác:
+                                <Select
+                                    name="accuracyClass"
+                                    options={accuracyClassOptions as unknown as readonly GroupBase<never>[]}
+                                    className="basic-multi-select"
+                                    classNamePrefix="select"
+                                    isClearable
+                                    value={accuracyClassOptions.find(option => option.value === filterForm.accuracyClass) || null}
+                                    onChange={(selectedOptions: any) => handleFilterChange('accuracyClass', selectedOptions ? selectedOptions.value : null)}
+                                    styles={{
+                                        control: (provided) => ({
+                                            ...provided,
+                                            height: '42px',
+                                            minHeight: '42px',
+                                            marginTop: '0.5rem',
+                                            borderColor: '#dee2e6 !important',
+                                            boxShadow: 'none !important'
+                                        }),
+                                        valueContainer: (provided) => ({
+                                            ...provided,
+                                            height: '42px',
+                                            padding: '0 8px'
+                                        }),
+                                        input: (provided) => ({
+                                            ...provided,
+                                            margin: '0',
+                                            padding: '0'
+                                        }),
+                                        indicatorsContainer: (provided) => ({
+                                            ...provided,
+                                            height: '42px'
+                                        })
+                                    }}
+                                />
+                            </label>
+                        </div>
+
+                        <div className={`col-12 col-md-8 mb-3 m-0 row p-0 ${vml['search-created-date']}`}>
+                            <label className={`${vml['form-label']} col-12`}>
                                 Cập nhật cuối:
                             </label>
-                            <div className={`col-12 row m-0 mt-2 p-0 ${vrfWm['pick-created-date']}`}>
-                                <div className={`col-12 col-md-6 mb-3 mb-md-0 ${vrfWm['picker-field']}`}>
+                            <div className={`col-12 row m-0 mt-2 p-0 ${vml['pick-created-date']}`}>
+                                <div className={`col-12 col-md-6 mb-3 mb-md-0 ${vml['picker-field']}`}>
                                     <label>Từ:</label>
 
                                     <DatePicker
-                                        className={`${vrfWm['date-picker']}`}
+                                        className={`${vml['date-picker']}`}
                                         value={filterForm.fromDate ? dayjs(filterForm.fromDate) : null}
                                         format="DD-MM-YYYY"
 
@@ -281,10 +390,10 @@ export default function WaterMeterManagement({ data, className }: WaterMeterMana
                                     />
                                 </div>
 
-                                <div className={`col-12 col-md-6 ${vrfWm['picker-field']}`}>
+                                <div className={`col-12 col-md-6 ${vml['picker-field']}`}>
                                     <label>Đến:</label>
                                     <DatePicker
-                                        className={`${vrfWm['date-picker']}`}
+                                        className={`${vml['date-picker']}`}
                                         value={filterForm.toDate ? dayjs(filterForm.toDate) : undefined}
                                         format="DD-MM-YYYY"
                                         minDate={filterForm.fromDate ? dayjs(filterForm.fromDate).add(1, 'day') : undefined}
@@ -297,16 +406,40 @@ export default function WaterMeterManagement({ data, className }: WaterMeterMana
                             </div>
                         </div>
                         <div className={`col-12 col-md-4 mb-3 m-0 p-0 row`}>
-                            <label className={`${vrfWm['form-label']}`} htmlFor="implementer">
+                            <label className={`${vml['form-label']}`}>
                                 Số lượng lọc:
-                                <select className="form-select" value={entry ?? 5} onChange={(e) => setEntry(Number(e.target.value))}>
-                                    <option value="5">5</option>
-                                    <option value="10">10</option>
-                                    <option value="15">15</option>
-                                    <option value="20">20</option>
-                                    <option value="25">25</option>
-                                    <option value="50">50</option>
-                                </select>
+                                <Select
+                                    name="entry"
+                                    options={entryOptions as unknown as readonly GroupBase<never>[]}
+                                    className="basic-multi-select"
+                                    classNamePrefix="select"
+                                    value={entryOptions.find(option => option.value === entry) || 5}
+                                    onChange={(selectedOptions: any) => setEntry(selectedOptions ? selectedOptions.value : 5)}
+                                    styles={{
+                                        control: (provided) => ({
+                                            ...provided,
+                                            height: '42px',
+                                            minHeight: '42px',
+                                            marginTop: '0.5rem',
+                                            borderColor: '#dee2e6 !important',
+                                            boxShadow: 'none !important'
+                                        }),
+                                        valueContainer: (provided) => ({
+                                            ...provided,
+                                            height: '42px',
+                                            padding: '0 8px'
+                                        }),
+                                        input: (provided) => ({
+                                            ...provided,
+                                            margin: '0',
+                                            padding: '0'
+                                        }),
+                                        indicatorsContainer: (provided) => ({
+                                            ...provided,
+                                            height: '42px'
+                                        })
+                                    }}
+                                />
                             </label>
                         </div>
 
@@ -318,19 +451,19 @@ export default function WaterMeterManagement({ data, className }: WaterMeterMana
                                 href={path + "/new-process"}
                                 className="btn bg-main-green text-white"
                             >
-                                Thêm mẻ
+                                Thêm mới
                             </Link>
                         </div>
                     </div>
 
-                    <div className={`m-0 p-0 w-100 w-100 mt-4 bg-white position-relative ${vrfWm['wrap-process-table']}`}>
+                    <div className={`m-0 p-0 w-100 w-100 mt-4 bg-white position-relative ${vml['wrap-process-table']}`}>
                         {loading && <Suspense fallback={<div>Loading...</div>}><Loading /></Suspense>}
                         {paginatedData.length > 0 ? (
-                            <table className={`table table-striped table-bordered table-hover ${vrfWm['process-table']}`}>
+                            <table className={`table table-striped table-bordered table-hover ${vml['process-table']}`}>
                                 <thead>
-                                    <tr className={`${vrfWm['table-header']}`}>
+                                    <tr className={`${vml['table-header']}`}>
                                         <th onClick={() => sortData('id')}>
-                                            <div className={`${vrfWm['table-label']}`}>
+                                            <div className={`${vml['table-label']}`}>
                                                 <span>
                                                     ID
                                                 </span>
@@ -342,8 +475,15 @@ export default function WaterMeterManagement({ data, className }: WaterMeterMana
                                                 )}
                                             </div>
                                         </th>
+                                        <th>
+                                            <div className={`${vml['table-label']}`}>
+                                                <span>
+                                                    Serial Number
+                                                </span>
+                                            </div>
+                                        </th>
                                         <th onClick={() => sortData('createdBy')}>
-                                            <div className={`${vrfWm['table-label']}`}>
+                                            <div className={`${vml['table-label']}`}>
                                                 <span>
                                                     Người kiểm định
                                                 </span>
@@ -355,20 +495,34 @@ export default function WaterMeterManagement({ data, className }: WaterMeterMana
                                                 )}
                                             </div>
                                         </th>
-                                        <th onClick={() => sortData('numberOfClocks')}>
-                                            <div className={`${vrfWm['table-label']}`}>
-                                                <span>Số đồng hồ
+                                        <th onClick={() => sortData('type')}>
+                                            <div className={`${vml['table-label']}`}>
+                                                <span>
+                                                    Kiểu
                                                 </span>
-                                                {sortConfig && sortConfig.key === 'numberOfClocks' && sortConfig.direction === 'asc' && (
+                                                {sortConfig && sortConfig.key === 'type' && sortConfig.direction === 'asc' && (
                                                     <FontAwesomeIcon icon={faChevronUp}></FontAwesomeIcon>
                                                 )}
-                                                {sortConfig && sortConfig.key === 'numberOfClocks' && sortConfig.direction === 'desc' && (
+                                                {sortConfig && sortConfig.key === 'type' && sortConfig.direction === 'desc' && (
+                                                    <FontAwesomeIcon icon={faChevronDown}></FontAwesomeIcon>
+                                                )}
+                                            </div>
+                                        </th>
+                                        <th onClick={() => sortData('accuracyClass')}>
+                                            <div className={`${vml['table-label']}`}>
+                                                <span>
+                                                    Cấp chính xác
+                                                </span>
+                                                {sortConfig && sortConfig.key === 'accuracyClass' && sortConfig.direction === 'asc' && (
+                                                    <FontAwesomeIcon icon={faChevronUp}></FontAwesomeIcon>
+                                                )}
+                                                {sortConfig && sortConfig.key === 'accuracyClass' && sortConfig.direction === 'desc' && (
                                                     <FontAwesomeIcon icon={faChevronDown}></FontAwesomeIcon>
                                                 )}
                                             </div>
                                         </th>
                                         <th onClick={() => sortData('status')}>
-                                            <div className={`${vrfWm['table-label']}`}>
+                                            <div className={`${vml['table-label']}`}>
                                                 <span>
                                                     Trạng thái
                                                 </span>
@@ -381,7 +535,7 @@ export default function WaterMeterManagement({ data, className }: WaterMeterMana
                                             </div>
                                         </th>
                                         <th onClick={() => sortData('updatedAt')}>
-                                            <div className={`${vrfWm['table-label']}`}>
+                                            <div className={`${vml['table-label']}`}>
                                                 <span>
                                                     Cập nhật cuối
                                                 </span>
@@ -400,14 +554,14 @@ export default function WaterMeterManagement({ data, className }: WaterMeterMana
                                     {paginatedData.map((item, index) => (
                                         <tr key={index}>
                                             <td>{item.id}</td>
-                                            <td>{item.createdBy}</td>
                                             <td>{item.serialNumber}</td>
+                                            <td>{item.createdBy}</td>
                                             <td>{item.type}</td>
-                                            <td>{item.class}</td>
+                                            <td>{item.accuracyClass}</td>
                                             <td>{item.status.split(',').map((s: string) => statusOptions.find(option => option.value === s)?.label).join(', ')}</td>
                                             <td>{item.updatedAt}</td>
                                             <td>
-                                                <div className={`${vrfWm['action']}`}>
+                                                <div className={`${vml['action']}`}>
                                                     <Link href={path + "/detail/" + item.id} className={`btn m-0 p-0`}>
                                                         <FontAwesomeIcon icon={faEye}></FontAwesomeIcon>
                                                     </Link>

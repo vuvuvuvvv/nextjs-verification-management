@@ -2,7 +2,7 @@
 
 import ErrorCaculatorTab from "@/components/error-caculator-tab";
 import ErrorCaculatorForm from "@/components/dn-bigger-than-32/error-caculator-form";
-import vrfWm from "@styles/scss/ui/vrf-watermeter.module.scss"
+import vrfWm from "@styles/scss/ui/vfm.module.scss"
 import { useState } from "react";
 
 
@@ -12,10 +12,15 @@ import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { viVN } from "@mui/x-date-pickers/locales";
 
 import dayjs, { Dayjs } from "dayjs";
-import { faAngleDoubleDown, faAngleDoubleUp } from "@fortawesome/free-solid-svg-icons";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
-interface WaterMeterProps {
+import NavTab from "@/components/nav-tab";
+import { accuracyClassOptions, measureInstrumentNameOptions, typeOptions } from "@lib/system-constant";
+
+import Select, { GroupBase } from 'react-select';
+
+import { useUser } from "@/context/user-context";
+
+interface NewProcessDNBiggerThan32Props {
     className?: string,
 }
 
@@ -23,7 +28,9 @@ interface TabState {
     [key: number | string]: boolean;
 };
 
-export default function WaterMeter({ className }: WaterMeterProps) {
+export default function NewProcessDNBiggerThan32({ className }: NewProcessDNBiggerThan32Props) {
+    const { user } = useUser();
+
     const [selectedTab, setSelectedTab] = useState<TabState>({ [1]: true });
     const [isCollapsed, setIsCollapsed] = useState<boolean>(true);
 
@@ -69,7 +76,7 @@ export default function WaterMeter({ className }: WaterMeterProps) {
             <div className={`${className ? className : ""} ${vrfWm['wraper']} container p-0 px-2 py-3 w-100`}>
                 <div className={`row m-0 mb-3 p-3 w-100 bg-white sr-cover`}>
                     <div className="w-100 m-0 p-0 mb-3 position-relative">
-                        <h3 className="text-uppercase fw-bolder text-center mt-3 mb-0">thông tin kiểm định</h3>
+                        <h3 className="text-uppercase fw-bolder text-center mt-3 mb-0">thông tin đồng hồ</h3>
                     </div>
                     <div className={`w-100 p-0 row m-0 mb-3`}>
                         <div className={`col-12 col-xl-8 m-0 p-0 d-flex align-items-center justify-content-between ${vrfWm['seri-number-input']}`}>
@@ -90,30 +97,79 @@ export default function WaterMeter({ className }: WaterMeterProps) {
                             <div className="row mx-0 w-100 mb-3">
                                 <div className="mb-3 col-12 col-xxl-6">
                                     <label htmlFor="deviceName" className="form-label">Tên phương tiện đo:</label>
-                                    <input
-                                        type="text"
-                                        className="form-control"
-                                        id="deviceName"
-                                        placeholder="Tên phương tiện đo"
-                                        value={deviceName}
-                                        onChange={(e) => setDeviceName(e.target.value)}
+                                    <Select
+                                        name="deviceName"
+                                        options={measureInstrumentNameOptions as unknown as readonly GroupBase<never>[]}
+                                        className="basic-multi-select"
+                                        classNamePrefix="select"
+                                        placeholder="-- Chọn tên --"
+                                        isClearable
+                                        value={measureInstrumentNameOptions.find(option => option.label == deviceName) || null}
+                                        onChange={(selectedOptions: any) => setDeviceName(selectedOptions ? selectedOptions.value : "")}
+                                        styles={{
+                                            control: (provided) => ({
+                                                ...provided,
+                                                height: '42px',
+                                                minHeight: '42px',
+                                                borderColor: '#dee2e6 !important',
+                                                boxShadow: 'none !important'
+                                            }),
+                                            valueContainer: (provided) => ({
+                                                ...provided,
+                                                height: '42px',
+                                                padding: '0 8px'
+                                            }),
+                                            input: (provided) => ({
+                                                ...provided,
+                                                margin: '0',
+                                                padding: '0'
+                                            }),
+                                            indicatorsContainer: (provided) => ({
+                                                ...provided,
+                                                height: '42px'
+                                            })
+                                        }}
                                     />
                                 </div>
                                 <div className="mb-3 col-12 col-md-6">
                                     <label htmlFor="deviceType" className="form-label">Kiểu:</label>
-                                    <select className="form-select" value={deviceType ?? ""} onChange={(e) => setDeviceType(e.target.value)}>
-                                        <option value="" disabled>-- Chọn kiểu --</option>
-                                        <option value="Điện từ">Điện từ</option>
-                                        <option value="Cơ - Điện từ">Cơ - Điện từ</option>
-                                        <option value="Woltman">Woltman</option>
-                                        <option value="Đa tia">Đa tia</option>
-                                        <option value="Đơn tia">Đơn tia</option>
-                                        <option value="Thể tích">Thể tích</option>
-                                        <option value="Woltex">Woltex</option>
-                                        <option value="Khác">Khác</option>
-                                    </select>
+                                    <Select
+                                        name="type"
+                                        options={typeOptions as unknown as readonly GroupBase<never>[]}
+                                        className="basic-multi-select"
+                                        placeholder="-- Chọn kiểu --"
+                                        classNamePrefix="select"
+                                        isClearable
+                                        value={typeOptions.find(option => option.value === deviceType) || null}
+                                        onChange={(selectedOptions: any) => setDeviceType(selectedOptions ? selectedOptions.value : "")}
+                                        styles={{
+                                            control: (provided) => ({
+                                                ...provided,
+                                                height: '42px',
+                                                minHeight: '42px',
+                                                borderColor: '#dee2e6 !important',
+                                                boxShadow: 'none !important'
+                                            }),
+                                            valueContainer: (provided) => ({
+                                                ...provided,
+                                                height: '42px',
+                                                padding: '0 8px'
+                                            }),
+                                            input: (provided) => ({
+                                                ...provided,
+                                                margin: '0',
+                                                padding: '0'
+                                            }),
+                                            indicatorsContainer: (provided) => ({
+                                                ...provided,
+                                                height: '42px'
+                                            })
+                                        }}
+                                    />
                                 </div>
-                                <div className="mb-3 col-12 col-md-6">
+
+                                {/* TODO */}
+                                {/* <div className="mb-3 col-12 col-md-6">
                                     <label htmlFor="deviceNumber" className="form-label">Số:</label>
                                     <input
                                         type="text"
@@ -123,7 +179,7 @@ export default function WaterMeter({ className }: WaterMeterProps) {
                                         value={deviceNumber}
                                         onChange={handleNumberChange(setDeviceNumber)}
                                     />
-                                </div>
+                                </div> */}
                                 <div className="mb-3 col-12 col-md-6">
                                     <label htmlFor="manufacturer" className="form-label">Cơ sở sản xuất:</label>
                                     <input
@@ -162,22 +218,59 @@ export default function WaterMeter({ className }: WaterMeterProps) {
                                             onChange={handleNumberChange(setDN)}
                                             pattern="\d*"
                                         />
-                                        <span className="input-group-text" id="basic-addon2">mm</span>
+                                        <span className="input-group-text" id="basic-addon2">lít</span>
                                     </div>
                                 </div>
                                 <div className="mb-3 col-12 col-md-6">
                                     <label htmlFor="accuracyClass" className="form-label">- Cấp chính xác:</label>
-                                    <select className="form-select" value={accuracyClass ?? ""} onChange={(e) => setAccuracyClass(e.target.value)}>
-                                        <option value="" disabled>-- Chọn cấp chính xác --</option>
-                                        <option value="0.5">0.5</option>
-                                        <option value="1">1</option>
-                                        <option value="1.5">1.5</option>
-                                        <option value="2">2</option>
-                                        <option value="A">A</option>
-                                        <option value="B">B</option>
-                                        <option value="C">C</option>
-                                        <option value="D">D</option>
-                                    </select>
+                                    <Select
+                                        name="accuracyClass"
+                                        options={accuracyClassOptions as unknown as readonly GroupBase<never>[]}
+                                        className="basic-multi-select"
+                                        classNamePrefix="select"
+                                        placeholder="-- Chọn cấp --"
+                                        isClearable
+                                        value={accuracyClassOptions.find(option => option.value === accuracyClass) || null}
+                                        onChange={(selectedOptions: any) => setAccuracyClass(selectedOptions ? selectedOptions.value : "")}
+                                        styles={{
+                                            control: (provided) => ({
+                                                ...provided,
+                                                height: '42px',
+                                                minHeight: '42px',
+                                                borderColor: '#dee2e6 !important',
+                                                boxShadow: 'none !important'
+                                            }),
+                                            valueContainer: (provided) => ({
+                                                ...provided,
+                                                height: '42px',
+                                                padding: '0 8px'
+                                            }),
+                                            input: (provided) => ({
+                                                ...provided,
+                                                margin: '0',
+                                                padding: '0'
+                                            }),
+                                            indicatorsContainer: (provided) => ({
+                                                ...provided,
+                                                height: '42px'
+                                            })
+                                        }}
+                                    />
+                                </div>
+                                <div className="mb-3 col-12 col-md-6">
+                                    <label htmlFor="q3" className="form-label">- Q<sub>3</sub>(Q<sub>n</sub>):</label>
+                                    <div className="input-group">
+                                        <input
+                                            type="text"
+                                            className="form-control"
+                                            id="q3"
+                                            placeholder="Q3(Qn)"
+                                            value={q3}
+                                            onChange={handleNumberChange(setQ3)}
+                                            pattern="\d*"
+                                        />
+                                        <span className="input-group-text" id="basic-addon2">m<sup>3</sup>/h (kg/h)</span>
+                                    </div>
                                 </div>
                                 <div className="mb-3 col-12 col-md-6">
                                     <label htmlFor="ratio" className="form-label">- Tỷ số Q<sub>3</sub>/Q<sub>1</sub> (R):</label>
@@ -190,21 +283,6 @@ export default function WaterMeter({ className }: WaterMeterProps) {
                                         onChange={handleNumberChange(setRatio)}
                                         pattern="\d*"
                                     />
-                                </div>
-                                <div className="mb-3 col-12 col-md-6">
-                                    <label htmlFor="q3" className="form-label">- Q<sub>3</sub>(Q<sub>1</sub>):</label>
-                                    <div className="input-group">
-                                        <input
-                                            type="text"
-                                            className="form-control"
-                                            id="q3"
-                                            placeholder="Q3(Q1)"
-                                            value={q3}
-                                            onChange={handleNumberChange(setQ3)}
-                                            pattern="\d*"
-                                        />
-                                        <span className="input-group-text" id="basic-addon2">m<sup>3</sup>/h (kg/h)</span>
-                                    </div>
                                 </div>
                                 <div className="mb-3 col-12 col-md-6">
                                     <label htmlFor="pdmSign" className="form-label">- Ký hiệu PDM/Số quyết định PDM:</label>
@@ -238,7 +316,7 @@ export default function WaterMeter({ className }: WaterMeterProps) {
                                         className="form-control"
                                         id="method"
                                         placeholder="Phương pháp thực hiện"
-                                        value={method}
+                                        value={"ĐNVN 17:2023"}
                                         onChange={(e) => setMethod(e.target.value)}
                                     />
                                 </div>
@@ -260,7 +338,7 @@ export default function WaterMeter({ className }: WaterMeterProps) {
                                         className="form-control"
                                         id="implementer"
                                         placeholder="Người thực hiện"
-                                        value={implementer}
+                                        value={user?.username || implementer}
                                         onChange={(e) => setImplementer(e.target.value)}
                                     />
                                 </div>
@@ -268,7 +346,7 @@ export default function WaterMeter({ className }: WaterMeterProps) {
                                     <label htmlFor="implementationDate" className="form-label">Ngày thực hiện:</label>
                                     <DatePicker
                                         className={`${vrfWm['date-picker']}`}
-                                        value={implementationDate ? dayjs(implementationDate) : null}
+                                        value={dayjs()}
                                         format="DD-MM-YYYY"
                                         maxDate={dayjs().endOf('day')}
                                         onChange={(newValue: Dayjs | null) => setImplementationDate(newValue ? newValue.toDate() : null)}
@@ -289,32 +367,34 @@ export default function WaterMeter({ className }: WaterMeterProps) {
                             </div>
                         </form>
                     </div>
-                        <div className="w-100 m-0 p-0 d-flex justify-content-center align-items-center gap-4">
-                            <span className={vrfWm['end-line']}></span>
-                            <button type="button" data-tooltip={isCollapsed ? "Hiện thêm thông tin" : "Ẩn bớt"} className={`btn ${vrfWm['btn-collapse-info']} ${vrfWm['btn-collapse-end']}`} onClick={toggleCollapse}>
-                                <FontAwesomeIcon icon={isCollapsed ? faAngleDoubleDown : faAngleDoubleUp} className="text-dark" />
-                            </button>
-                            <span className={vrfWm['end-line']}></span>
-                        </div>
+                    <div className="w-100 m-0 p-0 d-flex justify-content-center align-items-center gap-4">
+                        <span className={vrfWm['end-line']}></span>
+                        <button type="button" className={`btn ${vrfWm['btn-collapse-info']} ${vrfWm['btn-collapse-end']}`} onClick={toggleCollapse}>
+                            {isCollapsed ? "Hiện thêm" : "Ẩn bớt"}
+                        </button>
+                        <span className={vrfWm['end-line']}></span>
+                    </div>
                 </div>
 
                 <div className={`m-0 mb-3 p-0 w-100 w-100 bg-white sr-cover`}>
-                    <div className={`m-0 p-0 w-100 nav nav-tabs w-100`} id={vrfWm['process-tab']}>
-                        <button type="button" className={`${vrfWm['nav-link']} ${selectedTab[1] ? vrfWm['active'] : ''} sr-cover`} onClick={() => toggleTab(1)}>
-                            Q<sub>3</sub> (Q<sub>max</sub>)
-                        </button>
-                        <button type="button" className={`${vrfWm['nav-link']} ${selectedTab[2] ? vrfWm['active'] : ''} sr-cover`} onClick={() => toggleTab(2)}>
-                            Q<sub>2</sub> (Q<sub>t</sub>)
-                        </button>
-                        <button type="button" className={`${vrfWm['nav-link']} ${selectedTab[3] ? vrfWm['active'] : ''} sr-cover`} onClick={() => toggleTab(3)}>
-                            Q<sub>1</sub> (Q<sub>min</sub>)
-                        </button>
-                    </div>
-                    <div className={`m-0 py-3 px-2 w-100`} id={vrfWm['process-tab-content']}>
-                        <ErrorCaculatorTab tabIndex={1} className={`${selectedTab[1] ? vrfWm['show'] : 'd-none'}`} form={ErrorCaculatorForm} />
-                        <ErrorCaculatorTab tabIndex={2} className={`${selectedTab[2] ? vrfWm['show'] : 'd-none'}`} form={ErrorCaculatorForm} />
-                        <ErrorCaculatorTab tabIndex={3} className={`${selectedTab[3] ? vrfWm['show'] : 'd-none'}`} form={ErrorCaculatorForm} />
-                    </div>
+
+                    <NavTab tabContent={
+                        [
+                            {
+                                title: <>Q<sub>3</sub> (Q<sub>max</sub>)</>,
+                                content: <ErrorCaculatorTab tabIndex={1} form={ErrorCaculatorForm} />
+                            },
+                            {
+                                title: <>Q<sub>2</sub> (Q<sub>t</sub>)</>,
+                                content: <ErrorCaculatorTab tabIndex={2} form={ErrorCaculatorForm} />
+                            },
+                            {
+                                title: <>Q<sub>1</sub> (Q<sub>min</sub>)</>,
+                                content: <ErrorCaculatorTab tabIndex={3} form={ErrorCaculatorForm} />
+                            },
+                        ]
+                    } />
+
                 </div>
             </div>
         </LocalizationProvider >
