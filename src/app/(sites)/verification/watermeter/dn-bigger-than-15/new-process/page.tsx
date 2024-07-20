@@ -1,9 +1,9 @@
 "use client"
 
 import ErrorCaculatorTab from "@/components/error-caculator-tab";
-import ErrorCaculatorForm from "@/components/dn-bigger-than-32/error-caculator-form";
+import ErrorCaculatorForm from "@/components/error-caculator-form";
 import vrfWm from "@styles/scss/ui/vfm.module.scss"
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
@@ -35,15 +35,23 @@ export default function NewProcessDNBiggerThan32({ className }: NewProcessDNBigg
     const [isCollapsed, setIsCollapsed] = useState<boolean>(true);
 
     const [seriNumber, setSeriNumber] = useState<string>("");                               // Serial number
+
     const [deviceName, setDeviceName] = useState<string>("");                               // Tên phương tiện đo
+    const [directiveSeri, setDirectiveSeri] = useState<string>("");                         // Serial chỉ thị
+    const [sensorSeri, setSensorSeri] = useState<string>("");                               // Serial sensor
+
     const [deviceType, setDeviceType] = useState<string>("");                               // Kiểu
     const [deviceNumber, setDeviceNumber] = useState<string>("");                           // Số
     const [manufacturer, setManufacturer] = useState<string>("");                           // Cơ sở sản xuất
     const [manufactureYear, setManufactureYear] = useState<Date | null>(null);              // Năm sản xuất
     const [DN, setDN] = useState<string>("");                                               // Đường kính danh định
+
     const [accuracyClass, setAccuracyClass] = useState<string | null>(null);                // Cấp chính xác
-    const [ratio, setRatio] = useState<string>("");                                         // Tỷ số Q3/Q1
-    const [q3, setQ3] = useState<string>("");                                               // Q3(Q1)
+    const [q3, setQ3] = useState<string>("");                                               // Q3
+    const [ratio, setRatio] = useState<string>("");                                         // Tỷ số Q3/Q1 (R)
+    const [qn, setQN] = useState<string>("");                                               // QN
+
+    const [kFactor, setKFactor] = useState<string>("");                                     // k factor
     const [pdmSign, setPdmSign] = useState<string>("");                                     // K hiệu PDM/Số quyết định PDM
     const [usageBase, setUsageBase] = useState<string>("");                                 // Cơ sở sử dụng
     const [method, setMethod] = useState<string>("");                                       // Phương pháp thực hiện
@@ -64,12 +72,129 @@ export default function NewProcessDNBiggerThan32({ className }: NewProcessDNBigg
         setIsCollapsed(!isCollapsed);
     };
 
+    // truyền setter vào để lưu giá trị vào state
     const handleNumberChange = (setter: (value: string) => void) => (e: React.ChangeEvent<HTMLInputElement>) => {
         const value = e.target.value;
         if (/^\d*$/.test(value)) {
             setter(value);
         }
     };
+
+    useEffect(() => {
+        setQ3("");
+        setRatio("");
+        setQN("");
+    }, [accuracyClass]);
+
+    useEffect(() => {
+        setDirectiveSeri("");
+        setSensorSeri("");
+    }, [deviceName]);
+
+    const renderAccuracyClassFields = () => {
+
+        if (!accuracyClass) {
+            return <></>
+        }
+
+        // Check có phải đồng hồ đty hay không : value: "1"
+        const renedrDeviceNameCondition = deviceName && measureInstrumentNameOptions.find(option => option.label == deviceName)?.value == "1";
+
+        if ((accuracyClass == "1" || accuracyClass == "2")) {
+            return <>
+                <div className="mb-3 col-12 col-md-6">
+                    <label htmlFor="q3" className="form-label">- Q<sub>3</sub>:</label>
+                    <div className="input-group">
+                        <input
+                            type="text"
+                            className="form-control"
+                            id="q3"
+                            placeholder="Q3"
+                            value={q3}
+                            onChange={handleNumberChange(setQ3)}
+                            pattern="\d*"
+                        />
+                        <span className="input-group-text" id="basic-addon2">m<sup>3</sup>/h (kg/h)</span>
+                    </div>
+                </div>
+                <div className="mb-3 col-12 col-md-6">
+                    <label htmlFor="ratio" className="form-label">- Tỷ số Q<sub>3</sub>/Q<sub>1</sub> (R):</label>
+                    <input
+                        type="text"
+                        className="form-control"
+                        id="ratio"
+                        placeholder="Tỷ số Q3/Q1 (R)"
+                        value={ratio}
+                        onChange={handleNumberChange(setRatio)}
+                        pattern="\d*"
+                    />
+                </div>
+
+                {renedrDeviceNameCondition &&
+                    <div className="mb-3 col-12 col-md-6">
+                        <label htmlFor="sensorSeri" className="form-label">Serial sensor:</label>
+                        <input
+                            type="text"
+                            className="form-control"
+                            id="sensorSeri"
+                            placeholder="Serial sensor"
+                            value={sensorSeri}
+                            onChange={(e) => setSensorSeri(e.target.value)}
+                        />
+                    </div>
+                }
+            </>
+        }
+
+        return <>
+            <div className="mb-3 col-12 col-md-6">
+                <label htmlFor="qn" className="form-label">- Q<sub>n</sub>:</label>
+                <div className="input-group">
+                    <input
+                        type="text"
+                        className="form-control"
+                        id="qn"
+                        placeholder="Qn"
+                        value={qn}
+                        onChange={handleNumberChange(setQN)}
+                        pattern="\d*"
+                    />
+                    <span className="input-group-text" id="basic-addon2">m<sup>3</sup>/h (kg/h)</span>
+                </div>
+            </div>
+
+            {renedrDeviceNameCondition &&
+                <div className="mb-3 col-12 col-md-6">
+                    <label htmlFor="directiveSeri" className="form-label">Serial chỉ thị:</label>
+                    <div className="input-group">
+                        <input
+                            type="text"
+                            className="form-control"
+                            id="directiveSeri"
+                            placeholder="Serial chỉ thị"
+                            value={directiveSeri}
+                            onChange={(e) => setDirectiveSeri(e.target.value)}
+                        />
+                    </div>
+                </div>
+            }
+        </>
+    }
+
+    const renderDeviceNameFields = () => {
+        if (!deviceName) {
+            return <></>
+        }
+
+        const objDevicename = measureInstrumentNameOptions.find(option => option.label == deviceName);
+
+        if (objDevicename?.value == "1") {
+            return
+
+        }
+
+        return
+    }
 
     return (
         <LocalizationProvider dateAdapter={AdapterDayjs} localeText={viVN.components.MuiLocalizationProvider.defaultProps.localeText}>
@@ -105,7 +230,7 @@ export default function NewProcessDNBiggerThan32({ className }: NewProcessDNBigg
                                         placeholder="-- Chọn tên --"
                                         isClearable
                                         value={measureInstrumentNameOptions.find(option => option.label == deviceName) || null}
-                                        onChange={(selectedOptions: any) => setDeviceName(selectedOptions ? selectedOptions.value : "")}
+                                        onChange={(selectedOptions: any) => setDeviceName(selectedOptions ? selectedOptions.label : "")}
                                         styles={{
                                             control: (provided) => ({
                                                 ...provided,
@@ -131,6 +256,9 @@ export default function NewProcessDNBiggerThan32({ className }: NewProcessDNBigg
                                         }}
                                     />
                                 </div>
+
+                                {renderDeviceNameFields()}
+
                                 <div className="mb-3 col-12 col-md-6">
                                     <label htmlFor="deviceType" className="form-label">Kiểu:</label>
                                     <Select
@@ -180,6 +308,7 @@ export default function NewProcessDNBiggerThan32({ className }: NewProcessDNBigg
                                         onChange={handleNumberChange(setDeviceNumber)}
                                     />
                                 </div> */}
+
                                 <div className="mb-3 col-12 col-md-6">
                                     <label htmlFor="manufacturer" className="form-label">Cơ sở sản xuất:</label>
                                     <input
@@ -198,8 +327,16 @@ export default function NewProcessDNBiggerThan32({ className }: NewProcessDNBigg
                                         value={manufactureYear ? dayjs(manufactureYear) : null}
                                         views={['year']}
                                         format="YYYY"
-                                        maxDate={dayjs().endOf('year')}
-                                        onChange={(newValue: Dayjs | null) => setManufactureYear(newValue ? newValue.toDate() : null)}
+                                        maxDate={dayjs().endOf('year')} 
+                                        onChange={(newValue: Dayjs | null) => {
+                                            if (newValue && newValue.year() >= 1900 && newValue.year() <= dayjs().year()) {
+
+                                                setManufactureYear(newValue.toDate());
+                                            } else {
+                                                setManufactureYear(null); // or handle invalid date
+                                            }
+
+                                        }}
                                         slotProps={{ textField: { fullWidth: true } }}
                                     />
                                 </div>
@@ -257,31 +394,20 @@ export default function NewProcessDNBiggerThan32({ className }: NewProcessDNBigg
                                         }}
                                     />
                                 </div>
+
+                                {/* Generate input field  */}
+                                {renderAccuracyClassFields()}
+
+
                                 <div className="mb-3 col-12 col-md-6">
-                                    <label htmlFor="q3" className="form-label">- Q<sub>3</sub>(Q<sub>n</sub>):</label>
-                                    <div className="input-group">
-                                        <input
-                                            type="text"
-                                            className="form-control"
-                                            id="q3"
-                                            placeholder="Q3(Qn)"
-                                            value={q3}
-                                            onChange={handleNumberChange(setQ3)}
-                                            pattern="\d*"
-                                        />
-                                        <span className="input-group-text" id="basic-addon2">m<sup>3</sup>/h (kg/h)</span>
-                                    </div>
-                                </div>
-                                <div className="mb-3 col-12 col-md-6">
-                                    <label htmlFor="ratio" className="form-label">- Tỷ số Q<sub>3</sub>/Q<sub>1</sub> (R):</label>
+                                    <label htmlFor="pdmSign" className="form-label">- Hệ số K-factor :</label>
                                     <input
                                         type="text"
                                         className="form-control"
-                                        id="ratio"
-                                        placeholder="Tỷ số Q3/Q1"
-                                        value={ratio}
-                                        onChange={handleNumberChange(setRatio)}
-                                        pattern="\d*"
+                                        id="kFactor"
+                                        placeholder="K-factor"
+                                        value={kFactor}
+                                        onChange={handleNumberChange(setKFactor)}
                                     />
                                 </div>
                                 <div className="mb-3 col-12 col-md-6">
@@ -327,7 +453,7 @@ export default function NewProcessDNBiggerThan32({ className }: NewProcessDNBigg
                                         className="form-control"
                                         id="equipment"
                                         placeholder="Chuẩn, thiết bị chính được sử dụng"
-                                        value={equipment}
+                                        value={"Đồng hồ chuẩn đo nước và Bình chuẩn"}
                                         onChange={(e) => setEquipment(e.target.value)}
                                     />
                                 </div>

@@ -290,7 +290,7 @@ export default function ProcessManagement({ data, className }: ProcessManagement
                         </div>
                         <div className={`col-12 col-md-4 mb-3 m-0 p-0 row`}>
                             <label className={`${vml['form-label']}`}>
-                                Số lượng lọc:
+                                Số lượng bản ghi:
                                 <Select
                                     name="entry"
                                     options={entryOptions as unknown as readonly GroupBase<never>[]}
@@ -339,7 +339,7 @@ export default function ProcessManagement({ data, className }: ProcessManagement
                         </div>
                     </div>
 
-                    <div className={`m-0 p-0 px-2 w-100 w-100 mt-4 bg-white position-relative ${vml['wrap-process-table']}`}>
+                    <div className={`m-0 p-0 w-100 w-100 mt-4 bg-white position-relative ${vml['wrap-process-table']}`}>
                         {loading && <Suspense fallback={<div>Loading...</div>}><Loading /></Suspense>}
                         {paginatedData.length > 0 ? (
                             <table className={`table table-striped table-hover ${vml['process-table']}`}>

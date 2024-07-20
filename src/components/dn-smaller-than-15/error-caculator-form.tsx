@@ -48,7 +48,6 @@ export default function ErrorCaculatorForm({ className }: CaculatorFormProps) {
                     <input type="text" className="form-control" id="lastNum" placeholder="Nhập số cuối" value={lastNum} onChange={(e) => handleNumericInput(e, setLastNum)} />
                 </div>
 
-
                 <div className="mb-3">
                     <label className="mb-1">Số chỉ đồng hồ chuẩn:</label>
                     <div className={`${ecf['box-input-form']}`}>
@@ -56,7 +55,6 @@ export default function ErrorCaculatorForm({ className }: CaculatorFormProps) {
                         <input type="text" className="form-control" id="vdhc" placeholder="Nhập số chỉ đồng hồ chuẩn" value={vdhc} onChange={(e) => handleNumericInput(e, setVdhc)} />
                     </div>
                 </div>
-
 
                 <div className="mb-3">
                     <div className={`${ecf['box-input-form']}`}>
@@ -69,7 +67,6 @@ export default function ErrorCaculatorForm({ className }: CaculatorFormProps) {
                     <button type="submit" className="btn btn-primary">Tính sai số</button>
                     <button type="reset" onClick={handleReset} className="btn btn-secondary">Nhập lại</button>
                 </div>
-
             </form>
         </div>
     )

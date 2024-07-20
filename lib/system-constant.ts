@@ -4,16 +4,10 @@ export const statusOptions = [
     { value: '3', label: 'Q3' }
 ];
 
-// export const measureInstrumentNameOptions = [
-//     { value: "Đồng hồ đo nước lạnh có cơ cấu điện tử", label: "Đồng hồ đo nước lạnh có cơ cấu điện tử" },
-//     { value: "Đồng hồ đo nước lạnh cơ khí", label: "Đồng hồ đo nước lạnh cơ khí" },
-//     { value: "Đồng hồ đo nước", label: "Đồng hồ đo nước" }
-// ]
-
 export const measureInstrumentNameOptions = [
-    { value: 1, label: "Đồng hồ đo nước lạnh có cơ cấu điện tử" },
-    { value: 2, label: "Đồng hồ đo nước lạnh cơ khí" },
-    { value: 3, label: "Đồng hồ đo nước" }
+    { value: "1", label: "Đồng hồ đo nước lạnh có cơ cấu điện tử" },
+    { value: "2", label: "Đồng hồ đo nước lạnh cơ khí" },
+    { value: "3", label: "Đồng hồ đo nước" }
 ]
 
 export const typeOptions = [

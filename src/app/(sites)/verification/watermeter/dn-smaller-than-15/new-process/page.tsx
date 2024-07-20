@@ -1,7 +1,7 @@
 "use client"
 
 import ErrorCaculatorTab from "@/components/error-caculator-tab";
-import ErrorCaculatorForm from "@/components/dn-bigger-than-32/error-caculator-form";
+import ErrorCaculatorForm from "@/components/error-caculator-form";
 import vrfWm from "@styles/scss/ui/vfm.module.scss"
 import { useState } from "react";
 

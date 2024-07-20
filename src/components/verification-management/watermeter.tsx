@@ -204,7 +204,7 @@ export default function WaterMeterManagement({ data, className }: WaterMeterMana
                 <div className={`${vml['wraper']} py-3 w-100 bg-white`}>
 
                     <div className={`row m-0 px-md-3 w-100 mb-3 ${vml['search-process']}`}>
-                        <div className="col-12 mb-3 col-md-6 col-xl-4 d-flex">
+                        {/* <div className="col-12 mb-3 col-md-6 col-xl-4 d-flex">
                             <label className={`${vml['form-label']}`} htmlFor="process-id">
                                 ID:
                                 <input
@@ -216,7 +216,8 @@ export default function WaterMeterManagement({ data, className }: WaterMeterMana
                                     onChange={(e) => handleFilterChange('waterMeterId', e.target.value)}
                                 />
                             </label>
-                        </div>
+                        </div> */}
+
                         <div className="col-12 mb-3 col-md-6 col-xl-4 d-flex">
                             <label className={`${vml['form-label']}`} htmlFor="serial-number">
                                 Serial number:
@@ -293,7 +294,7 @@ export default function WaterMeterManagement({ data, className }: WaterMeterMana
                             </label>
                         </div>
 
-                        <div className="col-12 mb-3 col-md-6 col-xl-4">
+                        {/* <div className="col-12 mb-3 col-md-6 col-xl-4">
                             <label className={`${vml['form-label']}`}>
                                 Kiểu:
                                 <Select
@@ -330,9 +331,9 @@ export default function WaterMeterManagement({ data, className }: WaterMeterMana
                                     }}
                                 />
                             </label>
-                        </div>
+                        </div> */}
 
-                        <div className="col-12 mb-3 col-md-6 col-xl-4">
+                        {/* <div className="col-12 mb-3 col-md-6 col-xl-4">
                             <label className={`${vml['form-label']}`}>
                                 Cấp chính xác:
                                 <Select
@@ -369,7 +370,7 @@ export default function WaterMeterManagement({ data, className }: WaterMeterMana
                                     }}
                                 />
                             </label>
-                        </div>
+                        </div> */}
 
                         <div className={`col-12 col-md-8 mb-3 m-0 row p-0 ${vml['search-created-date']}`}>
                             <label className={`${vml['form-label']} col-12`}>
@@ -407,7 +408,7 @@ export default function WaterMeterManagement({ data, className }: WaterMeterMana
                         </div>
                         <div className={`col-12 col-md-4 mb-3 m-0 p-0 row`}>
                             <label className={`${vml['form-label']}`}>
-                                Số lượng lọc:
+                                Số lượng bản ghi:
                                 <Select
                                     name="entry"
                                     options={entryOptions as unknown as readonly GroupBase<never>[]}

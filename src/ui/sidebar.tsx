@@ -48,8 +48,8 @@ const menuItems = [
                 title: "Đồng hồ",
                 icon: faClock,
                 grandChildren: [
-                    { title: "DN > 15 m³/h", href: "/verification/watermeter/dn-bigger-than-32", icon: faTint },
-                    { title: "DN < 15 m³/h", href: "/verification/watermeter/dn-smaller-than-32", icon: faTint },
+                    { title: "DN > 15 m³/h", href: "/verification/watermeter/dn-bigger-than-15", icon: faTint },
+                    { title: "DN < 15 m³/h", href: "/verification/watermeter/dn-smaller-than-15", icon: faTint },
                 ]
             },
             { title: "Phê duyệt mẫu", href: "/verification/pdm", icon: faFileAlt },
