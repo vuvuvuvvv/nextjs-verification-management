@@ -21,6 +21,7 @@ interface FormProps {
 
 export default function RegisterForm({ className }: FormProps) {
     const [username, setUsername] = useState('');
+    const [fullname, setFullname] = useState('');
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
@@ -68,7 +69,7 @@ export default function RegisterForm({ className }: FormProps) {
         if (!isPwNotMatch) {
             setError('');
 
-            const credentials : RegisterCredentials = {username, password, email}
+            const credentials: RegisterCredentials = { username, fullname, password, email }
 
             try {
                 const response = await register(credentials);
@@ -108,6 +109,20 @@ export default function RegisterForm({ className }: FormProps) {
 
     return (
         <form className={className ? className : ""} onSubmit={handleSubmit}>
+            <div className="mb-3">
+                <label htmlFor="fullname" className="form-label">Họ tên kiểm định viên:</label>
+                <input
+                    type="text"
+                    className="form-control py-2"
+                    id="username"
+                    placeholder='Tên đầy đủ'
+                    spellCheck={false}
+                    value={fullname}
+                    onChange={(e) => setFullname(e.target.value)}
+                    required
+                />
+                <FontAwesomeIcon className={`${layout['placeholder-icon']}`} icon={faUser}></FontAwesomeIcon>
+            </div>
             <div className="mb-3">
                 <label htmlFor="username" className="form-label">Tên đăng nhập:</label>
                 <input
