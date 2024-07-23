@@ -16,7 +16,7 @@ interface FormProps {
     className?: string
 }
 
-export default function ResetEmail({ className }: FormProps) {
+export default function ResetEmail({ className = "" }: FormProps) { // Default value for className
     const [newEmail, setNewEmail] = useState('');
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
@@ -99,7 +99,7 @@ export default function ResetEmail({ className }: FormProps) {
     return (
         <>
             <h5 className='text-center'>Đổi Email</h5>
-            <form className={`${className ? className : ""} ${reset['form']}`} onSubmit={handleSubmit}>
+            <form className={`${className} ${reset['form']}`} onSubmit={handleSubmit}>
                 <div className="mb-3">
                     <label htmlFor="password" className="form-label">Nhập Email mới:</label>
                     <input
