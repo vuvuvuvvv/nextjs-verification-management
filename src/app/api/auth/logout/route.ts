@@ -36,8 +36,8 @@ export const logout = async () => {
             };
         } else {
             return {
-                "status": error.response.status,
-                "msg": error.response.data.message || 'Có lỗi đã xảy ra. Hãy thử lại!'
+                "status": error.response?.status || error?.msg || error?.message  || 'Có lỗi đã xảy ra. Hãy thử lại!',
+                "msg": error.response?.data.message || error.response?.msg || error.response?.message || 'Có lỗi đã xảy ra. Hãy thử lại!'
             };
         }
     }
