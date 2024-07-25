@@ -5,14 +5,9 @@ import React, { createContext, useContext, useEffect, useState } from 'react';
 import Cookies from 'js-cookie';
 import { logout } from '@/app/api/auth/logout/route';
 import Swal from 'sweetalert2';
+import { User } from '@lib/types';
 
 // Define user type
-export interface User {
-    id: number;
-    username: string;
-    email: string;
-    role: string;
-}
 
 // Define context type
 export type UserContextType = {

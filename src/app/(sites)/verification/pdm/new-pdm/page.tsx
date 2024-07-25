@@ -20,19 +20,11 @@ import Select, { GroupBase } from 'react-select';
 
 import { useUser } from "@/context/user-context";
 
-interface NewProcessDNBiggerThan32Props {
+interface NewPDMProps {
     className?: string,
 }
-
-interface TabState {
-    [key: number | string]: boolean;
-};
-
-export default function NewProcessDNBiggerThan32({ className }: NewProcessDNBiggerThan32Props) {
+export default function NewPDM({ className }: NewPDMProps) {
     const { user } = useUser();
-
-    const [selectedTab, setSelectedTab] = useState<TabState>({ [1]: true });
-    const [isCollapsed, setIsCollapsed] = useState<boolean>(true);
 
     const [seriNumber, setSeriNumber] = useState<string>("");                               // Serial number
 
@@ -43,6 +35,7 @@ export default function NewProcessDNBiggerThan32({ className }: NewProcessDNBigg
     const [deviceType, setDeviceType] = useState<string>("");                               // Kiểu
     const [deviceNumber, setDeviceNumber] = useState<string>("");                           // Số
     const [manufacturer, setManufacturer] = useState<string>("");                           // Cơ sở sản xuất
+    const [watermeterName, setWatermeterName] = useState<string>("");                       // Tên đồng hồ
     const [manufactureYear, setManufactureYear] = useState<Date | null>(null);              // Năm sản xuất
     const [DN, setDN] = useState<string>("");                                               // Đường kính danh định
 
@@ -51,7 +44,7 @@ export default function NewProcessDNBiggerThan32({ className }: NewProcessDNBigg
     const [ratio, setRatio] = useState<string>("");                                         // Tỷ số Q3/Q1 (R)
     const [qn, setQN] = useState<string>("");                                               // QN
 
-    const [kFactor, setKFactor] = useState<string>("");                                     // k factor
+    const [transmitter, setTransmitter] = useState<string>("");                                     // k factor
     const [pdmSign, setPdmSign] = useState<string>("");                                     // K hiệu PDM/Số quyết định PDM
     const [usageBase, setUsageBase] = useState<string>("");                                 // Cơ sở sử dụng
     const [method, setMethod] = useState<string>("");                                       // Phương pháp thực hiện
@@ -59,18 +52,6 @@ export default function NewProcessDNBiggerThan32({ className }: NewProcessDNBigg
     const [implementer, setImplementer] = useState<string>("");                             // Người thực hiện
     const [implementationDate, setImplementationDate] = useState<Date | null>(null);        // Ngày thực hiện
     const [location, setLocation] = useState<string>("");                                   // Vị trí
-
-    const toggleTab = (tab: number) => {
-        if (!selectedTab[tab]) {
-            setSelectedTab((prev) => ({
-                [tab]: !prev[tab]
-            }))
-        }
-    };
-
-    const toggleCollapse = () => {
-        setIsCollapsed(!isCollapsed);
-    };
 
     // truyền setter vào để lưu giá trị vào state
     const handleNumberChange = (setter: (value: string) => void) => (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -181,42 +162,12 @@ export default function NewProcessDNBiggerThan32({ className }: NewProcessDNBigg
         </>
     }
 
-    const renderDeviceNameFields = () => {
-        if (!deviceName) {
-            return <></>
-        }
-
-        const objDevicename = measureInstrumentNameOptions.find(option => option.label == deviceName);
-
-        if (objDevicename?.value == "1") {
-            return
-
-        }
-
-        return
-    }
-
     return (
         <LocalizationProvider dateAdapter={AdapterDayjs} localeText={viVN.components.MuiLocalizationProvider.defaultProps.localeText}>
             <div className={`${className ? className : ""} ${vrfWm['wraper']} container p-0 px-2 py-3 w-100`}>
                 <div className={`row m-0 mb-3 p-3 w-100 bg-white sr-cover`}>
-                    <div className="w-100 m-0 p-0 mb-3 position-relative">
-                        <h3 className="text-uppercase fw-bolder text-center mt-3 mb-0">thông tin đồng hồ</h3>
-                    </div>
+                    <h3 className="text-uppercase fw-bolder text-center mt-3 mb-0">thêm mới phê duyệt mẫu</h3>
                     <div className={`w-100 p-0 row m-0 mb-3`}>
-                        <div className={`col-12 col-xl-8 m-0 p-0 d-flex align-items-center justify-content-between ${vrfWm['seri-number-input']}`}>
-                            <label htmlFor="seriNumber" className={`form-label m-0 fs-5 fw-bold d-block`}>Số seri:</label>
-                            <input
-                                type="text"
-                                id="seriNumber"
-                                className={`form-control`}
-                                placeholder="Nhập số serial"
-                                value={seriNumber}
-                                onChange={(e) => setSeriNumber(e.target.value)}
-                            />
-                        </div>
-                    </div>
-                    <div className={`collapse ${isCollapsed ? '' : 'show'} w-100 mt-2 p-0`}>
                         <form className="w-100">
                             <label className="w-100 fs-5 fw-bold">Thông tin thiết bị:</label>
                             <div className="row mx-0 w-100 mb-3">
@@ -257,9 +208,7 @@ export default function NewProcessDNBiggerThan32({ className }: NewProcessDNBigg
                                     />
                                 </div>
 
-                                {renderDeviceNameFields()}
-
-                                <div className="mb-3 col-12 col-md-6">
+                                {/* <div className="mb-3 col-12 col-md-6">
                                     <label htmlFor="deviceType" className="form-label">Kiểu:</label>
                                     <Select
                                         name="type"
@@ -294,40 +243,40 @@ export default function NewProcessDNBiggerThan32({ className }: NewProcessDNBigg
                                             })
                                         }}
                                     />
-                                </div>
-
-                                {/* TODO */}
-                                {/* <div className="mb-3 col-12 col-md-6">
-                                    <label htmlFor="deviceNumber" className="form-label">Số:</label>
-                                    <input
-                                        type="text"
-                                        className="form-control"
-                                        id="deviceNumber"
-                                        placeholder="Số"
-                                        value={deviceNumber}
-                                        onChange={handleNumberChange(setDeviceNumber)}
-                                    />
                                 </div> */}
 
                                 <div className="mb-3 col-12 col-md-6">
-                                    <label htmlFor="manufacturer" className="form-label">Cơ sở sản xuất:</label>
+                                    <label htmlFor="watermeterName" className="form-label">Tên đồng hồ:</label>
+                                    <input
+                                        type="text"
+                                        className="form-control"
+                                        id="watermeterName"
+                                        placeholder="Tên đồng hồ"
+                                        value={watermeterName}
+                                        onChange={(e) => setWatermeterName(e.target.value)}
+                                    />
+                                </div>
+
+                                <div className="mb-3 col-12 col-md-6">
+                                    <label htmlFor="manufacturer" className="form-label">Nơi sản xuất:</label>
                                     <input
                                         type="text"
                                         className="form-control"
                                         id="manufacturer"
-                                        placeholder="Cơ sở sản xuất"
+                                        placeholder="Nơi sản xuất"
                                         value={manufacturer}
                                         onChange={(e) => setManufacturer(e.target.value)}
                                     />
                                 </div>
-                                <div className="mb-3 col-12 col-md-6">
+
+                                {/* <div className="mb-3 col-12 col-md-6">
                                     <label htmlFor="manufactureYear" className="form-label">Năm sản xuất:</label>
                                     <DatePicker
                                         className={`${vrfWm['date-picker']}`}
                                         value={manufactureYear ? dayjs(manufactureYear) : null}
                                         views={['year']}
                                         format="YYYY"
-                                        maxDate={dayjs().endOf('year')} 
+                                        maxDate={dayjs().endOf('year')}
                                         onChange={(newValue: Dayjs | null) => {
                                             if (newValue && newValue.year() >= 1900 && newValue.year() <= dayjs().year()) {
 
@@ -339,7 +288,7 @@ export default function NewProcessDNBiggerThan32({ className }: NewProcessDNBigg
                                         }}
                                         slotProps={{ textField: { fullWidth: true } }}
                                     />
-                                </div>
+                                </div> */}
                             </div>
                             <label className="w-100 fs-5 fw-bold">Đặc trưng kỹ thuật:</label>
                             <div className="row mx-0 w-100 mb-3">
@@ -398,18 +347,18 @@ export default function NewProcessDNBiggerThan32({ className }: NewProcessDNBigg
                                 {/* Generate input field  */}
                                 {renderAccuracyClassFields()}
 
-
                                 <div className="mb-3 col-12 col-md-6">
-                                    <label htmlFor="pdmSign" className="form-label">- Hệ số K-factor :</label>
+                                    <label htmlFor="transmitter" className="form-label">- Transmitter :</label>
                                     <input
                                         type="text"
                                         className="form-control"
-                                        id="kFactor"
-                                        placeholder="K-factor"
-                                        value={kFactor}
-                                        onChange={handleNumberChange(setKFactor)}
+                                        id="transmitter"
+                                        placeholder="Transmitter"
+                                        value={transmitter}
+                                        onChange={handleNumberChange(setTransmitter)}
                                     />
                                 </div>
+
                                 <div className="mb-3 col-12 col-md-6">
                                     <label htmlFor="pdmSign" className="form-label">- Ký hiệu PDM/Số quyết định PDM:</label>
                                     <input
@@ -464,7 +413,7 @@ export default function NewProcessDNBiggerThan32({ className }: NewProcessDNBigg
                                         className="form-control"
                                         id="implementer"
                                         placeholder="Người thực hiện"
-                                        value={user?.fullname || implementer}
+                                        value={user?.username || implementer}
                                         onChange={(e) => setImplementer(e.target.value)}
                                     />
                                 </div>
@@ -493,35 +442,10 @@ export default function NewProcessDNBiggerThan32({ className }: NewProcessDNBigg
                             </div>
                         </form>
                     </div>
-                    <div className="w-100 m-0 p-0 d-flex justify-content-center align-items-center gap-4">
-                        <span className={vrfWm['end-line']}></span>
-                        <button type="button" className={`btn ${vrfWm['btn-collapse-info']} ${vrfWm['btn-collapse-end']}`} onClick={toggleCollapse}>
-                            {isCollapsed ? "Hiện thêm" : "Ẩn bớt"}
-                        </button>
-                        <span className={vrfWm['end-line']}></span>
-                    </div>
-                </div>
-
-                <div className={`m-0 mb-3 p-0 w-100 w-100 bg-white sr-cover`}>
-
-                    <NavTab tabContent={
-                        [
-                            {
-                                title: <>Q<sub>3</sub> (Q<sub>max</sub>)</>,
-                                content: <ErrorCaculatorTab tabIndex={1} form={ErrorCaculatorForm} />
-                            },
-                            {
-                                title: <>Q<sub>2</sub> (Q<sub>t</sub>)</>,
-                                content: <ErrorCaculatorTab tabIndex={2} form={ErrorCaculatorForm} />
-                            },
-                            {
-                                title: <>Q<sub>1</sub> (Q<sub>min</sub>)</>,
-                                content: <ErrorCaculatorTab tabIndex={3} form={ErrorCaculatorForm} />
-                            },
-                        ]
-                    } />
 
                 </div>
+
+
             </div>
         </LocalizationProvider >
     )

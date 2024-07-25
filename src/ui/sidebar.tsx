@@ -138,7 +138,7 @@ export default function Sidebar({
     const pathname = usePathname();
 
     return <>
-        <button className={`bg-transparent d-xl-none ${sb['btn-toggle']}`} onClick={toggleOpen}>
+        <button className={`bg-transparent d-xl-none px-3 ${sb['btn-toggle']}`} onClick={toggleOpen}>
             <FontAwesomeIcon icon={faBars} fontSize={24}></FontAwesomeIcon>
         </button>
         {show && (
