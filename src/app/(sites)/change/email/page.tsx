@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 
 import reset from "@styles/scss/ui/reset.module.scss";
-import { resetEmail } from '@/app/api/auth/reset/email/route';
+import { resetEmail } from '@/app/api/auth/change/email/route';
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faEnvelope, faLock } from '@fortawesome/free-solid-svg-icons';
@@ -16,7 +16,7 @@ interface FormProps {
     className?: string
 }
 
-export default function ResetEmail({ className }: FormProps) {
+export default function ChangeEmail({ className }: FormProps) {
     const [newEmail, setNewEmail] = useState('');
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');

@@ -9,7 +9,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faEnvelope, faLock } from '@fortawesome/free-solid-svg-icons';
 
 import Swal from 'sweetalert2';
-import { resetPassword } from '@/app/api/auth/reset/password/route';
+import { resetPassword } from '@/app/api/auth/change/password/route';
 import { logout } from '@/app/api/auth/logout/route';
 import Head from 'next/head';
 
@@ -17,7 +17,7 @@ interface FormProps {
     className?: string
 }
 
-export default function ResetEmail({ className }: FormProps) {
+export default function ChangePassword({ className }: FormProps) {
     const [error, setError] = useState('');
     const [newPassword, setNewPassword] = useState('');
     const [oldPassword, setOldPassword] = useState('');

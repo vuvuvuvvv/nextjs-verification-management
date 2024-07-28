@@ -7,6 +7,8 @@ import { jwtVerify } from 'jose';
 const ADMIN_ROLE = 'ADMIN';
 const CUSTOM_404_PATH = '/404'; // Đường dẫn cho trang 404 tùy chỉnh
 const CUSTOM_500_PATH = '/500'; // Đường dẫn cho trang 500 tùy chỉnh
+const CUSTOM_AUTH_EXPIRED_TOKEN_PATH = '/auth-error/expired-token'; // Đường dẫn cho trang 500 tùy chỉnh
+const CUSTOM_AUTH_INVALID_TOKEN_PATH = '/auth-error/invalid-token'; // Đường dẫn cho trang 500 tùy chỉnh
 
 const ADMIN_PATHS = ['/admin'];
 const UNPROTECTED_PATHS = [
@@ -14,7 +16,7 @@ const UNPROTECTED_PATHS = [
     '/register'
 ];
 const PROTECTED_PATHS = [
-    '/reset',
+    '/change',
     '/verification/watermeter'
 ];
 
@@ -33,7 +35,24 @@ export async function middleware(req: NextRequest) {
     const tokenCookie = req.cookies.get('accessToken')?.value;
     const refreshTokenCookie = req.cookies.get('refreshToken')?.value;
     const userCookie = req.cookies.get('user')?.value;
-    const { pathname } = req.nextUrl;
+    const { pathname, searchParams } = req.nextUrl;
+
+    if (pathname.startsWith('/reset-password')) {
+        const resetToken = searchParams.get('token');
+        if (resetToken) {
+            try {
+                const { payload } = await jwtVerify(resetToken, new TextEncoder().encode(process.env.NEXT_PUBLIC_JWT_SECRET));
+                if (payload.exp && payload.exp * 1000 < Date.now()) {
+                    return NextResponse.redirect(new URL(CUSTOM_AUTH_EXPIRED_TOKEN_PATH, req.url));
+                }
+                return NextResponse.next();
+            } catch (error) {
+                return NextResponse.redirect(new URL(CUSTOM_AUTH_INVALID_TOKEN_PATH, req.url));
+            }
+        } else {
+            return NextResponse.redirect(new URL(CUSTOM_AUTH_INVALID_TOKEN_PATH, req.url));
+        }
+    }
 
     if(!tokenCookie && !refreshTokenCookie && !userCookie) {
         if (UNPROTECTED_PATHS.includes(pathname)) {

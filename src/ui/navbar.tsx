@@ -79,11 +79,11 @@ const Navbar: React.FC<NavbarProps> = ({ className, title = "Trang kiểm địn
                                     </div>
                                 </div>
                                 <hr className="my-2" />
-                                <a href="/reset/password" className={`dropdown-item ${layout['dD_item']}`}>
+                                <a href="/change/password" className={`dropdown-item ${layout['dD_item']}`}>
                                     <FontAwesomeIcon icon={faKey}></FontAwesomeIcon>
                                     Đổi mật khẩu
                                 </a>
-                                <a href="/reset/email" className={`dropdown-item ${layout['dD_item']}`}>
+                                <a href="/change/email" className={`dropdown-item ${layout['dD_item']}`}>
                                     <FontAwesomeIcon icon={faMailBulk}></FontAwesomeIcon>
                                     Đổi Email
                                 </a>

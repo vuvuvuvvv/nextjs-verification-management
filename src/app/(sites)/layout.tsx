@@ -20,8 +20,8 @@ const routeTitles: { [key: string]: string } = {
     "/verification/watermeter/dn-smaller-than-15": "Kiểm định đồng hồ nước - DN < 15 m³/h",
     "/verification/watermeter/dn-bigger-than-15/new-process": "Thêm mới - DN > 15 m³/h",
     "/verification/watermeter/dn-smaller-than-15/new-process": "Thêm nhóm - DN < 15 m³/h",
-    "/reset/password": "Đổi mật khẩu",
-    "/reset/email": "Đổi email"
+    "/change/password": "Đổi mật khẩu",
+    "/change/email": "Đổi email"
 };
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode; }>) {
     const pathname = usePathname();
