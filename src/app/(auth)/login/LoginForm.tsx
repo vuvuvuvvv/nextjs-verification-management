@@ -55,10 +55,6 @@ export default function LoginForm({ className }: FormProps) {
         }
     }, [error]);
 
-    const closeAlert = () => {
-        setError("");
-    }
-
     const handleSubmit = async (event: { preventDefault: () => void; }) => {
         event.preventDefault();
         setError("");
