@@ -76,7 +76,8 @@ export default function LoginForm({ className }: FormProps) {
                     },
                     html: "Đăng nhập thành công! Đang chuyển hướng về trang chủ.",
                     timer: 1500,
-                    // timerProgressBar: true,
+                    allowOutsideClick: false,
+                    allowEscapeKey: false,
                     didOpen: () => {
                         Swal.showLoading();
                     },
@@ -85,7 +86,6 @@ export default function LoginForm({ className }: FormProps) {
                         router.push('/');
                     }
                 });
-                // router.push('/');
             } else if (response.status == 401) {
                 setError("Tài khoản hoặc mật khẩu không chính xác!");
             } else {
@@ -132,7 +132,7 @@ export default function LoginForm({ className }: FormProps) {
                         Nhớ tài khoản
                     </label>
                 </div>
-                <Link href="/forgot" className='btn m-0 p-0'>
+                <Link href="/forgot-password" className='btn m-0 p-0'>
                     Quên mật khẩu?
                 </Link>
             </div>

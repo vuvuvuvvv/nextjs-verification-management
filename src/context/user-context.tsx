@@ -74,6 +74,7 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
             });
         }
     };
+    
     return (loading) ? (
         <div>Đang lấy dữ liệu người dùng...</div>
     ) : (

@@ -12,6 +12,7 @@ import Swal from 'sweetalert2';
 import { resetPassword } from '@/app/api/auth/change/password/route';
 import { logout } from '@/app/api/auth/logout/route';
 import Head from 'next/head';
+import { useUser } from "@/context/user-context";
 
 interface FormProps {
     className?: string
@@ -22,7 +23,9 @@ export default function ChangePassword({ className }: FormProps) {
     const [newPassword, setNewPassword] = useState('');
     const [oldPassword, setOldPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
+    const [isPwInvalid, setPwInvalid] = useState(false);
     const [isPwNotMatch, setPwNotMatch] = useState(false);
+    const { logoutUser } = useUser();
 
     useEffect(() => {
         if (error) {
@@ -89,7 +92,7 @@ export default function ChangePassword({ className }: FormProps) {
                     confirmButtonColor: "#0980de",
                     confirmButtonText: "OK"
                 }).then(() => {
-                    logout()
+                    logoutUser()
                 });
 
             } else {
@@ -101,6 +104,10 @@ export default function ChangePassword({ className }: FormProps) {
         }
     };
 
+    const handleChangeNewPassword = (e: React.ChangeEvent<HTMLInputElement>) => {
+        setNewPassword(e.currentTarget.value);
+        setPwInvalid(!/^[a-zA-Z0-9]{8,}$/.test(e.currentTarget.value));
+    }
 
     return (
         <>
@@ -127,11 +134,20 @@ export default function ChangePassword({ className }: FormProps) {
                         id="new-password"
                         placeholder='Nhập mật khẩu mới'
                         value={newPassword}
-                        onChange={(e) => setNewPassword(e.target.value)}
+                        onChange={(e) => handleChangeNewPassword(e)}
                         required
                     />
                     <FontAwesomeIcon className={`${reset['placeholder-icon']}`} icon={faLock}></FontAwesomeIcon>
                 </div>
+
+                {(newPassword != "" && isPwInvalid) &&
+                    (
+                        <div className='w-100 mb-3'>
+                            <small className='text-danger'>Mật khẩu tối thiểu 8 ký tự và không bao gồm ký tự đặc biệt</small>
+                        </div>
+                    )
+                }
+
                 <div className={(!isPwNotMatch) ? "mb-3" : ""}>
                     <label htmlFor="confirm-password" className="form-label">Nhập lại khẩu:</label>
                     <input

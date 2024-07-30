@@ -27,6 +27,7 @@ export default function RegisterForm({ className }: FormProps) {
     const [confirmPassword, setConfirmPassword] = useState('');
 
     const [error, setError] = useState('');
+    const [isPwInvalid, setPwInvalid] = useState(false);
     const [isPwNotMatch, setPwNotMatch] = useState(false);
     const router = useRouter();
 
@@ -64,6 +65,11 @@ export default function RegisterForm({ className }: FormProps) {
         setPwNotMatch(password != e.currentTarget.value);
     };
 
+    const handleChangePassword = (e: React.ChangeEvent<HTMLInputElement>) => {
+        setPassword(e.currentTarget.value);
+        setPwInvalid(!/^[a-zA-Z0-9]{8,}$/.test(e.currentTarget.value));
+    }
+
     const handleSubmit = async (event: { preventDefault: () => void; }) => {
         event.preventDefault();
         if (!isPwNotMatch) {
@@ -86,7 +92,8 @@ export default function RegisterForm({ className }: FormProps) {
                         },
                         html: "Đăng ký thành công! Đang chuyển hướng về trang chủ.",
                         timer: 1500,
-                        // timerProgressBar: true,
+                        allowOutsideClick: false,
+                        allowEscapeKey: false,
                         didOpen: () => {
                             Swal.showLoading();
                         },
@@ -114,7 +121,7 @@ export default function RegisterForm({ className }: FormProps) {
                 <input
                     type="text"
                     className="form-control py-2"
-                    id="username"
+                    id="fullname"
                     placeholder='Tên đầy đủ'
                     spellCheck={false}
                     value={fullname}
@@ -159,11 +166,18 @@ export default function RegisterForm({ className }: FormProps) {
                     id="password"
                     placeholder='Nhập mật khẩu'
                     value={password}
-                    onChange={(e) => setPassword(e.target.value)}
+                    onChange={(e) => handleChangePassword(e)}
                     required
                 />
                 <FontAwesomeIcon className={`${layout['placeholder-icon']}`} icon={faLock}></FontAwesomeIcon>
             </div>
+            {(password != "" && isPwInvalid) &&
+                (
+                    <div className='w-100 mb-3'>
+                        <small className='text-danger'>Mật khẩu tối thiểu 8 ký tự và không bao gồm ký tự đặc biệt</small>
+                    </div>
+                )
+            }
             <div className={(!isPwNotMatch) ? "mb-3" : ""}>
                 <label htmlFor="confirm-password" className="form-label">Nhập lại khẩu:</label>
                 <input

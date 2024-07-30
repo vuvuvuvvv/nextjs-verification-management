@@ -23,6 +23,7 @@ const routeTitles: { [key: string]: string } = {
     "/change/password": "Đổi mật khẩu",
     "/change/email": "Đổi email"
 };
+
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode; }>) {
     const pathname = usePathname();
     const title = routeTitles[pathname] || "Website Quản Lý Kiểm Định";

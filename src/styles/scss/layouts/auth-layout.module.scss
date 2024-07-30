@@ -50,6 +50,10 @@
                     position: relative !important;
                 }
 
+                button {
+                    transition: all 0.5s linear;
+                }
+
                 input[type=text],
                 input[type=password],
                 input[type=email] {
@@ -67,6 +71,25 @@
                     width: 20px;
                     left: 13px;
                     color: $blue;
+                }
+
+                .icon {
+                    font-size: 16px;
+                    color: #fff;
+                }
+
+                .spinning {
+                    animation: spin 1s linear infinite;
+                }
+
+                @keyframes spin {
+                    0% {
+                        transform: rotate(0deg);
+                    }
+
+                    100% {
+                        transform: rotate(360deg);
+                    }
                 }
             }
         }

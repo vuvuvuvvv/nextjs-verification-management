@@ -6,7 +6,9 @@ export const requestPasswordResetToken = async (email: string) => {
     try {
         const response = await axios.post(`${API_AUTH_URL}/send-password-reset-token`, {
             "email": email
-        }, { withCredentials: true });
+        });
+
+        console.log(response);
 
         if (response.status === 200) {
             return {
@@ -15,15 +17,14 @@ export const requestPasswordResetToken = async (email: string) => {
             };
         } else {
             return {
-                "status": response.status,
-                "msg": response.data.msg || "Có lỗi đã xảy ra. Hãy thử lại!",
-
-            }
+                "status": response?.status || 500,
+                "msg": response?.data?.msg || 'Có lỗi đã xảy ra. Hãy thử lại!'
+            };
         }
     } catch (error: any) {
         return {
-            "status": error.response?.status || error?.msg || error?.message || 'Có lỗi đã xảy ra. Hãy thử lại!',
-            "msg": error.response?.data.message || error.response?.msg || error.response?.message || 'Có lỗi đã xảy ra. Hãy thử lại!'
+            "status": error.response?.status || 500,
+            "msg": error.response?.data?.msg || 'Có lỗi đã xảy ra. Hãy thử lại!'
         };
     }
 };
