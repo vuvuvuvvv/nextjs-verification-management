@@ -1,0 +1,45 @@
+@import "@styles/scss/variables/global.variables.scss";
+
+.wraper {
+    #process-tab {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border: none;
+        overflow: hidden;
+
+        .active {
+            background-color: $blue !important;
+            color: #fff !important;
+            z-index: 1 !important;
+        }
+
+        .nav-link {
+            z-index: 0;
+            flex: 1;
+            font-size: 16px;
+            transition: 0.3s all ease;
+            padding: 10px 0;
+            background-color: $light_blue;
+            color: $light_grey;
+        }
+    }
+
+    #process-tab-content {
+        background-color: #fff;
+
+        .show {
+            animation: show-tab 0.5s ease-in;
+        }
+
+        @keyframes show-tab {
+            from {
+                opacity: 0;
+            }
+
+            to {
+                opacity: 1;
+            }
+        }
+    }
+}

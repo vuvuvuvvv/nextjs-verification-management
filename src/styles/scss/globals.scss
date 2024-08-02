@@ -4,6 +4,9 @@
     box-sizing: border-box;
     margin: 0;
     padding: 0;
+    // font-family: "Google Sans", "Helvetica Neue", sans-serif;
+    user-select: none !important;
+    font-size: 15px;
 }
 
 html,
@@ -23,7 +26,9 @@ footer {
     bottom: 0px;
     left: 0;
     background-color: $footer_bg_color;
-    z-index: 99;
+    z-index: 99999;
+    color: #fff !important;
+    font-size: 14px;
 }
 
 a,
@@ -35,5 +40,44 @@ button {
 
     :focus {
         border: none;
+    }
+}
+
+.bg-dark-blue {
+    background-color: $dark_blue !important;
+}
+
+.bg-main-blue {
+    background-color: $blue !important;
+}
+
+.bg-main-green {
+    background-color: $green !important;
+}
+
+.bg-light-blue {
+    background-color: $light_blue !important;
+}
+
+.bg-main-grey {
+    background-color: $grey !important;
+}
+
+.bg-light-grey {
+    background-color: $light_grey !important;
+}
+
+.text-main-blue {
+    color: $blue;
+}
+
+.sr-cover {
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2) !important;
+    // border-radius: 4px;
+}
+
+@media (max-width: 576px) {
+    .sr-cover {
+        border-radius: unset !important;
     }
 }

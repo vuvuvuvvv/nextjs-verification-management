@@ -1,0 +1,40 @@
+@import "@styles/scss/variables/global.variables.scss";
+
+.pagination {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+
+    .active {
+        background-color: $blue !important;
+        color: #fff !important;
+    }
+
+    // span ,
+    .btn {
+        width: 36px;
+        height: 36px;
+        background-color: #fff;
+        transition: 0.3s all ease;
+        border-radius: unset !important;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 4px !important;
+    }
+
+    .btn:not([disabled]) {
+        color: $blue;
+    }
+
+    span {
+        width: max-content !important;
+    }
+
+    .btn {
+        &:hover:not([disabled]) {
+            background-color: $light_blue;
+        }
+    }
+}

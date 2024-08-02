@@ -22,6 +22,7 @@ interface FormProps {
 export default function LoginForm({ className }: FormProps) {
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
+    const [remember, setRemember] = useState(false);
 
     const [error, setError] = useState("");
     const router = useRouter();
@@ -54,15 +55,11 @@ export default function LoginForm({ className }: FormProps) {
         }
     }, [error]);
 
-    const closeAlert = () => {
-        setError("");
-    }
-
     const handleSubmit = async (event: { preventDefault: () => void; }) => {
         event.preventDefault();
         setError("");
 
-        const credentials: LoginCredentials = { username, password };
+        const credentials: LoginCredentials = { username, password, remember };
 
         try {
             const response = await login(credentials);
@@ -79,7 +76,8 @@ export default function LoginForm({ className }: FormProps) {
                     },
                     html: "Đăng nhập thành công! Đang chuyển hướng về trang chủ.",
                     timer: 1500,
-                    // timerProgressBar: true,
+                    allowOutsideClick: false,
+                    allowEscapeKey: false,
                     didOpen: () => {
                         Swal.showLoading();
                     },
@@ -88,11 +86,10 @@ export default function LoginForm({ className }: FormProps) {
                         router.push('/');
                     }
                 });
-                // router.push('/');
             } else if (response.status == 401) {
                 setError("Tài khoản hoặc mật khẩu không chính xác!");
             } else {
-                setError("Đã có lỗi xảy ra. Vui lòng thử lại!");
+                setError(response.msg);
             }
         } catch (err) {
             setError("Đã có lỗi xảy ra. Vui lòng thử lại!");
@@ -101,12 +98,6 @@ export default function LoginForm({ className }: FormProps) {
 
     return (
         <form className={(className) ? className : ""} onSubmit={handleSubmit}>
-            {error &&
-                <div className="alert alert-danger w-100 alert-dismissible fade show" role="alert">
-                    {error}
-                    <button type="button" onClick={closeAlert} className="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                </div>
-            }
             <div className="mb-3">
                 <label htmlFor="username" className="form-label">Tên đăng nhập:</label>
                 <input
@@ -136,12 +127,12 @@ export default function LoginForm({ className }: FormProps) {
             </div>
             <div className="mb-3 d-flex align-items-center justify-content-between">
                 <div className="form-check">
-                    <input className="form-check-input" type="checkbox" value="" id="defaultCheck1" />
+                    <input className="form-check-input" type="checkbox" value="" id="defaultCheck1" onChange={(e) => setRemember(e.target.checked)} />
                     <label className="form-check-label" htmlFor="defaultCheck1">
                         Nhớ tài khoản
                     </label>
                 </div>
-                <Link href="/forgot" className='btn m-0 p-0'>
+                <Link href="/forgot-password" className='btn m-0 p-0'>
                     Quên mật khẩu?
                 </Link>
             </div>

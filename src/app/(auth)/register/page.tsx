@@ -12,9 +12,9 @@ export default function Register() {
     return (
         <>
             <div className='w-100 py-3'>
-                <h4 className='text-center text-uppercase'>
+                <h5 className='text-center text-uppercase'>
                     đăng ký
-                </h4>
+                </h5>
             </div>
             <RegisterForm className='w-100'></RegisterForm>
             <div className="mt-3 d-flex align-items-center justify-content-center gap-1"><span>Đã có tài khoản?</span>

@@ -1,24 +1,22 @@
 @import "@styles/scss/variables/global.variables.scss";
 
-@media (max-width: 768px) {
-    .p_name {
-        max-width: 160px;
-    }
-}
-
-@media (min-width: 768px) {
-    .p_name {
-        max-width: 200px;
-    }
-}
-
-
 #navbar {
     height: $nav_height;
     display: flex;
     justify-content: space-between;
     background-color: $nav_bg_color;
-    box-shadow: 0 0.5rem 1rem rgba($color: #565656, $alpha: 0.1);
+    box-shadow: $nav_box_shadow;
+    color: $nav_text_color;
+
+    .nav-title {
+        text-align: start;
+        width: max-content;
+        -webkit-line-clamp: 1;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        color: $nav_text_color;
+    }
 
     .nav-brand {
         display: flex;
@@ -45,8 +43,8 @@
             padding: 0;
             background-color: transparent;
             border: none;
-            color: $grey;
-            gap: 8px;
+            color: $nav_text_color;
+            gap: 6px;
 
             @media (min-width: $screen_break_point) {}
 
@@ -96,6 +94,7 @@
 
                     table {
                         color: $grey;
+
                         td {
                             padding: 0 10px;
 
@@ -123,5 +122,16 @@
                 color: $grey;
             }
         }
+    }
+}
+@media (max-width: 768px) {
+    .p_name {
+        max-width: 80px;
+    }
+}
+
+@media (min-width: 768px) {
+    .p_name {
+        max-width: 140px;
     }
 }

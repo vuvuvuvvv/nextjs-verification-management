@@ -4,14 +4,10 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import Cookies from 'js-cookie';
 import { logout } from '@/app/api/auth/logout/route';
+import Swal from 'sweetalert2';
+import { User } from '@lib/types';
 
 // Define user type
-export interface User {
-    id: number;
-    username: string;
-    email: string;
-    role: string;
-}
 
 // Define context type
 export type UserContextType = {
@@ -50,20 +46,42 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
     const logoutUser = async () => {
         const res = await logout();
-        if (typeof res !== 'object' || res.status !== 200) {
-            console.log("error logout");
+        if (res?.status == 200) {
+            window.location.href = '/login';
+        } else if (res?.status == 401) {
+            Swal.fire({
+                icon: "error",
+                title: res?.msg || "Phiên đăng nhập hết hạn!",
+                text: "Mời đăng nhập lại.",
+                showClass: {
+                    popup: `
+                    animate__animated
+                    animate__fadeInUp
+                    animate__faster
+                  `
+                },
+                hideClass: {
+                    popup: `
+                    animate__animated
+                    animate__fadeOutDown
+                    animate__faster
+                  `
+                },
+                confirmButtonColor: "#0980de",
+                confirmButtonText: "OK"
+            }).then(() => {
+                window.location.href = '/login';
+            });
         }
     };
+    
     return (loading) ? (
-        <div>Loading...</div>
+        <div>Đang lấy dữ liệu người dùng...</div>
     ) : (
         <UserContext.Provider value={{ user, loading, updateUser, logoutUser }}>
             {children}
         </UserContext.Provider>
     );
-    return <UserContext.Provider value={{ user, loading, updateUser, logoutUser }}>
-        {children}
-    </UserContext.Provider>;
 };
 
 // Custom hook to use UserContext

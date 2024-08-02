@@ -1,8 +1,3 @@
-import { Metadata } from 'next'
-export const metadata: Metadata = {
-    title: "Bảo mật",
-}
-
 import layout from '@styles/scss/layouts/reset-layout.module.scss'
 
 export default function ResetLayout({ children }: { children: React.ReactNode }) {

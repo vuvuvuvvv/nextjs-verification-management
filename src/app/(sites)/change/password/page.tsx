@@ -9,19 +9,23 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faEnvelope, faLock } from '@fortawesome/free-solid-svg-icons';
 
 import Swal from 'sweetalert2';
-import { resetPassword } from '@/app/api/auth/reset/password/route';
+import { resetPassword } from '@/app/api/auth/change/password/route';
 import { logout } from '@/app/api/auth/logout/route';
+import Head from 'next/head';
+import { useUser } from "@/context/user-context";
 
 interface FormProps {
     className?: string
 }
 
-export default function ResetEmail({ className }: FormProps) {
+export default function ChangePassword({ className }: FormProps) {
     const [error, setError] = useState('');
     const [newPassword, setNewPassword] = useState('');
     const [oldPassword, setOldPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
+    const [isPwInvalid, setPwInvalid] = useState(false);
     const [isPwNotMatch, setPwNotMatch] = useState(false);
+    const { logoutUser } = useUser();
 
     useEffect(() => {
         if (error) {
@@ -88,7 +92,7 @@ export default function ResetEmail({ className }: FormProps) {
                     confirmButtonColor: "#0980de",
                     confirmButtonText: "OK"
                 }).then(() => {
-                    logout()
+                    logoutUser()
                 });
 
             } else {
@@ -100,17 +104,21 @@ export default function ResetEmail({ className }: FormProps) {
         }
     };
 
+    const handleChangeNewPassword = (e: React.ChangeEvent<HTMLInputElement>) => {
+        setNewPassword(e.currentTarget.value);
+        setPwInvalid(!/^[a-zA-Z0-9]{8,}$/.test(e.currentTarget.value));
+    }
 
     return (
         <>
-            <h4 className='text-center'>Đổi mật khẩu</h4>
+            <h5 className='text-center'>Đổi mật khẩu</h5>
             <form className={`${className ? className : ""} ${reset['form']}`} onSubmit={handleSubmit}>
                 <div className="mb-3">
                     <label htmlFor="password" className="form-label">Mật khẩu cũ:</label>
                     <input
                         type="password"
                         className="form-control py-2"
-                        id="password"
+                        id="old-password"
                         placeholder='Nhập mật khẩu cũ'
                         value={oldPassword}
                         onChange={(e) => setOldPassword(e.target.value)}
@@ -123,14 +131,23 @@ export default function ResetEmail({ className }: FormProps) {
                     <input
                         type="password"
                         className="form-control py-2"
-                        id="password"
+                        id="new-password"
                         placeholder='Nhập mật khẩu mới'
                         value={newPassword}
-                        onChange={(e) => setNewPassword(e.target.value)}
+                        onChange={(e) => handleChangeNewPassword(e)}
                         required
                     />
                     <FontAwesomeIcon className={`${reset['placeholder-icon']}`} icon={faLock}></FontAwesomeIcon>
                 </div>
+
+                {(newPassword != "" && isPwInvalid) &&
+                    (
+                        <div className='w-100 mb-3'>
+                            <small className='text-danger'>Mật khẩu tối thiểu 8 ký tự và không bao gồm ký tự đặc biệt</small>
+                        </div>
+                    )
+                }
+
                 <div className={(!isPwNotMatch) ? "mb-3" : ""}>
                     <label htmlFor="confirm-password" className="form-label">Nhập lại khẩu:</label>
                     <input

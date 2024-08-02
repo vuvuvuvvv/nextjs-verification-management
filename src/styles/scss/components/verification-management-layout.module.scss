@@ -1,0 +1,175 @@
+@import "@styles/scss/variables/global.variables.scss";
+
+.wraper {
+
+    .seri-number-input {
+        .form-label {
+            width: 70px !important;
+        }
+
+        input {
+            width: calc(100% - 90px);
+        }
+    }
+
+    select,
+    input:not([type="checkbox"], [type="radio"]) {
+        height: 42px;
+        color: rgba(0, 0, 0, 0.87);
+        box-shadow: none !important;
+        border: 1px solid #dee2e6;
+        border-radius: 4PX !important;
+    }
+
+    .search-process {
+        // overflow: hidden;
+
+        .form-label {
+            // font-size: 16px;
+            // font-weight: 600;
+            color: $grey;
+            width: 100%;
+
+            select,
+            input {
+                margin-top: .5rem;
+            }
+        }
+    }
+
+    .picker-field {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+        position: relative;
+
+        label:not(.form-label) {
+            width: 32px !important;
+            position: absolute;
+            top: 50%;
+            left: 22px;
+            transform: translateY(-50%);
+        }
+
+        .date-picker {
+            div:first-child {
+                input {
+                    // padding: 6px 12px;
+                    padding-left: 48px !important;
+                }
+            }
+        }
+    }
+
+    .date-picker {
+        height: 42px !important;
+        border: 1px solid #dee2e6;
+        border-radius: 4px;
+
+        div:first-child {
+            height: 42px !important;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font: unset !important;
+            letter-spacing: normal !important;
+
+
+            input {
+                padding: 6px 12px;
+                border: none !important;
+                // padding-left: 48px !important;
+            }
+
+            fieldset {
+                display: none;
+            }
+        }
+    }
+
+    .wrap-process-table {
+        overflow-x: auto;
+
+        .process-table {
+            .table-header {
+
+                th {
+                    background-color: $blue !important;
+                    color: #fff !important;
+                    vertical-align: middle;
+
+                    .table-label {
+                        width: 100%;
+                        height: 100%;
+                        display: flex;
+                        align-items: center;
+                        justify-content: space-between;
+                        position: relative;
+                        padding-right: 30px;
+
+                        span {
+                            width: max-content !important;
+                        }
+
+                        svg {
+                            position: absolute;
+                            top: 50%;
+                            right: 0px;
+                            transform: translateY(-50%);
+                        }
+                    }
+                }
+
+
+                th:not(:last-child) {
+                    cursor: pointer;
+                    transition: 0.3s all ease;
+
+                    &:hover {
+                        background-color: $dark_blue !important;
+                    }
+                }
+            }
+
+            th {
+                padding: 18px 12px;
+            }
+
+            td {
+                padding: 12px 10px;
+                vertical-align: middle;
+            }
+
+            .process-name {
+                width: 280px;
+                display: -webkit-box;
+                -webkit-box-orient: vertical;
+                -webkit-line-clamp: 2;
+                overflow: hidden;
+            }
+
+            .action {
+                width: 100%;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                gap: 10px;
+                padding: 0;
+
+                a, button {
+                    width: 40px;
+                    height: 40px;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    background-color: $blue;
+                    transition: all 0.3s ease;
+                    color: #fff;
+                    border-radius: 20px;
+
+                }
+            }
+        }
+    }
+}

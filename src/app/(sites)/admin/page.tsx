@@ -9,9 +9,9 @@ const Page = () => {
 
     return <AdminLayout>
         <h2>hello Admin Page</h2><br></br>
-        <Link href="/">Link to home page!</Link>
+        <Link href="/">Link to Trang chủ page!</Link>
         <br></br>Or<br></br>
-        <button type="button" onClick={() => router.push("/")}>Back to home</button>
+        <button type="button" onClick={() => router.push("/")}>Back to Trang chủ</button>
     </AdminLayout>;
 }
 
