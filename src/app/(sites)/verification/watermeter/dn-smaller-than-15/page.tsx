@@ -38,7 +38,7 @@ export default function DNSmallerThan32({ className }: DNSmallerThan32Props) {
     ]
 
     return (
-        <div className={`${className ? className : ""} ${vrfWm['wraper']} m-0 p-0 w-100 px-lg-3 py-lg-2 p-xl-0 px-xxl-3 py-xxl-2`}>
+        <div className={`${className ? className : ""} ${vrfWm['wraper']} m-0w-100 p-2`}>
             <NavTab tabContent={tabContent} />
         </div>
     )

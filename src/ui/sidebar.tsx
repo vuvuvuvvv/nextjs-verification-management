@@ -23,18 +23,19 @@ import Offcanvas from 'react-bootstrap/Offcanvas';
 
 import sb from "@styles/scss/ui/sidebar.module.scss";
 import Link from 'next/link';
+import { SideLink } from '@lib/types';
 
 interface SidebarProps {
     // "?" can be undefind
     className?: string;
-    title?: string
+    title?: string;
 }
 
 interface CollapseState {
     [key: number | string]: boolean;
 };
 
-const menuItems = [
+const siteSideLinks: SideLink[] = [
     {
         title: "Trang chủ",
         icon: faHome,
@@ -47,7 +48,7 @@ const menuItems = [
             {
                 title: "Đồng hồ",
                 icon: faClock,
-                grandChildren: [
+                children: [
                     { title: "DN > 15 m³/h", href: "/verification/watermeter/dn-bigger-than-15", icon: faTint },
                     { title: "DN < 15 m³/h", href: "/verification/watermeter/dn-smaller-than-15", icon: faTint },
                 ]
@@ -100,6 +101,39 @@ const menuItems = [
     }
 ]
 
+const adminSideLinks: SideLink[] = [
+    {
+        title: "Trang chủ",
+        icon: faHome,
+        href: "/"
+    },
+    {
+        title: "Quản lý người dùng",
+        icon: faUserFriends,
+        href: "#"
+    },
+    {
+        title: "Quét mã QR",
+        icon: faQrcode,
+        href: "#"
+    },
+    {
+        title: "Tài khoản",
+        icon: faUserFriends,
+        href: "#"
+    },
+    {
+        title: "Hướng dẫn sử dụng",
+        icon: faCog,
+        href: "#"
+    },
+    {
+        title: "Chính sách bảo mật",
+        icon: faSlidersH,
+        href: "#"
+    }
+]
+
 export default function Sidebar({
     className,
     title
@@ -107,6 +141,8 @@ export default function Sidebar({
     const [show, setShow] = useState(false);
     const sidebarRef = useRef<HTMLDivElement>(null);
     const [collapseState, setCollapseState] = useState<CollapseState>({});
+    const pathname = usePathname();
+    const sideLinks = pathname.startsWith("/admin") ? adminSideLinks : siteSideLinks;
 
     const toggleOpen = () => {
         setShow(!show);
@@ -135,8 +171,6 @@ export default function Sidebar({
         });
     };
 
-    const pathname = usePathname();
-
     return <>
         <button className={`bg-transparent d-xl-none px-3 ${sb['btn-toggle']}`} onClick={toggleOpen}>
             <FontAwesomeIcon icon={faBars} fontSize={24}></FontAwesomeIcon>
@@ -158,7 +192,7 @@ export default function Sidebar({
 
                 <ul className={`w-100 ${sb['nav-menu']}`}>
 
-                    {menuItems.map((item, index) => {
+                    {sideLinks.map((item, index) => {
 
                         const isActive = item.children?.some(child => 'href' in child && child.href === pathname);
                         return <li className={`${sb['nav-item']}`} key={index}>
@@ -180,7 +214,7 @@ export default function Sidebar({
                                     </button>
                                     <div className={`${sb['collapse-menu']} ${sb['collapse']} ${collapseState[index] ? sb['show'] : ''}`}>
                                         {item.children.map((child, childIndex) => (
-                                            'grandChildren' in child ? (
+                                            'children' in child ? (
                                                 <div key={index + "-" + childIndex}>
                                                     <button
                                                         className={`${sb["nav-link"]} p-0 w-100 ${sb["clp-link"]} btn ${sb['btn-collapse']} ${(collapseState[index + "-" + childIndex]) ? sb['btn-showed'] : ""}`}
@@ -196,8 +230,8 @@ export default function Sidebar({
                                                         </span>
                                                     </button>
                                                     <div className={`${sb['collapse-menu']} w-100 ${sb['collapse']} ${collapseState[index + "-" + childIndex] ? sb['show'] : ''}`}>
-                                                        {child.grandChildren?.map((grandChild, grandChildIndex) => {
-                                                            return <Link href={grandChild.href} className={`btn ${sb['clp-link']}`} key={index + "-" + childIndex + "-" + grandChildIndex} onClick={toggleOpen}>
+                                                        {child.children?.map((grandChild, grandChildIndex) => {
+                                                            return <Link href={grandChild.href || "#"} className={`btn ${sb['clp-link']}`} key={index + "-" + childIndex + "-" + grandChildIndex} onClick={toggleOpen}>
                                                                 <FontAwesomeIcon icon={grandChild.icon} className={`me-3`} />{grandChild.title}
                                                             </Link>
                                                         })}
@@ -205,7 +239,7 @@ export default function Sidebar({
                                                     </div>
                                                 </div>
                                             ) : (
-                                                <Link href={child.href} className={`btn ${sb['clp-link']}`} key={index + "-" + childIndex} onClick={toggleOpen}>
+                                                <Link href={child.href || "#"} className={`btn ${sb['clp-link']}`} key={index + "-" + childIndex} onClick={toggleOpen}>
                                                     <FontAwesomeIcon icon={child.icon} className={`me-3`} />{child.title}
                                                 </Link>
                                             )
@@ -213,7 +247,7 @@ export default function Sidebar({
                                     </div>
                                 </>
                             ) : (
-                                <Link href={item.href} className={`btn ${sb['nav-link']} ${item.href == pathname ? sb['active'] : ""}`} onClick={toggleOpen}>
+                                <Link href={item.href || "#"} className={`btn ${sb['nav-link']} ${item.href == pathname ? sb['active'] : ""}`} onClick={toggleOpen}>
                                     <span className={`${sb['nl-icon']}`}>
                                         <FontAwesomeIcon icon={item.icon} />
                                     </span>

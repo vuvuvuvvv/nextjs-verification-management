@@ -1,3 +1,5 @@
+import { IconDefinition } from "@fortawesome/fontawesome-svg-core";
+
 // lib/types.ts
 export interface User {
     id: number;
@@ -5,6 +7,13 @@ export interface User {
     fullname: string;
     email: string;
     role: string;
+}
+
+export interface SideLink {
+    title: string;
+    icon: IconDefinition;
+    href?: string;
+    children?: SideLink[];
 }
 
 export interface ResetEmailCredentials {

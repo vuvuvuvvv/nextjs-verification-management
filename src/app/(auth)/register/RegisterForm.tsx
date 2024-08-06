@@ -28,6 +28,8 @@ export default function RegisterForm({ className }: FormProps) {
 
     const [error, setError] = useState('');
     const [isPwInvalid, setPwInvalid] = useState(false);
+    const [isUsernameInvalid, setUsernameInvalid] = useState(false);
+
     const [isPwNotMatch, setPwNotMatch] = useState(false);
     const router = useRouter();
 
@@ -70,9 +72,14 @@ export default function RegisterForm({ className }: FormProps) {
         setPwInvalid(!/^[a-zA-Z0-9]{8,}$/.test(e.currentTarget.value));
     }
 
+    const handleChangeUsername = (e: React.ChangeEvent<HTMLInputElement>) => {
+        setUsername(e.currentTarget.value);
+        setUsernameInvalid(!/^[a-zA-Z0-9]{8,}$/.test(e.currentTarget.value));
+    }
+
     const handleSubmit = async (event: { preventDefault: () => void; }) => {
         event.preventDefault();
-        if (!isPwNotMatch) {
+        if (!isPwNotMatch && !isUsernameInvalid && !isPwInvalid) {
             setError('');
 
             const credentials: RegisterCredentials = { username, fullname, password, email }
@@ -102,9 +109,6 @@ export default function RegisterForm({ className }: FormProps) {
                             router.push('/');
                         }
                     });
-                    // router.push('/');
-                } else if (response.status == 401) {
-                    setError("Tài khoản hoặc mật khẩu không chính xác!");
                 } else {
                     setError(response.msg);
                 }
@@ -139,11 +143,18 @@ export default function RegisterForm({ className }: FormProps) {
                     placeholder='Tên đăng nhập'
                     spellCheck={false}
                     value={username}
-                    onChange={(e) => setUsername(e.target.value)}
+                    onChange={(e) => handleChangeUsername(e)}
                     required
                 />
                 <FontAwesomeIcon className={`${layout['placeholder-icon']}`} icon={faUser}></FontAwesomeIcon>
             </div>
+            {(username != "" && isUsernameInvalid) &&
+                (
+                    <div className='w-1000 mb-3'>
+                        <small className='text-danger'>Tối thiểu 8 ký tự viết liền không bao gồm ký tự đặc biệt</small>
+                    </div>
+                )
+            }
             <div className="mb-3">
                 <label htmlFor="password" className="form-label">Email:</label>
                 <input

@@ -43,6 +43,13 @@ button {
     }
 }
 
+input,
+select,
+textarea {
+    font-size: 16px !important;
+}
+
+
 .bg-dark-blue {
     background-color: $dark_blue !important;
 }
@@ -72,7 +79,7 @@ button {
 }
 
 .sr-cover {
-    box-shadow: 0 2px 4px rgba(0,0,0,0.2) !important;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2) !important;
     // border-radius: 4px;
 }
 

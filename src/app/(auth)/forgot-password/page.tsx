@@ -122,7 +122,15 @@ export default function ForgotPassword() {
             </button>
         </form>
         <div className="mt-3 d-flex align-items-center justify-content-end">
-            <Link href={loading || success ? 'javascript:void(0)' : '/login'} className='btn m-0 p-0 '>
+            <Link
+                href="/login"
+                className='btn m-0 p-0'
+                onClick={(e) => {
+                    if (loading || success) {
+                        e.preventDefault();
+                    }
+                }}
+            >
                 Quay lại đăng nhập
             </Link>
         </div>

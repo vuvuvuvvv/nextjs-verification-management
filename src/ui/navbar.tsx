@@ -22,7 +22,7 @@ import React from "react";
 
 interface NavbarProps {
     className?: string,
-    title?: string
+    title?: string,
 }
 const Navbar: React.FC<NavbarProps> = ({ className, title = "Trang kiểm định" }) => {
     const { user, logoutUser } = useUser();
