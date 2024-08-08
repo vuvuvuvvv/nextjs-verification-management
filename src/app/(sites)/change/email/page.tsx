@@ -9,7 +9,7 @@ import { resetEmail } from '@/app/api/auth/change/email/route';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faEnvelope, faLock } from '@fortawesome/free-solid-svg-icons';
 import Swal from 'sweetalert2';
-import { useUser } from '@/context/user-context';
+import { useUser } from '@/context/app-context';
 import Head from 'next/head';
 
 interface FormProps {

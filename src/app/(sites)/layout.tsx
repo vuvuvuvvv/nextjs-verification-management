@@ -5,7 +5,7 @@ import layout from "@styles/scss/layouts/home-layout.module.scss";
 
 // Import UI
 import Navbar from "@/ui/navbar";
-import { UserProvider } from "@/context/user-context";
+import { AppProvider  } from "@/context/app-context";
 
 
 import { usePathname } from "next/navigation";
@@ -31,7 +31,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
     return (
         <>
             <title>{title}</title>
-            <UserProvider>
+            <AppProvider >
                 <Navbar title={title} />
                 <main className={layout["wraper"]}>
                     <div className={`${layout['content']} position-relative p-0 pb-4`}>
@@ -40,7 +40,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
                         </Suspense>
                     </div>
                 </main>
-            </UserProvider>
+            </AppProvider >
         </>
     );
 }

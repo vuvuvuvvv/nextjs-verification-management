@@ -1,6 +1,6 @@
 
-const ProcessManagement = dynamic(() => import("@/components/verification-management/process"), { ssr: false })
-const WaterMeterManagement = dynamic(() => import("@/components/verification-management/watermeter"), { ssr: false })
+const ProcessManagement = dynamic(() => import("@/components/management/verification/process"), { ssr: false })
+const WaterMeterManagement = dynamic(() => import("@/components/management/verification/watermeter"), { ssr: false })
 
 import vrfWm from "@styles/scss/ui/vfm.module.scss"
 

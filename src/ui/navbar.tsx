@@ -11,12 +11,13 @@ import {
     faKey,
     faMailBulk,
     faSignOut,
-    faUser
+    faUser,
+    faUsersCog
 }
     from '@fortawesome/free-solid-svg-icons';
 import Link from "next/link";
 
-import { useUser } from "@/context/user-context";
+import { useUser } from "@/context/app-context";
 
 import React from "react";
 
@@ -25,7 +26,7 @@ interface NavbarProps {
     title?: string,
 }
 const Navbar: React.FC<NavbarProps> = ({ className, title = "Trang kiểm định" }) => {
-    const { user, logoutUser } = useUser();
+    const { user, logoutUser, isAdmin } = useUser();
 
     return (
         <>
@@ -79,6 +80,13 @@ const Navbar: React.FC<NavbarProps> = ({ className, title = "Trang kiểm địn
                                     </div>
                                 </div>
                                 <hr className="my-2" />
+
+                                {isAdmin && (
+                                    <a href="/dashboard" className={`dropdown-item ${layout['dD_item']}`}>
+                                        <FontAwesomeIcon icon={faUsersCog}></FontAwesomeIcon>
+                                        Tới trang quản trị
+                                    </a>
+                                )}
                                 <a href="/change/password" className={`dropdown-item ${layout['dD_item']}`}>
                                     <FontAwesomeIcon icon={faKey}></FontAwesomeIcon>
                                     Đổi mật khẩu

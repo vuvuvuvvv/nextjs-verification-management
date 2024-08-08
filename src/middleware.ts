@@ -9,7 +9,7 @@ const CUSTOM_404_PATH = '/404'; // Đường dẫn cho trang 404 tùy chỉnh
 const CUSTOM_500_PATH = '/500'; // Đường dẫn cho trang 500 tùy chỉnh
 const CUSTOM_AUTH_ERROR_TOKEN_PATH = '/auth-error/error-token'; // Đường dẫn cho trang 500 tùy chỉnh
 
-const ADMIN_PATHS = ['/admin'];
+const ADMIN_PATHS = ['/dashboard'];
 const AUTH_PATHS = [
     '/login',
     '/register'

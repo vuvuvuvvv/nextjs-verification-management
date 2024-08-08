@@ -103,35 +103,20 @@ const siteSideLinks: SideLink[] = [
 
 const adminSideLinks: SideLink[] = [
     {
-        title: "Trang chủ",
+        title: "Dashboard",
         icon: faHome,
-        href: "/"
+        href: "/dashboard"
     },
     {
         title: "Quản lý người dùng",
         icon: faUserFriends,
-        href: "#"
+        href: "/dashboard/manage/user"
     },
     {
-        title: "Quét mã QR",
+        title: "Quay lại trang kiểm định",
         icon: faQrcode,
-        href: "#"
+        href: "/"
     },
-    {
-        title: "Tài khoản",
-        icon: faUserFriends,
-        href: "#"
-    },
-    {
-        title: "Hướng dẫn sử dụng",
-        icon: faCog,
-        href: "#"
-    },
-    {
-        title: "Chính sách bảo mật",
-        icon: faSlidersH,
-        href: "#"
-    }
 ]
 
 export default function Sidebar({
@@ -142,7 +127,7 @@ export default function Sidebar({
     const sidebarRef = useRef<HTMLDivElement>(null);
     const [collapseState, setCollapseState] = useState<CollapseState>({});
     const pathname = usePathname();
-    const sideLinks = pathname.startsWith("/admin") ? adminSideLinks : siteSideLinks;
+    const sideLinks = pathname.startsWith("/dashboard") ? adminSideLinks : siteSideLinks;
 
     const toggleOpen = () => {
         setShow(!show);

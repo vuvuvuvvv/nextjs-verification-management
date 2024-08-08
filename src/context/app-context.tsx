@@ -10,20 +10,23 @@ import { User } from '@lib/types';
 // Define user type
 
 // Define context type
-export type UserContextType = {
+export type AppContextType = {
     user: User | null;
     loading: boolean;
     updateUser: (updatedUser: User | null) => void;
     logoutUser: () => void;
+    isAdmin: boolean;
 };
 
 // Create context
-const UserContext = createContext<UserContextType | undefined>(undefined);
+const AppContext = createContext<AppContextType | undefined>(undefined);
 
 // Provider component
-export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+export const AppProvider : React.FC<{ children: React.ReactNode }> = ({ children }) => {
     const [user, setUser] = useState<User | null>(null);
     const [loading, setLoading] = useState(true);
+
+    const isAdmin = user?.role === 'ADMIN' || user?.role === 'SUPER_ADMIN';
 
     useEffect(() => {
         const getUserFromCookie = Cookies.get('user');
@@ -78,17 +81,17 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
     return (loading) ? (
         <div>Đang lấy dữ liệu người dùng...</div>
     ) : (
-        <UserContext.Provider value={{ user, loading, updateUser, logoutUser }}>
+        <AppContext.Provider value={{ user, loading, updateUser, logoutUser, isAdmin }}>
             {children}
-        </UserContext.Provider>
+        </AppContext.Provider>
     );
 };
 
-// Custom hook to use UserContext
-export const useUser = (): UserContextType => {
-    const context = useContext(UserContext);
+// Custom hook to use AppContext
+export const useUser = (): AppContextType => {
+    const context = useContext(AppContext);
     if (context === undefined) {
-        throw new Error('useUser must be used within a UserProvider');
+        throw new Error('useUser must be used within a AppProvider ');
     }
     return context;
 };
