@@ -62,8 +62,10 @@
 
         .dD_menu {
             min-width: 300px;
-            max-width: 400px;
+            max-width: 380px;
             width: max-content;
+            top: 16px !important;
+            z-index: 99999 !important;
 
             .dD_profile {
                 display: flex;
@@ -72,7 +74,7 @@
                 // justify-content: center;
 
                 .box-avt {
-                    width: 50px;
+                    width: 50px !important;
                     aspect-ratio: 1;
                     overflow: hidden;
                     border-radius: 50%;
@@ -101,7 +103,7 @@
                             span {
                                 display: block;
                                 width: max-content;
-                                max-width: 255px;
+                                max-width: 235px;
                                 -webkit-line-clamp: 1;
                                 white-space: nowrap;
                                 overflow: hidden;

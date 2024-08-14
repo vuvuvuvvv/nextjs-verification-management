@@ -1,3 +1,4 @@
+// "use server"
 
 const ProcessManagement = dynamic(() => import("@/components/management/verification/process"), { ssr: false })
 const WaterMeterManagement = dynamic(() => import("@/components/management/verification/watermeter"), { ssr: false })
@@ -7,12 +8,12 @@ import vrfWm from "@styles/scss/ui/vfm.module.scss"
 // Use getStaticProps
 import { sampleReportData, sampleWaterMeterData } from "@lib/sample-data";
 import dynamic from "next/dynamic";
-import { ReportDataType } from "@lib/types";
+import { ReportData } from "@lib/types";
 import NavTab from "@/components/nav-tab";
 
 interface DNSmallerThan32Props {
     className?: string,
-    reportData: ReportDataType[]
+    reportData: ReportData[]
 }
 
 // TODO: get data from API

@@ -2,8 +2,9 @@ import Cookies from 'js-cookie';
 // import api from '@/app/api/route';
 import axios from 'axios';
 import { LoginCredentials } from '@lib/types';
+import { BASE_API_URL } from '@lib/system-constant';
 
-const API_AUTH_URL = `${process.env.NEXT_PUBLIC_API_URL}/auth`;
+const API_AUTH_URL = `${BASE_API_URL}/auth`;
 
 export const login = async (credentials: LoginCredentials) => {
 

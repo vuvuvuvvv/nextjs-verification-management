@@ -12,7 +12,8 @@ const CUSTOM_AUTH_ERROR_TOKEN_PATH = '/auth-error/error-token'; // Đường d�
 const ADMIN_PATHS = ['/dashboard'];
 const AUTH_PATHS = [
     '/login',
-    '/register'
+    '/register',
+    '/forgot-password'
 ];
 const PROTECTED_PATHS = [
     '/change',

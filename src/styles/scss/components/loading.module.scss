@@ -7,7 +7,7 @@
     width: 100%;
     height: 100%;
     background-color: $bg_cover;
-    z-index: 9999 !important;
+    z-index: 999 !important;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -21,7 +21,7 @@
 
         .icon {
             font-size: 30px;
-            color: $blue;
+            color: $dark_blue;
             animation: spin 1s linear infinite;
         }
 

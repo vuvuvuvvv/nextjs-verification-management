@@ -95,7 +95,7 @@ export const sampleWaterMeterData = [
         "updatedAt": "23-02-2024",
         "createdBy": "Nguyễn Văn A",
         "updatedBy": "Nguyễn Văn B",
-        "status": "1,3",
+        "status": "1",
     },
     {
         "id": 2,
@@ -106,7 +106,7 @@ export const sampleWaterMeterData = [
         "updatedAt": "24-02-2024",
         "createdBy": "Nguyễn Văn B",
         "updatedBy": "Nguyễn Văn C",
-        "status": "2",
+        "status": "0",
     },
     {
         "id": 3,
@@ -128,7 +128,7 @@ export const sampleWaterMeterData = [
         "updatedAt": "26-02-2024",
         "createdBy": "Nguyễn Văn D",
         "updatedBy": "Nguyễn Văn E",
-        "status": "3",
+        "status": "1",
     },
     {
         "id": 5,
@@ -139,7 +139,7 @@ export const sampleWaterMeterData = [
         "updatedAt": "27-02-2024",
         "createdBy": "Nguyễn Văn E",
         "updatedBy": "Nguyễn Văn F",
-        "status": "1,2",
+        "status": "1",
     },
     {
         "id": 6,
@@ -150,7 +150,7 @@ export const sampleWaterMeterData = [
         "updatedAt": "28-02-2024",
         "createdBy": "Nguyễn Văn F",
         "updatedBy": "Nguyễn Văn G",
-        "status": "2,3",
+        "status": "1",
     },
     {
         "id": 7,
@@ -161,7 +161,7 @@ export const sampleWaterMeterData = [
         "updatedAt": "01-03-2024",
         "createdBy": "Nguyễn Văn G",
         "updatedBy": "Nguyễn Văn H",
-        "status": "1,3",
+        "status": "0",
     },
     {
         "id": 8,
@@ -172,7 +172,7 @@ export const sampleWaterMeterData = [
         "updatedAt": "02-03-2024",
         "createdBy": "Nguyễn Văn H",
         "updatedBy": "Nguyễn Văn I",
-        "status": "1,2,3",
+        "status": "1",
     },
     {
         "id": 9,
@@ -183,7 +183,7 @@ export const sampleWaterMeterData = [
         "updatedAt": "03-03-2024",
         "createdBy": "Nguyễn Văn I",
         "updatedBy": "Nguyễn Văn J",
-        "status": "2",
+        "status": "1",
     },
     {
         "id": 10,
@@ -194,7 +194,7 @@ export const sampleWaterMeterData = [
         "updatedAt": "04-03-2024",
         "createdBy": "Nguyễn Văn J",
         "updatedBy": "Nguyễn Văn K",
-        "status": "3",
+        "status": "1",
     },
     {
         "id": 11,
@@ -205,7 +205,7 @@ export const sampleWaterMeterData = [
         "updatedAt": "05-03-2024",
         "createdBy": "Nguyễn Văn K",
         "updatedBy": "Nguyễn Văn L",
-        "status": "1,2",
+        "status": "1",
     },
     {
         "id": 12,
@@ -216,7 +216,7 @@ export const sampleWaterMeterData = [
         "updatedAt": "06-03-2024",
         "createdBy": "Nguyễn Văn L",
         "updatedBy": "Nguyễn Văn M",
-        "status": "2,3",
+        "status": "0",
     },
     {
         "id": 13,
@@ -227,7 +227,7 @@ export const sampleWaterMeterData = [
         "updatedAt": "07-03-2024",
         "createdBy": "Nguyễn Văn M",
         "updatedBy": "Nguyễn Văn N",
-        "status": "1,3",
+        "status": "1",
     },
     {
         "id": 14,
@@ -238,7 +238,7 @@ export const sampleWaterMeterData = [
         "updatedAt": "08-03-2024",
         "createdBy": "Nguyễn Văn N",
         "updatedBy": "Nguyễn Văn O",
-        "status": "1,2,3",
+        "status": "1",
     },
     {
         "id": 15,
@@ -249,7 +249,7 @@ export const sampleWaterMeterData = [
         "updatedAt": "09-03-2024",
         "createdBy": "Nguyễn Văn O",
         "updatedBy": "Nguyễn Văn P",
-        "status": "2",
+        "status": "0",
     }
 ]
 

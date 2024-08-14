@@ -1,17 +1,44 @@
-'use client'
+"use client"
 
+import dynamic from "next/dynamic";
+import { PDMData } from "@lib/types";
+import { useState, useEffect } from "react";
+import api from "@/app/api/route";
+import { BASE_API_URL } from "@lib/system-constant";
+import Loading from "@/components/loading";
 
-import Link from "next/link";
-import { usePathname } from "next/navigation"
+const PDMManagement = dynamic(() => import("@/components/management/verification/pdm"), { ssr: false });
 
-export default function PDM() {
+interface PDMProps {
+    className?: string,
+}
 
-    const pathname = usePathname();
+export default function PDM({ className }: PDMProps) {
+    const [reportData, setReportData] = useState<PDMData[]>([]);
+    const [loading, setLoading] = useState<boolean>(true);
 
-    return <>
-        PDM
-        <Link href={pathname + "/new-pdm"} className="btn btn-success">
-            Thêm PDM
-        </Link>
-    </>
+    useEffect(() => {
+        const fetchData = async () => {
+            try {
+                const res = await api.get(`${BASE_API_URL}/pdm`);
+                setReportData(res.data);
+            } catch (error) {
+                console.error("Error fetching data:", error);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchData();
+    }, []);
+
+    if (loading) {
+        return <Loading></Loading>;
+    }
+
+    return (
+        <div className={`m-0 w-100 p-2`}>
+            <PDMManagement data={reportData}></PDMManagement>
+        </div>
+    );
 }

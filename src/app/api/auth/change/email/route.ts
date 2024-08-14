@@ -3,8 +3,9 @@ import api from '@/app/api/route';
 import { logout } from '../../logout/route';
 import { ResetEmailCredentials } from '@lib/types';
 import { useUser } from '@/context/app-context';
+import { BASE_API_URL } from '@lib/system-constant';
 
-const API_AUTH_URL = `${process.env.NEXT_PUBLIC_API_URL}/auth`;
+const API_AUTH_URL = `${BASE_API_URL}/auth`;
 
 export const resetEmail = async (credentials: ResetEmailCredentials) => {
 

@@ -87,6 +87,7 @@ export default function LoginForm({ className }: FormProps) {
                     },
                 }).then((result) => {
                     if (result.dismiss === Swal.DismissReason.timer) {
+                        Swal.showLoading();
                         router.push(redirectUrl);
                     }
                 });

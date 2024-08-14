@@ -15,7 +15,7 @@ import React from "react";
 
 import Select, { GroupBase } from 'react-select';
 import Pagination from "@/components/pagination";
-import { WaterMeterDataType } from "@lib/types";
+import { WaterMeterData } from "@lib/types";
 
 import { usePathname } from "next/navigation";
 import Link from "next/link";
@@ -26,7 +26,7 @@ const Loading = React.lazy(() => import("@/components/loading"));
 
 
 interface WaterMeterManagementProps {
-    data: WaterMeterDataType[],
+    data: WaterMeterData[],
     className?: string,
 }
 
@@ -36,7 +36,7 @@ interface FilterForm {
     type: string;
     accuracyClass: string;
     implementer: string;
-    status: string[];
+    status: string | number;
     fromDate: Date | null;
     toDate: Date | null;
 }
@@ -45,7 +45,7 @@ export default function WaterMeterManagement({ data, className }: WaterMeterMana
     const [rootData, setRootData] = useState(data);
     const [loading, setLoading] = useState(false);
     const [sortConfig, setSortConfig] = useState<{ key: string, direction: 'asc' | 'desc' | 'default' } | null>(null);
-    const [selectedStatus, setSelectedStatus] = useState([]);
+    const [selectedStatus, setSelectedStatus] = useState(null);
     const [entry, setEntry] = useState(5);
 
     const path = usePathname();
@@ -56,7 +56,7 @@ export default function WaterMeterManagement({ data, className }: WaterMeterMana
         type: "",
         accuracyClass: "",
         implementer: "",
-        status: [],
+        status: "",
         fromDate: null,
         toDate: null
     });
@@ -132,10 +132,10 @@ export default function WaterMeterManagement({ data, className }: WaterMeterMana
                 });
             }
 
-            if (filterForm.status.length > 0) {
+            if (filterForm.status) {
                 filteredData = filteredData.filter(item => {
-                    const itemStatus = item.status.split(',');
-                    return filterForm.status.every(s => itemStatus.includes(s));
+                    const itemStatus = item.status;
+                    return  filterForm.status == itemStatus;
                 });
             }
 
@@ -182,11 +182,11 @@ export default function WaterMeterManagement({ data, className }: WaterMeterMana
             type: "",
             accuracyClass: "",
             implementer: "",
-            status: [],
+            status: "",
             fromDate: null,
             toDate: null
         });
-        setSelectedStatus([]);
+        setSelectedStatus(null);
     }
 
     const handlePageChange = (newPage: number) => {
@@ -201,7 +201,7 @@ export default function WaterMeterManagement({ data, className }: WaterMeterMana
                 <div className={`${c_vfml['wraper']} pb-3 w-100`}>
 
 
-                    <div className="bg-white w-100 shadow mb-3 rounded pb-2 pt-4">
+                    <div className="bg-white w-100 shadow-sm mb-3 rounded pb-2 pt-4">
                         <div className={`row m-0 px-md-3 w-100 mb-3 ${c_vfml['search-process']}`}>
                             {/* <div className="col-12 mb-3 col-md-6 col-xl-4 d-flex">
                             <label className={`${c_vfml['form-label']}`} htmlFor="process-id">
@@ -248,7 +248,7 @@ export default function WaterMeterManagement({ data, className }: WaterMeterMana
                                 <label className={`${c_vfml['form-label']}`}>
                                     Trạng thái:
                                     <Select
-                                        isMulti
+                                        // isMulti
                                         name="status"
                                         options={statusOptions as unknown as readonly GroupBase<never>[]}
                                         className="basic-multi-select"
@@ -257,11 +257,13 @@ export default function WaterMeterManagement({ data, className }: WaterMeterMana
                                         value={selectedStatus}
                                         onChange={(selectedOptions: any) => {
                                             if (selectedOptions) {
-                                                const values = selectedOptions.map((option: { value: string }) => option.value);
+                                                // const values = selectedOptions.map((option: { value: string }) => option.value);
+                                                const values = selectedOptions.value;
+
                                                 setSelectedStatus(selectedOptions);
                                                 handleFilterChange('status', values);
                                             } else {
-                                                setSelectedStatus([]);
+                                                setSelectedStatus(null);
                                                 handleFilterChange('status', []);
                                             }
                                         }}
@@ -457,9 +459,9 @@ export default function WaterMeterManagement({ data, className }: WaterMeterMana
                         </div>
                     </div>
 
-                    <div className="bg-white w-100 shadow rounded overflow-hidden">
+                    <div className="bg-white w-100 shadow-sm rounded overflow-hidden">
                         <div className={`m-0 p-0 w-100 w-100 position-relative ${c_vfml['wrap-process-table']}`}>
-                            {loading && <Suspense fallback={<div>Loading...</div>}><Loading /></Suspense>}
+                            {loading && <Loading />}
                             {paginatedData.length > 0 ? (
                                 <table className={`table table-hover ${c_vfml['process-table']}`}>
                                     <thead>
@@ -560,10 +562,9 @@ export default function WaterMeterManagement({ data, className }: WaterMeterMana
                                                 <td>{item.createdBy}</td>
                                                 <td>{item.type}</td>
                                                 <td>{item.accuracyClass}</td>
-                                                <td>{item.status.split(',').map((s: string) => statusOptions.find(option => option.value === s)?.label).join(', ')}</td>
+                                                <td>{statusOptions.find(option => option.value == item.status)?.label || "Khôngggg hoạt động"}</td>
                                                 <td>{item.updatedAt}</td>
                                                 <td>
-
                                                     <div className={`dropdown ${c_vfml['action']}`}>
                                                         <button className={`${c_vfml['action-button']}`} type="button" data-bs-toggle="dropdown" aria-expanded="false">
                                                             <FontAwesomeIcon icon={faEllipsisH}></FontAwesomeIcon>

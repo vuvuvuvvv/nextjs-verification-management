@@ -7,6 +7,7 @@ export interface User {
     fullname: string;
     email: string;
     role: string;
+    status: string;
 }
 
 export interface SideLink {
@@ -38,7 +39,7 @@ export interface RegisterCredentials {
     email: string;
 }
 
-export interface ReportDataType {
+export interface ReportData {
     "id": number,
     "createdAt": string,
     "updatedAt": string,
@@ -48,7 +49,7 @@ export interface ReportDataType {
     "status": string,
 }
 
-export interface WaterMeterDataType {
+export interface WaterMeterData {
     "id": number,
     "serialNumber": string,
     "type": string,
@@ -60,7 +61,7 @@ export interface WaterMeterDataType {
     "status": string,
 }
 
-export interface PDMDataType {
+export interface PDMData {
     "id": number,
     "ma_tim_dong_ho_pdm": string,
     "ten_dong_ho": string,
@@ -77,5 +78,5 @@ export interface PDMDataType {
     "so_qd_pdm": string,
     "ngay_qd_pdm": string,
     "ngay_het_han": string,
-    "tinh_trang": string,
+    "anh_pdm": string,
 }

@@ -15,17 +15,17 @@ import React from "react";
 
 import Select, { GroupBase } from 'react-select';
 import Pagination from "@/components/pagination";
-import { ReportDataType } from "@lib/types";
+import { ReportData } from "@lib/types";
 
 import { usePathname } from "next/navigation";
 import Link from "next/link";
-import { entryOptions, statusOptions } from "@lib/system-constant";
+import { entryOptions, processStatusOptions } from "@lib/system-constant";
 
 const Loading = React.lazy(() => import("@/components/loading"));
 
 
 interface ProcessManagementProps {
-    data: ReportDataType[],
+    data: ReportData[],
     className?: string,
 }
 
@@ -176,7 +176,7 @@ export default function ProcessManagement({ data, className }: ProcessManagement
             <div className={`${className ? className : ""} m-0 mb-3 w-100`}>
                 <div className={`${c_vfml['wraper']} pb-3 w-100`}>
 
-                    <div className="bg-white w-100 shadow mb-3 rounded pb-2 pt-4">
+                    <div className="bg-white w-100 shadow-sm mb-3 rounded pb-2 pt-4">
                         <div className={`row m-0 px-md-3 w-100 mb-3 ${c_vfml['search-process']}`}>
                             <div className="col-12 mb-3 col-md-6 col-xl-4 d-flex">
                                 <label className={`${c_vfml['form-label']}`} htmlFor="process-id">
@@ -211,7 +211,7 @@ export default function ProcessManagement({ data, className }: ProcessManagement
                                     <Select
                                         isMulti
                                         name="status"
-                                        options={statusOptions as unknown as readonly GroupBase<never>[]}
+                                        options={processStatusOptions as unknown as readonly GroupBase<never>[]}
                                         className="basic-multi-select"
                                         classNamePrefix="select"
                                         value={selectedStatus}
@@ -339,9 +339,9 @@ export default function ProcessManagement({ data, className }: ProcessManagement
                         </div>
                     </div>
 
-                    <div className="bg-white w-100 shadow rounded overflow-hidden">
+                    <div className="bg-white w-100 shadow-sm rounded overflow-hidden">
                         <div className={`m-0 p-0 w-100 w-100 position-relative ${c_vfml['wrap-process-table']}`}>
-                            {loading && <Suspense fallback={<div>Loading...</div>}><Loading /></Suspense>}
+                            {loading && <Loading />}
                             {paginatedData.length > 0 ? (
                                 <table className={`table table-hover ${c_vfml['process-table']}`}>
                                     <thead>
@@ -419,7 +419,7 @@ export default function ProcessManagement({ data, className }: ProcessManagement
                                                 <td>{item.id}</td>
                                                 <td>{item.createdBy}</td>
                                                 <td>{item.numberOfClocks}</td>
-                                                <td>{item.status.split(',').map((s: string) => statusOptions.find(option => option.value === s)?.label).join(', ')}</td>
+                                                <td>{item.status.split(',').map((s: string) => processStatusOptions.find(option => option.value === s)?.label).join(', ')}</td>
                                                 <td>{item.updatedAt}</td>
                                                 <td>
                                                     <div className={`dropdown ${c_vfml['action']}`}>

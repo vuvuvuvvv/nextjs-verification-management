@@ -1,7 +1,17 @@
-export const statusOptions = [
+export const processStatusOptions = [
     { value: '1', label: 'Q1' },
     { value: '2', label: 'Q2' },
     { value: '3', label: 'Q3' }
+];
+
+export const statusOptions = [
+    { value: '0', label: 'Không hoạt động' },
+    { value: '1', label: 'Hoạt động' },
+];
+
+export const pdmStatusOptions = [
+    { value: '0', label: 'Hết hạn' },
+    { value: '1', label: 'Còn hiệu lực' },
 ];
 
 export const measureInstrumentNameOptions = [
@@ -40,3 +50,5 @@ export const entryOptions = [
     { value: 25, label: 25 },
     { value: 50, label: 50 },
 ]
+
+export const BASE_API_URL = process.env.NEXT_PUBLIC_API_URL;

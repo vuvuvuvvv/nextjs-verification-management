@@ -1,6 +1,7 @@
+import { BASE_API_URL } from '@lib/system-constant';
 import axios from 'axios';
 
-const API_AUTH_URL = `${process.env.NEXT_PUBLIC_API_URL}/auth`;
+const API_AUTH_URL = `${BASE_API_URL}/auth`;
 
 export const requestPasswordResetToken = async (email: string) => {
     try {

@@ -71,7 +71,7 @@ export default function NewProcessDNSmallerThan32({ className }: NewProcessDNSma
     return (
         <LocalizationProvider dateAdapter={AdapterDayjs} localeText={viVN.components.MuiLocalizationProvider.defaultProps.localeText}>
             <div className={`${className ? className : ""} ${vrfWm['wraper']} container p-0 px-2 py-3 w-100`}>
-                <div className={`row m-0 mb-3 p-3 w-100 bg-white shadow`}>
+                <div className={`row m-0 mb-3 p-3 w-100 bg-white shadow-sm`}>
                     <div className="w-100 m-0 p-0 mb-3 position-relative">
                         <h3 className="text-uppercase fw-bolder text-center mt-3 mb-0">thông tin kiểm định</h3>
                     </div>
@@ -350,15 +350,15 @@ export default function NewProcessDNSmallerThan32({ className }: NewProcessDNSma
                         [
                             {
                                 title: <>Q<sub>3</sub> (Q<sub>max</sub>)</>,
-                                content: <ErrorCaculatorTab className="bg-white shadow rounded" tabIndex={1} form={ErrorCaculatorForm} />
+                                content: <ErrorCaculatorTab className="bg-white shadow-sm rounded" tabIndex={1} form={ErrorCaculatorForm} />
                             },
                             {
                                 title: <>Q<sub>2</sub> (Q<sub>t</sub>)</>,
-                                content: <ErrorCaculatorTab className="bg-white shadow rounded" tabIndex={2} form={ErrorCaculatorForm} />
+                                content: <ErrorCaculatorTab className="bg-white shadow-sm rounded" tabIndex={2} form={ErrorCaculatorForm} />
                             },
                             {
                                 title: <>Q<sub>1</sub> (Q<sub>min</sub>)</>,
-                                content: <ErrorCaculatorTab className="bg-white shadow rounded" tabIndex={3} form={ErrorCaculatorForm} />
+                                content: <ErrorCaculatorTab className="bg-white shadow-sm rounded" tabIndex={3} form={ErrorCaculatorForm} />
                             },
                         ]
                     } />
