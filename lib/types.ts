@@ -39,6 +39,15 @@ export interface RegisterCredentials {
     email: string;
 }
 
+
+export interface PDMFilterParameters {
+    ma_tim_dong_ho_pdm: string | null,
+    so_qd_pdm: string | null,
+    ngay_qd_pdm_from: Date | null,
+    ngay_qd_pdm_to: Date | null,
+    tinh_trang: string | null,
+}
+
 export interface ReportData {
     "id": number,
     "createdAt": string,

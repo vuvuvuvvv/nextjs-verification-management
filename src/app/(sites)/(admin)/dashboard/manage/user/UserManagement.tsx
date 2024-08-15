@@ -13,7 +13,7 @@ import { User } from "@lib/types";
 
 import { usePathname } from "next/navigation";
 import Link from "next/link";
-import { entryOptions, statusOptions } from "@lib/system-constant";
+import { limitOptions, statusOptions } from "@lib/system-constant";
 
 const Loading = React.lazy(() => import("@/components/loading"));
 
@@ -33,7 +33,7 @@ export default function UserManagement({ data, className }: UserManagementProps)
     const [loading, setLoading] = useState(false);
     const [sortConfig, setSortConfig] = useState<{ key: string, direction: 'asc' | 'desc' | 'default' } | null>(null);
     const [selectedStatus, setSelectedStatus] = useState([]);
-    const [entry, setEntry] = useState(5);
+    const [limit, setLimit] = useState(5);
 
     const path = usePathname();
 
@@ -46,17 +46,17 @@ export default function UserManagement({ data, className }: UserManagementProps)
 
     const resetTotalPage = () => {
         setCurrentPage(1);
-        if (rootData.length == entry) {
+        if (rootData.length == limit) {
             return 1;
         }
-        return Math.ceil(rootData.length / entry);
+        return Math.ceil(rootData.length / limit);
     }
 
     const [totalPage, setTotalPage] = useState(resetTotalPage);
 
     useEffect(() => {
         setTotalPage(resetTotalPage);
-    }, [rootData, entry])
+    }, [rootData, limit])
 
     const sortData = useCallback((key: string) => {
         if (!loading) {
@@ -135,7 +135,7 @@ export default function UserManagement({ data, className }: UserManagementProps)
         setCurrentPage(newPage);
     };
 
-    const paginatedData = rootData.slice((currentPage - 1) * entry, currentPage * entry);
+    const paginatedData = rootData.slice((currentPage - 1) * limit, currentPage * limit);
 
     return (
         <div className={`${className ? className : ""} m-0 mb-3 w-100`}>
@@ -222,12 +222,12 @@ export default function UserManagement({ data, className }: UserManagementProps)
                             <label className={`${c_vfml['form-label']}`}>
                                 Số lượng bản ghi:
                                 <Select
-                                    name="entry"
-                                    options={entryOptions as unknown as readonly GroupBase<never>[]}
+                                    name="limit"
+                                    options={limitOptions as unknown as readonly GroupBase<never>[]}
                                     className="basic-multi-select"
                                     classNamePrefix="select"
-                                    value={entryOptions.find(option => option.value === entry) || 5}
-                                    onChange={(selectedOptions: any) => setEntry(selectedOptions ? selectedOptions.value : 5)}
+                                    value={limitOptions.find(option => option.value === limit) || 5}
+                                    onChange={(selectedOptions: any) => setLimit(selectedOptions ? selectedOptions.value : 5)}
                                     styles={{
                                         control: (provided) => ({
                                             ...provided,

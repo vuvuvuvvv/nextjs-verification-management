@@ -13,7 +13,7 @@ export const login = async (credentials: LoginCredentials) => {
         const response = await axios.post(`${API_AUTH_URL}/login`, credentials, { withCredentials: true });
 
         if (response.data.access_token && response.data.user && response.data.refresh_token) {
-            Cookies.set('accessToken', response.data.access_token, { expires: 1 });
+            Cookies.set('accessToken', response.data.access_token, { expires: new Date(new Date().getTime() + 10 * 1000) });
             Cookies.set('user', JSON.stringify(response.data.user), { expires: credentials.remember ? 3 : undefined });
             Cookies.set('refreshToken', response.data.refresh_token, { expires: credentials.remember ? 3 : undefined });
             

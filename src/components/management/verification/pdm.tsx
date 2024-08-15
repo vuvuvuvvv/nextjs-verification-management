@@ -15,12 +15,12 @@ import React from "react";
 
 import Select, { GroupBase } from 'react-select';
 import Pagination from "@/components/pagination";
-import { PDMData } from "@lib/types";
+import { PDMData, PDMFilterParameters } from "@lib/types";
 
 import { usePathname } from "next/navigation";
 import Link from "next/link";
 
-import { pdmStatusOptions, typeOptions, accuracyClassOptions, entryOptions } from "@lib/system-constant";
+import { pdmStatusOptions, limitOptions } from "@lib/system-constant";
 
 const Loading = React.lazy(() => import("@/components/loading"));
 
@@ -30,45 +30,46 @@ interface PDMManagementProps {
     className?: string,
 }
 
-interface FilterForm {
-    ma_tim_dong_ho_pdm: string,
-    ten_dong_ho: string,
-    so_qd_pdm: string,
-    ngay_qd_pdm: Date | null,
-    tinh_trang: string,
-}
+// interface FilterForm {
+//     ma_tim_dong_ho_pdm: string,
+//     ten_dong_ho: string,
+//     so_qd_pdm: string,
+//     tinh_trang: string,
+//     ngay_qd_pdm_from: Date | null;
+//     ngay_qd_pdm_to: Date | null;
+// }
 
 export default function PDMManagement({ data, className }: PDMManagementProps) {
     const [rootData, setRootData] = useState(data);
     const [loading, setLoading] = useState(false);
     const [sortConfig, setSortConfig] = useState<{ key: string, direction: 'asc' | 'desc' | 'default' } | null>(null);
     const [selectedStatus, setSelectedStatus] = useState('');
-    const [entry, setEntry] = useState(5);
+    const [limit, setLimit] = useState(5);
 
     const path = usePathname();
 
-    const [filterForm, setFilterForm] = useState<FilterForm>({
+    const [filterForm, setFilterForm] = useState<PDMFilterParameters>({
         ma_tim_dong_ho_pdm: "",
-        ten_dong_ho: "",
         so_qd_pdm: "",
-        ngay_qd_pdm: null,
         tinh_trang: "",
+        ngay_qd_pdm_from: null,
+        ngay_qd_pdm_to: null,
     });
     const [currentPage, setCurrentPage] = useState(1);
 
     const resetTotalPage = () => {
         setCurrentPage(1);
-        if (rootData.length <= entry) {
+        if (rootData.length <= limit) {
             return 1;
         }
-        return Math.ceil(rootData.length / entry);
+        return Math.ceil(rootData.length / limit);
     }
 
     const [totalPage, setTotalPage] = useState(resetTotalPage);
 
     useEffect(() => {
         setTotalPage(resetTotalPage);
-    }, [rootData, entry])
+    }, [rootData, limit])
 
     const sortData = useCallback((key: string) => {
         if (!loading) {
@@ -104,25 +105,24 @@ export default function PDMManagement({ data, className }: PDMManagementProps) {
 
             if (filterForm.ma_tim_dong_ho_pdm) {
                 filteredData = filteredData.filter(item => {
-                    const keywords = filterForm.ma_tim_dong_ho_pdm.trim().toLowerCase().replace(/[^\d]/g, '').split(' ').filter(Boolean);
-                    const item_query = item.ma_tim_dong_ho_pdm;
-                    return keywords.some(keyword => item_query.toString().includes(keyword));
+                    if (item.ma_tim_dong_ho_pdm === "" || item.ma_tim_dong_ho_pdm === null || filterForm.ma_tim_dong_ho_pdm === null || filterForm.ma_tim_dong_ho_pdm === "") {
+                        return false;
+                    }
+                    const keywords = filterForm.ma_tim_dong_ho_pdm.trim().toLowerCase().split(' ').filter(Boolean);
+                    const item_query = item.ma_tim_dong_ho_pdm.toLowerCase().replace(/[^a-zA-Z0-9 ]/g, '');
+                    // console.log(item_query);
+                    return keywords.some(keyword => item_query.includes(keyword));
                 });
             }
 
             if (filterForm.so_qd_pdm) {
                 filteredData = filteredData.filter(item => {
-                    const keywords = filterForm.so_qd_pdm.trim().toLowerCase().replace(/[^\d]/g, '').split(' ').filter(Boolean);
-                    const item_query = item.so_qd_pdm;
-                    return keywords.some(keyword => item_query.toString().includes(keyword));
-                });
-            }
-
-            if (filterForm.ten_dong_ho) {
-                filteredData = filteredData.filter(item => {
-                    const keywords = filterForm.ten_dong_ho.trim().toLowerCase().split(' ').filter(Boolean);
-                    const item_ten_dong_ho = item.ten_dong_ho.toLowerCase().replace(/[^a-zA-Z0-9 ]/g, '');
-                    return keywords.some(keyword => item_ten_dong_ho.includes(keyword));
+                    if (item.so_qd_pdm === "" || item.so_qd_pdm === null || filterForm.so_qd_pdm === null || filterForm.so_qd_pdm === "") {
+                        return false;
+                    }
+                    const keywords = filterForm.so_qd_pdm.trim().toLowerCase().split(' ').filter(Boolean);
+                    const item_query = item.so_qd_pdm.toLowerCase().replace(/[^a-zA-Z0-9 ]/g, '');
+                    return keywords.some(keyword => item_query.includes(keyword));
                 });
             }
 
@@ -135,19 +135,20 @@ export default function PDMManagement({ data, className }: PDMManagementProps) {
                 });
             }
 
-            // if (filterForm.fromDate || filterForm.toDate) {
-            //     const now = new Date();
-            //     filteredData = filteredData.filter(item => {
-            //         const itemDate = new Date(item.createdAt.split('-').reverse().join('-'));
-            //         if (filterForm.fromDate && filterForm.toDate) {
-            //             return itemDate >= filterForm.fromDate && itemDate <= filterForm.toDate;
-            //         } else if (filterForm.fromDate) {
-            //             return itemDate >= filterForm.fromDate && itemDate <= now;
-            //         } else if (filterForm.toDate) {
-            //             return itemDate <= filterForm.toDate;
-            //         }
-            //     });
-            // }
+            if (filterForm.ngay_qd_pdm_from || filterForm.ngay_qd_pdm_to) {
+                const now = new Date();
+                filteredData = filteredData.filter(item => {
+                    const itemDate = new Date(item.ngay_qd_pdm);
+                    console.log(itemDate);
+                    if (filterForm.ngay_qd_pdm_from && filterForm.ngay_qd_pdm_to) {
+                        return itemDate >= filterForm.ngay_qd_pdm_from && itemDate <= filterForm.ngay_qd_pdm_to;
+                    } else if (filterForm.ngay_qd_pdm_from) {
+                        return itemDate >= filterForm.ngay_qd_pdm_from && itemDate <= now;
+                    } else if (filterForm.ngay_qd_pdm_to) {
+                        return itemDate <= filterForm.ngay_qd_pdm_to;
+                    }
+                });
+            }
 
             setRootData(filteredData);
             setSortConfig(null);
@@ -156,7 +157,7 @@ export default function PDMManagement({ data, className }: PDMManagementProps) {
         return () => clearTimeout(debounce);
     }, [filterForm]);
 
-    const handleFilterChange = (key: keyof FilterForm, value: any) => {
+    const handleFilterChange = (key: keyof PDMFilterParameters, value: any) => {
         setFilterForm(prevForm => ({
             ...prevForm,
             [key]: value
@@ -166,9 +167,9 @@ export default function PDMManagement({ data, className }: PDMManagementProps) {
     const hanldeResetFilter = () => {
         setFilterForm({
             ma_tim_dong_ho_pdm: "",
-            ten_dong_ho: "",
             so_qd_pdm: "",
-            ngay_qd_pdm: null,
+            ngay_qd_pdm_from: null,
+            ngay_qd_pdm_to: null,
             tinh_trang: "",
         });
         setSelectedStatus("");
@@ -178,7 +179,7 @@ export default function PDMManagement({ data, className }: PDMManagementProps) {
         setCurrentPage(newPage);
     };
 
-    const paginatedData = rootData.slice((currentPage - 1) * entry, currentPage * entry);
+    const paginatedData = rootData.slice((currentPage - 1) * limit, currentPage * limit);
 
     return (
         <LocalizationProvider dateAdapter={AdapterDayjs} localeText={viVN.components.MuiLocalizationProvider.defaultProps.localeText}>
@@ -201,33 +202,33 @@ export default function PDMManagement({ data, className }: PDMManagementProps) {
                             </label>
                         </div> */}
 
-                            {/* <div className="col-12 mb-3 col-md-6 col-xl-4 d-flex">
-                            <label className={`${c_vfml['form-label']}`} htmlFor="serial-number">
-                                Serial number:
-                                <input
-                                    type="text"
-                                    id="serial-number"
-                                    className="form-control"
-                                    placeholder="Nhập số seri"
-                                    value={filterForm.serialNumber}
-                                    onChange={(e) => handleFilterChange('serialNumber', e.target.value)}
-                                />
-                            </label>
-                        </div> */}
+                            <div className="col-12 mb-3 col-md-6 col-xl-4 d-flex">
+                                <label className={`${c_vfml['form-label']}`} htmlFor="ma_tim_dong_ho_pdm">
+                                    Mã tìm đồng hồ PDM:
+                                    <input
+                                        type="text"
+                                        id="ma_tim_dong_ho_pdm"
+                                        className="form-control"
+                                        placeholder="Nhập mã tìm đồng hồ"
+                                        value={filterForm.ma_tim_dong_ho_pdm || ""}
+                                        onChange={(e) => handleFilterChange('ma_tim_dong_ho_pdm', e.target.value)}
+                                    />
+                                </label>
+                            </div>
 
-                            {/* <div className="col-12 mb-3 col-md-6 col-xl-4">
-                            <label className={`${c_vfml['form-label']}`} htmlFor="implementer">
-                                Người kiểm định:
-                                <input
-                                    type="text"
-                                    id="implementer"
-                                    className="form-control"
-                                    placeholder="Nhập tên người kiểm định"
-                                    value={filterForm.implementer}
-                                    onChange={(e) => handleFilterChange('implementer', e.target.value)}
-                                />
-                            </label>
-                        </div> */}
+                            <div className="col-12 mb-3 col-md-6 col-xl-4">
+                                <label className={`${c_vfml['form-label']}`} htmlFor="so_qd_pdm">
+                                    Số quyết định PDM:
+                                    <input
+                                        type="text"
+                                        id="so_qd_pdm"
+                                        className="form-control"
+                                        placeholder="Nhập tên đồng hồ"
+                                        value={filterForm.so_qd_pdm || ""}
+                                        onChange={(e) => handleFilterChange('so_qd_pdm', e.target.value)}
+                                    />
+                                </label>
+                            </div>
 
 
                             <div className="col-12 mb-3 col-md-6 col-xl-4">
@@ -358,51 +359,16 @@ export default function PDMManagement({ data, className }: PDMManagementProps) {
                                 />
                             </label>
                         </div> */}
-
-                            {/* <div className={`col-12 col-md-8 mb-3 m-0 row p-0 ${c_vfml['search-created-date']}`}>
-                            <label className={`${c_vfml['form-label']} col-12`}>
-                                Cập nhật cuối:
-                            </label>
-                            <div className={`col-12 row m-0 mt-2 p-0 ${c_vfml['pick-created-date']}`}>
-                                <div className={`col-12 col-md-6 mb-3 mb-md-0 ${c_vfml['picker-field']}`}>
-                                    <label>Từ:</label>
-
-                                    <DatePicker
-                                        className={`${c_vfml['date-picker']}`}
-                                        value={filterForm.fromDate ? dayjs(filterForm.fromDate) : null}
-                                        format="DD-MM-YYYY"
-
-                                        onChange={(newValue: Dayjs | null) => handleFilterChange('fromDate', newValue ? newValue.toDate() : null)}
-                                        slotProps={{ textField: { fullWidth: true } }}
-                                        maxDate={filterForm.toDate ? dayjs(filterForm.toDate).subtract(1, 'day') : dayjs().endOf('day').subtract(1, 'day')}
-                                    />
-                                </div>
-
-                                <div className={`col-12 col-md-6 ${c_vfml['picker-field']}`}>
-                                    <label>Đến:</label>
-                                    <DatePicker
-                                        className={`${c_vfml['date-picker']}`}
-                                        value={filterForm.toDate ? dayjs(filterForm.toDate) : undefined}
-                                        format="DD-MM-YYYY"
-                                        minDate={filterForm.fromDate ? dayjs(filterForm.fromDate).add(1, 'day') : undefined}
-
-                                        maxDate={dayjs().endOf('day')}
-                                        onChange={(newValue: Dayjs | null) => handleFilterChange('toDate', newValue ? newValue.toDate() : undefined)}
-                                        slotProps={{ textField: { fullWidth: true } }}
-                                    />
-                                </div>
-                            </div>
-                        </div> */}
-                            <div className={`col-12 col-md-4 mb-3 m-0 p-0 row`}>
+                            <div className="col-12 mb-3 col-md-6 col-xl-4">
                                 <label className={`${c_vfml['form-label']}`}>
                                     Số lượng bản ghi:
                                     <Select
-                                        name="entry"
-                                        options={entryOptions as unknown as readonly GroupBase<never>[]}
+                                        name="limit"
+                                        options={limitOptions as unknown as readonly GroupBase<never>[]}
                                         className="basic-multi-select"
                                         classNamePrefix="select"
-                                        value={entryOptions.find(option => option.value === entry) || 5}
-                                        onChange={(selectedOptions: any) => setEntry(selectedOptions ? selectedOptions.value : 5)}
+                                        value={limitOptions.find(option => option.value === limit) || 5}
+                                        onChange={(selectedOptions: any) => setLimit(selectedOptions ? selectedOptions.value : 5)}
                                         styles={{
                                             control: (provided) => ({
                                                 ...provided,
@@ -429,6 +395,41 @@ export default function PDMManagement({ data, className }: PDMManagementProps) {
                                         }}
                                     />
                                 </label>
+                            </div>
+
+                            <div className={`col-12 col-xl-8 mb-3 m-0 row p-0 ${c_vfml['search-created-date']}`}>
+                                <label className={`${c_vfml['form-label']} col-12`}>
+                                    Ngày quyết định PDM:
+                                </label>
+                                <div className={`col-12 row m-0 mt-2 p-0 ${c_vfml['pick-created-date']}`}>
+                                    <div className={`col-12 col-md-6 mb-3 mb-md-0 ${c_vfml['picker-field']}`}>
+                                        <label>Từ:</label>
+
+                                        <DatePicker
+                                            className={`${c_vfml['date-picker']}`}
+                                            value={filterForm.ngay_qd_pdm_from ? dayjs(filterForm.ngay_qd_pdm_from) : null}
+                                            format="DD-MM-YYYY"
+
+                                            onChange={(newValue: Dayjs | null) => handleFilterChange('ngay_qd_pdm_from', newValue ? newValue.toDate() : null)}
+                                            slotProps={{ textField: { fullWidth: true } }}
+                                            maxDate={filterForm.ngay_qd_pdm_to ? dayjs(filterForm.ngay_qd_pdm_to).subtract(1, 'day') : dayjs().endOf('day').subtract(1, 'day')}
+                                        />
+                                    </div>
+
+                                    <div className={`col-12 col-md-6 ${c_vfml['picker-field']}`}>
+                                        <label>Đến:</label>
+                                        <DatePicker
+                                            className={`${c_vfml['date-picker']}`}
+                                            value={filterForm.ngay_qd_pdm_to ? dayjs(filterForm.ngay_qd_pdm_to) : undefined}
+                                            format="DD-MM-YYYY"
+                                            minDate={filterForm.ngay_qd_pdm_from ? dayjs(filterForm.ngay_qd_pdm_from).add(1, 'day') : undefined}
+
+                                            maxDate={dayjs().endOf('day')}
+                                            onChange={(newValue: Dayjs | null) => handleFilterChange('ngay_qd_pdm_to', newValue ? newValue.toDate() : undefined)}
+                                            slotProps={{ textField: { fullWidth: true } }}
+                                        />
+                                    </div>
+                                </div>
                             </div>
 
                             <div className={`col-12 m-0 my-2 d-flex align-items-center justify-content-between`}>
@@ -499,30 +500,24 @@ export default function PDMManagement({ data, className }: PDMManagementProps) {
                                                     )}
                                                 </div>
                                             </th>
-                                            <th onClick={() => sortData('accuracyClass')}>
+                                            <th onClick={() => sortData('ngay_het_han')}>
                                                 <div className={`${c_vfml['table-label']}`}>
                                                     <span>
                                                         Ngày hết hạn
                                                     </span>
-                                                    {sortConfig && sortConfig.key === 'accuracyClass' && sortConfig.direction === 'asc' && (
+                                                    {sortConfig && sortConfig.key === 'ngay_het_han' && sortConfig.direction === 'asc' && (
                                                         <FontAwesomeIcon icon={faChevronUp}></FontAwesomeIcon>
                                                     )}
-                                                    {sortConfig && sortConfig.key === 'accuracyClass' && sortConfig.direction === 'desc' && (
+                                                    {sortConfig && sortConfig.key === 'ngay_het_han' && sortConfig.direction === 'desc' && (
                                                         <FontAwesomeIcon icon={faChevronDown}></FontAwesomeIcon>
                                                     )}
                                                 </div>
                                             </th>
-                                            <th onClick={() => sortData('status')}>
+                                            <th>
                                                 <div className={`${c_vfml['table-label']}`}>
                                                     <span>
                                                         Tình trạng
                                                     </span>
-                                                    {sortConfig && sortConfig.key === 'status' && sortConfig.direction === 'asc' && (
-                                                        <FontAwesomeIcon icon={faChevronUp}></FontAwesomeIcon>
-                                                    )}
-                                                    {sortConfig && sortConfig.key === 'status' && sortConfig.direction === 'desc' && (
-                                                        <FontAwesomeIcon icon={faChevronDown}></FontAwesomeIcon>
-                                                    )}
                                                 </div>
                                             </th>
                                             {/* <th onClick={() => sortData('updatedAt')}>

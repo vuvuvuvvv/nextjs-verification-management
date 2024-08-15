@@ -42,7 +42,7 @@ export const accuracyClassOptions = [
     { value: "D", label: "D" }
 ]
 
-export const entryOptions = [
+export const limitOptions = [
     { value: 5, label: 5 },
     { value: 10, label: 10 },
     { value: 15, label: 15 },
