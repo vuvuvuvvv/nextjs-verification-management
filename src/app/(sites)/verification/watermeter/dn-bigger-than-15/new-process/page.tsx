@@ -37,8 +37,10 @@ export default function NewProcessDNBiggerThan32({ className }: NewProcessDNBigg
     const [seriNumber, setSeriNumber] = useState<string>("");                               // Serial number
 
     const [deviceName, setDeviceName] = useState<string>("");                               // Tên phương tiện đo
-    const [directiveSeri, setDirectiveSeri] = useState<string>("");                         // Serial chỉ thị
-    const [sensorSeri, setSensorSeri] = useState<string>("");                               // Serial sensor
+    const [seriChiThi, setSeriChiThi] = useState<string>("");                         // Serial chỉ thị
+    const [seriSensor, setSeriSensor] = useState<string>("");                               // Serial sensor
+    const [kieuChiThi, setKieuChiThi] = useState<string>("");                           // Kiểu chỉ thị
+    const [kieuSensor, setKieuSensor] = useState<string>("");                               // Kiểu sensor
 
     const [deviceType, setDeviceType] = useState<string>("");                               // Kiểu
     const [deviceNumber, setDeviceNumber] = useState<string>("");                           // Số
@@ -58,15 +60,9 @@ export default function NewProcessDNBiggerThan32({ className }: NewProcessDNBigg
     const [equipment, setEquipment] = useState<string>("");                                 // Chuẩn, thiết bị chính được sử dụng
     const [implementer, setImplementer] = useState<string>("");                             // Người thực hiện
     const [implementationDate, setImplementationDate] = useState<Date | null>(null);        // Ngày thực hiện
-    const [location, setLocation] = useState<string>("");                                   // Vị trí
+    const [location, setLocation] = useState<string>("");       
 
-    const toggleTab = (tab: number) => {
-        if (!selectedTab[tab]) {
-            setSelectedTab((prev) => ({
-                [tab]: !prev[tab]
-            }))
-        }
-    };
+    const [isDHDienTu, setDHDienTu] = useState(false);                           // Vị trí
 
     const toggleCollapse = () => {
         setIsCollapsed(!isCollapsed);
@@ -84,23 +80,16 @@ export default function NewProcessDNBiggerThan32({ className }: NewProcessDNBigg
         setQ3("");
         setRatio("");
         setQN("");
-    }, [accuracyClass]);
-
-    useEffect(() => {
-        setDirectiveSeri("");
-        setSensorSeri("");
-    }, [deviceName]);
+        setSeriChiThi("");
+        setSeriSensor("");
+        setKieuSensor("");
+        setKieuChiThi("");
+        setDHDienTu(deviceName !== "" && measureInstrumentNameOptions.find(option => option.label == deviceName)?.value == "1");
+    }, [accuracyClass, deviceName]);
 
     const renderAccuracyClassFields = () => {
-
-        if (!accuracyClass) {
-            return <></>
-        }
-
-        // Check có phải đồng hồ đty hay không : value: "1"
-        const renedrDeviceNameCondition = deviceName && measureInstrumentNameOptions.find(option => option.label == deviceName)?.value == "1";
-
-        if ((accuracyClass == "1" || accuracyClass == "2")) {
+        // Check có phải đồng hồ đtu hay không : value: "1"
+        if ((accuracyClass && (accuracyClass == "1" || accuracyClass == "2")) || isDHDienTu) {
             return <>
                 <div className="mb-3 col-12 col-md-6">
                     <label htmlFor="q3" className="form-label">- Q<sub>3</sub>:</label>
@@ -114,7 +103,7 @@ export default function NewProcessDNBiggerThan32({ className }: NewProcessDNBigg
                             onChange={handleNumberChange(setQ3)}
                             pattern="\d*"
                         />
-                        <span className="input-group-text" id="basic-addon2">m<sup>3</sup>/h (kg/h)</span>
+                        <span className="input-group-text" id="basic-addon2">m<sup>3</sup>/h</span>
                     </div>
                 </div>
                 <div className="mb-3 col-12 col-md-6">
@@ -130,19 +119,54 @@ export default function NewProcessDNBiggerThan32({ className }: NewProcessDNBigg
                     />
                 </div>
 
-                {renedrDeviceNameCondition &&
-                    <div className="mb-3 col-12 col-md-6">
-                        <label htmlFor="sensorSeri" className="form-label">Serial sensor:</label>
+                <div className="mb-3 col-12 col-md-6">
+                    <label htmlFor="seriChiThi" className="form-label">Serial chỉ thị:</label>
+                    <div className="input-group">
                         <input
                             type="text"
                             className="form-control"
-                            id="sensorSeri"
-                            placeholder="Serial sensor"
-                            value={sensorSeri}
-                            onChange={(e) => setSensorSeri(e.target.value)}
+                            id="seriChiThi"
+                            placeholder="Serial chỉ thị"
+                            value={seriChiThi}
+                            onChange={(e) => setSeriChiThi(e.target.value)}
                         />
                     </div>
-                }
+                </div>
+                <div className="mb-3 col-12 col-md-6">
+                    <label htmlFor="kieuChiThi" className="form-label">Kiểu chỉ thị:</label>
+                    <div className="input-group">
+                        <input
+                            type="text"
+                            className="form-control"
+                            id="kieuChiThi"
+                            placeholder="Serial chỉ thị"
+                            value={kieuChiThi}
+                            onChange={(e) => setKieuChiThi(e.target.value)}
+                        />
+                    </div>
+                </div>
+                <div className="mb-3 col-12 col-md-6">
+                    <label htmlFor="seriSensor" className="form-label">Serial sensor:</label>
+                    <input
+                        type="text"
+                        className="form-control"
+                        id="seriSensor"
+                        placeholder="Serial sensor"
+                        value={seriSensor}
+                        onChange={(e) => setSeriSensor(e.target.value)}
+                    />
+                </div>
+                <div className="mb-3 col-12 col-md-6">
+                    <label htmlFor="kieuSensor" className="form-label">Kiểu sensor:</label>
+                    <input
+                        type="text"
+                        className="form-control"
+                        id="kieuSensor"
+                        placeholder="Serial sensor"
+                        value={kieuSensor}
+                        onChange={(e) => setKieuSensor(e.target.value)}
+                    />
+                </div>
             </>
         }
 
@@ -159,41 +183,21 @@ export default function NewProcessDNBiggerThan32({ className }: NewProcessDNBigg
                         onChange={handleNumberChange(setQN)}
                         pattern="\d*"
                     />
-                    <span className="input-group-text" id="basic-addon2">m<sup>3</sup>/h (kg/h)</span>
+                    <span className="input-group-text" id="basic-addon2">m<sup>3</sup>/h</span>
                 </div>
             </div>
-
-            {renedrDeviceNameCondition &&
-                <div className="mb-3 col-12 col-md-6">
-                    <label htmlFor="directiveSeri" className="form-label">Serial chỉ thị:</label>
-                    <div className="input-group">
-                        <input
-                            type="text"
-                            className="form-control"
-                            id="directiveSeri"
-                            placeholder="Serial chỉ thị"
-                            value={directiveSeri}
-                            onChange={(e) => setDirectiveSeri(e.target.value)}
-                        />
-                    </div>
-                </div>
-            }
+            <div className="mb-3 col-12 col-md-6">
+                <label htmlFor="kieuSensor" className="form-label">Kiểu sensor:</label>
+                <input
+                    type="text"
+                    className="form-control"
+                    id="kieuSensor"
+                    placeholder="Serial sensor"
+                    value={kieuSensor}
+                    onChange={(e) => setKieuSensor(e.target.value)}
+                />
+            </div>
         </>
-    }
-
-    const renderDeviceNameFields = () => {
-        if (!deviceName) {
-            return <></>
-        }
-
-        const objDevicename = measureInstrumentNameOptions.find(option => option.label == deviceName);
-
-        if (objDevicename?.value == "1") {
-            return
-
-        }
-
-        return
     }
 
     return (
@@ -256,8 +260,6 @@ export default function NewProcessDNBiggerThan32({ className }: NewProcessDNBigg
                                         }}
                                     />
                                 </div>
-
-                                {renderDeviceNameFields()}
 
                                 <div className="mb-3 col-12 col-md-6">
                                     <label htmlFor="deviceType" className="form-label">Kiểu:</label>
@@ -355,7 +357,7 @@ export default function NewProcessDNBiggerThan32({ className }: NewProcessDNBigg
                                             onChange={handleNumberChange(setDN)}
                                             pattern="\d*"
                                         />
-                                        <span className="input-group-text" id="basic-addon2">lít</span>
+                                        <span className="input-group-text" id="basic-addon2">mm</span>
                                     </div>
                                 </div>
                                 <div className="mb-3 col-12 col-md-6">

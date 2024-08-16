@@ -86,7 +86,7 @@ export default function RegisterForm({ className }: FormProps) {
 
             try {
                 const response = await register(credentials);
-                if (response.status == 200) {
+                if (response.status == 201) {
                     Swal.fire({
                         // title: "Auto close alert!",
                         icon: "success",

@@ -40,6 +40,25 @@ export interface RegisterCredentials {
 }
 
 
+export interface PDM {
+    ma_tim_dong_ho_pdm: string | null,
+    ten_dong_ho: string | null, 
+    noi_san_xuat: string | null, 
+    dn: string | null,
+    ccx: string | null,
+    kieu_sensor: string | null, 
+    transmitter: string | null,
+    qn: string | null,
+    q3: string | null,
+    r: string | null,
+    don_vi_pdm: string | null, 
+    dia_chi: string | null,
+    so_qd_pdm: string | null,
+    ngay_qd_pdm: Date | null, 
+    ngay_het_han: Date | null, 
+}
+
+
 export interface PDMFilterParameters {
     ma_tim_dong_ho_pdm: string | null,
     so_qd_pdm: string | null,

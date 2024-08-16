@@ -21,6 +21,9 @@ import { usePathname } from "next/navigation";
 import Link from "next/link";
 
 import { pdmStatusOptions, limitOptions } from "@lib/system-constant";
+import api from "@/app/api/route";
+import { deletePDM, getPDM } from "@/app/api/pdm/route";
+import Swal from "sweetalert2";
 
 const Loading = React.lazy(() => import("@/components/loading"));
 
@@ -45,8 +48,38 @@ export default function PDMManagement({ data, className }: PDMManagementProps) {
     const [sortConfig, setSortConfig] = useState<{ key: string, direction: 'asc' | 'desc' | 'default' } | null>(null);
     const [selectedStatus, setSelectedStatus] = useState('');
     const [limit, setLimit] = useState(5);
+    const [error, setError] = useState("");
 
     const path = usePathname();
+
+    useEffect(() => {
+        if (error) {
+            Swal.fire({
+                icon: "error",
+                title: "Lỗi",
+                text: error,
+                showClass: {
+                    popup: `
+                    animate__animated
+                    animate__fadeInUp
+                    animate__faster
+                  `
+                },
+                hideClass: {
+                    popup: `
+                    animate__animated
+                    animate__fadeOutDown
+                    animate__faster
+                  `
+                },
+                confirmButtonColor: "#0980de",
+                confirmButtonText: "OK"
+            }).then(() => {
+                setError("");
+            });
+        }
+    }, [error]);
+
 
     const [filterForm, setFilterForm] = useState<PDMFilterParameters>({
         ma_tim_dong_ho_pdm: "",
@@ -99,69 +132,70 @@ export default function PDMManagement({ data, className }: PDMManagementProps) {
     }, [rootData, sortConfig]);
 
     useEffect(() => {
+
         setLoading(true);
-        const debounce = setTimeout(() => {
-            let filteredData = data;
-
-            if (filterForm.ma_tim_dong_ho_pdm) {
-                filteredData = filteredData.filter(item => {
-                    if (item.ma_tim_dong_ho_pdm === "" || item.ma_tim_dong_ho_pdm === null || filterForm.ma_tim_dong_ho_pdm === null || filterForm.ma_tim_dong_ho_pdm === "") {
-                        return false;
-                    }
-                    const keywords = filterForm.ma_tim_dong_ho_pdm.trim().toLowerCase().split(' ').filter(Boolean);
-                    const item_query = item.ma_tim_dong_ho_pdm.toLowerCase().replace(/[^a-zA-Z0-9 ]/g, '');
-                    // console.log(item_query);
-                    return keywords.some(keyword => item_query.includes(keyword));
-                });
+        const debounce = setTimeout(async () => {
+            try {
+                const res = await getPDM(filterForm);
+                if (res.status === 200) {
+                    setRootData(res.data);
+                } else {
+                    console.error(res.msg);
+                    setError("Có lỗi đã xảy ra!");
+                }
+            } catch (error) {
+                console.error('Error fetching PDM data:', error);
+                setError("Có lỗi đã xảy ra!");
+            } finally {
+                setLoading(false);
             }
+        }, 700);
 
-            if (filterForm.so_qd_pdm) {
-                filteredData = filteredData.filter(item => {
-                    if (item.so_qd_pdm === "" || item.so_qd_pdm === null || filterForm.so_qd_pdm === null || filterForm.so_qd_pdm === "") {
-                        return false;
-                    }
-                    const keywords = filterForm.so_qd_pdm.trim().toLowerCase().split(' ').filter(Boolean);
-                    const item_query = item.so_qd_pdm.toLowerCase().replace(/[^a-zA-Z0-9 ]/g, '');
-                    return keywords.some(keyword => item_query.includes(keyword));
-                });
-            }
-
-            if (filterForm.tinh_trang) {
-                filteredData = filteredData.filter(item => {
-                    const out_of_date = new Date(item.ngay_het_han); // Convert to Date object
-                    const now = new Date();
-                    const item_tinh_trang = out_of_date > now ? '1' : '0';
-                    return filterForm.tinh_trang == item_tinh_trang;
-                });
-            }
-
-            if (filterForm.ngay_qd_pdm_from || filterForm.ngay_qd_pdm_to) {
-                const now = new Date();
-                filteredData = filteredData.filter(item => {
-                    const itemDate = new Date(item.ngay_qd_pdm);
-                    console.log(itemDate);
-                    if (filterForm.ngay_qd_pdm_from && filterForm.ngay_qd_pdm_to) {
-                        return itemDate >= filterForm.ngay_qd_pdm_from && itemDate <= filterForm.ngay_qd_pdm_to;
-                    } else if (filterForm.ngay_qd_pdm_from) {
-                        return itemDate >= filterForm.ngay_qd_pdm_from && itemDate <= now;
-                    } else if (filterForm.ngay_qd_pdm_to) {
-                        return itemDate <= filterForm.ngay_qd_pdm_to;
-                    }
-                });
-            }
-
-            setRootData(filteredData);
-            setSortConfig(null);
-            setLoading(false);
-        }, 500);
         return () => clearTimeout(debounce);
+
     }, [filterForm]);
+
 
     const handleFilterChange = (key: keyof PDMFilterParameters, value: any) => {
         setFilterForm(prevForm => ({
             ...prevForm,
             [key]: value
         }));
+    };
+
+    const handleDelete = (id: number) => {
+        Swal.fire({
+            title: "Xác nhận xóa?",
+            text: "Bạn sẽ không thể hoàn tác dữ liệu này!",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonColor: "#3085d6",
+            cancelButtonColor: "#d33",
+            confirmButtonText: "Có",
+            cancelButtonText: "Không"
+        }).then(async (result) => {
+            if (result.isConfirmed) {
+                setLoading(true);
+                try {
+                    const res = await deletePDM(id);
+                    if (res.status === 200) {
+                        setRootData(prevData => prevData.filter(item => item.id !== id));
+                        Swal.fire({
+                            text: "Xóa thành công!",
+                            icon: "success"
+                        });
+                    } else {
+                        console.error(res.msg);
+                        setError("Có lỗi đã xảy ra!");
+                    }
+                } catch (error) {
+                    console.error('Error deleting PDM:', error);
+                    setError("Có lỗi đã xảy ra!");
+                } finally {
+                    setLoading(false);
+                }
+            }
+        });
     };
 
     const hanldeResetFilter = () => {
@@ -410,7 +444,7 @@ export default function PDMManagement({ data, className }: PDMManagementProps) {
                                             value={filterForm.ngay_qd_pdm_from ? dayjs(filterForm.ngay_qd_pdm_from) : null}
                                             format="DD-MM-YYYY"
 
-                                            onChange={(newValue: Dayjs | null) => handleFilterChange('ngay_qd_pdm_from', newValue ? newValue.toDate() : null)}
+                                            onChange={(newValue: Dayjs | null) => handleFilterChange('ngay_qd_pdm_from', newValue ? newValue.format("YYYY-MM-DD HH:mm:ss") : null)}
                                             slotProps={{ textField: { fullWidth: true } }}
                                             maxDate={filterForm.ngay_qd_pdm_to ? dayjs(filterForm.ngay_qd_pdm_to).subtract(1, 'day') : dayjs().endOf('day').subtract(1, 'day')}
                                         />
@@ -425,7 +459,7 @@ export default function PDMManagement({ data, className }: PDMManagementProps) {
                                             minDate={filterForm.ngay_qd_pdm_from ? dayjs(filterForm.ngay_qd_pdm_from).add(1, 'day') : undefined}
 
                                             maxDate={dayjs().endOf('day')}
-                                            onChange={(newValue: Dayjs | null) => handleFilterChange('ngay_qd_pdm_to', newValue ? newValue.toDate() : undefined)}
+                                            onChange={(newValue: Dayjs | null) => handleFilterChange('ngay_qd_pdm_to', newValue ? newValue.format("YYYY-MM-DD HH:mm:ss") : null)}
                                             slotProps={{ textField: { fullWidth: true } }}
                                         />
                                     </div>
@@ -437,7 +471,7 @@ export default function PDMManagement({ data, className }: PDMManagementProps) {
                                     Xóa bộ lọc
                                 </button>
                                 <Link
-                                    href={path + "/new-process"}
+                                    href={path + "/add-new"}
                                     className="btn bg-main-green text-white"
                                 >
                                     Thêm mới
@@ -487,15 +521,15 @@ export default function PDMManagement({ data, className }: PDMManagementProps) {
                                                     )}
                                                 </div>
                                             </th>
-                                            <th onClick={() => sortData('type')}>
+                                            <th onClick={() => sortData('ngay_qd_pdm')}>
                                                 <div className={`${c_vfml['table-label']}`}>
                                                     <span>
                                                         Ngày quyết định PDM
                                                     </span>
-                                                    {sortConfig && sortConfig.key === 'type' && sortConfig.direction === 'asc' && (
+                                                    {sortConfig && sortConfig.key === 'ngay_qd_pdm' && sortConfig.direction === 'asc' && (
                                                         <FontAwesomeIcon icon={faChevronUp}></FontAwesomeIcon>
                                                     )}
-                                                    {sortConfig && sortConfig.key === 'type' && sortConfig.direction === 'desc' && (
+                                                    {sortConfig && sortConfig.key === 'ngay_qd_pdm' && sortConfig.direction === 'desc' && (
                                                         <FontAwesomeIcon icon={faChevronDown}></FontAwesomeIcon>
                                                     )}
                                                 </div>
@@ -560,7 +594,7 @@ export default function PDMManagement({ data, className }: PDMManagementProps) {
                                                                 </Link>
                                                             </li>
                                                             <li>
-                                                                <button type="button" className={`btn w-100`}>
+                                                                <button type="button" onClick={() => handleDelete(item.id)} className={`btn w-100`}>
                                                                     Xóa
                                                                 </button>
                                                             </li>

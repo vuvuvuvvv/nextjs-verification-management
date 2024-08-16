@@ -11,7 +11,7 @@ export const register = async (credentials: RegisterCredentials) => {
     try {
         const response = await axios.post(`${API_AUTH_URL}/register`, credentials, { withCredentials: true });
 
-        if (response.status == 200) {
+        if (response.status == 201) {
             Cookies.set('accessToken', response.data.access_token, { expires: 1 });
             Cookies.set('refreshToken', response.data.refresh_token, { expires: undefined });
             Cookies.set('user', JSON.stringify(response.data.user), { expires: undefined });

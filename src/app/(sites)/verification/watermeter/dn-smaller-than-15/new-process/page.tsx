@@ -249,7 +249,7 @@ export default function NewProcessDNSmallerThan32({ className }: NewProcessDNSma
                                             onChange={handleNumberChange(setQ3)}
                                             pattern="\d*"
                                         />
-                                        <span className="input-group-text" id="basic-addon2">m<sup>3</sup>/h (kg/h)</span>
+                                        <span className="input-group-text" id="basic-addon2">m<sup>3</sup>/h</span>
                                     </div>
                                 </div>
                                 <div className="mb-3 col-12 col-md-6">
