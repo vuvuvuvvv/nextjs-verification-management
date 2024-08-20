@@ -22,7 +22,7 @@ import Link from "next/link";
 
 import { pdmStatusOptions, limitOptions } from "@lib/system-constant";
 import api from "@/app/api/route";
-import { deletePDM, getPDM } from "@/app/api/pdm/route";
+import { deletePDM, getPDMByFilter } from "@/app/api/pdm/route";
 import Swal from "sweetalert2";
 
 const Loading = React.lazy(() => import("@/components/loading"));
@@ -32,15 +32,6 @@ interface PDMManagementProps {
     data: PDMData[],
     className?: string,
 }
-
-// interface FilterForm {
-//     ma_tim_dong_ho_pdm: string,
-//     ten_dong_ho: string,
-//     so_qd_pdm: string,
-//     tinh_trang: string,
-//     ngay_qd_pdm_from: Date | null;
-//     ngay_qd_pdm_to: Date | null;
-// }
 
 export default function PDMManagement({ data, className }: PDMManagementProps) {
     const [rootData, setRootData] = useState(data);
@@ -136,7 +127,7 @@ export default function PDMManagement({ data, className }: PDMManagementProps) {
         setLoading(true);
         const debounce = setTimeout(async () => {
             try {
-                const res = await getPDM(filterForm);
+                const res = await getPDMByFilter(filterForm);
                 if (res.status === 200) {
                     setRootData(res.data);
                 } else {
@@ -155,7 +146,6 @@ export default function PDMManagement({ data, className }: PDMManagementProps) {
 
     }, [filterForm]);
 
-
     const handleFilterChange = (key: keyof PDMFilterParameters, value: any) => {
         setFilterForm(prevForm => ({
             ...prevForm,
@@ -163,7 +153,7 @@ export default function PDMManagement({ data, className }: PDMManagementProps) {
         }));
     };
 
-    const handleDelete = (id: number) => {
+    const handleDelete = (ma_tim_dong_ho_pdm: string) => {
         Swal.fire({
             title: "Xác nhận xóa?",
             text: "Bạn sẽ không thể hoàn tác dữ liệu này!",
@@ -177,9 +167,9 @@ export default function PDMManagement({ data, className }: PDMManagementProps) {
             if (result.isConfirmed) {
                 setLoading(true);
                 try {
-                    const res = await deletePDM(id);
+                    const res = await deletePDM(ma_tim_dong_ho_pdm);
                     if (res.status === 200) {
-                        setRootData(prevData => prevData.filter(item => item.id !== id));
+                        setRootData(prevData => prevData.filter(item => item.ma_tim_dong_ho_pdm !== ma_tim_dong_ho_pdm));
                         Swal.fire({
                             text: "Xóa thành công!",
                             icon: "success"
@@ -589,12 +579,12 @@ export default function PDMManagement({ data, className }: PDMManagementProps) {
                                                         </button>
                                                         <ul className="dropdown-menu">
                                                             <li>
-                                                                <Link href={path + "/detail/" + item.id} className={`btn w-100`}>
+                                                                <Link href={path + "/detail/" + item.ma_tim_dong_ho_pdm} className={`btn w-100`}>
                                                                     Xem chi tiết
                                                                 </Link>
                                                             </li>
                                                             <li>
-                                                                <button type="button" onClick={() => handleDelete(item.id)} className={`btn w-100`}>
+                                                                <button type="button" onClick={() => handleDelete(item.ma_tim_dong_ho_pdm)} className={`btn w-100`}>
                                                                     Xóa
                                                                 </button>
                                                             </li>

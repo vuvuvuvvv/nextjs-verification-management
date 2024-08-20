@@ -6,6 +6,7 @@ import Cookies from 'js-cookie';
 import { logout } from '@/app/api/auth/logout/route';
 import Swal from 'sweetalert2';
 import { User } from '@lib/types';
+import Loading from '@/components/loading';
 
 // Define user type
 
@@ -16,6 +17,7 @@ export type AppContextType = {
     updateUser: (updatedUser: User | null) => void;
     logoutUser: () => void;
     isAdmin: boolean;
+    isManager: boolean;
 };
 
 // Create context
@@ -27,6 +29,8 @@ export const AppProvider : React.FC<{ children: React.ReactNode }> = ({ children
     const [loading, setLoading] = useState(true);
 
     const isAdmin = user?.role === 'ADMIN' || user?.role === 'SUPER_ADMIN';
+
+    const isManager = user?.role === 'MANAGER';
 
     useEffect(() => {
         const getUserFromCookie = Cookies.get('user');
@@ -79,9 +83,9 @@ export const AppProvider : React.FC<{ children: React.ReactNode }> = ({ children
     };
     
     return (loading) ? (
-        <div>Đang lấy dữ liệu người dùng...</div>
+        <Loading></Loading>
     ) : (
-        <AppContext.Provider value={{ user, loading, updateUser, logoutUser, isAdmin }}>
+        <AppContext.Provider value={{ user, loading, updateUser, logoutUser, isAdmin, isManager }}>
             {children}
         </AppContext.Provider>
     );

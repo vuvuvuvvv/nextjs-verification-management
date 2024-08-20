@@ -4,7 +4,7 @@ import api from '../route';
 
 const API_PRODUCTS_URL = `${BASE_API_URL}/pdm`;
 
-export const getPDM = async (parameters?: PDMFilterParameters) => {
+export const getPDMByFilter = async (parameters?: PDMFilterParameters) => {
 
     try {
         const url = new URL(API_PRODUCTS_URL);
@@ -54,6 +54,34 @@ export const getPDM = async (parameters?: PDMFilterParameters) => {
     }
 };
 
+export const getPDMBySoQDPDM = async (so_qd_pdm: string) => {
+
+    try {
+        const url = API_PRODUCTS_URL + "/so_qd_pdm/" + so_qd_pdm.toString();
+        
+        const response = await api.get(url.toString(), { withCredentials: true });
+
+        return {
+            "status": response.status,
+            "data": response.data,
+            "msg": response.data.msg || "Done!"
+        };
+
+    } catch (error: any) {
+        if (error.response?.data?.msg) {
+            return {
+                "status": error.response.status,
+                "msg": error.response.data.msg || 'Lỗi khi lấy dữ liệu PDM!'
+            };
+        } else {
+            return {
+                "status": error.response?.status || 500,
+                "msg": 'Có lỗi đã xảy ra. Hãy thử lại!'
+            };
+        }
+    }
+};
+
 
 export const createPDM = async (pdm: PDM) => {
     try {
@@ -66,10 +94,12 @@ export const createPDM = async (pdm: PDM) => {
         };
 
     } catch (error: any) {
-        if (error.response?.data?.msg) {
+        console.log(error);
+        if (error.response?.data?.data) {
             return {
                 "status": error.response.status,
-                "msg": error.response.data.msg || 'Error creating PDM!'
+                "data": error.response.data.data,
+                "msg": "Error: " + error.response.data.msg || 'Error creating PDM!'
             };
         } else {
             return {
@@ -80,9 +110,9 @@ export const createPDM = async (pdm: PDM) => {
     }
 };
 
-export const deletePDM = async (id: number) => {
+export const deletePDM = async (ma_tim_dong_ho_pdm: string) => {
     try {
-        const response = await api.delete(`${API_PRODUCTS_URL}/${id}`, { withCredentials: true });
+        const response = await api.delete(`${API_PRODUCTS_URL}/ma_tim_dong_ho_pdm/${ma_tim_dong_ho_pdm}`, { withCredentials: true });
 
         return {
             "status": response.status,

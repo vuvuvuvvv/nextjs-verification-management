@@ -14,6 +14,7 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import '@lib/fontawesome';
 import '@fortawesome/fontawesome-svg-core/styles.css';
 import { config } from '@fortawesome/fontawesome-svg-core';
+
 config.autoAddCss = false;
 
 

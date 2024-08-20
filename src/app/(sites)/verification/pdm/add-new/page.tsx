@@ -3,7 +3,8 @@
 import ErrorCaculatorTab from "@/components/error-caculator-tab";
 import ErrorCaculatorForm from "@/components/error-caculator-form";
 import vrfWm from "@styles/scss/ui/vfm.module.scss"
-import { useEffect, useState } from "react";
+import loading from "@styles/scss/components/loading.module.scss"
+import { Suspense, useEffect, useState } from "react";
 
 
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
@@ -18,8 +19,9 @@ import { accuracyClassOptions, measureInstrumentNameOptions, typeOptions } from 
 import Select, { GroupBase } from 'react-select';
 import { PDM } from "@lib/types";
 import Swal from "sweetalert2";
-import { createPDM } from "@/app/api/pdm/route";
+import { createPDM, getPDMBySoQDPDM } from "@/app/api/pdm/route";
 import { useRouter } from "next/navigation";
+import Loading from "@/components/loading";
 
 
 interface AddNewPDMProps {
@@ -52,7 +54,9 @@ export default function AddNewPDM({ className }: AddNewPDMProps) {
     const [maTimDongHoPDM, setMaTimDongHoPDM] = useState<string>("");                                               // QN
 
     const [isDHDienTu, setDHDienTu] = useState(false);
+    const [loading, setLoading] = useState(false);
     const [error, setError] = useState("");
+    const [errorSoQDPDM, setErrorSoQDPDM] = useState("");
     const router = useRouter();
 
     useEffect(() => {
@@ -98,6 +102,31 @@ export default function AddNewPDM({ className }: AddNewPDMProps) {
         setMaTimDongHoPDM(newMaTimDongHoPDM);
     }, [tenDongHo, DN, CCX, kieuSensor, kieuChiThi, qn, q3, R]);
 
+    // useEffect(() => {
+    //     if (soQDPDM) {
+    //         // setLoading(true);
+    //         const debounce = setTimeout(async () => {
+    //             try {
+    //                 const res = await getPDMBySoQDPDM(soQDPDM);
+    //                 if (res.status == 200) {
+    //                     setErrorSoQDPDM("Số quyết định PDM đã tồn tại!")
+    //                 } else if (res.status == 404) {
+    //                     setErrorSoQDPDM("");
+    //                 } else {
+    //                     console.error(res);
+    //                     setError("Có lỗi đã xảy ra!");
+    //                 }
+    //             } catch (error) {
+    //                 console.error('Error fetching PDM data:', error);
+    //                 setError("Có lỗi đã xảy ra!");
+    //             } finally {
+    //                 // setLoading(false);
+    //             }
+    //         }, 1200);
+    //         return () => clearTimeout(debounce);
+    //     }
+    // }, [soQDPDM]);
+
     // truyền setter vào để lưu giá trị vào state
     const handleNumberChange = (setter: (value: string) => void) => (e: React.ChangeEvent<HTMLInputElement>) => {
         const value = e.target.value;
@@ -124,7 +153,7 @@ export default function AddNewPDM({ className }: AddNewPDMProps) {
             ngay_qd_pdm: ngayQuyetDinh,
             ngay_het_han: ngayHetHan,
         };
-        
+
         try {
             const response = await createPDM(pdm);
             if (response.status == 201) {
@@ -150,16 +179,45 @@ export default function AddNewPDM({ className }: AddNewPDMProps) {
                         router.push("/verification/pdm");
                     }
                 });
-            } else if (response.status == 401) {
-                setError("Thông tin đăng nhập không chính xác!");
             } else {
-                setError(response.msg);
+                console.log(response)
+                Swal.fire({
+                    icon: "error",
+                    title: "Lỗi",
+                    text: response.msg,
+                    showClass: {
+                        popup: `
+                            animate__animated
+                            animate__fadeInUp
+                            animate__faster
+                        `
+                    },
+                    hideClass: {
+                        popup: `
+                            animate__animated
+                            animate__fadeOutDown
+                            animate__faster
+                        `
+                    },
+                    confirmButtonText: "OK",
+                    showCancelButton: true,
+                    cancelButtonText: 'Xem chi tiết',
+                    customClass: {
+                        confirmButton: 'btn btn-primary',
+                        cancelButton: 'btn btn-warning me-2'
+                    },
+                    buttonsStyling: false,
+                    reverseButtons: true,
+                }).then((result) => {
+                    if (result.isDismissed) {
+                        window.open('/verification/pdm/detail/' + response.data.ma_tim_dong_ho_pdm, '_blank');
+                    }
+                    setError("");
+                });
             }
         } catch (err) {
             setError("Đã có lỗi xảy ra. Vui lòng thử lại!");
         }
-
-
     }
 
     useEffect(() => {
@@ -263,6 +321,7 @@ export default function AddNewPDM({ className }: AddNewPDMProps) {
     return (
         <LocalizationProvider dateAdapter={AdapterDayjs} localeText={viVN.components.MuiLocalizationProvider.defaultProps.localeText}>
             <div className={`${className ? className : ""} ${vrfWm['wraper']} container p-0 px-2 py-3 w-100`}>
+                {loading && <Suspense fallback={<div>Loading...</div>}><Loading /></Suspense>}
                 <div className={`row m-0 mb-3 p-3 w-100 bg-white shadow-sm`}>
                     <div className="w-100 m-0 p-0 mb-3 position-relative">
                         <h3 className="text-uppercase fw-bolder text-center mt-3 mb-0">thêm mới phê duyệt mẫu</h3>
@@ -423,6 +482,12 @@ export default function AddNewPDM({ className }: AddNewPDMProps) {
                                         value={soQDPDM}
                                         onChange={(e) => setSoQDPDM(e.target.value)}
                                     />
+
+                                    {errorSoQDPDM && (
+                                        <div className="w-100 my-2">
+                                            <small className="text-danger">{errorSoQDPDM}</small>
+                                        </div>
+                                    )}
                                 </div>
                                 <div className="mb-3 col-12 col-md-6">
                                     <label htmlFor="ngayQuyetDinh" className="form-label">Ngày quyết định:</label>
@@ -451,7 +516,6 @@ export default function AddNewPDM({ className }: AddNewPDMProps) {
                             <div className="row mx-0 w-100 mb-3">
 
                                 <div className="mb-3 col-12 col-md-6">
-                                    {/* <label htmlFor="maTimDongHoPDM" className="form-label">Đơn vị phê duyệt:</label> */}
                                     <input
                                         type="text"
                                         className="form-control bg-lighter-grey"

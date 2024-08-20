@@ -5,13 +5,9 @@ import layout from "@styles/scss/layouts/home-layout.module.scss";
 
 // Import UI
 import Navbar from "@/ui/navbar";
-import { AppProvider  } from "@/context/app-context";
-
+import { AppProvider, useUser } from "@/context/app-context";
 
 import { usePathname } from "next/navigation";
-
-import { Suspense } from "react";
-import Loading from "@/components/loading";
 
 const routeTitles: { [key: string]: string } = {
     "/": "Trang chủ",
@@ -27,7 +23,6 @@ const routeTitles: { [key: string]: string } = {
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode; }>) {
     const pathname = usePathname();
     const title = routeTitles[pathname] || "Website Quản Lý Kiểm Định";
-
     return (
         <>
             <title>{title}</title>
@@ -35,9 +30,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
                 <Navbar title={title} />
                 <main className={layout["wraper"]}>
                     <div className={`${layout['content']} position-relative p-0 pb-4`}>
-                        <Suspense fallback={<Loading/>}>
-                            {children}
-                        </Suspense>
+                        {children}
                     </div>
                 </main>
             </AppProvider >
