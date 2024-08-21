@@ -13,7 +13,7 @@ import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { viVN } from "@mui/x-date-pickers/locales";
 import dayjs, { Dayjs } from "dayjs";
 import Select, { GroupBase } from 'react-select';
-import { accuracyClassOptions, measureInstrumentNameOptions } from "@lib/system-constant";
+import { accuracyClassOptions } from "@lib/system-constant";
 import vrfWm from "@styles/scss/ui/vfm.module.scss";
 import Link from "next/link";
 
@@ -62,7 +62,6 @@ export default function Page({ params }: { params: { ma_tim_dong_ho_pdm: string 
         const fetchData = async () => {
             try {
                 const res = await getPDMByMaTimDongHoPDM(params.ma_tim_dong_ho_pdm);
-                console.log("res: ", res);
                 setPDMData(res.data);
             } catch (error) {
                 console.error("Error fetching data:", error);
@@ -207,16 +206,16 @@ export default function Page({ params }: { params: { ma_tim_dong_ho_pdm: string 
                                 <div className="row mx-0 w-100 mb-3">
                                     {pdmData?.ccx && (
                                         <div className="mb-3 col-12 col-md-6">
-                                            <label htmlFor="CCX" className="form-label">- Cấp chính xác:</label>
+                                            <label htmlFor="ccx" className="form-label">- Cấp chính xác:</label>
                                             <Select
-                                                name="CCX"
+                                                name="ccx"
                                                 options={accuracyClassOptions as unknown as readonly GroupBase<never>[]}
                                                 className="basic-multi-select"
                                                 classNamePrefix="select"
                                                 placeholder="-- Chọn cấp --"
                                                 isClearable
                                                 value={accuracyClassOptions.find(option => option.value.toString() === pdmData?.ccx?.replace('.0', '')) || null}
-                                                onChange={(selectedOptions: any) => handleSelectChange("CCX", selectedOptions)}
+                                                onChange={(selectedOptions: any) => handleSelectChange("ccx", selectedOptions)}
                                                 isDisabled={isUser}
                                                 styles={{
                                                     control: (provided) => ({
@@ -251,10 +250,10 @@ export default function Page({ params }: { params: { ma_tim_dong_ho_pdm: string 
                                                 <input
                                                     type="text"
                                                     className="form-control"
-                                                    id="DN"
-                                                    name="DN"
-                                                    placeholder="DN"
-                                                    value={pdmData.dn}
+                                                    id="dn"
+                                                    name="dn"
+                                                    placeholder="dn"
+                                                    value={pdmData.dn.replace('.0', '')}
                                                     onChange={handleInputChange}
                                                     readOnly={isUser}
                                                     disabled={isUser}
@@ -273,7 +272,7 @@ export default function Page({ params }: { params: { ma_tim_dong_ho_pdm: string 
                                                     id="q3"
                                                     name="q3"
                                                     placeholder="Q3"
-                                                    value={pdmData.q3}
+                                                    value={pdmData.q3.replace('.0', '')}
                                                     onChange={handleInputChange}
                                                     readOnly={isUser}
                                                     disabled={isUser}
@@ -288,10 +287,10 @@ export default function Page({ params }: { params: { ma_tim_dong_ho_pdm: string 
                                             <input
                                                 type="text"
                                                 className="form-control"
-                                                id="R"
-                                                name="R"
+                                                id="r"
+                                                name="r"
                                                 placeholder="Tỷ số Q3/Q1 (R)"
-                                                value={pdmData.r}
+                                                value={pdmData.r.replace('.0', '')}
                                                 onChange={handleInputChange}
                                                 readOnly={isUser}
                                                 disabled={isUser}
@@ -426,7 +425,7 @@ export default function Page({ params }: { params: { ma_tim_dong_ho_pdm: string 
                                     </div>
                                 </div>
                             </form>
-                            <div className="w-100 mt-2 p-0 d-flex justify-content-end gap-2">
+                            <div className="w-100 mt-2 p-0 d-flex justify-content-end gap-3">
                                 <button type="button" onClick={() => setIsEditing(!isEditing)} className="btn text-white bg-warning">
                                     Hủy
                                 </button>
@@ -442,13 +441,13 @@ export default function Page({ params }: { params: { ma_tim_dong_ho_pdm: string 
                         <>
                             <div className="w-100 mt-2 p-3">
                                 <label className="w-100 fs-5 fw-bold">Mã tìm đồng hồ:</label>
-                                <div className="row mx-0 w-100">
+                                <div className="row mx-0 w-100 mb-3">
                                     <div className="mb-3 col-12">
                                         <span className="fs-5 fw-light">{pdmData?.ma_tim_dong_ho_pdm || ""}</span>
                                     </div>
                                 </div>
                                 <label className="w-100 fs-5 fw-bold">Thông tin thiết bị:</label>
-                                <div className="row mx-0 w-100">
+                                <div className="row mx-0 w-100 mb-3">
                                     {pdmData?.ten_dong_ho && (
                                         <div className="mb-3 col-12">
                                             <label className="form-label fw-bold me-3">Tên đồng hồ:</label>
@@ -457,7 +456,7 @@ export default function Page({ params }: { params: { ma_tim_dong_ho_pdm: string 
                                     )}
                                 </div>
                                 <label className="w-100 fs-5 fw-bold">Đặc trưng kỹ thuật:</label>
-                                <div className="row mx-0 w-100">
+                                <div className="row mx-0 w-100 mb-3">
                                     {pdmData?.ccx && (
                                         <div className="mb-3 col-12 col-md-6 col-xl-4">
                                             <label className="form-label fw-bold me-3">- Cấp chính xác:</label>
@@ -496,7 +495,7 @@ export default function Page({ params }: { params: { ma_tim_dong_ho_pdm: string 
                                     )}
                                 </div>
                                 <label className="w-100 fs-5 fw-bold">Chi tiết:</label>
-                                <div className="row mx-0 w-100">
+                                <div className="row mx-0 w-100 mb-3">
                                     {pdmData?.don_vi_pdm && (
                                         <div className="mb-3 col-12 col-md-6 col-xl-4">
                                             <label className="form-label fw-bold me-3">Đơn vị phê duyệt:</label>
@@ -529,7 +528,7 @@ export default function Page({ params }: { params: { ma_tim_dong_ho_pdm: string 
                                     )}
                                 </div>
                             </div>
-                            <div className="w-100 mt-2 px-3 d-flex justify-content-end gap-2">
+                            <div className="w-100 mt-2 px-3 d-flex justify-content-end gap-3">
 
                                 {!isUser && (
                                     <button type="button" onClick={() => setIsEditing(!isEditing)} className="btn text-white bg-warning">
