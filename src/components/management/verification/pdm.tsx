@@ -473,7 +473,7 @@ export default function PDMManagement({ data, className }: PDMManagementProps) {
                     <div className="bg-white w-100 shadow-sm rounded overflow-hidden">
 
                         <div className={`m-0 p-0 w-100 w-100 mt-4 bg-white position-relative ${c_vfml['wrap-process-table']}`}>
-                            {loading && <Suspense fallback={<div>Loading...</div>}><Loading /></Suspense>}
+                            {loading && <Loading />}
                             {paginatedData.length > 0 ? (
                                 <table className={`table table-striped table-bordered table-hover ${c_vfml['process-table']}`}>
                                     <thead>
@@ -579,7 +579,7 @@ export default function PDMManagement({ data, className }: PDMManagementProps) {
                                                         </button>
                                                         <ul className="dropdown-menu">
                                                             <li>
-                                                                <Link href={path + "/detail/" + item.ma_tim_dong_ho_pdm} className={`btn w-100`}>
+                                                                <Link target="blank" href={path + "/detail/" + item.ma_tim_dong_ho_pdm} className={`btn w-100`}>
                                                                     Xem chi tiết
                                                                 </Link>
                                                             </li>

@@ -4,7 +4,7 @@
 import layout from "@styles/scss/layouts/home-layout.module.scss";
 
 // Import UI
-import Navbar from "@/ui/navbar";
+import Navbar from "@/components/ui/navbar";
 import { AppProvider, useUser } from "@/context/app-context";
 
 import { usePathname } from "next/navigation";

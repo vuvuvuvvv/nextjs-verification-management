@@ -3,7 +3,7 @@
 import layout from "@styles/scss/ui/navbar.module.scss";
 
 // Import Sidebar
-import Sidebar from "@/ui/sidebar";
+import Sidebar from "@/components/ui/sidebar";
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 

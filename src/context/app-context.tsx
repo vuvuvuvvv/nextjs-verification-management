@@ -18,6 +18,7 @@ export type AppContextType = {
     logoutUser: () => void;
     isAdmin: boolean;
     isManager: boolean;
+    isUser: boolean;
 };
 
 // Create context
@@ -31,6 +32,8 @@ export const AppProvider : React.FC<{ children: React.ReactNode }> = ({ children
     const isAdmin = user?.role === 'ADMIN' || user?.role === 'SUPER_ADMIN';
 
     const isManager = user?.role === 'MANAGER';
+
+    const isUser = !isAdmin && !isManager;
 
     useEffect(() => {
         const getUserFromCookie = Cookies.get('user');
@@ -85,7 +88,7 @@ export const AppProvider : React.FC<{ children: React.ReactNode }> = ({ children
     return (loading) ? (
         <Loading></Loading>
     ) : (
-        <AppContext.Provider value={{ user, loading, updateUser, logoutUser, isAdmin, isManager }}>
+        <AppContext.Provider value={{ user, loading, updateUser, logoutUser, isAdmin, isManager, isUser }}>
             {children}
         </AppContext.Provider>
     );

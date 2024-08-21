@@ -28,8 +28,6 @@ export const getPDMByFilter = async (parameters?: PDMFilterParameters) => {
         if (parameters?.tinh_trang) {
             url.searchParams.append('tinh_trang', parameters.tinh_trang.toString());
         }
-
-        console.log(parameters?.tinh_trang);
         
         const response = await api.get(url.toString(), { withCredentials: true });
 
@@ -82,6 +80,34 @@ export const getPDMBySoQDPDM = async (so_qd_pdm: string) => {
     }
 };
 
+export const getPDMByMaTimDongHoPDM = async (ma_tim_dong_ho_pdm: string) => {
+
+    try {
+        const url = API_PRODUCTS_URL + "/ma_tim_dong_ho_pdm/" + ma_tim_dong_ho_pdm.toString();
+        
+        const response = await api.get(url.toString(), { withCredentials: true });
+
+        return {
+            "status": response.status,
+            "data": response.data,
+            "msg": response.data.msg || "Done!"
+        };
+
+    } catch (error: any) {
+        if (error.response?.data?.msg) {
+            return {
+                "status": error.response.status,
+                "msg": error.response.data.msg || 'Lỗi khi lấy dữ liệu PDM!'
+            };
+        } else {
+            return {
+                "status": error.response?.status || 500,
+                "msg": 'Có lỗi đã xảy ra. Hãy thử lại!'
+            };
+        }
+    }
+};
+
 
 export const createPDM = async (pdm: PDM) => {
     try {
@@ -94,7 +120,6 @@ export const createPDM = async (pdm: PDM) => {
         };
 
     } catch (error: any) {
-        console.log(error);
         if (error.response?.data?.data) {
             return {
                 "status": error.response.status,

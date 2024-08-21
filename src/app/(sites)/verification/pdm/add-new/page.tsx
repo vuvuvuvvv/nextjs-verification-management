@@ -152,6 +152,7 @@ export default function AddNewPDM({ className }: AddNewPDMProps) {
             so_qd_pdm: soQDPDM,
             ngay_qd_pdm: ngayQuyetDinh,
             ngay_het_han: ngayHetHan,
+            anh_pdm: null,
         };
 
         try {

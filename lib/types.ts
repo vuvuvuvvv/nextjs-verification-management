@@ -56,6 +56,7 @@ export interface PDM {
     so_qd_pdm: string | null,
     ngay_qd_pdm: Date | null, 
     ngay_het_han: Date | null, 
+    anh_pdm: string | null, 
 }
 
 
