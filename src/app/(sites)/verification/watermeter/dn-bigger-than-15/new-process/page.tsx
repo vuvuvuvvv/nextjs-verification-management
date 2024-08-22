@@ -14,7 +14,7 @@ import { viVN } from "@mui/x-date-pickers/locales";
 import dayjs, { Dayjs } from "dayjs";
 
 import NavTab from "@/components/nav-tab";
-import { accuracyClassOptions, measureInstrumentNameOptions, typeOptions } from "@lib/system-constant";
+import { ccxOptions, phuongTienDoOptions, typeOptions } from "@lib/system-constant";
 
 import Select, { GroupBase } from 'react-select';
 
@@ -34,35 +34,40 @@ export default function NewProcessDNBiggerThan32({ className }: NewProcessDNBigg
     const [selectedTab, setSelectedTab] = useState<TabState>({ [1]: true });
     const [isCollapsed, setIsCollapsed] = useState<boolean>(true);
 
-    const [seriNumber, setSeriNumber] = useState<string>("");                               // Serial number
+    const [seriNumber, setSeriNumber] = useState<string>("");                                                                   // Serial number
 
-    const [deviceName, setDeviceName] = useState<string>("");                               // Tên phương tiện đo
-    const [seriChiThi, setSeriChiThi] = useState<string>("");                         // Serial chỉ thị
-    const [seriSensor, setSeriSensor] = useState<string>("");                               // Serial sensor
-    const [kieuChiThi, setKieuChiThi] = useState<string>("");                           // Kiểu chỉ thị
-    const [kieuSensor, setKieuSensor] = useState<string>("");                               // Kiểu sensor
+    const [phuongTienDo, setPhuongTienDo] = useState<string>("");                                                         // Tên phương tiện đo
+    const [seriChiThi, setSeriChiThi] = useState<string>("");                                                                   // Serial chỉ thị
+    const [seriSensor, setSeriSensor] = useState<string>("");                                                                   // Serial sensor
+    const [kieuChiThi, setKieuChiThi] = useState<string>("");                                                                   // Kiểu chỉ thị
+    const [kieuSensor, setKieuSensor] = useState<string>("");                                                                   // Kiểu sensor
 
-    const [deviceType, setDeviceType] = useState<string>("");                               // Kiểu
-    const [deviceNumber, setDeviceNumber] = useState<string>("");                           // Số
-    const [manufacturer, setManufacturer] = useState<string>("");                           // Cơ sở sản xuất
-    const [manufactureYear, setManufactureYear] = useState<Date | null>(null);              // Năm sản xuất
-    const [DN, setDN] = useState<string>("");                                               // Đường kính danh định
+    const [kieuThietBi, setKieuThietBi] = useState<string>("");                                                                 // Kiểu
+    const [soTem, setSoTem] = useState<string>("");                                                                             // Số
+    const [coSoSanXuat, setCoSoSanXuat] = useState<string>("");                                                                 // Cơ sở sản xuất
+    const [namSanXuat, setNamSanXuat] = useState<Date | null>(null);                                                            // Năm sản xuất
+    const [dn, setDN] = useState<string>("");                                                                                   // Đường kính danh định
+    const [d, setD] = useState<string>("");                                                                                     // Độ chia nhỏ nhất
 
-    const [accuracyClass, setAccuracyClass] = useState<string | null>(null);                // Cấp chính xác
-    const [q3, setQ3] = useState<string>("");                                               // Q3
-    const [ratio, setRatio] = useState<string>("");                                         // Tỷ số Q3/Q1 (R)
-    const [qn, setQN] = useState<string>("");                                               // QN
+    const [ccx, setCCX] = useState<string | null>(null);                                                                        // Cấp chính xác
+    const [q3, setQ3] = useState<string>("");                                                                                   // Q3
+    const [ratio, setRatio] = useState<string>("");                                                                             // Tỷ số Q3/Q1 (R)
+    const [qn, setQN] = useState<string>("");                                                                                   // QN
 
-    const [kFactor, setKFactor] = useState<string>("");                                     // k factor
-    const [pdmSign, setPdmSign] = useState<string>("");                                     // K hiệu PDM/Số quyết định PDM
-    const [usageBase, setUsageBase] = useState<string>("");                                 // Cơ sở sử dụng
-    const [method, setMethod] = useState<string>("");                                       // Phương pháp thực hiện
-    const [equipment, setEquipment] = useState<string>("");                                 // Chuẩn, thiết bị chính được sử dụng
-    const [implementer, setImplementer] = useState<string>("");                             // Người thực hiện
-    const [implementationDate, setImplementationDate] = useState<Date | null>(null);        // Ngày thực hiện
-    const [location, setLocation] = useState<string>("");       
+    const [kFactor, setKFactor] = useState<string>("");                                                                         // k factor
+    const [so_qd_pdm, setSoQDPDM] = useState<string>("");                                                                       // K hiệu PDM/Số quyết định PDM
 
-    const [isDHDienTu, setDHDienTu] = useState(false);                           // Vị trí
+    const [tenKhachHang, setTenKhachhang] = useState<string>("");
+    const [coSoSuDung, setCoSoSuDung] = useState<string>("");                                                                   // Cơ sở sử dụng
+    const [phuongPhapThucHien, setPhuongPhapThucHien] = useState<string>("ĐNVN 17:2023");                                       // Phương pháp thực hiện
+    const [chuanThietBiSuDung, setChuanThietBiSuDung] = useState<string>("Đồng hồ chuẩn đo nước và Bình chuẩn");                // Chuẩn, thiết bị chính được sử dụng
+    const [implementer, setImplementer] = useState<string>("");                                                                 // Người thực hiện
+    const [ngayThucHien, setNgayThucHien] = useState<Date | null>(new Date());                                                  // Ngày thực hiện
+    const [viTri, setViTri] = useState<string>("");                                                                             // Vị trí
+    const [nhietDo, setNhietDo] = useState<string>('');                                                                         // Nhiệt độ
+    const [doAm, setDoAm] = useState<string>('');                                                                               // Độ ẩm 
+
+    const [isDHDienTu, setDHDienTu] = useState(false);                                                                          // Check Đồng hồ điện tử
 
     const toggleCollapse = () => {
         setIsCollapsed(!isCollapsed);
@@ -70,8 +75,11 @@ export default function NewProcessDNBiggerThan32({ className }: NewProcessDNBigg
 
     // truyền setter vào để lưu giá trị vào state
     const handleNumberChange = (setter: (value: string) => void) => (e: React.ChangeEvent<HTMLInputElement>) => {
-        const value = e.target.value;
-        if (/^\d*$/.test(value)) {
+        let value = e.target.value;
+        // Replace commas with periods
+        value = value.replace(/,/g, '.');
+        // Allow only numbers and one decimal point
+        if (/^\d*\.?\d*$/.test(value)) {
             setter(value);
         }
     };
@@ -84,12 +92,21 @@ export default function NewProcessDNBiggerThan32({ className }: NewProcessDNBigg
         setSeriSensor("");
         setKieuSensor("");
         setKieuChiThi("");
-        setDHDienTu(deviceName !== "" && measureInstrumentNameOptions.find(option => option.label == deviceName)?.value == "1");
-    }, [accuracyClass, deviceName]);
+        setDHDienTu(phuongTienDo !== "" && phuongTienDoOptions.find(option => option.label == phuongTienDo)?.value == "1");
+    }, [ccx, phuongTienDo]);
 
-    const renderAccuracyClassFields = () => {
+    useEffect(() => {
+        const humidity = parseFloat(doAm);
+        if (humidity > 100) {
+            setDoAm('100');
+        } else if (humidity < 0) {
+            setDoAm('0');
+        }
+    }, [doAm]);
+
+    const renderccxFields = () => {
         // Check có phải đồng hồ đtu hay không : value: "1"
-        if ((accuracyClass && (accuracyClass == "1" || accuracyClass == "2")) || isDHDienTu) {
+        if ((ccx && (ccx == "1" || ccx == "2")) || isDHDienTu) {
             return <>
                 <div className="mb-3 col-12 col-md-6">
                     <label htmlFor="q3" className="form-label">- Q<sub>3</sub>:</label>
@@ -207,9 +224,9 @@ export default function NewProcessDNBiggerThan32({ className }: NewProcessDNBigg
                     <div className="w-100 m-0 p-0 mb-3 position-relative">
                         <h3 className="text-uppercase fw-bolder text-center mt-3 mb-0">thông tin đồng hồ</h3>
                     </div>
-                    <div className={`w-100 p-0 row m-0 mb-3`}>
-                        <div className={`col-12 col-xl-8 m-0 p-0 d-flex align-items-center justify-content-between ${vrfWm['seri-number-input']}`}>
-                            <label htmlFor="seriNumber" className={`form-label m-0 fs-5 fw-bold d-block`}>Số seri:</label>
+                    <div className={`w-100 p-0 row m-0`}>
+                        <div className={`col-12 col-lg-6 m-0 mb-3 p-0 pe-lg-2 p-0 d-flex align-items-center justify-content-between ${vrfWm['seri-number-input']}`}>
+                            <label htmlFor="seriNumber" className={`form-label m-0 fs-5 fw-bold d-block`}>Số Seri:</label>
                             <input
                                 type="text"
                                 id="seriNumber"
@@ -219,22 +236,33 @@ export default function NewProcessDNBiggerThan32({ className }: NewProcessDNBigg
                                 onChange={(e) => setSeriNumber(e.target.value)}
                             />
                         </div>
+                        <div className={`col-12 col-lg-6 m-0 mb-3 p-0 ps-lg-2 p-0 d-flex align-items-center justify-content-between ${vrfWm['seri-number-input']}`}>
+                            <label htmlFor="seriNumber" className={`form-label m-0 fs-5 fw-bold d-block`}>Số Tem:</label>
+                            <input
+                                type="text"
+                                id="soTem"
+                                className={`form-control`}
+                                placeholder="Nhập số tem"
+                                value={soTem}
+                                onChange={(e) => setSoTem(e.target.value)}
+                            />
+                        </div>
                     </div>
                     <div className={`collapse ${isCollapsed ? '' : 'show'} w-100 mt-2 p-0`}>
                         <form className="w-100">
                             <label className="w-100 fs-5 fw-bold">Thông tin thiết bị:</label>
                             <div className="row mx-0 w-100 mb-3">
                                 <div className="mb-3 col-12 col-xxl-6">
-                                    <label htmlFor="deviceName" className="form-label">Tên phương tiện đo:</label>
+                                    <label htmlFor="phuongTienDo" className="form-label">Tên phương tiện đo:</label>
                                     <Select
-                                        name="deviceName"
-                                        options={measureInstrumentNameOptions as unknown as readonly GroupBase<never>[]}
+                                        name="phuongTienDo"
+                                        options={phuongTienDoOptions as unknown as readonly GroupBase<never>[]}
                                         className="basic-multi-select"
                                         classNamePrefix="select"
                                         placeholder="-- Chọn tên --"
                                         isClearable
-                                        value={measureInstrumentNameOptions.find(option => option.label == deviceName) || null}
-                                        onChange={(selectedOptions: any) => setDeviceName(selectedOptions ? selectedOptions.label : "")}
+                                        value={phuongTienDoOptions.find(option => option.label == phuongTienDo) || null}
+                                        onChange={(selectedOptions: any) => setPhuongTienDo(selectedOptions ? selectedOptions.label : "")}
                                         styles={{
                                             control: (provided) => ({
                                                 ...provided,
@@ -262,7 +290,7 @@ export default function NewProcessDNBiggerThan32({ className }: NewProcessDNBigg
                                 </div>
 
                                 <div className="mb-3 col-12 col-md-6">
-                                    <label htmlFor="deviceType" className="form-label">Kiểu:</label>
+                                    <label htmlFor="kieuThietBi" className="form-label">Kiểu:</label>
                                     <Select
                                         name="type"
                                         options={typeOptions as unknown as readonly GroupBase<never>[]}
@@ -270,8 +298,8 @@ export default function NewProcessDNBiggerThan32({ className }: NewProcessDNBigg
                                         placeholder="-- Chọn kiểu --"
                                         classNamePrefix="select"
                                         isClearable
-                                        value={typeOptions.find(option => option.value === deviceType) || null}
-                                        onChange={(selectedOptions: any) => setDeviceType(selectedOptions ? selectedOptions.value : "")}
+                                        value={typeOptions.find(option => option.value === kieuThietBi) || null}
+                                        onChange={(selectedOptions: any) => setKieuThietBi(selectedOptions ? selectedOptions.value : "")}
                                         styles={{
                                             control: (provided) => ({
                                                 ...provided,
@@ -307,35 +335,35 @@ export default function NewProcessDNBiggerThan32({ className }: NewProcessDNBigg
                                         id="deviceNumber"
                                         placeholder="Số"
                                         value={deviceNumber}
-                                        onChange={handleNumberChange(setDeviceNumber)}
+                                        onChange={handleNumberChange(setSoTem)}
                                     />
                                 </div> */}
 
                                 <div className="mb-3 col-12 col-md-6">
-                                    <label htmlFor="manufacturer" className="form-label">Cơ sở sản xuất:</label>
+                                    <label htmlFor="coSoSanXuat" className="form-label">Cơ sở sản xuất:</label>
                                     <input
                                         type="text"
                                         className="form-control"
-                                        id="manufacturer"
+                                        id="coSoSanXuat"
                                         placeholder="Cơ sở sản xuất"
-                                        value={manufacturer}
-                                        onChange={(e) => setManufacturer(e.target.value)}
+                                        value={coSoSanXuat}
+                                        onChange={(e) => setCoSoSanXuat(e.target.value)}
                                     />
                                 </div>
                                 <div className="mb-3 col-12 col-md-6">
-                                    <label htmlFor="manufactureYear" className="form-label">Năm sản xuất:</label>
+                                    <label htmlFor="namSanXuat" className="form-label">Năm sản xuất:</label>
                                     <DatePicker
                                         className={`${vrfWm['date-picker']}`}
-                                        value={manufactureYear ? dayjs(manufactureYear) : null}
+                                        value={namSanXuat ? dayjs(namSanXuat) : null}
                                         views={['year']}
                                         format="YYYY"
-                                        maxDate={dayjs().endOf('year')} 
+                                        maxDate={dayjs().endOf('year')}
                                         onChange={(newValue: Dayjs | null) => {
                                             if (newValue && newValue.year() >= 1900 && newValue.year() <= dayjs().year()) {
 
-                                                setManufactureYear(newValue.toDate());
+                                                setNamSanXuat(newValue.toDate());
                                             } else {
-                                                setManufactureYear(null); // or handle invalid date
+                                                setNamSanXuat(null); // or handle invalid date
                                             }
 
                                         }}
@@ -346,14 +374,14 @@ export default function NewProcessDNBiggerThan32({ className }: NewProcessDNBigg
                             <label className="w-100 fs-5 fw-bold">Đặc trưng kỹ thuật:</label>
                             <div className="row mx-0 w-100 mb-3">
                                 <div className="mb-3 col-12 col-md-6">
-                                    <label htmlFor="DN" className="form-label">- Đường kính danh định (DN):</label>
+                                    <label htmlFor="dn" className="form-label">- Đường kính danh định (DN):</label>
                                     <div className="input-group">
                                         <input
                                             type="text"
                                             className="form-control"
-                                            id="DN"
+                                            id="dn"
                                             placeholder="DN"
-                                            value={DN}
+                                            value={dn}
                                             onChange={handleNumberChange(setDN)}
                                             pattern="\d*"
                                         />
@@ -361,16 +389,28 @@ export default function NewProcessDNBiggerThan32({ className }: NewProcessDNBigg
                                     </div>
                                 </div>
                                 <div className="mb-3 col-12 col-md-6">
-                                    <label htmlFor="accuracyClass" className="form-label">- Cấp chính xác:</label>
+                                    <label htmlFor="dn" className="form-label">- Độ chia nhỏ nhất (d):</label>
+                                    <input
+                                        type="text"
+                                        className="form-control"
+                                        id="d"
+                                        placeholder="d"
+                                        value={d}
+                                        onChange={handleNumberChange(setD)}
+                                        pattern="\d*"
+                                    />
+                                </div>
+                                <div className="mb-3 col-12 col-md-6">
+                                    <label htmlFor="ccx" className="form-label">- Cấp chính xác:</label>
                                     <Select
-                                        name="accuracyClass"
-                                        options={accuracyClassOptions as unknown as readonly GroupBase<never>[]}
+                                        name="ccx"
+                                        options={ccxOptions as unknown as readonly GroupBase<never>[]}
                                         className="basic-multi-select"
                                         classNamePrefix="select"
                                         placeholder="-- Chọn cấp --"
                                         isClearable
-                                        value={accuracyClassOptions.find(option => option.value === accuracyClass) || null}
-                                        onChange={(selectedOptions: any) => setAccuracyClass(selectedOptions ? selectedOptions.value : "")}
+                                        value={ccxOptions.find(option => option.value === ccx) || null}
+                                        onChange={(selectedOptions: any) => setCCX(selectedOptions ? selectedOptions.value : "")}
                                         styles={{
                                             control: (provided) => ({
                                                 ...provided,
@@ -398,11 +438,11 @@ export default function NewProcessDNBiggerThan32({ className }: NewProcessDNBigg
                                 </div>
 
                                 {/* Generate input field  */}
-                                {renderAccuracyClassFields()}
+                                {renderccxFields()}
 
 
                                 <div className="mb-3 col-12 col-md-6">
-                                    <label htmlFor="pdmSign" className="form-label">- Hệ số K-factor :</label>
+                                    <label htmlFor="so_qd_pdm" className="form-label">- Hệ số K-factor :</label>
                                     <input
                                         type="text"
                                         className="form-control"
@@ -413,50 +453,61 @@ export default function NewProcessDNBiggerThan32({ className }: NewProcessDNBigg
                                     />
                                 </div>
                                 <div className="mb-3 col-12 col-md-6">
-                                    <label htmlFor="pdmSign" className="form-label">- Ký hiệu PDM/Số quyết định PDM:</label>
+                                    <label htmlFor="so_qd_pdm" className="form-label">- Ký hiệu PDM/Số quyết định PDM:</label>
                                     <input
                                         type="text"
                                         className="form-control"
-                                        id="pdmSign"
+                                        id="so_qd_pdm"
                                         placeholder="Ký hiệu PDM/Số quyết định PDM"
-                                        value={pdmSign}
-                                        onChange={(e) => setPdmSign(e.target.value)}
+                                        value={so_qd_pdm}
+                                        onChange={(e) => setSoQDPDM(e.target.value)}
                                     />
                                 </div>
                             </div>
                             <label className="w-100 fs-5 fw-bold">Chi tiết kiểm định:</label>
                             <div className="row mx-0 w-100 mb-3">
                                 <div className="mb-3 col-12 col-xxl-6">
-                                    <label htmlFor="usageBase" className="form-label">Cơ sở sử dụng:</label>
+                                    <label htmlFor="tenKhachHang" className="form-label">Tên khách hàng:</label>
                                     <input
                                         type="text"
                                         className="form-control"
-                                        id="usageBase"
-                                        placeholder="Cơ sở sử dụng"
-                                        value={usageBase}
-                                        onChange={(e) => setUsageBase(e.target.value)}
+                                        id="tenKhachHang"
+                                        placeholder="Tên khách hàng"
+                                        value={tenKhachHang}
+                                        onChange={(e) => setTenKhachhang(e.target.value)}
                                     />
                                 </div>
                                 <div className="mb-3 col-12 col-xxl-6">
-                                    <label htmlFor="method" className="form-label">Phương pháp thực hiện:</label>
+                                    <label htmlFor="coSoSuDung" className="form-label">Cơ sở sử dụng:</label>
                                     <input
                                         type="text"
                                         className="form-control"
-                                        id="method"
+                                        id="coSoSuDung"
+                                        placeholder="Cơ sở sử dụng"
+                                        value={coSoSuDung}
+                                        onChange={(e) => setCoSoSuDung(e.target.value)}
+                                    />
+                                </div>
+                                <div className="mb-3 col-12 col-xxl-6">
+                                    <label htmlFor="phuongPhapThucHien" className="form-label">Phương pháp thực hiện:</label>
+                                    <input
+                                        type="text"
+                                        className="form-control"
+                                        id="phuongPhapThucHien"
                                         placeholder="Phương pháp thực hiện"
-                                        value={"ĐNVN 17:2023"}
-                                        onChange={(e) => setMethod(e.target.value)}
+                                        value={phuongPhapThucHien}
+                                        onChange={(e) => setPhuongPhapThucHien(e.target.value)}
                                     />
                                 </div>
                                 <div className="mb-3 col-12 col-xl-6">
-                                    <label htmlFor="equipment" className="form-label">Chuẩn, thiết bị chính được sử dụng:</label>
+                                    <label htmlFor="chuanThietBiSuDung" className="form-label">Chuẩn, thiết bị chính được sử dụng:</label>
                                     <input
                                         type="text"
                                         className="form-control"
-                                        id="equipment"
+                                        id="chuanThietBiSuDung"
                                         placeholder="Chuẩn, thiết bị chính được sử dụng"
-                                        value={"Đồng hồ chuẩn đo nước và Bình chuẩn"}
-                                        onChange={(e) => setEquipment(e.target.value)}
+                                        value={chuanThietBiSuDung}
+                                        onChange={(e) => setChuanThietBiSuDung(e.target.value)}
                                     />
                                 </div>
                                 <div className="mb-3 col-12 col-md-6">
@@ -471,26 +522,54 @@ export default function NewProcessDNBiggerThan32({ className }: NewProcessDNBigg
                                     />
                                 </div>
                                 <div className="mb-3 col-12 col-md-6">
-                                    <label htmlFor="implementationDate" className="form-label">Ngày thực hiện:</label>
+                                    <label htmlFor="ngayThucHien" className="form-label">Ngày thực hiện:</label>
                                     <DatePicker
                                         className={`${vrfWm['date-picker']}`}
-                                        value={dayjs()}
+                                        value={dayjs(ngayThucHien)}
                                         format="DD-MM-YYYY"
                                         maxDate={dayjs().endOf('day')}
-                                        onChange={(newValue: Dayjs | null) => setImplementationDate(newValue ? newValue.toDate() : null)}
+                                        onChange={(newValue: Dayjs | null) => setNgayThucHien(newValue ? newValue.toDate() : null)}
                                         slotProps={{ textField: { fullWidth: true } }}
                                     />
                                 </div>
                                 <div className="mb-3 col-12 col-xl-6">
-                                    <label htmlFor="location" className="form-label">Địa điểm thực hiện:</label>
+                                    <label htmlFor="viTri" className="form-label">Địa điểm thực hiện:</label>
                                     <input
                                         type="text"
                                         className="form-control"
-                                        id="location"
+                                        id="viTri"
                                         placeholder="Địa điểm thực hiện"
-                                        value={location}
-                                        onChange={(e) => setLocation(e.target.value)}
+                                        value={viTri}
+                                        onChange={(e) => setViTri(e.target.value)}
                                     />
+                                </div>
+                                <div className="mb-3 col-12 col-md-6">
+                                    <label htmlFor="nhietDo" className="form-label">Nhiệt độ:</label>
+                                    <div className="input-group">
+                                        <input
+                                            type="text"
+                                            className="form-control"
+                                            id="nhietDo"
+                                            placeholder="Nhiệt độ"
+                                            value={nhietDo}
+                                            onChange={handleNumberChange(setNhietDo)}
+                                        />
+                                        <span className="input-group-text" id="basic-addon2">°C</span>
+                                    </div>
+                                </div>
+                                <div className="mb-3 col-12 col-md-6">
+                                    <label htmlFor="doAm" className="form-label">Độ ẩm:</label>
+                                    <div className="input-group">
+                                        <input
+                                            type="text"
+                                            className="form-control"
+                                            id="doAm"
+                                            placeholder="Độ ẩm"
+                                            value={doAm}
+                                            onChange={handleNumberChange(setDoAm)}
+                                        />
+                                        <span className="input-group-text" id="basic-addon2">%</span>
+                                    </div>
                                 </div>
                             </div>
                         </form>
@@ -510,15 +589,15 @@ export default function NewProcessDNBiggerThan32({ className }: NewProcessDNBigg
                         [
                             {
                                 title: <>Q<sub>3</sub> (Q<sub>max</sub>)</>,
-                                content: <ErrorCaculatorTab className="bg-white shadow-sm rounded" tabIndex={1} form={ErrorCaculatorForm} />
+                                content: <ErrorCaculatorTab d={d} className="bg-white shadow-sm rounded" tabIndex={1} form={ErrorCaculatorForm} />
                             },
                             {
                                 title: <>Q<sub>2</sub> (Q<sub>t</sub>)</>,
-                                content: <ErrorCaculatorTab className="bg-white shadow-sm rounded" tabIndex={2} form={ErrorCaculatorForm} />
+                                content: <ErrorCaculatorTab d={d} className="bg-white shadow-sm rounded" tabIndex={2} form={ErrorCaculatorForm} />
                             },
                             {
                                 title: <>Q<sub>1</sub> (Q<sub>min</sub>)</>,
-                                content: <ErrorCaculatorTab className="bg-white shadow-sm rounded" tabIndex={3} form={ErrorCaculatorForm} />
+                                content: <ErrorCaculatorTab d={d} className="bg-white shadow-sm rounded" tabIndex={3} form={ErrorCaculatorForm} />
                             },
                         ]
                     } />

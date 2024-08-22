@@ -82,7 +82,7 @@ export interface WaterMeterData {
     "id": number,
     "serialNumber": string,
     "type": string,
-    "accuracyClass": string,
+    "ccx": string,
     "createdAt": string,
     "updatedAt": string,
     "createdBy": string,

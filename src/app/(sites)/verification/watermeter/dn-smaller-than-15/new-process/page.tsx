@@ -15,7 +15,7 @@ import dayjs, { Dayjs } from "dayjs";
 import { faAngleDoubleDown, faAngleDoubleUp } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import NavTab from "@/components/nav-tab";
-import { accuracyClassOptions, typeOptions } from "@lib/system-constant";
+import { ccxOptions, typeOptions } from "@lib/system-constant";
 
 import Select, { GroupBase } from 'react-select';
 
@@ -38,7 +38,7 @@ export default function NewProcessDNSmallerThan32({ className }: NewProcessDNSma
     const [manufacturer, setManufacturer] = useState<string>("");                           // Cơ sở sản xuất
     const [manufactureYear, setManufactureYear] = useState<Date | null>(null);              // Năm sản xuất
     const [DN, setDN] = useState<string>("");                                               // Đường kính danh định
-    const [accuracyClass, setAccuracyClass] = useState<string | null>(null);                // Cấp chính xác
+    const [ccx, setccx] = useState<string | null>(null);                // Cấp chính xác
     const [ratio, setRatio] = useState<string>("");                                         // Tỷ số Q3/Q1
     const [q3, setQ3] = useState<string>("");                                               // Q3(Q1)
     const [pdmSign, setPdmSign] = useState<string>("");                                     // K hiệu PDM/Số quyết định PDM
@@ -191,15 +191,15 @@ export default function NewProcessDNSmallerThan32({ className }: NewProcessDNSma
                                     </div>
                                 </div>
                                 <div className="mb-3 col-12 col-md-6">
-                                    <label htmlFor="accuracyClass" className="form-label">- Cấp chính xác:</label>
+                                    <label htmlFor="ccx" className="form-label">- Cấp chính xác:</label>
                                     <Select
-                                        name="accuracyClass"
-                                        options={accuracyClassOptions as unknown as readonly GroupBase<never>[]}
+                                        name="ccx"
+                                        options={ccxOptions as unknown as readonly GroupBase<never>[]}
                                         className="basic-multi-select"
                                         classNamePrefix="select"
                                         isClearable
-                                        value={accuracyClassOptions.find(option => option.value === accuracyClass) || null}
-                                        onChange={(selectedOptions: any) => setAccuracyClass(selectedOptions ? selectedOptions.value : "")}
+                                        value={ccxOptions.find(option => option.value === ccx) || null}
+                                        onChange={(selectedOptions: any) => setccx(selectedOptions ? selectedOptions.value : "")}
                                         styles={{
                                             control: (provided) => ({
                                                 ...provided,

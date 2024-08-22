@@ -13,7 +13,7 @@ import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { viVN } from "@mui/x-date-pickers/locales";
 import dayjs, { Dayjs } from "dayjs";
 import Select, { GroupBase } from 'react-select';
-import { accuracyClassOptions } from "@lib/system-constant";
+import { ccxOptions } from "@lib/system-constant";
 import vrfWm from "@styles/scss/ui/vfm.module.scss";
 import Link from "next/link";
 
@@ -209,12 +209,12 @@ export default function Page({ params }: { params: { ma_tim_dong_ho_pdm: string 
                                             <label htmlFor="ccx" className="form-label">- Cấp chính xác:</label>
                                             <Select
                                                 name="ccx"
-                                                options={accuracyClassOptions as unknown as readonly GroupBase<never>[]}
+                                                options={ccxOptions as unknown as readonly GroupBase<never>[]}
                                                 className="basic-multi-select"
                                                 classNamePrefix="select"
                                                 placeholder="-- Chọn cấp --"
                                                 isClearable
-                                                value={accuracyClassOptions.find(option => option.value.toString() === pdmData?.ccx?.replace('.0', '')) || null}
+                                                value={ccxOptions.find(option => option.value.toString() === pdmData?.ccx?.replace('.0', '')) || null}
                                                 onChange={(selectedOptions: any) => handleSelectChange("ccx", selectedOptions)}
                                                 isDisabled={isUser}
                                                 styles={{

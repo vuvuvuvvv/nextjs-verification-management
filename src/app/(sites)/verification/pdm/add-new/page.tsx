@@ -14,7 +14,7 @@ import { viVN } from "@mui/x-date-pickers/locales";
 
 import dayjs, { Dayjs } from "dayjs";
 
-import { accuracyClassOptions, measureInstrumentNameOptions, typeOptions } from "@lib/system-constant";
+import { ccxOptions, phuongTienDoOptions, typeOptions } from "@lib/system-constant";
 
 import Select, { GroupBase } from 'react-select';
 import { PDM } from "@lib/types";
@@ -227,7 +227,7 @@ export default function AddNewPDM({ className }: AddNewPDMProps) {
         setQN("");
         setKieuSensor("");
         setKieuChiThi("");
-        setDHDienTu(deviceName !== "" && measureInstrumentNameOptions.find(option => option.label == deviceName)?.value == "1");
+        setDHDienTu(deviceName !== "" && phuongTienDoOptions.find(option => option.label == deviceName)?.value == "1");
     }, [CCX, deviceName]);
 
 
@@ -361,12 +361,12 @@ export default function AddNewPDM({ className }: AddNewPDMProps) {
                                     <label htmlFor="deviceName" className="form-label">Tên phương tiện đo:</label>
                                     <Select
                                         name="deviceName"
-                                        options={measureInstrumentNameOptions as unknown as readonly GroupBase<never>[]}
+                                        options={phuongTienDoOptions as unknown as readonly GroupBase<never>[]}
                                         className="basic-multi-select"
                                         classNamePrefix="select"
                                         placeholder="-- Chọn tên --"
                                         isClearable
-                                        value={measureInstrumentNameOptions.find(option => option.label == deviceName) || null}
+                                        value={phuongTienDoOptions.find(option => option.label == deviceName) || null}
                                         onChange={(selectedOptions: any) => setDeviceName(selectedOptions ? selectedOptions.label : "")}
                                         styles={{
                                             control: (provided) => ({
@@ -397,12 +397,12 @@ export default function AddNewPDM({ className }: AddNewPDMProps) {
                                     <label htmlFor="CCX" className="form-label">- Cấp chính xác:</label>
                                     <Select
                                         name="CCX"
-                                        options={accuracyClassOptions as unknown as readonly GroupBase<never>[]}
+                                        options={ccxOptions as unknown as readonly GroupBase<never>[]}
                                         className="basic-multi-select"
                                         classNamePrefix="select"
                                         placeholder="-- Chọn cấp --"
                                         isClearable
-                                        value={accuracyClassOptions.find(option => option.value === CCX) || null}
+                                        value={ccxOptions.find(option => option.value === CCX) || null}
                                         onChange={(selectedOptions: any) => setCCX(selectedOptions ? selectedOptions.value : "")}
                                         styles={{
                                             control: (provided) => ({

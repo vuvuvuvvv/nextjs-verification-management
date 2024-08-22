@@ -20,7 +20,7 @@ import { WaterMeterData } from "@lib/types";
 import { usePathname } from "next/navigation";
 import Link from "next/link";
 
-import { statusOptions, typeOptions, accuracyClassOptions, limitOptions } from "@lib/system-constant";
+import { statusOptions, typeOptions, ccxOptions, limitOptions } from "@lib/system-constant";
 
 const Loading = React.lazy(() => import("@/components/loading"));
 
@@ -34,7 +34,7 @@ interface FilterForm {
     waterMeterId: string;
     serialNumber: string;
     type: string;
-    accuracyClass: string;
+    ccx: string;
     implementer: string;
     status: string | number;
     fromDate: Date | null;
@@ -54,7 +54,7 @@ export default function WaterMeterManagement({ data, className }: WaterMeterMana
         waterMeterId: "",
         serialNumber: "",
         type: "",
-        accuracyClass: "",
+        ccx: "",
         implementer: "",
         status: "",
         fromDate: null,
@@ -143,8 +143,8 @@ export default function WaterMeterManagement({ data, className }: WaterMeterMana
                 filteredData = filteredData.filter(item => item.type === filterForm.type);
             }
 
-            if (filterForm.accuracyClass) {
-                filteredData = filteredData.filter(item => item.accuracyClass === filterForm.accuracyClass);
+            if (filterForm.ccx) {
+                filteredData = filteredData.filter(item => item.ccx === filterForm.ccx);
             }
 
             if (filterForm.fromDate || filterForm.toDate) {
@@ -180,7 +180,7 @@ export default function WaterMeterManagement({ data, className }: WaterMeterMana
             waterMeterId: "",
             serialNumber: "",
             type: "",
-            accuracyClass: "",
+            ccx: "",
             implementer: "",
             status: "",
             fromDate: null,
@@ -338,13 +338,13 @@ export default function WaterMeterManagement({ data, className }: WaterMeterMana
                             <label className={`${c_vfml['form-label']}`}>
                                 Cấp chính xác:
                                 <Select
-                                    name="accuracyClass"
-                                    options={accuracyClassOptions as unknown as readonly GroupBase<never>[]}
+                                    name="ccx"
+                                    options={ccxOptions as unknown as readonly GroupBase<never>[]}
                                     className="basic-multi-select"
                                     classNamePrefix="select"
                                     isClearable
-                                    value={accuracyClassOptions.find(option => option.value === filterForm.accuracyClass) || null}
-                                    onChange={(selectedOptions: any) => handleFilterChange('accuracyClass', selectedOptions ? selectedOptions.value : null)}
+                                    value={ccxOptions.find(option => option.value === filterForm.ccx) || null}
+                                    onChange={(selectedOptions: any) => handleFilterChange('ccx', selectedOptions ? selectedOptions.value : null)}
                                     styles={{
                                         control: (provided) => ({
                                             ...provided,
@@ -512,15 +512,15 @@ export default function WaterMeterManagement({ data, className }: WaterMeterMana
                                                     )}
                                                 </div>
                                             </th>
-                                            <th onClick={() => sortData('accuracyClass')}>
+                                            <th onClick={() => sortData('ccx')}>
                                                 <div className={`${c_vfml['table-label']}`}>
                                                     <span>
                                                         Cấp chính xác
                                                     </span>
-                                                    {sortConfig && sortConfig.key === 'accuracyClass' && sortConfig.direction === 'asc' && (
+                                                    {sortConfig && sortConfig.key === 'ccx' && sortConfig.direction === 'asc' && (
                                                         <FontAwesomeIcon icon={faChevronUp}></FontAwesomeIcon>
                                                     )}
-                                                    {sortConfig && sortConfig.key === 'accuracyClass' && sortConfig.direction === 'desc' && (
+                                                    {sortConfig && sortConfig.key === 'ccx' && sortConfig.direction === 'desc' && (
                                                         <FontAwesomeIcon icon={faChevronDown}></FontAwesomeIcon>
                                                     )}
                                                 </div>
@@ -561,7 +561,7 @@ export default function WaterMeterManagement({ data, className }: WaterMeterMana
                                                 <td>{item.serialNumber}</td>
                                                 <td>{item.createdBy}</td>
                                                 <td>{item.type}</td>
-                                                <td>{item.accuracyClass}</td>
+                                                <td>{item.ccx}</td>
                                                 <td>{statusOptions.find(option => option.value == item.status)?.label || "Khôngggg hoạt động"}</td>
                                                 <td>{item.updatedAt}</td>
                                                 <td>

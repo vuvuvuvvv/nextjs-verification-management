@@ -6,7 +6,7 @@ interface CaculatorFormProps {
     className?: string,
 }
 
-export default function DNBT30ErrorCaculatorForm({ className }: CaculatorFormProps) {
+export default function DNBT15ErrorCaculatorForm({ className }: CaculatorFormProps) {
     const [firstnumDHCT, setFirstNumDHCT] = useState(0);
     const [lastNumDHCT, setLastNumDHCT] = useState(0);
     const [firstnumDHC, setFirstNumDHC] = useState(0);

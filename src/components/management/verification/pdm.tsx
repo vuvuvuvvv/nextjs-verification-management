@@ -349,13 +349,13 @@ export default function PDMManagement({ data, className }: PDMManagementProps) {
                             <label className={`${c_vfml['form-label']}`}>
                                 Cấp chính xác:
                                 <Select
-                                    name="accuracyClass"
-                                    options={accuracyClassOptions as unknown as readonly GroupBase<never>[]}
+                                    name="ccx"
+                                    options={ccxOptions as unknown as readonly GroupBase<never>[]}
                                     className="basic-multi-select"
                                     classNamePrefix="select"
                                     isClearable
-                                    value={accuracyClassOptions.find(option => option.value === filterForm.accuracyClass) || null}
-                                    onChange={(selectedOptions: any) => handleFilterChange('accuracyClass', selectedOptions ? selectedOptions.value : null)}
+                                    value={ccxOptions.find(option => option.value === filterForm.ccx) || null}
+                                    onChange={(selectedOptions: any) => handleFilterChange('ccx', selectedOptions ? selectedOptions.value : null)}
                                     styles={{
                                         control: (provided) => ({
                                             ...provided,

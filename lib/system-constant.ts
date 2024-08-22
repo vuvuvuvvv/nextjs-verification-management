@@ -14,7 +14,7 @@ export const pdmStatusOptions = [
     { value: '1', label: 'Còn hiệu lực' },
 ];
 
-export const measureInstrumentNameOptions = [
+export const phuongTienDoOptions = [
     { value: "1", label: "Đồng hồ đo nước lạnh có cơ cấu điện tử" },
     { value: "2", label: "Đồng hồ đo nước lạnh cơ khí" },
     { value: "3", label: "Đồng hồ đo nước" }
@@ -31,7 +31,7 @@ export const typeOptions = [
     { value: "Khác", label: "Khác" }
 ]
 
-export const accuracyClassOptions = [
+export const ccxOptions = [
     // { value: "0.5", label: "0.5" },
     { value: "1", label: "1" },
     // { value: "1.5", label: "1.5" },
