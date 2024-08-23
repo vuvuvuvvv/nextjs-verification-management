@@ -109,3 +109,10 @@ export interface PDMData {
     "ngay_het_han": string,
     "anh_pdm": string,
 }
+
+export interface ErrorCaculatorValue {
+    firstnumDHCT: number;
+    lastNumDHCT: number ;
+    firstnumDHC: number;
+    lastNumDHC: number;
+}

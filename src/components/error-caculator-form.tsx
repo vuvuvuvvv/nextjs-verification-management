@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import ecf from "@styles/scss/components/error-caculator-form.module.scss";
+import { getErrorCaculatorValue } from "@lib/system-function";
 
 interface CaculatorFormProps {
     className?: string;
@@ -33,13 +34,14 @@ export default function DNBT30ErrorCaculatorForm({ className, formValue, onFormC
 
     const handleNumberChange = (setter: (value: string) => void, field: string) => (e: React.ChangeEvent<HTMLInputElement>) => {
         let value = e.target.value;
-        // Replace commas with periods
         value = value.replace(/,/g, '.');
-        // Allow only numbers and one decimal point
         if (/^\d*\.?\d*$/.test(value)) {
-            // Remove leading and trailing zeros
-            value = value.replace(/^0+|0+$/g, '');
-            // If the value is empty after removing zeros, set it to "0"
+            if (value.includes('.')) {
+                value = value.replace(/^0+(?=\d)/, '');
+            } else {
+                value = value.replace(/^0+/, '');
+            }
+
             if (value === "") {
                 value = "0";
             }
@@ -53,27 +55,18 @@ export default function DNBT30ErrorCaculatorForm({ className, formValue, onFormC
         onFormChange("lastNumDHCT", 0);
         onFormChange("firstnumDHC", 0);
         onFormChange("lastNumDHC", 0);
+        setFirstNumDHC("0");
+        setLastNumDHC("0");
     };
 
     useEffect(() => {
-        if (formValue.lastNumDHC && formValue.lastNumDHCT && formValue.firstnumDHC && formValue.firstnumDHCT) {
-            calculateError();
-        } else {
-            setErrorNum("0%");
-        }
+        // if (formValue.lastNumDHC && formValue.lastNumDHCT && formValue.firstnumDHC && formValue.firstnumDHCT) {
+        //     setErrorNum(getErrorCaculatorValue(formValue));
+        // } else {
+        //     setErrorNum("0%");
+        // }
+        setErrorNum(getErrorCaculatorValue(formValue));
     }, [formValue.lastNumDHC, formValue.lastNumDHCT, formValue.firstnumDHC, formValue.firstnumDHCT]);
-
-    const calculateError = () => {
-        const VDHCT = formValue.lastNumDHCT - formValue.firstnumDHCT;
-        console.log("VDHCT: ", VDHCT);
-        const VDHC = formValue.lastNumDHC - formValue.firstnumDHC;
-        if (VDHC !== 0) {
-            const error = ((VDHCT - VDHC) / VDHC) * 100;
-            setErrorNum((Math.round(error * 10000) / 10000).toFixed(4) + "%");
-        } else {
-            setErrorNum("0%");
-        }
-    };
 
     return (
         <div className={`${className ? className : ""}`}>
@@ -88,6 +81,7 @@ export default function DNBT30ErrorCaculatorForm({ className, formValue, onFormC
                         placeholder={`Nhập số đầu (0.${'0'.repeat(decimalPlaces)})`}
                         value={formValue.firstnumDHCT.toFixed(decimalPlaces)}
                         onChange={(e) => handleNumericInput(e, "firstnumDHCT")}
+                        autoComplete="off"
                     />
                 </div>
 
@@ -100,6 +94,7 @@ export default function DNBT30ErrorCaculatorForm({ className, formValue, onFormC
                         placeholder={`Nhập số cuối (0.${'0'.repeat(decimalPlaces)})`}
                         value={formValue.lastNumDHCT.toFixed(decimalPlaces)}
                         onChange={(e) => handleNumericInput(e, "lastNumDHCT")}
+                        autoComplete="off"
                     />
                 </div>
 
@@ -113,6 +108,7 @@ export default function DNBT30ErrorCaculatorForm({ className, formValue, onFormC
                         placeholder={`Nhập số đầu (0.${'0'.repeat(decimalPlaces)})`}
                         value={firstnumDHC}
                         onChange={handleNumberChange(setFirstNumDHC, "firstnumDHC")}
+                        autoComplete="off"
                     />
                 </div>
 
@@ -125,6 +121,7 @@ export default function DNBT30ErrorCaculatorForm({ className, formValue, onFormC
                         placeholder={`Nhập số cuối (0.${'0'.repeat(decimalPlaces)})`}
                         value={lastNumDHC}
                         onChange={handleNumberChange(setLastNumDHC, "lastNumDHC")}
+                        autoComplete="off"
                     />
                 </div>
 

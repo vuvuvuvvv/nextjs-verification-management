@@ -51,7 +51,7 @@ export default function NewProcessDNBiggerThan32({ className }: NewProcessDNBigg
 
     const [ccx, setCCX] = useState<string | null>(null);                                                                        // Cấp chính xác
     const [q3, setQ3] = useState<string>("");                                                                                   // Q3
-    const [ratio, setRatio] = useState<string>("");                                                                             // Tỷ số Q3/Q1 (R)
+    const [r, setR] = useState<string>("");                                                                             // Tỷ số Q3/Q1 (R)
     const [qn, setQN] = useState<string>("");                                                                                   // QN
 
     const [kFactor, setKFactor] = useState<string>("");                                                                         // k factor
@@ -86,7 +86,7 @@ export default function NewProcessDNBiggerThan32({ className }: NewProcessDNBigg
 
     useEffect(() => {
         setQ3("");
-        setRatio("");
+        setR("");
         setQN("");
         setSeriChiThi("");
         setSeriSensor("");
@@ -124,14 +124,14 @@ export default function NewProcessDNBiggerThan32({ className }: NewProcessDNBigg
                     </div>
                 </div>
                 <div className="mb-3 col-12 col-md-6">
-                    <label htmlFor="ratio" className="form-label">- Tỷ số Q<sub>3</sub>/Q<sub>1</sub> (R):</label>
+                    <label htmlFor="r" className="form-label">- Tỷ số Q<sub>3</sub>/Q<sub>1</sub> (R):</label>
                     <input
                         type="text"
                         className="form-control"
-                        id="ratio"
+                        id="r"
                         placeholder="Tỷ số Q3/Q1 (R)"
-                        value={ratio}
-                        onChange={handleNumberChange(setRatio)}
+                        value={r}
+                        onChange={handleNumberChange(setR)}
                         pattern="\d*"
                     />
                 </div>
@@ -588,15 +588,15 @@ export default function NewProcessDNBiggerThan32({ className }: NewProcessDNBigg
                     <NavTab tabContent={
                         [
                             {
-                                title: <>Q<sub>3</sub> (Q<sub>max</sub>)</>,
+                                title: <>Q<sub>max</sub></>,
                                 content: <ErrorCaculatorTab d={d} className="bg-white shadow-sm rounded" tabIndex={1} form={ErrorCaculatorForm} />
                             },
                             {
-                                title: <>Q<sub>2</sub> (Q<sub>t</sub>)</>,
+                                title: <>Q<sub>t</sub></>,
                                 content: <ErrorCaculatorTab d={d} className="bg-white shadow-sm rounded" tabIndex={2} form={ErrorCaculatorForm} />
                             },
                             {
-                                title: <>Q<sub>1</sub> (Q<sub>min</sub>)</>,
+                                title: <>Q<sub>min</sub></>,
                                 content: <ErrorCaculatorTab d={d} className="bg-white shadow-sm rounded" tabIndex={3} form={ErrorCaculatorForm} />
                             },
                         ]

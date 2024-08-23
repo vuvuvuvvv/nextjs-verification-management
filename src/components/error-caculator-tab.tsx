@@ -1,8 +1,8 @@
 "use client";
 
-import ErrorCaculatorForm from "@/components/dn-bigger-than-15/error-caculator-form";
 import { faCaretDown } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { ErrorCaculatorValue } from "@lib/types";
 import c_ect from "@styles/scss/components/error-caculator-tab.module.scss";
 import { useState } from "react";
 
@@ -19,21 +19,14 @@ interface TabFormState {
 
 interface FormProps {
     className?: string;
-    formValue: FormValue;
+    formValue: ErrorCaculatorValue;
     onFormChange: (field: string, value: number) => void;
     d?: string;
 }
 
-interface FormValue {
-    firstnumDHCT: number;
-    lastNumDHCT: number;
-    firstnumDHC: number;
-    lastNumDHC: number;
-}
-
 export default function ErrorCaculatorTab({ className, tabIndex, d, form }: ErrorCaculatorTabProps) {
-    if (tabIndex <= 0) {
-        return <>"tabIndex" is invalid</>;
+    if (!tabIndex || tabIndex <= 0) {
+        return <></>;
     }
 
     const initialTabFormState: TabFormState = {
@@ -43,7 +36,7 @@ export default function ErrorCaculatorTab({ className, tabIndex, d, form }: Erro
     };
 
     const [selectedTabForm, setSelectedTabForm] = useState<TabFormState>(initialTabFormState);
-    const [formValues, setFormValues] = useState<FormValue[]>([
+    const [formValues, setFormValues] = useState<ErrorCaculatorValue[]>([
         { firstnumDHCT: 0, lastNumDHCT: 0, firstnumDHC: 0, lastNumDHC: 0 },
         { firstnumDHCT: 0, lastNumDHCT: 0, firstnumDHC: 0, lastNumDHC: 0 },
         { firstnumDHCT: 0, lastNumDHCT: 0, firstnumDHC: 0, lastNumDHC: 0 },
@@ -61,7 +54,7 @@ export default function ErrorCaculatorTab({ className, tabIndex, d, form }: Erro
         }
     };
 
-    const handleFormChange = (index: number, field: keyof FormValue, value: number) => {
+    const handleFormChange = (index: number, field: keyof ErrorCaculatorValue, value: number) => {
         const newFormValues = [...formValues];
         newFormValues[index][field] = value;
         if (field === "lastNumDHCT" && index < formValues.length - 1) {
@@ -80,13 +73,6 @@ export default function ErrorCaculatorTab({ className, tabIndex, d, form }: Erro
                         <label className={`w-100 ${c_ect["tab-radio"]} ${selectedTabForm[i * tabIndex] ? c_ect["active"] : ""}`}>
                             <span>Lần {i}</span>
                             <FontAwesomeIcon icon={faCaretDown} className="d-md-none" />
-                            <input
-                                type="radio"
-                                name={`process-tab-${tabIndex}`}
-                                className="form-check-input d-none d-md-flex"
-                                checked={selectedTabForm[i * tabIndex]}
-                                onChange={() => toggleTabForm(i)}
-                            />
                         </label>
                         {!selectedTabForm[i * tabIndex] && (
                             <div
@@ -97,7 +83,7 @@ export default function ErrorCaculatorTab({ className, tabIndex, d, form }: Erro
                         <Form
                             className={`w-100 ${!selectedTabForm[i * tabIndex] ? "d-none d-md-block" : ""}`}
                             formValue={formValues[i - 1]}
-                            onFormChange={(field: string, value: number) => handleFormChange(i - 1, field as keyof FormValue, value)}
+                            onFormChange={(field: string, value: number) => handleFormChange(i - 1, field as keyof ErrorCaculatorValue, value)}
                             d={d}
                         />
                     </div>

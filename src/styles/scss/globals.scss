@@ -31,12 +31,17 @@ footer {
     font-size: 14px;
 }
 
+label {
+    user-select: none;
+}
+
 a,
 button {
     outline: none;
     box-shadow: none;
     border: none;
     text-decoration: none;
+    user-select: none;
 
     :focus {
         border: none;

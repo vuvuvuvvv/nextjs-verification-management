@@ -36,7 +36,7 @@ export default function NavTab({ className, classNameGroupTab, classNameContent,
                 <div className={`${nt['group-tab']} p-2 shadow-sm rounded ${classNameGroupTab ? classNameGroupTab : ""}`}>
                     {tabContent.map((val, index) => {
                         return (
-                            <button type="button" key={index + 1} className={`${nt['nav-link']} ${selectedTab[index + 1] ? nt['active'] + ' rounded' : ''}`} onClick={() => toggleTab(index + 1)}>
+                            <button type="button" style={{minWidth: "62px"}} key={index + 1} className={`${nt['nav-link']} ${selectedTab[index + 1] ? nt['active'] + ' rounded' : ''}`} onClick={() => toggleTab(index + 1)}>
                                 {val.title}
                             </button>
                         )
