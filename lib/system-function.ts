@@ -12,20 +12,47 @@ export const getErrorCaculatorValue = (formValue: ErrorCaculatorValue) => {
     }
 };
 
-// export const getLuuLuong = (phuongTienDo: string, ccx: string, {q3, r, qn}: {q3: string, r: string, qn: string}) => {
-//     if ((phuongTienDo !== "" && phuongTienDoOptions.find(option => option.label == phuongTienDo)?.value == "1") || (ccx == "1" || ccx == "2")) {
-//         const q1 = parseFloat(q3) / parseFloat(r);
-//         const q2 = 1.6 * q1;
-//         return {
-//             qt: q1.toFixed(2),
-//             qmin: q2.toFixed(2),
-//         };
-//     } else {
-//         if (ccx == "A") {
-//             return {
-//                 qt: qn,
-//                 qmin: qn,
-//             };
-//         }
-//     }
-// };
+export const getQtAndQmin = (isDHDienTu: boolean, ccx: string | null, q: string, r: string) => {
+    // Qt:Q2 && Qmin:Q1 
+    const heso = {
+        "A": {
+            "qt": (parseFloat(q) < 15) ? 0.1 : 0.3,
+            "qmin": (parseFloat(q) < 15) ? 0.04 : 0.08,
+        },
+        "B": {
+            "qt": (parseFloat(q) < 15) ? 0.08 : 0.2,
+            "qmin": (parseFloat(q) < 15) ? 0.02 : 0.03,
+        },
+        "C": {
+            "qt": (parseFloat(q) < 15) ? 0.015 : 0.015,
+            "qmin": (parseFloat(q) < 15) ? 0.01 : 0.006,
+        },
+        "D": {
+            "qt": (parseFloat(q) < 15) ? 0.0115 : null,
+            "qmin": (parseFloat(q) < 15) ? 0.0075 : null,
+        }
+    }
+
+    if (isDHDienTu) {
+        const qmin = parseFloat(q) / parseFloat(r);
+        const qt = 1.6 * qmin;
+        return {
+            getQmin: parseFloat(qmin.toFixed(3)),
+            getQt: parseFloat(qt.toFixed(3))
+        };
+    } else {
+        if (ccx && ccx in heso) {
+            const heso_qt = heso[ccx as keyof typeof heso].qt;
+            const heso_qmin = heso[ccx as keyof typeof heso].qmin;
+            return {
+                getQmin: (heso_qmin) ? parseFloat(q) * heso_qmin : null,
+                getQt: (heso_qt) ? parseFloat(q) * heso_qt : null,
+            };
+        } else {
+            return {
+                getQmin: null,
+                getQt: null,
+            };
+        }
+    }
+};

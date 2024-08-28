@@ -50,7 +50,7 @@ const Navbar: React.FC<NavbarProps> = ({ className, title = "Trang kiểm địn
                                 <span className={`${layout['p_name']} d-none d-sm-block`}>{user?.username}</span>
                             </button>
 
-                            <div className={`${layout['dD_menu']} dropdown-menu border-0 shadow`}>
+                            <div className={`${layout['dD_menu']} dropdown-menu border-0 shadow-sm`}>
                                 <div className={`${layout['dD_profile']}`}>
                                     <div className={`${layout['box-avt']}`}>
                                         <img src="/images/logo.png" alt="profileImg" />

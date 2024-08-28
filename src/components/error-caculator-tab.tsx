@@ -67,6 +67,9 @@ export default function ErrorCaculatorTab({ className, tabIndex, d, form }: Erro
 
     return (
         <div className={`row m-0 p-0 w-100 justify-content-center ${className ? className : ""}`}>
+            <div className="w-100 m-0 p-0">
+                {/* v tối thiểu + Q */}
+            </div>
             {[1, 2, 3].map((i) => (
                 <div key={i} className={`col-12 col-md-6 col-xxl-4 p-2 ${c_ect["tab-form"]}`}>
                     <div className={`${c_ect["wrap-form"]} rounded w-100`}>
@@ -89,6 +92,10 @@ export default function ErrorCaculatorTab({ className, tabIndex, d, form }: Erro
                     </div>
                 </div>
             ))}
+            
+            <div className="w-100 m-0 p-0">
+                aaaaaaaa
+            </div>
         </div>
     );
 }

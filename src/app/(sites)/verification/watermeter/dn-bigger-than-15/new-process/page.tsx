@@ -19,6 +19,7 @@ import { ccxOptions, phuongTienDoOptions, typeOptions } from "@lib/system-consta
 import Select, { GroupBase } from 'react-select';
 
 import { useUser } from "@/context/app-context";
+import { getQtAndQmin } from "@lib/system-function";
 
 interface NewProcessDNBiggerThan32Props {
     className?: string,
@@ -67,7 +68,10 @@ export default function NewProcessDNBiggerThan32({ className }: NewProcessDNBigg
     const [nhietDo, setNhietDo] = useState<string>('');                                                                         // Nhiệt độ
     const [doAm, setDoAm] = useState<string>('');                                                                               // Độ ẩm 
 
-    const [isDHDienTu, setDHDienTu] = useState(false);                                                                          // Check Đồng hồ điện tử
+    const [isDHDienTu, setDHDienTu] = useState(false);
+
+    const [qt, setQt] = useState<number | null>(null);
+    const [qmin, setQmin] = useState<number | null>(null);                                                                                  // Check Đồng hồ điện tử
 
     const toggleCollapse = () => {
         setIsCollapsed(!isCollapsed);
@@ -94,6 +98,14 @@ export default function NewProcessDNBiggerThan32({ className }: NewProcessDNBigg
         setKieuChiThi("");
         setDHDienTu(phuongTienDo !== "" && phuongTienDoOptions.find(option => option.label == phuongTienDo)?.value == "1");
     }, [ccx, phuongTienDo]);
+
+    useEffect(() => {
+        if (ccx && phuongTienDo && ((q3 && r) || qn)) {
+            const {getQmin, getQt} = getQtAndQmin(isDHDienTu, ccx, q3, r);
+            setQmin(getQmin);
+            setQt(getQt);
+        }
+    }, [ccx, phuongTienDo, q3,qn, r]);
 
     useEffect(() => {
         const humidity = parseFloat(doAm);
@@ -220,7 +232,7 @@ export default function NewProcessDNBiggerThan32({ className }: NewProcessDNBigg
     return (
         <LocalizationProvider dateAdapter={AdapterDayjs} localeText={viVN.components.MuiLocalizationProvider.defaultProps.localeText}>
             <div className={`${className ? className : ""} ${vrfWm['wraper']} container p-0 px-2 py-3 w-100`}>
-                <div className={`row m-0 mb-3 p-3 w-100 bg-white shadow-sm`}>
+                <div className={`row m-0 mb-3 p-3 w-100 bg-white shadow-sm rounded`}>
                     <div className="w-100 m-0 p-0 mb-3 position-relative">
                         <h3 className="text-uppercase fw-bolder text-center mt-3 mb-0">thông tin đồng hồ</h3>
                     </div>
@@ -583,21 +595,23 @@ export default function NewProcessDNBiggerThan32({ className }: NewProcessDNBigg
                     </div>
                 </div>
 
-                <div className={`m-0 mb-3 p-0 w-100 w-100`}>
-
+                <div className={`m-0 mb-3 py-2 bg-white rounded shadow-sm w-100 w-100`}>
                     <NavTab tabContent={
                         [
                             {
-                                title: <>Q<sub>max</sub></>,
-                                content: <ErrorCaculatorTab d={d} className="bg-white shadow-sm rounded" tabIndex={1} form={ErrorCaculatorForm} />
+                                title: <>Q<sub>{isDHDienTu ? "3" : "n"}</sub></>,
+                                q: (q3) ? q3 : ((qn) ? qn : ""),
+                                content: <ErrorCaculatorTab d={d} className="" tabIndex={1} form={ErrorCaculatorForm} />
                             },
                             {
-                                title: <>Q<sub>t</sub></>,
-                                content: <ErrorCaculatorTab d={d} className="bg-white shadow-sm rounded" tabIndex={2} form={ErrorCaculatorForm} />
+                                title: <>Q<sub>{isDHDienTu ? "2" : "t"}</sub></>,
+                                q: (qt) ? qt.toString() : "",
+                                content: <ErrorCaculatorTab d={d} className="" tabIndex={2} form={ErrorCaculatorForm} />
                             },
                             {
-                                title: <>Q<sub>min</sub></>,
-                                content: <ErrorCaculatorTab d={d} className="bg-white shadow-sm rounded" tabIndex={3} form={ErrorCaculatorForm} />
+                                title: <>Q<sub>{isDHDienTu ? "1" : "min"}</sub></>,
+                                q: (qmin) ? qmin.toString() : "",
+                                content: <ErrorCaculatorTab d={d} className="" tabIndex={3} form={ErrorCaculatorForm} />
                             },
                         ]
                     } />
