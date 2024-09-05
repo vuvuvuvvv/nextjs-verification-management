@@ -56,3 +56,19 @@ export const getQtAndQmin = (isDHDienTu: boolean, ccx: string | null, q: string,
         }
     }
 };
+
+export const getVToiThieu = (q: string | number, d: string | number) => {
+    // q: m3/h 
+    // d: mm
+
+    if (!q && !d) {
+        return 0;
+    }
+
+    const ll_90s = parseFloat(q.toString()) * 90 / 3600 * 1000;
+    const ll_200d = 200 * parseFloat(d.toString());
+
+    // console.log(q, ll_200d, ll_90s);
+
+    return Number(Math.max(ll_200d, ll_90s).toFixed(3));
+}

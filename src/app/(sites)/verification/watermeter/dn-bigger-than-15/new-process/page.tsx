@@ -20,6 +20,7 @@ import Select, { GroupBase } from 'react-select';
 
 import { useUser } from "@/context/app-context";
 import { getQtAndQmin } from "@lib/system-function";
+import Link from "next/link";
 
 interface NewProcessDNBiggerThan32Props {
     className?: string,
@@ -101,11 +102,11 @@ export default function NewProcessDNBiggerThan32({ className }: NewProcessDNBigg
 
     useEffect(() => {
         if (ccx && phuongTienDo && ((q3 && r) || qn)) {
-            const {getQmin, getQt} = getQtAndQmin(isDHDienTu, ccx, q3, r);
+            const { getQmin, getQt } = getQtAndQmin(isDHDienTu, ccx, q3, r);
             setQmin(getQmin);
             setQt(getQt);
         }
-    }, [ccx, phuongTienDo, q3,qn, r]);
+    }, [ccx, phuongTienDo, q3, qn, r]);
 
     useEffect(() => {
         const humidity = parseFloat(doAm);
@@ -132,7 +133,7 @@ export default function NewProcessDNBiggerThan32({ className }: NewProcessDNBigg
                             onChange={handleNumberChange(setQ3)}
                             pattern="\d*"
                         />
-                        <span className="input-group-text" id="basic-addon2">m<sup>3</sup>/h</span>
+                        <span className="input-group-text">m<sup>3</sup>/h</span>
                     </div>
                 </div>
                 <div className="mb-3 col-12 col-md-6">
@@ -212,7 +213,7 @@ export default function NewProcessDNBiggerThan32({ className }: NewProcessDNBigg
                         onChange={handleNumberChange(setQN)}
                         pattern="\d*"
                     />
-                    <span className="input-group-text" id="basic-addon2">m<sup>3</sup>/h</span>
+                    <span className="input-group-text">m<sup>3</sup>/h</span>
                 </div>
             </div>
             <div className="mb-3 col-12 col-md-6">
@@ -397,7 +398,7 @@ export default function NewProcessDNBiggerThan32({ className }: NewProcessDNBigg
                                             onChange={handleNumberChange(setDN)}
                                             pattern="\d*"
                                         />
-                                        <span className="input-group-text" id="basic-addon2">mm</span>
+                                        <span className="input-group-text">mm</span>
                                     </div>
                                 </div>
                                 <div className="mb-3 col-12 col-md-6">
@@ -454,7 +455,7 @@ export default function NewProcessDNBiggerThan32({ className }: NewProcessDNBigg
 
 
                                 <div className="mb-3 col-12 col-md-6">
-                                    <label htmlFor="so_qd_pdm" className="form-label">- Hệ số K-factor :</label>
+                                    <label htmlFor="kFactor" className="form-label">- Hệ số K-factor :</label>
                                     <input
                                         type="text"
                                         className="form-control"
@@ -474,6 +475,14 @@ export default function NewProcessDNBiggerThan32({ className }: NewProcessDNBigg
                                         value={so_qd_pdm}
                                         onChange={(e) => setSoQDPDM(e.target.value)}
                                     />
+                                </div>
+                                <div className="mb-3 col-12 col-md-6 d-flex align-items-end py-1">
+                                    <Link
+                                        href={"/verification/pdm//add-new"}
+                                        className="btn bg-main-green text-white"
+                                    >
+                                        Thêm mới PDM
+                                    </Link>
                                 </div>
                             </div>
                             <label className="w-100 fs-5 fw-bold">Chi tiết kiểm định:</label>
@@ -566,7 +575,7 @@ export default function NewProcessDNBiggerThan32({ className }: NewProcessDNBigg
                                             value={nhietDo}
                                             onChange={handleNumberChange(setNhietDo)}
                                         />
-                                        <span className="input-group-text" id="basic-addon2">°C</span>
+                                        <span className="input-group-text">°C</span>
                                     </div>
                                 </div>
                                 <div className="mb-3 col-12 col-md-6">
@@ -580,7 +589,7 @@ export default function NewProcessDNBiggerThan32({ className }: NewProcessDNBigg
                                             value={doAm}
                                             onChange={handleNumberChange(setDoAm)}
                                         />
-                                        <span className="input-group-text" id="basic-addon2">%</span>
+                                        <span className="input-group-text">%</span>
                                     </div>
                                 </div>
                             </div>
@@ -595,23 +604,21 @@ export default function NewProcessDNBiggerThan32({ className }: NewProcessDNBigg
                     </div>
                 </div>
 
-                <div className={`m-0 mb-3 py-2 bg-white rounded shadow-sm w-100 w-100`}>
+                <div className={`m-0 mb-3 p-2 bg-white rounded shadow-sm w-100 w-100`}>
+                    {/* TODO: validate before show form  */}
                     <NavTab tabContent={
                         [
                             {
                                 title: <>Q<sub>{isDHDienTu ? "3" : "n"}</sub></>,
-                                q: (q3) ? q3 : ((qn) ? qn : ""),
-                                content: <ErrorCaculatorTab d={d} className="" tabIndex={1} form={ErrorCaculatorForm} />
+                                content: <ErrorCaculatorTab d={d ? d : ""} q={{ title: (isDHDienTu) ? "Q3" : "Qn", value: (q3) ? q3 : ((qn) ? qn : "") }} className="" tabIndex={1} form={ErrorCaculatorForm} />
                             },
                             {
                                 title: <>Q<sub>{isDHDienTu ? "2" : "t"}</sub></>,
-                                q: (qt) ? qt.toString() : "",
-                                content: <ErrorCaculatorTab d={d} className="" tabIndex={2} form={ErrorCaculatorForm} />
+                                content: <ErrorCaculatorTab d={d ? d : ""} className="" q={{ title: (isDHDienTu) ? "Q2" : "Qt", value: (qt) ? qt.toString() : "" }} tabIndex={2} form={ErrorCaculatorForm} />
                             },
                             {
                                 title: <>Q<sub>{isDHDienTu ? "1" : "min"}</sub></>,
-                                q: (qmin) ? qmin.toString() : "",
-                                content: <ErrorCaculatorTab d={d} className="" tabIndex={3} form={ErrorCaculatorForm} />
+                                content: <ErrorCaculatorTab d={d ? d : ""} className="" q={{ title: (isDHDienTu) ? "Q1" : "Qmin", value: (qmin) ? qmin.toString() : "" }} tabIndex={3} form={ErrorCaculatorForm} />
                             },
                         ]
                     } />

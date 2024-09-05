@@ -258,7 +258,7 @@ export default function Page({ params }: { params: { ma_tim_dong_ho_pdm: string 
                                                     readOnly={isUser}
                                                     disabled={isUser}
                                                 />
-                                                <span className="input-group-text" id="basic-addon2">mm</span>
+                                                <span className="input-group-text">mm</span>
                                             </div>
                                         </div>
                                     )}
@@ -277,7 +277,7 @@ export default function Page({ params }: { params: { ma_tim_dong_ho_pdm: string 
                                                     readOnly={isUser}
                                                     disabled={isUser}
                                                 />
-                                                <span className="input-group-text" id="basic-addon2">m<sup>3</sup>/h</span>
+                                                <span className="input-group-text">m<sup>3</sup>/h</span>
                                             </div>
                                         </div>
                                     )}

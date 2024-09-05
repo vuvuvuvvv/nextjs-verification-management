@@ -9,38 +9,45 @@
 
         .group-tab {
             background-color: $light_blue;
+            border-top-left-radius: 4px;
+            border-top-right-radius: 4px;
+            overflow: hidden;
 
             .active {
                 background-color: $dark_blue !important;
                 color: #fff !important;
-                z-index: 1 !important;
             }
 
             .nav-link {
-                z-index: 0;
                 font-size: 16px;
                 transition: 0.3s all ease;
                 padding: 10px 12px;
                 background-color: transparent;
-                color: $light_grey;
+                color: $dark_grey;
             }
         }
     }
 
-    #process-tab-content {
-        // background-color: #fff;
+    .wrap-process-tab {
+        border-radius: 4px;
+        border-top-left-radius: 0px;
+        background-color: #eeeeee95;
 
-        .show {
-            animation: show-tab 0.5s ease-in;
-        }
-
-        @keyframes show-tab {
-            from {
-                opacity: 0;
+        #process-tab-content {
+            // background-color: #fff;
+    
+            .show {
+                animation: show-tab 0.5s ease-in;
             }
-
-            to {
-                opacity: 1;
+    
+            @keyframes show-tab {
+                from {
+                    opacity: 0;
+                }
+    
+                to {
+                    opacity: 1;
+                }
             }
         }
     }

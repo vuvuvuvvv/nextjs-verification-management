@@ -7,6 +7,7 @@
     // font-family: "Google Sans", "Helvetica Neue", sans-serif;
     // user-select: none !important;
     font-size: 15px;
+    outline: none;
 }
 
 html,
@@ -72,19 +73,19 @@ textarea {
 }
 
 .bg-main-grey {
+    background-color: $dark_grey !important;
+}
+
+.bg-light-grey {
     background-color: $grey !important;
 }
 
 .bg-light-grey {
-    background-color: $light_grey !important;
-}
-
-.bg-light-grey {
-    background-color: $light_grey !important;
+    background-color: $grey !important;
 }
 
 .bg-lighter-grey {
-    background-color: $lighter_grey !important;
+    background-color: $light_grey !important;
 }
 
 .bg-main-green {

@@ -247,7 +247,7 @@ export default function AddNewPDM({ className }: AddNewPDMProps) {
                             onChange={handleNumberChange(setQ3)}
                             pattern="\d*"
                         />
-                        <span className="input-group-text" id="basic-addon2">m<sup>3</sup>/h</span>
+                        <span className="input-group-text">m<sup>3</sup>/h</span>
                     </div>
                 </div>
                 <div className="mb-3 col-12 col-md-6">
@@ -302,7 +302,7 @@ export default function AddNewPDM({ className }: AddNewPDMProps) {
                         onChange={handleNumberChange(setQN)}
                         pattern="\d*"
                     />
-                    <span className="input-group-text" id="basic-addon2">m<sup>3</sup>/h</span>
+                    <span className="input-group-text">m<sup>3</sup>/h</span>
                 </div>
             </div>
             <div className="mb-3 col-12 col-md-6">
@@ -441,7 +441,7 @@ export default function AddNewPDM({ className }: AddNewPDMProps) {
                                             onChange={handleNumberChange(setDN)}
                                             pattern="\d*"
                                         />
-                                        <span className="input-group-text" id="basic-addon2">mm</span>
+                                        <span className="input-group-text">mm</span>
                                     </div>
                                 </div>
                                 {renderCCXFields()}
