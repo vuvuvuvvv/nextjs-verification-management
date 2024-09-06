@@ -1,6 +1,6 @@
 // "use server"
 
-const ProcessManagement = dynamic(() => import("@/components/quan-ly/kiem-dinh/process"), { ssr: false })
+const ProcessManagement = dynamic(() => import("@/components/quan-ly/kiem-dinh/nhom-dong-ho-nuoc"), { ssr: false })
 const WaterMeterManagement = dynamic(() => import("@/components/quan-ly/kiem-dinh/dong-ho-nuoc"), { ssr: false })
 
 import vrfWm from "@styles/scss/ui/vfm.module.scss"

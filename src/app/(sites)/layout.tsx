@@ -8,6 +8,7 @@ import Navbar from "@/components/ui/navbar";
 import { AppProvider, useUser } from "@/context/app-context";
 
 import { usePathname } from "next/navigation";
+import BackToTopButton from "@/components/ui/BackToTopButton";
 
 const routeTitles: { [key: string]: string } = {
     "/": "Trang chủ",
@@ -33,6 +34,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
                         {children}
                     </div>
                 </main>
+                <BackToTopButton />
             </AppProvider >
         </>
     );
