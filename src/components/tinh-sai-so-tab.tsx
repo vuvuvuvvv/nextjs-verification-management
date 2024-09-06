@@ -3,11 +3,11 @@
 import { faCaretDown } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { getVToiThieu } from "@lib/system-function";
-import { ErrorCaculatorValue } from "@lib/types";
-import c_ect from "@styles/scss/components/error-caculator-tab.module.scss";
+import { TinhSaiSoValue } from "@lib/types";
+import c_ect from "@styles/scss/components/tinh-sai-so-tab.module.scss";
 import { useState } from "react";
 
-interface ErrorCaculatorTabProps {
+interface TinhSaiSoTabProps {
     className?: string;
     tabIndex: number;
     d: string;                             //Độ chia nhỏ nhất
@@ -24,12 +24,12 @@ interface TabFormState {
 
 interface FormProps {
     className?: string;
-    formValue: ErrorCaculatorValue;
+    formValue: TinhSaiSoValue;
     onFormChange: (field: string, value: number) => void;
     d?: string;
 }
 
-export default function ErrorCaculatorTab({ className, tabIndex, d, q, form }: ErrorCaculatorTabProps) {
+export default function TinhSaiSoTab({ className, tabIndex, d, q, form }: TinhSaiSoTabProps) {
     if (!tabIndex || tabIndex <= 0) {
         return <></>;
     }
@@ -41,11 +41,16 @@ export default function ErrorCaculatorTab({ className, tabIndex, d, q, form }: E
     };
 
     const [selectedTabForm, setSelectedTabForm] = useState<TabFormState>(initialTabFormState);
-    const [formValues, setFormValues] = useState<ErrorCaculatorValue[]>([
+
+    const [formValues, setFormValues] = useState<TinhSaiSoValue[]>([
         { firstnumDHCT: 0, lastNumDHCT: 0, firstnumDHC: 0, lastNumDHC: 0 },
         { firstnumDHCT: 0, lastNumDHCT: 0, firstnumDHC: 0, lastNumDHC: 0 },
         { firstnumDHCT: 0, lastNumDHCT: 0, firstnumDHC: 0, lastNumDHC: 0 },
     ]);
+
+    const allValuesNonZero = formValues.every(formValue =>
+        Object.values(formValue).every(value => value !== 0)
+    );
 
     const toggleTabForm = (tab: number) => {
         tab *= tabIndex;
@@ -59,7 +64,7 @@ export default function ErrorCaculatorTab({ className, tabIndex, d, q, form }: E
         }
     };
 
-    const handleFormChange = (index: number, field: keyof ErrorCaculatorValue, value: number) => {
+    const handleFormChange = (index: number, field: keyof TinhSaiSoValue, value: number) => {
         const newFormValues = [...formValues];
         newFormValues[index][field] = value;
         if (field === "lastNumDHCT" && index < formValues.length - 1) {
@@ -74,7 +79,7 @@ export default function ErrorCaculatorTab({ className, tabIndex, d, q, form }: E
         <div className={`row m-0 p-0 w-100 justify-content-center ${className ? className : ""} ${c_ect['wrapper']}`}>
             <div className="w-100 m-0 p-0">
                 <div className={`w-100 p-2 row m-0 ${c_ect['info']}`}>
-                    <div className={`col-12 col-lg-6 m-0 px-3 pe-lg-2 p-0 d-flex align-items-center justify-content-between gap-3`}>
+                    <div className={`col-12 col-lg-6 col-xxl-4 mb-2 px-3 pe-lg-2 p-0 d-flex align-items-center justify-content-between gap-3`}>
                         <label className={`form-label m-0 fs-5 fw-bold d-block`}>{q.title}:</label>
                         <div className="input-group">
                             <input
@@ -86,7 +91,7 @@ export default function ErrorCaculatorTab({ className, tabIndex, d, q, form }: E
                             <span className="input-group-text">m<sup>3</sup>/h</span>
                         </div>
                     </div>
-                    <div className={`col-12 col-lg-6 m-0 px-3 ps-lg-2 p-0 d-flex align-items-center justify-content-between gap-3`}>
+                    <div className={`col-12 col-lg-6 col-xxl-4 mb-2 px-3 ps-lg-2 p-0 d-flex align-items-center justify-content-between gap-3`}>
                         <label className={`form-label m-0 fs-5 fw-bold d-block`}>V<sub>tt</sub>:</label>
                         <div className="input-group">
                             <input
@@ -117,7 +122,7 @@ export default function ErrorCaculatorTab({ className, tabIndex, d, q, form }: E
                         <Form
                             className={`w-100 ${!selectedTabForm[i * tabIndex] ? "d-none d-xxl-block" : ""}`}
                             formValue={formValues[i - 1]}
-                            onFormChange={(field: string, value: number) => handleFormChange(i - 1, field as keyof ErrorCaculatorValue, value)}
+                            onFormChange={(field: string, value: number) => handleFormChange(i - 1, field as keyof TinhSaiSoValue, value)}
                             d={d}
                         />
                     </div>

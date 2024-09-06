@@ -1,7 +1,7 @@
 "use client"
 
-import ErrorCaculatorTab from "@/components/error-caculator-tab";
-import ErrorCaculatorForm from "@/components/error-caculator-form";
+import TinhSaiSoTab from "@/components/tinh-sai-so-tab";
+import TinhSaiSoForm from "@/components/tinh-sai-so-form";
 import vrfWm from "@styles/scss/ui/vfm.module.scss"
 import loading from "@styles/scss/components/loading.module.scss"
 import { Suspense, useEffect, useState } from "react";
@@ -177,7 +177,7 @@ export default function AddNewPDM({ className }: AddNewPDMProps) {
                 }).then((result) => {
                     if (result.dismiss === Swal.DismissReason.timer) {
                         Swal.showLoading();
-                        router.push("/verification/pdm");
+                        router.push("/kiem-dinh/pdm");
                     }
                 });
             } else {
@@ -211,7 +211,7 @@ export default function AddNewPDM({ className }: AddNewPDMProps) {
                     reverseButtons: true,
                 }).then((result) => {
                     if (result.isDismissed) {
-                        window.open('/verification/pdm/detail/' + response.data.ma_tim_dong_ho_pdm, '_blank');
+                        window.open('/kiem-dinh/pdm/chi-tiet/' + response.data.ma_tim_dong_ho_pdm, '_blank');
                     }
                     setError("");
                 });

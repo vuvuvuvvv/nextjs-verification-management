@@ -1,7 +1,7 @@
 "use client"
 
 import { useEffect, useState, useCallback, Suspense } from "react";
-import c_vfml from "@styles/scss/components/verification-management-layout.module.scss";
+import c_vfml from "@styles/scss/components/verification-management-layout.module.scss"
 
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
@@ -10,53 +10,46 @@ import dayjs, { Dayjs } from "dayjs";
 import { viVN } from "@mui/x-date-pickers/locales";
 
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faChevronDown, faChevronUp, faEye, faTrash, faEllipsisH } from "@fortawesome/free-solid-svg-icons";
+import { faChevronDown, faChevronUp, faEllipsisH, faEye, faTrash } from "@fortawesome/free-solid-svg-icons";
 import React from "react";
 
 import Select, { GroupBase } from 'react-select';
 import Pagination from "@/components/pagination";
-import { WaterMeterData } from "@lib/types";
+import { ReportData } from "@lib/types";
 
 import { usePathname } from "next/navigation";
 import Link from "next/link";
-
-import { statusOptions, typeOptions, ccxOptions, limitOptions } from "@lib/system-constant";
+import { limitOptions, processStatusOptions } from "@lib/system-constant";
 
 const Loading = React.lazy(() => import("@/components/loading"));
 
 
-interface WaterMeterManagementProps {
-    data: WaterMeterData[],
+interface ProcessManagementProps {
+    data: ReportData[],
     className?: string,
 }
 
 interface FilterForm {
-    waterMeterId: string;
-    serialNumber: string;
-    type: string;
-    ccx: string;
+    processId: string;
     implementer: string;
-    status: string | number;
+    status: string[];
     fromDate: Date | null;
     toDate: Date | null;
 }
 
-export default function WaterMeterManagement({ data, className }: WaterMeterManagementProps) {
+export default function ProcessManagement({ data, className }: ProcessManagementProps) {
     const [rootData, setRootData] = useState(data);
     const [loading, setLoading] = useState(false);
     const [sortConfig, setSortConfig] = useState<{ key: string, direction: 'asc' | 'desc' | 'default' } | null>(null);
-    const [selectedStatus, setSelectedStatus] = useState(null);
+    const [selectedStatus, setSelectedStatus] = useState([]);
     const [limit, setLimit] = useState(5);
 
     const path = usePathname();
 
     const [filterForm, setFilterForm] = useState<FilterForm>({
-        waterMeterId: "",
-        serialNumber: "",
-        type: "",
-        ccx: "",
+        processId: "",
         implementer: "",
-        status: "",
+        status: [],
         fromDate: null,
         toDate: null
     });
@@ -64,7 +57,7 @@ export default function WaterMeterManagement({ data, className }: WaterMeterMana
 
     const resetTotalPage = () => {
         setCurrentPage(1);
-        if (rootData.length <= limit) {
+        if (rootData.length == limit) {
             return 1;
         }
         return Math.ceil(rootData.length / limit);
@@ -75,6 +68,7 @@ export default function WaterMeterManagement({ data, className }: WaterMeterMana
     useEffect(() => {
         setTotalPage(resetTotalPage);
     }, [rootData, limit])
+
 
     const sortData = useCallback((key: string) => {
         if (!loading) {
@@ -108,43 +102,27 @@ export default function WaterMeterManagement({ data, className }: WaterMeterMana
         const debounce = setTimeout(() => {
             let filteredData = data;
 
-            if (filterForm.waterMeterId) {
+            if (filterForm.processId) {
                 filteredData = filteredData.filter(item => {
-                    const keywords = filterForm.waterMeterId.trim().toLowerCase().replace(/[^\d]/g, '').split(' ').filter(Boolean);
+                    const keywords = filterForm.processId.toLowerCase().replace(/[^\d]/g, '').split(' ').filter(Boolean);
                     const itemId = item.id;
                     return keywords.some(keyword => itemId.toString().includes(keyword));
                 });
             }
 
-            if (filterForm.serialNumber) {
-                filteredData = filteredData.filter(item => {
-                    const keyword = filterForm.serialNumber.trim().toLowerCase();
-                    const itemSerial = item.serialNumber.toLowerCase().replace(/[^a-zA-Z0-9 ]/g, '');
-                    return itemSerial.includes(keyword);
-                });
-            }
-
             if (filterForm.implementer) {
                 filteredData = filteredData.filter(item => {
-                    const keywords = filterForm.implementer.trim().toLowerCase().split(' ').filter(Boolean);
+                    const keywords = filterForm.implementer.toLowerCase().split(' ').filter(Boolean);
                     const itemImplementer = item.createdBy.toLowerCase().replace(/[^a-zA-Z0-9 ]/g, '');
                     return keywords.some(keyword => itemImplementer.includes(keyword));
                 });
             }
 
-            if (filterForm.status) {
+            if (filterForm.status.length > 0) {
                 filteredData = filteredData.filter(item => {
-                    const itemStatus = item.status;
-                    return  filterForm.status == itemStatus;
+                    const itemStatus = item.status.split(',');
+                    return filterForm.status.every(s => itemStatus.includes(s));
                 });
-            }
-
-            if (filterForm.type) {
-                filteredData = filteredData.filter(item => item.type === filterForm.type);
-            }
-
-            if (filterForm.ccx) {
-                filteredData = filteredData.filter(item => item.ccx === filterForm.ccx);
             }
 
             if (filterForm.fromDate || filterForm.toDate) {
@@ -162,6 +140,7 @@ export default function WaterMeterManagement({ data, className }: WaterMeterMana
             }
 
             setRootData(filteredData);
+
             setSortConfig(null);
             setLoading(false);
         }, 500);
@@ -177,16 +156,13 @@ export default function WaterMeterManagement({ data, className }: WaterMeterMana
 
     const hanldeResetFilter = () => {
         setFilterForm({
-            waterMeterId: "",
-            serialNumber: "",
-            type: "",
-            ccx: "",
+            processId: "",
             implementer: "",
-            status: "",
+            status: [],
             fromDate: null,
             toDate: null
         });
-        setSelectedStatus(null);
+        setSelectedStatus([]);
     }
 
     const handlePageChange = (newPage: number) => {
@@ -200,33 +176,18 @@ export default function WaterMeterManagement({ data, className }: WaterMeterMana
             <div className={`${className ? className : ""} m-0 mb-3 w-100`}>
                 <div className={`${c_vfml['wraper']} pb-3 w-100`}>
 
-
                     <div className="bg-white w-100 shadow-sm mb-3 rounded pb-2 pt-4">
                         <div className={`row m-0 px-md-3 w-100 mb-3 ${c_vfml['search-process']}`}>
-                            {/* <div className="col-12 mb-3 col-md-6 col-xl-4 d-flex">
-                            <label className={`${c_vfml['form-label']}`} htmlFor="process-id">
-                                ID:
-                                <input
-                                    type="text"
-                                    id="process-id"
-                                    className="form-control"
-                                    placeholder="Nhập ID"
-                                    value={filterForm.waterMeterId}
-                                    onChange={(e) => handleFilterChange('waterMeterId', e.target.value)}
-                                />
-                            </label>
-                        </div> */}
-
                             <div className="col-12 mb-3 col-md-6 col-xl-4 d-flex">
-                                <label className={`${c_vfml['form-label']}`} htmlFor="serial-number">
-                                    Serial number:
+                                <label className={`${c_vfml['form-label']}`} htmlFor="process-id">
+                                    ID:
                                     <input
                                         type="text"
-                                        id="serial-number"
+                                        id="process-id"
                                         className="form-control"
-                                        placeholder="Nhập số seri"
-                                        value={filterForm.serialNumber}
-                                        onChange={(e) => handleFilterChange('serialNumber', e.target.value)}
+                                        placeholder="Nhập ID"
+                                        value={filterForm.processId}
+                                        onChange={(e) => handleFilterChange('processId', e.target.value)}
                                     />
                                 </label>
                             </div>
@@ -245,25 +206,22 @@ export default function WaterMeterManagement({ data, className }: WaterMeterMana
                             </div>
 
                             <div className="col-12 mb-3 col-md-6 col-xl-4">
-                                <label className={`${c_vfml['form-label']}`}>
-                                    Trạng thái:
+                                <label className={`${c_vfml['form-label']}`} htmlFor="status">
+                                    Trạng thái
                                     <Select
-                                        // isMulti
+                                        isMulti
                                         name="status"
-                                        options={statusOptions as unknown as readonly GroupBase<never>[]}
+                                        options={processStatusOptions as unknown as readonly GroupBase<never>[]}
                                         className="basic-multi-select"
                                         classNamePrefix="select"
-                                        isClearable
                                         value={selectedStatus}
                                         onChange={(selectedOptions: any) => {
                                             if (selectedOptions) {
-                                                // const values = selectedOptions.map((option: { value: string }) => option.value);
-                                                const values = selectedOptions.value;
-
+                                                const values = selectedOptions.map((option: { value: string }) => option.value);
                                                 setSelectedStatus(selectedOptions);
                                                 handleFilterChange('status', values);
                                             } else {
-                                                setSelectedStatus(null);
+                                                setSelectedStatus([]);
                                                 handleFilterChange('status', []);
                                             }
                                         }}
@@ -294,84 +252,6 @@ export default function WaterMeterManagement({ data, className }: WaterMeterMana
                                     />
                                 </label>
                             </div>
-
-                            {/* <div className="col-12 mb-3 col-md-6 col-xl-4">
-                            <label className={`${c_vfml['form-label']}`}>
-                                Kiểu:
-                                <Select
-                                    name="type"
-                                    options={typeOptions as unknown as readonly GroupBase<never>[]}
-                                    className="basic-multi-select"
-                                    classNamePrefix="select"
-                                    isClearable
-                                    value={typeOptions.find(option => option.value === filterForm.type) || null}
-                                    onChange={(selectedOptions: any) => handleFilterChange('type', selectedOptions ? selectedOptions.value : null)}
-                                    styles={{
-                                        control: (provided) => ({
-                                            ...provided,
-                                            height: '42px',
-                                            minHeight: '42px',
-                                            marginTop: '0.5rem',
-                                            borderColor: '#dee2e6 !important',
-                                            boxShadow: 'none !important'
-                                        }),
-                                        valueContainer: (provided) => ({
-                                            ...provided,
-                                            height: '42px',
-                                            padding: '0 8px'
-                                        }),
-                                        input: (provided) => ({
-                                            ...provided,
-                                            margin: '0',
-                                            padding: '0'
-                                        }),
-                                        indicatorsContainer: (provided) => ({
-                                            ...provided,
-                                            height: '42px'
-                                        })
-                                    }}
-                                />
-                            </label>
-                        </div> */}
-
-                            {/* <div className="col-12 mb-3 col-md-6 col-xl-4">
-                            <label className={`${c_vfml['form-label']}`}>
-                                Cấp chính xác:
-                                <Select
-                                    name="ccx"
-                                    options={ccxOptions as unknown as readonly GroupBase<never>[]}
-                                    className="basic-multi-select"
-                                    classNamePrefix="select"
-                                    isClearable
-                                    value={ccxOptions.find(option => option.value === filterForm.ccx) || null}
-                                    onChange={(selectedOptions: any) => handleFilterChange('ccx', selectedOptions ? selectedOptions.value : null)}
-                                    styles={{
-                                        control: (provided) => ({
-                                            ...provided,
-                                            height: '42px',
-                                            minHeight: '42px',
-                                            marginTop: '0.5rem',
-                                            borderColor: '#dee2e6 !important',
-                                            boxShadow: 'none !important'
-                                        }),
-                                        valueContainer: (provided) => ({
-                                            ...provided,
-                                            height: '42px',
-                                            padding: '0 8px'
-                                        }),
-                                        input: (provided) => ({
-                                            ...provided,
-                                            margin: '0',
-                                            padding: '0'
-                                        }),
-                                        indicatorsContainer: (provided) => ({
-                                            ...provided,
-                                            height: '42px'
-                                        })
-                                    }}
-                                />
-                            </label>
-                        </div> */}
 
                             <div className={`col-12 col-md-8 mb-3 m-0 row p-0 ${c_vfml['search-created-date']}`}>
                                 <label className={`${c_vfml['form-label']} col-12`}>
@@ -446,14 +326,14 @@ export default function WaterMeterManagement({ data, className }: WaterMeterMana
                             </div>
 
                             <div className={`col-12 m-0 my-2 d-flex align-items-center justify-content-between`}>
-                                <button type="button" className={`btn bg-main-blue text-white`} onClick={hanldeResetFilter}>
+                                <button type="button" className={`btn p-2 px-3 bg-main-blue text-white`} onClick={hanldeResetFilter}>
                                     Xóa bộ lọc
                                 </button>
                                 <Link
-                                    href={path + "/new-process"}
-                                    className="btn bg-main-green text-white"
+                                    href={path + "/them-moi"}
+                                    className="btn p-2 px-3 bg-main-green text-white"
                                 >
-                                    Thêm mới
+                                    Thêm nhóm
                                 </Link>
                             </div>
                         </div>
@@ -466,7 +346,7 @@ export default function WaterMeterManagement({ data, className }: WaterMeterMana
                                 <table className={`table table-hover ${c_vfml['process-table']}`}>
                                     <thead>
                                         <tr className={`${c_vfml['table-header']}`}>
-                                            {/* <th onClick={() => sortData('id')}>
+                                            <th onClick={() => sortData('id')}>
                                                 <div className={`${c_vfml['table-label']}`}>
                                                     <span>
                                                         ID
@@ -477,13 +357,6 @@ export default function WaterMeterManagement({ data, className }: WaterMeterMana
                                                     {sortConfig && sortConfig.key === 'id' && sortConfig.direction === 'desc' && (
                                                         <FontAwesomeIcon icon={faChevronDown}></FontAwesomeIcon>
                                                     )}
-                                                </div>
-                                            </th> */}
-                                            <th>
-                                                <div className={`${c_vfml['table-label']}`}>
-                                                    <span>
-                                                        Serial Number
-                                                    </span>
                                                 </div>
                                             </th>
                                             <th onClick={() => sortData('createdBy')}>
@@ -499,28 +372,14 @@ export default function WaterMeterManagement({ data, className }: WaterMeterMana
                                                     )}
                                                 </div>
                                             </th>
-                                            <th onClick={() => sortData('type')}>
+                                            <th onClick={() => sortData('numberOfClocks')}>
                                                 <div className={`${c_vfml['table-label']}`}>
-                                                    <span>
-                                                        Kiểu
+                                                    <span>Số đồng hồ
                                                     </span>
-                                                    {sortConfig && sortConfig.key === 'type' && sortConfig.direction === 'asc' && (
+                                                    {sortConfig && sortConfig.key === 'numberOfClocks' && sortConfig.direction === 'asc' && (
                                                         <FontAwesomeIcon icon={faChevronUp}></FontAwesomeIcon>
                                                     )}
-                                                    {sortConfig && sortConfig.key === 'type' && sortConfig.direction === 'desc' && (
-                                                        <FontAwesomeIcon icon={faChevronDown}></FontAwesomeIcon>
-                                                    )}
-                                                </div>
-                                            </th>
-                                            <th onClick={() => sortData('ccx')}>
-                                                <div className={`${c_vfml['table-label']}`}>
-                                                    <span>
-                                                        Cấp chính xác
-                                                    </span>
-                                                    {sortConfig && sortConfig.key === 'ccx' && sortConfig.direction === 'asc' && (
-                                                        <FontAwesomeIcon icon={faChevronUp}></FontAwesomeIcon>
-                                                    )}
-                                                    {sortConfig && sortConfig.key === 'ccx' && sortConfig.direction === 'desc' && (
+                                                    {sortConfig && sortConfig.key === 'numberOfClocks' && sortConfig.direction === 'desc' && (
                                                         <FontAwesomeIcon icon={faChevronDown}></FontAwesomeIcon>
                                                     )}
                                                 </div>
@@ -557,12 +416,10 @@ export default function WaterMeterManagement({ data, className }: WaterMeterMana
                                     <tbody>
                                         {paginatedData.map((item, index) => (
                                             <tr key={index}>
-                                                {/* <td>{item.id}</td> */}
-                                                <td>{item.serialNumber}</td>
+                                                <td>{item.id}</td>
                                                 <td>{item.createdBy}</td>
-                                                <td>{item.type}</td>
-                                                <td>{item.ccx}</td>
-                                                <td>{statusOptions.find(option => option.value == item.status)?.label || "Khôngggg hoạt động"}</td>
+                                                <td>{item.numberOfClocks}</td>
+                                                <td>{item.status.split(',').map((s: string) => processStatusOptions.find(option => option.value === s)?.label).join(', ')}</td>
                                                 <td>{item.updatedAt}</td>
                                                 <td>
                                                     <div className={`dropdown ${c_vfml['action']}`}>
@@ -571,7 +428,7 @@ export default function WaterMeterManagement({ data, className }: WaterMeterMana
                                                         </button>
                                                         <ul className="dropdown-menu">
                                                             <li>
-                                                                <Link href={path + "/detail/" + item.id} className={`btn w-100`}>
+                                                                <Link href={path + "/chi-tiet/" + item.id} className={`btn w-100`}>
                                                                     Xem chi tiết
                                                                 </Link>
                                                             </li>
@@ -582,7 +439,6 @@ export default function WaterMeterManagement({ data, className }: WaterMeterMana
                                                             </li>
                                                         </ul>
                                                     </div>
-                                                    
                                                 </td>
                                             </tr>
                                         ))}

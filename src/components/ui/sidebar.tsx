@@ -49,11 +49,11 @@ const siteSideLinks: SideLink[] = [
                 title: "Đồng hồ",
                 icon: faClock,
                 children: [
-                    { title: "DN > 15 m³/h", href: "/verification/watermeter/dn-bigger-than-15", icon: faTint },
-                    { title: "DN < 15 m³/h", href: "/verification/watermeter/dn-smaller-than-15", icon: faTint },
+                    { title: "DN > 15 m³/h", href: "/kiem-dinh/dong-ho-nuoc/dn-bigger-than-15", icon: faTint },
+                    { title: "DN < 15 m³/h", href: "/kiem-dinh/dong-ho-nuoc/dn-smaller-than-15", icon: faTint },
                 ]
             },
-            { title: "Phê duyệt mẫu", href: "/verification/pdm", icon: faFileAlt },
+            { title: "Phê duyệt mẫu", href: "/kiem-dinh/pdm", icon: faFileAlt },
         ]
     },
     {

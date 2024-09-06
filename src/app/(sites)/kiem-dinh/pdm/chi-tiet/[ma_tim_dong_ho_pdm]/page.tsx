@@ -99,7 +99,7 @@ export default function Page({ params }: { params: { ma_tim_dong_ho_pdm: string 
         //             text: "PDM updated successfully!",
         //             confirmButtonText: "OK"
         //         }).then(() => {
-        //             router.push("/verification/pdm");
+        //             router.push("/kiem-dinh/pdm");
         //         });
         //     } else {
         //         Swal.fire({
@@ -141,7 +141,7 @@ export default function Page({ params }: { params: { ma_tim_dong_ho_pdm: string 
                             confirmButtonColor: "#3085d6",
                             confirmButtonText: "Có",
                         }).then(() => {
-                            router.push("/verification/pdm")
+                            router.push("/kiem-dinh/pdm")
                         });
                     } else {
                         setError("Có lỗi đã xảy ra!");
@@ -535,7 +535,7 @@ export default function Page({ params }: { params: { ma_tim_dong_ho_pdm: string 
                                         Chỉnh sửa
                                     </button>
                                 )}
-                                <Link href={"/verification/pdm"} className="btn btn-primary">
+                                <Link href={"/kiem-dinh/pdm"} className="btn btn-primary">
                                     Quay lại
                                 </Link>
                             </div>

@@ -7,7 +7,7 @@ import api from "@/app/api/route";
 import { BASE_API_URL } from "@lib/system-constant";
 import Loading from "@/components/loading";
 
-const PDMManagement = dynamic(() => import("@/components/management/verification/pdm"), { ssr: true });
+const PDMManagement = dynamic(() => import("@/components/quan-ly/kiem-dinh/pdm"), { ssr: true });
 
 interface PDMProps {
     className?: string,

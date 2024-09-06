@@ -1,7 +1,7 @@
 "use client"
 
-import ErrorCaculatorTab from "@/components/error-caculator-tab";
-import ErrorCaculatorForm from "@/components/error-caculator-form";
+import TinhSaiSoTab from "@/components/tinh-sai-so-tab";
+import TinhSaiSoForm from "@/components/tinh-sai-so-form";
 import vrfWm from "@styles/scss/ui/vfm.module.scss"
 import { useState } from "react";
 
@@ -350,15 +350,15 @@ export default function NewProcessDNSmallerThan32({ className }: NewProcessDNSma
                         [
                             {
                                 title: <>Q<sub>3</sub> (Q<sub>max</sub>)</>,
-                                content: <ErrorCaculatorTab className="bg-white shadow-sm rounded" tabIndex={1} form={ErrorCaculatorForm} />
+                                content: <TinhSaiSoTab className="bg-white shadow-sm rounded" tabIndex={1} form={TinhSaiSoForm} />
                             },
                             {
                                 title: <>Q<sub>2</sub> (Q<sub>t</sub>)</>,
-                                content: <ErrorCaculatorTab className="bg-white shadow-sm rounded" tabIndex={2} form={ErrorCaculatorForm} />
+                                content: <TinhSaiSoTab className="bg-white shadow-sm rounded" tabIndex={2} form={TinhSaiSoForm} />
                             },
                             {
                                 title: <>Q<sub>1</sub> (Q<sub>min</sub>)</>,
-                                content: <ErrorCaculatorTab className="bg-white shadow-sm rounded" tabIndex={3} form={ErrorCaculatorForm} />
+                                content: <TinhSaiSoTab className="bg-white shadow-sm rounded" tabIndex={3} form={TinhSaiSoForm} />
                             },
                         ]
                     } />

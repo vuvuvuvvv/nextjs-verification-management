@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
-import ecf from "@styles/scss/components/error-caculator-form.module.scss";
-import { getErrorCaculatorValue } from "@lib/system-function";
+import ecf from "@styles/scss/components/tinh-sai-so-form.module.scss";
+import { getTinhSaiSoValue } from "@lib/system-function";
 
 interface CaculatorFormProps {
     className?: string;
@@ -14,7 +14,7 @@ interface CaculatorFormProps {
     d?: string;
 }
 
-export default function DNBT30ErrorCaculatorForm({ className, formValue, onFormChange, d }: CaculatorFormProps) {
+export default function DNBT30TinhSaiSoForm({ className, formValue, onFormChange, d }: CaculatorFormProps) {
     const [firstnumDHC, setFirstNumDHC] = useState<string>("0");
     const [lastNumDHC, setLastNumDHC] = useState<string>("0");
     const [errorNum, setErrorNum] = useState<string>("0%");
@@ -60,12 +60,7 @@ export default function DNBT30ErrorCaculatorForm({ className, formValue, onFormC
     };
 
     useEffect(() => {
-        // if (formValue.lastNumDHC && formValue.lastNumDHCT && formValue.firstnumDHC && formValue.firstnumDHCT) {
-        //     setErrorNum(getErrorCaculatorValue(formValue));
-        // } else {
-        //     setErrorNum("0%");
-        // }
-        setErrorNum(getErrorCaculatorValue(formValue));
+        setErrorNum(getTinhSaiSoValue(formValue).toString() + "%");
     }, [formValue.lastNumDHC, formValue.lastNumDHCT, formValue.firstnumDHC, formValue.firstnumDHCT]);
 
     return (

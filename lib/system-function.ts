@@ -1,14 +1,14 @@
 import { phuongTienDoOptions } from "./system-constant";
-import { ErrorCaculatorValue } from "./types";
+import { TinhSaiSoValue, TinhSaiSoValueTabs } from "./types";
 
-export const getErrorCaculatorValue = (formValue: ErrorCaculatorValue) => {
+export const getTinhSaiSoValue = (formValue: TinhSaiSoValue) => {
     const VDHCT = formValue.lastNumDHCT - formValue.firstnumDHCT;
     const VDHC = formValue.lastNumDHC - formValue.firstnumDHC;
     if (VDHC !== 0) {
         const error = ((VDHCT - VDHC) / VDHC) * 100;
-        return (Math.round(error * 10000) / 10000).toFixed(3) + "%";
+        return Number((Math.round(error * 10000) / 10000).toFixed(3));
     } else {
-        return "0%";
+        return 0;
     }
 };
 
@@ -71,4 +71,8 @@ export const getVToiThieu = (q: string | number, d: string | number) => {
     // console.log(q, ll_200d, ll_90s);
 
     return Number(Math.max(ll_200d, ll_90s).toFixed(3));
+}
+
+export const isDongHoDatTieuChuan = (formValues: TinhSaiSoValueTabs) => {
+    return 0;
 }

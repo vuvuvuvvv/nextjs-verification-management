@@ -1,6 +1,6 @@
 "use client"
 
-import WaterMeterManagement from "@/components/management/verification/watermeter";
+import WaterMeterManagement from "@/components/quan-ly/kiem-dinh/dong-ho-nuoc";
 import React from "react";
 const Loading = React.lazy(() => import("@/components/loading"));
 

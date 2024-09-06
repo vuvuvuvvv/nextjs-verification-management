@@ -1,9 +1,9 @@
 "use client"
 
-import ErrorCaculatorTab from "@/components/error-caculator-tab";
-import ErrorCaculatorForm from "@/components/error-caculator-form";
+import TinhSaiSoTab from "@/components/tinh-sai-so-tab";
+import TinhSaiSoForm from "@/components/tinh-sai-so-form";
 import vrfWm from "@styles/scss/ui/vfm.module.scss"
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
@@ -32,9 +32,7 @@ interface TabState {
 
 export default function NewProcessDNBiggerThan32({ className }: NewProcessDNBiggerThan32Props) {
     const { user } = useUser();
-
-    const [selectedTab, setSelectedTab] = useState<TabState>({ [1]: true });
-    const [isCollapsed, setIsCollapsed] = useState<boolean>(true);
+    const [isCollapsed, setIsCollapsed] = useState<boolean>(false);
 
     const [seriNumber, setSeriNumber] = useState<string>("");                                                                   // Serial number
 
@@ -72,7 +70,7 @@ export default function NewProcessDNBiggerThan32({ className }: NewProcessDNBigg
     const [isDHDienTu, setDHDienTu] = useState(false);
 
     const [qt, setQt] = useState<number | null>(null);
-    const [qmin, setQmin] = useState<number | null>(null);                                                                                  // Check Đồng hồ điện tử
+    const [qmin, setQmin] = useState<number | null>(null);                                                                             // Check Đồng hồ điện tử
 
     const toggleCollapse = () => {
         setIsCollapsed(!isCollapsed);
@@ -478,7 +476,7 @@ export default function NewProcessDNBiggerThan32({ className }: NewProcessDNBigg
                                 </div>
                                 <div className="mb-3 col-12 col-md-6 d-flex align-items-end py-1">
                                     <Link
-                                        href={"/verification/pdm//add-new"}
+                                        href={"/kiem-dinh/pdm//them-moi"}
                                         className="btn bg-main-green text-white"
                                     >
                                         Thêm mới PDM
@@ -610,15 +608,15 @@ export default function NewProcessDNBiggerThan32({ className }: NewProcessDNBigg
                         [
                             {
                                 title: <>Q<sub>{isDHDienTu ? "3" : "n"}</sub></>,
-                                content: <ErrorCaculatorTab d={d ? d : ""} q={{ title: (isDHDienTu) ? "Q3" : "Qn", value: (q3) ? q3 : ((qn) ? qn : "") }} className="" tabIndex={1} form={ErrorCaculatorForm} />
+                                content: <TinhSaiSoTab d={d ? d : ""} q={{ title: (isDHDienTu) ? "Q3" : "Qn", value: (q3) ? q3 : ((qn) ? qn : "") }} className="" tabIndex={1} form={TinhSaiSoForm} />
                             },
                             {
                                 title: <>Q<sub>{isDHDienTu ? "2" : "t"}</sub></>,
-                                content: <ErrorCaculatorTab d={d ? d : ""} className="" q={{ title: (isDHDienTu) ? "Q2" : "Qt", value: (qt) ? qt.toString() : "" }} tabIndex={2} form={ErrorCaculatorForm} />
+                                content: <TinhSaiSoTab d={d ? d : ""} className="" q={{ title: (isDHDienTu) ? "Q2" : "Qt", value: (qt) ? qt.toString() : "" }} tabIndex={2} form={TinhSaiSoForm} />
                             },
                             {
                                 title: <>Q<sub>{isDHDienTu ? "1" : "min"}</sub></>,
-                                content: <ErrorCaculatorTab d={d ? d : ""} className="" q={{ title: (isDHDienTu) ? "Q1" : "Qmin", value: (qmin) ? qmin.toString() : "" }} tabIndex={3} form={ErrorCaculatorForm} />
+                                content: <TinhSaiSoTab d={d ? d : ""} className="" q={{ title: (isDHDienTu) ? "Q1" : "Qmin", value: (qmin) ? qmin.toString() : "" }} tabIndex={3} form={TinhSaiSoForm} />
                             },
                         ]
                     } />

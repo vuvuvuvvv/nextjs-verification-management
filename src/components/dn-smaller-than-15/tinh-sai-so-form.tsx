@@ -1,12 +1,12 @@
 import { useState } from "react"
 
-import ecf from "@styles/scss/components/error-caculator-form.module.scss"
+import ecf from "@styles/scss/components/tinh-sai-so-form.module.scss"
 
 interface CaculatorFormProps {
     className?: string,
 }
 
-export default function ErrorCaculatorForm({ className }: CaculatorFormProps) {
+export default function TinhSaiSoForm({ className }: CaculatorFormProps) {
     const [firstnum, setFirstNum] = useState(0);
     const [lastNum, setLastNum] = useState(0);
     const [vdhc, setVdhc] = useState(0);

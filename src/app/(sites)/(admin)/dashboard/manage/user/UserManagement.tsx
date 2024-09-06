@@ -261,7 +261,7 @@ export default function UserManagement({ data, className }: UserManagementProps)
                                 Xóa bộ lọc
                             </button>
                             <Link
-                                href={path + "/new-process"}
+                                href={path + "/them-moi"}
                                 className="btn p-2 px-3 bg-main-green text-white"
                             >
                                 Thêm nhóm
@@ -345,7 +345,7 @@ export default function UserManagement({ data, className }: UserManagementProps)
                                                     </button>
                                                     <ul className="dropdown-menu">
                                                         <li>
-                                                            <Link href={path + "/detail/" + item.id} className={`btn w-100`}>
+                                                            <Link href={path + "/chi-tiet/" + item.id} className={`btn w-100`}>
                                                                 Xem chi tiết
                                                             </Link>
                                                         </li>

@@ -12,10 +12,10 @@ import { usePathname } from "next/navigation";
 const routeTitles: { [key: string]: string } = {
     "/": "Trang chủ",
     "/about": "Về chng tôi",
-    "/verification/watermeter/dn-bigger-than-15": "Kiểm định đồng hồ nước - DN > 15 m³/h",
-    "/verification/watermeter/dn-smaller-than-15": "Kiểm định đồng hồ nước - DN < 15 m³/h",
-    "/verification/watermeter/dn-bigger-than-15/new-process": "Thêm mới - DN > 15 m³/h",
-    "/verification/watermeter/dn-smaller-than-15/new-process": "Thêm nhóm - DN < 15 m³/h",
+    "/kiem-dinh/dong-ho-nuoc/dn-bigger-than-15": "Kiểm định đồng hồ nước - DN > 15 m³/h",
+    "/kiem-dinh/dong-ho-nuoc/dn-smaller-than-15": "Kiểm định đồng hồ nước - DN < 15 m³/h",
+    "/kiem-dinh/dong-ho-nuoc/dn-bigger-than-15/them-moi": "Thêm mới - DN > 15 m³/h",
+    "/kiem-dinh/dong-ho-nuoc/dn-smaller-than-15/them-moi": "Thêm nhóm - DN < 15 m³/h",
     "/change/password": "Đổi mật khẩu",
     "/change/email": "Đổi email"
 };

@@ -461,7 +461,7 @@ export default function PDMManagement({ data, className }: PDMManagementProps) {
                                     Xóa bộ lọc
                                 </button>
                                 <Link
-                                    href={path + "/add-new"}
+                                    href={path + "/them-moi"}
                                     className="btn bg-main-green text-white"
                                 >
                                     Thêm mới
@@ -579,7 +579,7 @@ export default function PDMManagement({ data, className }: PDMManagementProps) {
                                                         </button>
                                                         <ul className="dropdown-menu">
                                                             <li>
-                                                                <Link target="blank" href={path + "/detail/" + item.ma_tim_dong_ho_pdm} className={`btn w-100`}>
+                                                                <Link target="blank" href={path + "/chi-tiet/" + item.ma_tim_dong_ho_pdm} className={`btn w-100`}>
                                                                     Xem chi tiết
                                                                 </Link>
                                                             </li>
