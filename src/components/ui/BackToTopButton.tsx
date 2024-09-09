@@ -9,7 +9,7 @@ export default function BackToTopButton() {
 
     useEffect(() => {
         const toggleVisibility = () => {
-            if (window.scrollY > 300) {
+            if (window.scrollY > 250) {
                 setVisible(true);
             } else {
                 setVisible(false);
@@ -51,13 +51,13 @@ export default function BackToTopButton() {
         window.scrollTo({ top: 0, behavior: 'smooth' });
     };
 
-    if(!visible) {
-        return <></>;
-    }
+    // if(!visible) {
+    //     return <></>;
+    // }
 
     return (
         <div
-            className={styles.backToTop}
+            className={`${styles.backToTop} shadow ${!visible ? styles.invisible : ''}`}
             // style={{ top: `${position.top}px`, left: `${position.left}px` }}
             // onMouseDown={handleMouseDown}
             onClick={scrollToTop}

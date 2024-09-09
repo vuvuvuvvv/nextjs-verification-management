@@ -1,7 +1,7 @@
 import { phuongTienDoOptions } from "./system-constant";
 import { TinhSaiSoValue, TinhSaiSoValueTabs } from "./types";
 
-export const getTinhSaiSoValue = (formValue: TinhSaiSoValue) => {
+export const getSaiSoDongHo = (formValue: TinhSaiSoValue) => {
     const VDHCT = formValue.lastNumDHCT - formValue.firstnumDHCT;
     const VDHC = formValue.lastNumDHC - formValue.firstnumDHC;
     if (VDHC !== 0) {
@@ -73,6 +73,18 @@ export const getVToiThieu = (q: string | number, d: string | number) => {
     return Number(Math.max(ll_200d, ll_90s).toFixed(3));
 }
 
-export const isDongHoDatTieuChuan = (formValues: TinhSaiSoValueTabs) => {
+export const getHieuSaiSo = (formValues: TinhSaiSoValueTabs) => {
+    const lan1 = getSaiSoDongHo(formValues[0]);
+    const lan2 = getSaiSoDongHo(formValues[1]);
+    const lan3 = getSaiSoDongHo(formValues[2]);
+
+    return Number((lan1 - lan2 - lan3).toFixed(3));
+}
+
+export const isDongHoDatTieuChuan = (formHSSValues: {hss: number | null}[]) => {
+    const hssQ3_n = formHSSValues[0].hss;
+    const hssQ2_t = formHSSValues[1].hss;
+    const hssQ1_min = formHSSValues[2].hss;
+
     return 0;
 }

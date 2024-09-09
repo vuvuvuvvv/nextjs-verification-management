@@ -122,3 +122,46 @@ export type TinhSaiSoValueTabs = [
     TinhSaiSoValue,
     TinhSaiSoValue
 ]
+
+// Các thông số cho một lần đo 
+export interface formDoSaiSo {
+    V1: number;
+    V2: number;
+    Vdh: number;
+    Tdh: number;
+    Vc1: number;
+    Vc2: number;
+    Vc: number;
+    Tc: number;
+};
+
+// Tại các điểm Q1 2 3 || n t min có thể có nhiều lần đo
+/*
+ * Ex: q3 {
+ *  value: xxx;
+ *  lanChay: {
+ *      1: {
+ *          ...
+ *      },
+ *      2: {
+ *          ....
+ *      },
+ *      ...
+ *  }
+ * }
+*/
+export type formChayDiemLuuLuong = {
+    value: number | null;
+    lanChay: Record<number, formDoSaiSo>;
+};
+
+// Tùy theo loại đồng hồ chia ra chạy q 123 hoặc n t min:
+/**
+ * Ex: dh1 {
+ *  "q3": {
+ *      ...
+ *  },
+ *  ...
+ * }
+ */
+export type formChayDongHo = Record<string, formChayDiemLuuLuong>;

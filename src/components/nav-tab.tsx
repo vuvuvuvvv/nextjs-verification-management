@@ -32,7 +32,7 @@ export default function NavTab({ className, classNameGroupTab, classNameContent,
 
     return (
         <div className={`${nt['wraper']} m-0 p-2 w-100 ${className ? className : ""}`}>
-            <h5 className="mb-3">Lưu lượng:</h5>
+            <h5 className="mb-3">Nhóm lưu lượng:</h5>
             <div className={`m-0 w-100`} id={nt['process-tab']}>
                 <div className={`${nt['group-tab']} ${classNameGroupTab ? classNameGroupTab : ""}`}>
                     {tabContent.map((val, index) => {
@@ -50,10 +50,19 @@ export default function NavTab({ className, classNameGroupTab, classNameContent,
                         return (
                             <div tabIndex={index + 1} key={index + 1} className={`m-0 p-0 ${selectedTab[index + 1] ? nt['show'] : 'd-none'}`}>
                                 {val.content}
+                                <div className="w-100 px-1 py-3 d-flex flex-row-reserve justify-content-between">
+                                    {(0 == index) ? <span></span> : <button className="btn btn-primary" onClick={() => toggleTab(index)}>Prev step ({tabContent[index - 1].title})</button>}
+
+                                    {(tabContent.length - 1 == index) ? <button className="btn btn-primary">Finish</button> : <button type="button" className="btn btn-primary 1" onClick={() => toggleTab(index + 2)}>Next step ({tabContent[index + 1].title})</button>}
+
+                                </div>
                             </div>
                         )
                     })}
                 </div>
+            </div>
+            <div className="w-100">
+                {/* TODO: check success  */}
             </div>
         </div>
     )

@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import ecf from "@styles/scss/components/tinh-sai-so-form.module.scss";
-import { getTinhSaiSoValue } from "@lib/system-function";
+import { getSaiSoDongHo } from "@lib/system-function";
 
 interface CaculatorFormProps {
     className?: string;
@@ -60,7 +60,7 @@ export default function DNBT30TinhSaiSoForm({ className, formValue, onFormChange
     };
 
     useEffect(() => {
-        setErrorNum(getTinhSaiSoValue(formValue).toString() + "%");
+        setErrorNum(getSaiSoDongHo(formValue).toString() + "%");
     }, [formValue.lastNumDHC, formValue.lastNumDHCT, formValue.firstnumDHC, formValue.firstnumDHCT]);
 
     return (

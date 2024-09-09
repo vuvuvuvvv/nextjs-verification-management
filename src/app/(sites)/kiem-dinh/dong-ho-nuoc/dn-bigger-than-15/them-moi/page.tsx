@@ -5,7 +5,6 @@ import TinhSaiSoForm from "@/components/tinh-sai-so-form";
 import vrfWm from "@styles/scss/ui/vfm.module.scss"
 import { useEffect, useRef, useState } from "react";
 
-
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
@@ -59,7 +58,7 @@ export default function NewProcessDNBiggerThan32({ className }: NewProcessDNBigg
 
     const [tenKhachHang, setTenKhachhang] = useState<string>("");
     const [coSoSuDung, setCoSoSuDung] = useState<string>("");                                                                   // Cơ sở sử dụng
-    const [phuongPhapThucHien, setPhuongPhapThucHien] = useState<string>("ĐNVN 17:2023");                                       // Phương pháp thực hiện
+    const [phuongPhapThucHien, setPhuongPhapThucHien] = useState<string>("ĐNVN 17:2017");                                       // Phương pháp thực hiện
     const [chuanThietBiSuDung, setChuanThietBiSuDung] = useState<string>("Đồng hồ chuẩn đo nước và Bình chuẩn");                // Chuẩn, thiết bị chính được sử dụng
     const [implementer, setImplementer] = useState<string>("");                                                                 // Người thực hiện
     const [ngayThucHien, setNgayThucHien] = useState<Date | null>(new Date());                                                  // Ngày thực hiện
@@ -70,7 +69,23 @@ export default function NewProcessDNBiggerThan32({ className }: NewProcessDNBigg
     const [isDHDienTu, setDHDienTu] = useState(false);
 
     const [qt, setQt] = useState<number | null>(null);
-    const [qmin, setQmin] = useState<number | null>(null);                                                                             // Check Đồng hồ điện tử
+    const [qmin, setQmin] = useState<number | null>(null);
+
+    const [formHieuSaiSo, setFormHieuSaiSo] = useState<{ hss: number | null }[]>([
+        { hss: null },
+        { hss: null },
+        { hss: null },
+    ]);
+
+    const handleFormHSSChange = (index: number, value: number) => {
+        const newFormValues = [...formHieuSaiSo];
+        newFormValues[index].hss = value;
+        setFormHieuSaiSo(newFormValues);
+        console.log("HSS: ", formHieuSaiSo);
+    };
+
+
+    // Check Đồng hồ điện tử
 
     const toggleCollapse = () => {
         setIsCollapsed(!isCollapsed);
@@ -230,7 +245,7 @@ export default function NewProcessDNBiggerThan32({ className }: NewProcessDNBigg
 
     return (
         <LocalizationProvider dateAdapter={AdapterDayjs} localeText={viVN.components.MuiLocalizationProvider.defaultProps.localeText}>
-            <div className={`${className ? className : ""} ${vrfWm['wraper']} container p-0 px-2 py-3 w-100`}>
+            <div className={`${className ? className : ""} ${vrfWm['wraper']} container-fluid p-0 px-2 py-3 w-100`}>
                 <div className={`row m-0 mb-3 p-3 w-100 bg-white shadow-sm rounded`}>
                     <div className="w-100 m-0 p-0 mb-3 position-relative">
                         <h3 className="text-uppercase fw-bolder text-center mt-3 mb-0">thông tin đồng hồ</h3>
@@ -337,7 +352,7 @@ export default function NewProcessDNBiggerThan32({ className }: NewProcessDNBigg
                                     />
                                 </div>
 
-                                {/* TODO */}
+                                {/* TODO: Số? */}
                                 {/* <div className="mb-3 col-12 col-md-6">
                                     <label htmlFor="deviceNumber" className="form-label">Số:</label>
                                     <input
@@ -608,15 +623,30 @@ export default function NewProcessDNBiggerThan32({ className }: NewProcessDNBigg
                         [
                             {
                                 title: <>Q<sub>{isDHDienTu ? "3" : "n"}</sub></>,
-                                content: <TinhSaiSoTab d={d ? d : ""} q={{ title: (isDHDienTu) ? "Q3" : "Qn", value: (q3) ? q3 : ((qn) ? qn : "") }} className="" tabIndex={1} form={TinhSaiSoForm} />
+                                content: <TinhSaiSoTab
+                                    onFormHSSChange={(value: number) => handleFormHSSChange(0, value)}
+                                    d={d ? d : ""} q={{
+                                        title: (isDHDienTu) ? "Q3" : "Qn",
+                                        value: (q3) ? q3 : ((qn) ? qn : "")
+                                    }} className="" tabIndex={1} form={TinhSaiSoForm} />
                             },
                             {
                                 title: <>Q<sub>{isDHDienTu ? "2" : "t"}</sub></>,
-                                content: <TinhSaiSoTab d={d ? d : ""} className="" q={{ title: (isDHDienTu) ? "Q2" : "Qt", value: (qt) ? qt.toString() : "" }} tabIndex={2} form={TinhSaiSoForm} />
+                                content: <TinhSaiSoTab
+                                    onFormHSSChange={(value: number) => handleFormHSSChange(1, value)}
+                                    d={d ? d : ""} q={{
+                                        title: (isDHDienTu) ? "Q2" : "Qt",
+                                        value: (qt) ? qt.toString() : ""
+                                    }} tabIndex={2} form={TinhSaiSoForm} />
                             },
                             {
                                 title: <>Q<sub>{isDHDienTu ? "1" : "min"}</sub></>,
-                                content: <TinhSaiSoTab d={d ? d : ""} className="" q={{ title: (isDHDienTu) ? "Q1" : "Qmin", value: (qmin) ? qmin.toString() : "" }} tabIndex={3} form={TinhSaiSoForm} />
+                                content: <TinhSaiSoTab
+                                    onFormHSSChange={(value: number) => handleFormHSSChange(2, value)}
+                                    d={d ? d : ""} q={{
+                                        title: (isDHDienTu) ? "Q1" : "Qmin",
+                                        value: (qmin) ? qmin.toString() : ""
+                                    }} tabIndex={3} form={TinhSaiSoForm} />
                             },
                         ]
                     } />

@@ -14,13 +14,17 @@
     cursor: pointer;
     z-index: 999;
     user-select: none;
-    transition: opacity 0.3s ease-in-out;
+    transition: all 0.3s ease-in-out;
 
 
     bottom: calc($footer_height + 10px);
     right: 10px;
 
     &:hover {
-        background-color: #2980b9;
+        background-color: $dark_blue;
     }
+}
+
+.invisible {
+    right: -100% !important;
 }
