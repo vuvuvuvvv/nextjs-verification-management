@@ -50,10 +50,10 @@ export default function NavTab({ className, classNameGroupTab, classNameContent,
                         return (
                             <div tabIndex={index + 1} key={index + 1} className={`m-0 p-0 ${selectedTab[index + 1] ? nt['show'] : 'd-none'}`}>
                                 {val.content}
-                                <div className="w-100 px-1 py-3 d-flex flex-row-reserve justify-content-between">
-                                    {(0 == index) ? <span></span> : <button className="btn btn-primary" onClick={() => toggleTab(index)}>Prev step ({tabContent[index - 1].title})</button>}
+                                <div className="w-100 px-1 py-3 d-flex justify-content-between">
+                                    {(0 == index) ? <span></span> : <button className="btn px-3 py-2 btn-primary" onClick={() => toggleTab(index)}>Prev step ({tabContent[index - 1].title})</button>}
 
-                                    {(tabContent.length - 1 == index) ? <button className="btn btn-primary">Finish</button> : <button type="button" className="btn btn-primary 1" onClick={() => toggleTab(index + 2)}>Next step ({tabContent[index + 1].title})</button>}
+                                    {(tabContent.length - 1 == index) ? <button className="btn px-3 py-2 btn-primary">Kết thúc</button> : <button type="button" className="btn px-3 py-2 btn-primary 1" onClick={() => toggleTab(index + 2)}>Tiếp ({tabContent[index + 1].title})</button>}
 
                                 </div>
                             </div>

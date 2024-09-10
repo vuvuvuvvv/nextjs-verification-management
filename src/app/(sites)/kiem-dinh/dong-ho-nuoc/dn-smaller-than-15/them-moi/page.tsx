@@ -346,7 +346,7 @@ export default function NewProcessDNSmallerThan32({ className }: NewProcessDNSma
 
                 <div className={`m-0 mb-3 p-0w-100`}>
                     <h4>Quy trình:</h4>
-                    <NavTab tabContent={
+                    {/* <NavTab tabContent={
                         [
                             {
                                 title: <>Q<sub>3</sub> (Q<sub>max</sub>)</>,
@@ -361,7 +361,7 @@ export default function NewProcessDNSmallerThan32({ className }: NewProcessDNSma
                                 content: <TinhSaiSoTab className="bg-white shadow-sm rounded" tabIndex={3} form={TinhSaiSoForm} />
                             },
                         ]
-                    } />
+                    } /> */}
 
                 </div>
             </div>

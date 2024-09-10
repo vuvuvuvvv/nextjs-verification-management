@@ -1,9 +1,10 @@
 "use client";
 
+import { useKiemDinh } from "@/context/kiem-dinh";
 import { faCaretDown } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { getHieuSaiSo, getVToiThieu } from "@lib/system-function";
-import { TinhSaiSoValue, TinhSaiSoValueTabs } from "@lib/types";
+import { DuLieuMotLanChay, DuLieuCacLanChay, TinhSaiSoValueTabs } from "@lib/types";
 import c_ect from "@styles/scss/components/tinh-sai-so-tab.module.scss";
 import { useEffect, useState } from "react";
 
@@ -25,41 +26,36 @@ interface TabFormState {
 
 interface FormProps {
     className?: string;
-    formValue: TinhSaiSoValue;
+    formValue: DuLieuMotLanChay;
     onFormChange: (field: string, value: number) => void;
     d?: string;
 }
 
 export default function TinhSaiSoTab({ className, tabIndex, d, q, form, onFormHSSChange}: TinhSaiSoTabProps) {
+
+    const {duLieuLanChay} = useKiemDinh();
+
     if (!tabIndex || tabIndex <= 0) {
         return <></>;
     }
 
-    const initialTabFormState: TabFormState = {
-        [1 * tabIndex]: true,
-        [2 * tabIndex]: false,
-        [3 * tabIndex]: false,
-    };
+    const initialTabFormState: TabFormState = Object.keys(duLieuLanChay).reduce((prevTabState, key, index) => {
+        prevTabState[Number(key) * tabIndex] = index === 0;
+        return prevTabState;
+    }, {} as TabFormState);
 
     const [selectedTabForm, setSelectedTabForm] = useState<TabFormState>(initialTabFormState);
 
-    const [formValues, setFormValues] = useState<TinhSaiSoValue[]>([
-        { firstnumDHCT: 0, lastNumDHCT: 0, firstnumDHC: 0, lastNumDHC: 0 },
-        { firstnumDHCT: 0, lastNumDHCT: 0, firstnumDHC: 0, lastNumDHC: 0 },
-        { firstnumDHCT: 0, lastNumDHCT: 0, firstnumDHC: 0, lastNumDHC: 0 },
-    ]);
-
-    const allValuesNonZero = formValues.every(formValue =>
-        Object.values(formValue).every(value => value !== 0)
-    );
+    const [formValues, setFormValues] = useState<DuLieuCacLanChay>(duLieuLanChay);
 
     const toggleTabForm = (tab: number) => {
         tab *= tabIndex;
         if (!selectedTabForm[tab]) {
             setSelectedTabForm({
-                [1 * tabIndex]: false,
-                [2 * tabIndex]: false,
-                [3 * tabIndex]: false,
+                ...Object.keys(selectedTabForm).reduce((prevTabState, key) => {
+                    prevTabState[Number(key)] = false;
+                    return prevTabState;
+                }, {} as TabFormState),
                 [tab]: true,
             });
         }
@@ -69,14 +65,15 @@ export default function TinhSaiSoTab({ className, tabIndex, d, q, form, onFormHS
     //     onFormHSSChange(getHieuSaiSo(formValues as TinhSaiSoValueTabs))
     // }, [formValues]);
 
-    const handleFormChange = (index: number, field: keyof TinhSaiSoValue, value: number) => {
-        const newFormValues = [...formValues];
+    const handleFormChange = (index: number, field: keyof DuLieuMotLanChay, value: number) => {
+        const newFormValues = {...formValues};
         newFormValues[index][field] = value;
-        if (field === "lastNumDHCT" && index < formValues.length - 1) {
-            newFormValues[index + 1].firstnumDHCT = value;
+        if (field === "V2" && index < Object.entries(formValues).length - 1) {
+            newFormValues[index + 1].V1 = value;
         }
         setFormValues(newFormValues);
         onFormHSSChange(getHieuSaiSo(formValues as TinhSaiSoValueTabs))
+        console.log("dllc: ", duLieuLanChay);
     };
 
     const Form = form;
@@ -120,29 +117,33 @@ export default function TinhSaiSoTab({ className, tabIndex, d, q, form, onFormHS
                 </div>
             </div>
             <h5 className="p-2">Lần thực hiện:</h5>
-            {[1, 2, 3].map((i) => (
-                <div key={i} className={`col-12 col-xxl-4 px-1 pt-2 ${c_ect["tab-form"]}`}>
-                    <div className={`${c_ect["wrap-form"]} rounded w-100`}>
-                        <label className={`w-100 ${c_ect["tab-radio"]} ${selectedTabForm[i * tabIndex] ? c_ect["active"] : ""}`}>
-                            <h5 className="m-0">Lần {i}</h5>
-                            <input type="radio" name={`process-tab-${tabIndex}`} className="d-none" checked={selectedTabForm[(i * tabIndex)]} onChange={() => toggleTabForm(i)} />
-                            <FontAwesomeIcon icon={faCaretDown} className="d-xxl-none" />
-                        </label>
-                        {!selectedTabForm[i * tabIndex] && (
-                            <div
-                                className={`w-100 d-none rounded d-xxl-block ${c_ect["tab-cover"]} ${!selectedTabForm[i * tabIndex] ? c_ect["fade"] : c_ect["show"]}`}
-                                onClick={() => toggleTabForm(i)}
-                            ></div>
-                        )}
-                        <Form
-                            className={`w-100 ${!selectedTabForm[i * tabIndex] ? "d-none d-xxl-block" : ""}`}
-                            formValue={formValues[i - 1]}
-                            onFormChange={(field: string, value: number) => handleFormChange(i - 1, field as keyof TinhSaiSoValue, value)}
-                            d={d}
-                        />
+            {Object.entries(formValues).map(([key, formVal], index) => {
+                // console.log(`Key: ${key}, Value:`, formVal); // Console log key và value
+
+                return (
+                    <div key={index * tabIndex} className={`col-12 col-xxl-4 px-1 pt-2 ${c_ect["tab-form"]}`}>
+                        <div className={`${c_ect["wrap-form"]} rounded w-100`}>
+                            <label className={`w-100 ${c_ect["tab-radio"]} ${selectedTabForm[Number(key) * tabIndex] ? c_ect["active"] : ""}`}>
+                                <h5 className="m-0">Lần {key}</h5>
+                                <input type="radio" name={`process-tab-${key}-${tabIndex}`} className="d-none" checked={selectedTabForm[Number(key) * tabIndex]} onChange={() => toggleTabForm(Number(key) * tabIndex)} />
+                                <FontAwesomeIcon icon={faCaretDown} className="d-xxl-none" />
+                            </label>
+                            {!selectedTabForm[Number(key) * tabIndex] && (
+                                <div
+                                    className={`w-100 d-none rounded d-xxl-block ${c_ect["tab-cover"]} ${!selectedTabForm[Number(key) * tabIndex] ? c_ect["fade"] : c_ect["show"]}`}
+                                    onClick={() => toggleTabForm(Number(key) * tabIndex)}
+                                ></div>
+                            )}
+                            <Form
+                                className={`w-100 ${!selectedTabForm[Number(key) * tabIndex] ? "d-none d-xxl-block" : ""}`}
+                                formValue={formVal}
+                                onFormChange={(field: string, value: number) => handleFormChange(Number(key), field as keyof DuLieuMotLanChay, value)}
+                                d={d}
+                            />
+                        </div>
                     </div>
-                </div>
-            ))}
+                )
+            })}
             {/* HSS  */}
         </div>
     );

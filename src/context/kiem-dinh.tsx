@@ -1,96 +1,79 @@
+import { DuLieuChayDongHo, DuLieuChayDiemLuuLuong, DuLieuCacLanChay } from '@lib/types';
 import React, { createContext, useState, useContext, ReactNode } from 'react';
 
-interface DongHo {
-    seriNumber: string;
-    phuongTienDo: string;
-    seriChiThi: string;
-    seriSensor: string;
-    kieuChiThi: string;
-    kieuSensor: string;
-    kieuThietBi: string;
-    soTem: string;
-    coSoSanXuat: string;
-    namSanXuat: Date | null;
-    dn: string;
-    d: string;
-    ccx: string | null;
-    q3: string;
-    r: string;
-    qn: string;
-    kFactor: string;
-    so_qd_pdm: string;
-    tenKhachHang: string;
-    coSoSuDung: string;
-    phuongPhapThucHien: string;
-    chuanThietBiSuDung: string;
-    implementer: string;
-    ngayThucHien: Date | null;
-    viTri: string;
-    nhietDo: string;
-    doAm: string;
-    isDHDienTu: boolean;
-    qt: number | null;
-    qmin: number | null;
-    formHieuSaiSo: { hss: number | null }[];
+interface KiemDinhContextType {
+    kiemDinhList: DuLieuChayDongHo;
+    setKiemDinh: (tenLuuLuong: string, data: DuLieuChayDiemLuuLuong) => void;
+    removeKiemDinh: (id: string) => void;
+    duLieuLanChay: DuLieuCacLanChay;
+    setDuLieuCacLanChay: (data: DuLieuCacLanChay) => void;
+    themLanChay: () => void;
+    xoaLanChay: (id: number) => void;
+    resetLanChay: () => void;
 }
 
-interface DongHoContextType {
-    dongHo: DongHo;
-    setDongHo: React.Dispatch<React.SetStateAction<DongHo>>;
-}
+const KiemDinhContext = createContext<KiemDinhContextType | undefined>(undefined);
 
-const DongHoContext = createContext<DongHoContextType | undefined>(undefined);
+export const KiemDinhProvider = ({ children }: { children: ReactNode }) => {
+    const [kiemDinhList, setKiemDinhList] = useState<DuLieuChayDongHo>({});
 
-export const DongHoProvider = ({ children }: { children: ReactNode }) => {
-    const [dongHo, setDongHo] = useState<DongHo>({
-        seriNumber: "",
-        phuongTienDo: "",
-        seriChiThi: "",
-        seriSensor: "",
-        kieuChiThi: "",
-        kieuSensor: "",
-        kieuThietBi: "",
-        soTem: "",
-        coSoSanXuat: "",
-        namSanXuat: null,
-        dn: "",
-        d: "",
-        ccx: null,
-        q3: "",
-        r: "",
-        qn: "",
-        kFactor: "",
-        so_qd_pdm: "",
-        tenKhachHang: "",
-        coSoSuDung: "",
-        phuongPhapThucHien: "ĐNVN 17:2017",
-        chuanThietBiSuDung: "Đồng hồ chuẩn đo nước và Bình chuẩn",
-        implementer: "",
-        ngayThucHien: new Date(),
-        viTri: "",
-        nhietDo: "",
-        doAm: "",
-        isDHDienTu: false,
-        qt: null,
-        qmin: null,
-        formHieuSaiSo: [
-            { hss: null },
-            { hss: null },
-            { hss: null },
-        ],
+    const setKiemDinh = (tenLuuLuong: string, data: DuLieuChayDiemLuuLuong) => {
+        setKiemDinhList(prevState => ({
+            ...prevState,
+            [tenLuuLuong]: data,
+        }));
+    };
+
+    const removeKiemDinh = (id: string) => {
+        setKiemDinhList(prevState => {
+            const newState = { ...prevState };
+            delete newState[id];
+            return newState;
+        });
+    };
+
+    // Tối thiểu 3 lần chạy
+    const [duLieuLanChay, setDuLieuCacLanChay] = useState<DuLieuCacLanChay>({
+        1: { V1: 0, V2: 0, Vc1: 0, Vc2: 0, Tdh: 0, Tc: 0 },
+        2: { V1: 0, V2: 0, Vc1: 0, Vc2: 0, Tdh: 0, Tc: 0 },
+        3: { V1: 0, V2: 0, Vc1: 0, Vc2: 0, Tdh: 0, Tc: 0 }
     });
 
+    const themLanChay = () => {
+        setDuLieuCacLanChay(prev => ({
+            ...prev,
+            // Lấy ra key ở cuối + 1
+            [Object.keys(duLieuLanChay)[Object.keys(duLieuLanChay).length - 1] + 1]: { V1: 0, V2: 0, Vc1: 0, Vc2: 0, Tdh: 0, Tc: 0 }
+        }))
+    };
+
+    const xoaLanChay = (id: number) => {
+        setDuLieuCacLanChay(prev => {
+            const newState = { ...prev };
+            delete newState[id];
+            return newState;
+        });
+    };
+
+    const resetLanChay = () => {
+        setDuLieuCacLanChay({
+            1: { V1: 0, V2: 0, Vc1: 0, Vc2: 0, Tdh: 0, Tc: 0 },
+            2: { V1: 0, V2: 0, Vc1: 0, Vc2: 0, Tdh: 0, Tc: 0 },
+            3: { V1: 0, V2: 0, Vc1: 0, Vc2: 0, Tdh: 0, Tc: 0 }
+        })
+    };
+
     return (
-        <DongHoContext.Provider value={{ dongHo, setDongHo }}>
+        <KiemDinhContext.Provider value={{ kiemDinhList, removeKiemDinh, setKiemDinh, duLieuLanChay, setDuLieuCacLanChay, themLanChay, xoaLanChay, resetLanChay }}>
             {children}
-        </DongHoContext.Provider>
+        </KiemDinhContext.Provider>
     );
 };
 
-export const useDongHo = () => {
-    const context = useContext(DongHoContext);
+export const useKiemDinh = () => {
+    const context = useContext(KiemDinhContext);
     if (context === undefined) {
-        throw new Error('useDongHo must be used within a DongHoProvider');
+        throw new Error('useKiemDinh must be used within a KiemDinhProvider');
     }
     return context;
 };

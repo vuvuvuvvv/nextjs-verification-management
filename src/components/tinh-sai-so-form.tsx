@@ -5,19 +5,23 @@ import { getSaiSoDongHo } from "@lib/system-function";
 interface CaculatorFormProps {
     className?: string;
     formValue: {
-        firstnumDHCT: number;
-        lastNumDHCT: number;
-        firstnumDHC: number;
-        lastNumDHC: number;
+        V1: number;
+        V2: number;
+        Tdh: number;
+        Vc1: number;
+        Vc2: number;
+        Tc: number;
     };
     onFormChange: (field: string, value: number) => void;
     d?: string;
 }
 
 export default function DNBT30TinhSaiSoForm({ className, formValue, onFormChange, d }: CaculatorFormProps) {
-    const [firstnumDHC, setFirstNumDHC] = useState<string>("0");
-    const [lastNumDHC, setLastNumDHC] = useState<string>("0");
-    const [errorNum, setErrorNum] = useState<string>("0%");
+    const [Vc1, setVc1] = useState<string>("0");
+    const [Vc2, setVc2] = useState<string>("0");
+    const [Tdh, setTdh] = useState<string>("0");
+    const [Tc, setTc] = useState<string>("0");
+    const [saiSo, setSaiSo] = useState<string>("0%");
 
     const getDecimalPlaces = (d: string) => {
         const parts = d.split(".");
@@ -51,17 +55,21 @@ export default function DNBT30TinhSaiSoForm({ className, formValue, onFormChange
     };
 
     const handleReset = () => {
-        onFormChange("firstnumDHCT", 0);
-        onFormChange("lastNumDHCT", 0);
-        onFormChange("firstnumDHC", 0);
-        onFormChange("lastNumDHC", 0);
-        setFirstNumDHC("0");
-        setLastNumDHC("0");
+        onFormChange("V1", 0);
+        onFormChange("V2", 0);
+        onFormChange("Vc1", 0);
+        onFormChange("Vc2", 0);
+        onFormChange("Tdh", 0);
+        onFormChange("Tc", 0);
+        setVc1("0");
+        setVc2("0");
+        setTdh("0");
+        setTc("0");
     };
 
     useEffect(() => {
-        setErrorNum(getSaiSoDongHo(formValue).toString() + "%");
-    }, [formValue.lastNumDHC, formValue.lastNumDHCT, formValue.firstnumDHC, formValue.firstnumDHCT]);
+        setSaiSo(getSaiSoDongHo(formValue).toString() + "%");
+    }, [formValue.Vc2, formValue.V2, formValue.Vc1, formValue.V1]);
 
     return (
         <div className={`${className ? className : ""}`}>
@@ -74,9 +82,8 @@ export default function DNBT30TinhSaiSoForm({ className, formValue, onFormChange
                             type="text"
                             className="form-control"
                             id="firstNum"
-                            placeholder={`Nhập số đầu (0.${'0'.repeat(decimalPlaces)})`}
-                            value={formValue.firstnumDHCT.toFixed(decimalPlaces)}
-                            onChange={(e) => handleNumericInput(e, "firstnumDHCT")}
+                            value={formValue.V1.toFixed(decimalPlaces)}
+                            onChange={(e) => handleNumericInput(e, "V1")}
                             autoComplete="off"
                         />
                     </div>
@@ -87,9 +94,20 @@ export default function DNBT30TinhSaiSoForm({ className, formValue, onFormChange
                             type="text"
                             className="form-control"
                             id="lastNum"
-                            placeholder={`Nhập số cuối (0.${'0'.repeat(decimalPlaces)})`}
-                            value={formValue.lastNumDHCT.toFixed(decimalPlaces)}
-                            onChange={(e) => handleNumericInput(e, "lastNumDHCT")}
+                            value={formValue.V2.toFixed(decimalPlaces)}
+                            onChange={(e) => handleNumericInput(e, "V2")}
+                            autoComplete="off"
+                        />
+                    </div>
+
+                    <div className={`mb-3 ${ecf["box-input-form"]}`}>
+                        <label htmlFor="tdh" className="form-label">Nhiệt độ (℃)</label>
+                        <input
+                            type="text"
+                            className="form-control"
+                            id="tdh"
+                            value={formValue.Tdh.toFixed(decimalPlaces)}
+                            onChange={(e) => handleNumericInput(e, "Tdh")}
                             autoComplete="off"
                         />
                     </div>
@@ -104,8 +122,8 @@ export default function DNBT30TinhSaiSoForm({ className, formValue, onFormChange
                             className="form-control"
                             id="firstNum"
                             placeholder={`Nhập số đầu (0.${'0'.repeat(decimalPlaces)})`}
-                            value={firstnumDHC}
-                            onChange={handleNumberChange(setFirstNumDHC, "firstnumDHC")}
+                            value={Vc1}
+                            onChange={handleNumberChange(setVc1, "Vc1")}
                             autoComplete="off"
                         />
                     </div>
@@ -116,8 +134,20 @@ export default function DNBT30TinhSaiSoForm({ className, formValue, onFormChange
                             className="form-control"
                             id="lastNum"
                             placeholder={`Nhập số cuối (0.${'0'.repeat(decimalPlaces)})`}
-                            value={lastNumDHC}
-                            onChange={handleNumberChange(setLastNumDHC, "lastNumDHC")}
+                            value={Vc2}
+                            onChange={handleNumberChange(setVc2, "Vc2")}
+                            autoComplete="off"
+                        />
+                    </div>
+
+                    <div className={`mb-3 ${ecf["box-input-form"]}`}>
+                        <label htmlFor="tc" className="form-label">Nhiệt độ (℃)</label>
+                        <input
+                            type="text"
+                            className="form-control"
+                            id="tc"
+                            value={formValue.Tc.toFixed(decimalPlaces)}
+                            onChange={(e) => handleNumericInput(e, "Tc")}
                             autoComplete="off"
                         />
                     </div>
@@ -127,11 +157,11 @@ export default function DNBT30TinhSaiSoForm({ className, formValue, onFormChange
                 <div className="mb-3 w-100">
                     <div className={`${ecf["box-input-form"]}`}>
                         <h5 className="mb-2">Sai số:</h5>
-                        <input type="text" className="form-control p-3" id={ecf["errNum"]} value={errorNum} disabled readOnly />
+                        <input type="text" className="form-control p-3" id={ecf["errNum"]} value={saiSo} disabled readOnly />
                     </div>
                 </div>
                 <div className={`${ecf["box-button"]}`}>
-                    <button type="button" className={`w-100 btn py-2 btn-success ${ecf["btn-save"]}`} disabled={errorNum === "0%"}>
+                    <button type="button" className={`w-100 btn py-2 btn-success ${ecf["btn-save"]}`} disabled={saiSo === "0%"}>
                         Lưu kết quả
                     </button>
                     <button type="reset" onClick={handleReset} className="btn py-2 btn-secondary">

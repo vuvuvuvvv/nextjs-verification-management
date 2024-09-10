@@ -20,6 +20,7 @@ import Select, { GroupBase } from 'react-select';
 import { useUser } from "@/context/app-context";
 import { getQtAndQmin } from "@lib/system-function";
 import Link from "next/link";
+import { KiemDinhProvider } from "@/context/kiem-dinh";
 
 interface NewProcessDNBiggerThan32Props {
     className?: string,
@@ -81,12 +82,10 @@ export default function NewProcessDNBiggerThan32({ className }: NewProcessDNBigg
         const newFormValues = [...formHieuSaiSo];
         newFormValues[index].hss = value;
         setFormHieuSaiSo(newFormValues);
-        console.log("HSS: ", formHieuSaiSo);
+        // console.log("HSS: ", formHieuSaiSo);
     };
 
-
     // Check Đồng hồ điện tử
-
     const toggleCollapse = () => {
         setIsCollapsed(!isCollapsed);
     };
@@ -134,7 +133,7 @@ export default function NewProcessDNBiggerThan32({ className }: NewProcessDNBigg
         // Check có phải đồng hồ đtu hay không : value: "1"
         if ((ccx && (ccx == "1" || ccx == "2")) || isDHDienTu) {
             return <>
-                <div className="mb-3 col-12 col-md-6">
+                <div className="mb-3 col-12 col-md-6 col-xxl-4">
                     <label htmlFor="q3" className="form-label">- Q<sub>3</sub>:</label>
                     <div className="input-group">
                         <input
@@ -149,7 +148,7 @@ export default function NewProcessDNBiggerThan32({ className }: NewProcessDNBigg
                         <span className="input-group-text">m<sup>3</sup>/h</span>
                     </div>
                 </div>
-                <div className="mb-3 col-12 col-md-6">
+                <div className="mb-3 col-12 col-md-6 col-xxl-4">
                     <label htmlFor="r" className="form-label">- Tỷ số Q<sub>3</sub>/Q<sub>1</sub> (R):</label>
                     <input
                         type="text"
@@ -162,7 +161,7 @@ export default function NewProcessDNBiggerThan32({ className }: NewProcessDNBigg
                     />
                 </div>
 
-                <div className="mb-3 col-12 col-md-6">
+                <div className="mb-3 col-12 col-md-6 col-xxl-4">
                     <label htmlFor="seriChiThi" className="form-label">Serial chỉ thị:</label>
                     <div className="input-group">
                         <input
@@ -175,7 +174,7 @@ export default function NewProcessDNBiggerThan32({ className }: NewProcessDNBigg
                         />
                     </div>
                 </div>
-                <div className="mb-3 col-12 col-md-6">
+                <div className="mb-3 col-12 col-md-6 col-xxl-4">
                     <label htmlFor="kieuChiThi" className="form-label">Kiểu chỉ thị:</label>
                     <div className="input-group">
                         <input
@@ -188,7 +187,7 @@ export default function NewProcessDNBiggerThan32({ className }: NewProcessDNBigg
                         />
                     </div>
                 </div>
-                <div className="mb-3 col-12 col-md-6">
+                <div className="mb-3 col-12 col-md-6 col-xxl-4">
                     <label htmlFor="seriSensor" className="form-label">Serial sensor:</label>
                     <input
                         type="text"
@@ -199,7 +198,7 @@ export default function NewProcessDNBiggerThan32({ className }: NewProcessDNBigg
                         onChange={(e) => setSeriSensor(e.target.value)}
                     />
                 </div>
-                <div className="mb-3 col-12 col-md-6">
+                <div className="mb-3 col-12 col-md-6 col-xxl-4">
                     <label htmlFor="kieuSensor" className="form-label">Kiểu sensor:</label>
                     <input
                         type="text"
@@ -214,7 +213,7 @@ export default function NewProcessDNBiggerThan32({ className }: NewProcessDNBigg
         }
 
         return <>
-            <div className="mb-3 col-12 col-md-6">
+            <div className="mb-3 col-12 col-md-6 col-xxl-4">
                 <label htmlFor="qn" className="form-label">- Q<sub>n</sub>:</label>
                 <div className="input-group">
                     <input
@@ -229,7 +228,7 @@ export default function NewProcessDNBiggerThan32({ className }: NewProcessDNBigg
                     <span className="input-group-text">m<sup>3</sup>/h</span>
                 </div>
             </div>
-            <div className="mb-3 col-12 col-md-6">
+            <div className="mb-3 col-12 col-md-6 col-xxl-4">
                 <label htmlFor="kieuSensor" className="form-label">Kiểu sensor:</label>
                 <input
                     type="text"
@@ -352,19 +351,6 @@ export default function NewProcessDNBiggerThan32({ className }: NewProcessDNBigg
                                     />
                                 </div>
 
-                                {/* TODO: Số? */}
-                                {/* <div className="mb-3 col-12 col-md-6">
-                                    <label htmlFor="deviceNumber" className="form-label">Số:</label>
-                                    <input
-                                        type="text"
-                                        className="form-control"
-                                        id="deviceNumber"
-                                        placeholder="Số"
-                                        value={deviceNumber}
-                                        onChange={handleNumberChange(setSoTem)}
-                                    />
-                                </div> */}
-
                                 <div className="mb-3 col-12 col-md-6">
                                     <label htmlFor="coSoSanXuat" className="form-label">Cơ sở sản xuất:</label>
                                     <input
@@ -399,7 +385,7 @@ export default function NewProcessDNBiggerThan32({ className }: NewProcessDNBigg
                             </div>
                             <label className="w-100 fs-5 fw-bold">Đặc trưng kỹ thuật:</label>
                             <div className="row mx-0 w-100 mb-3">
-                                <div className="mb-3 col-12 col-md-6">
+                                <div className="mb-3 col-12 col-md-6 col-xxl-4">
                                     <label htmlFor="dn" className="form-label">- Đường kính danh định (DN):</label>
                                     <div className="input-group">
                                         <input
@@ -414,7 +400,7 @@ export default function NewProcessDNBiggerThan32({ className }: NewProcessDNBigg
                                         <span className="input-group-text">mm</span>
                                     </div>
                                 </div>
-                                <div className="mb-3 col-12 col-md-6">
+                                <div className="mb-3 col-12 col-md-6 col-xxl-4">
                                     <label htmlFor="dn" className="form-label">- Độ chia nhỏ nhất (d):</label>
                                     <input
                                         type="text"
@@ -426,7 +412,7 @@ export default function NewProcessDNBiggerThan32({ className }: NewProcessDNBigg
                                         pattern="\d*"
                                     />
                                 </div>
-                                <div className="mb-3 col-12 col-md-6">
+                                <div className="mb-3 col-12 col-md-6 col-xxl-4">
                                     <label htmlFor="ccx" className="form-label">- Cấp chính xác:</label>
                                     <Select
                                         name="ccx"
@@ -467,7 +453,7 @@ export default function NewProcessDNBiggerThan32({ className }: NewProcessDNBigg
                                 {renderccxFields()}
 
 
-                                <div className="mb-3 col-12 col-md-6">
+                                <div className="mb-3 col-12 col-md-6 col-xxl-4">
                                     <label htmlFor="kFactor" className="form-label">- Hệ số K-factor :</label>
                                     <input
                                         type="text"
@@ -478,7 +464,7 @@ export default function NewProcessDNBiggerThan32({ className }: NewProcessDNBigg
                                         onChange={handleNumberChange(setKFactor)}
                                     />
                                 </div>
-                                <div className="mb-3 col-12 col-md-6">
+                                <div className="mb-3 col-12 col-md-6 col-xxl-4">
                                     <label htmlFor="so_qd_pdm" className="form-label">- Ký hiệu PDM/Số quyết định PDM:</label>
                                     <input
                                         type="text"
@@ -489,7 +475,7 @@ export default function NewProcessDNBiggerThan32({ className }: NewProcessDNBigg
                                         onChange={(e) => setSoQDPDM(e.target.value)}
                                     />
                                 </div>
-                                <div className="mb-3 col-12 col-md-6 d-flex align-items-end py-1">
+                                <div className="mb-3 col-12 col-md-6 col-xxl-4 d-flex align-items-end py-1">
                                     <Link
                                         href={"/kiem-dinh/pdm//them-moi"}
                                         className="btn bg-main-green text-white"
@@ -522,17 +508,6 @@ export default function NewProcessDNBiggerThan32({ className }: NewProcessDNBigg
                                         onChange={(e) => setCoSoSuDung(e.target.value)}
                                     />
                                 </div>
-                                <div className="mb-3 col-12 col-xxl-6">
-                                    <label htmlFor="phuongPhapThucHien" className="form-label">Phương pháp thực hiện:</label>
-                                    <input
-                                        type="text"
-                                        className="form-control"
-                                        id="phuongPhapThucHien"
-                                        placeholder="Phương pháp thực hiện"
-                                        value={phuongPhapThucHien}
-                                        onChange={(e) => setPhuongPhapThucHien(e.target.value)}
-                                    />
-                                </div>
                                 <div className="mb-3 col-12 col-xl-6">
                                     <label htmlFor="chuanThietBiSuDung" className="form-label">Chuẩn, thiết bị chính được sử dụng:</label>
                                     <input
@@ -542,28 +517,6 @@ export default function NewProcessDNBiggerThan32({ className }: NewProcessDNBigg
                                         placeholder="Chuẩn, thiết bị chính được sử dụng"
                                         value={chuanThietBiSuDung}
                                         onChange={(e) => setChuanThietBiSuDung(e.target.value)}
-                                    />
-                                </div>
-                                <div className="mb-3 col-12 col-md-6">
-                                    <label htmlFor="implementer" className="form-label">Người thực hiện:</label>
-                                    <input
-                                        type="text"
-                                        className="form-control"
-                                        id="implementer"
-                                        placeholder="Người thực hiện"
-                                        value={user?.fullname || implementer}
-                                        onChange={(e) => setImplementer(e.target.value)}
-                                    />
-                                </div>
-                                <div className="mb-3 col-12 col-md-6">
-                                    <label htmlFor="ngayThucHien" className="form-label">Ngày thực hiện:</label>
-                                    <DatePicker
-                                        className={`${vrfWm['date-picker']}`}
-                                        value={dayjs(ngayThucHien)}
-                                        format="DD-MM-YYYY"
-                                        maxDate={dayjs().endOf('day')}
-                                        onChange={(newValue: Dayjs | null) => setNgayThucHien(newValue ? newValue.toDate() : null)}
-                                        slotProps={{ textField: { fullWidth: true } }}
                                     />
                                 </div>
                                 <div className="mb-3 col-12 col-xl-6">
@@ -577,7 +530,40 @@ export default function NewProcessDNBiggerThan32({ className }: NewProcessDNBigg
                                         onChange={(e) => setViTri(e.target.value)}
                                     />
                                 </div>
-                                <div className="mb-3 col-12 col-md-6">
+                                <div className="mb-3 col-12 col-md-6 col-xxl-4">
+                                    <label htmlFor="implementer" className="form-label">Người thực hiện:</label>
+                                    <input
+                                        type="text"
+                                        className="form-control"
+                                        id="implementer"
+                                        placeholder="Người thực hiện"
+                                        value={user?.fullname || implementer}
+                                        onChange={(e) => setImplementer(e.target.value)}
+                                    />
+                                </div>
+                                <div className="mb-3 col-12 col-md-6 col-xxl-4">
+                                    <label htmlFor="ngayThucHien" className="form-label">Ngày thực hiện:</label>
+                                    <DatePicker
+                                        className={`${vrfWm['date-picker']}`}
+                                        value={dayjs(ngayThucHien)}
+                                        format="DD-MM-YYYY"
+                                        maxDate={dayjs().endOf('day')}
+                                        onChange={(newValue: Dayjs | null) => setNgayThucHien(newValue ? newValue.toDate() : null)}
+                                        slotProps={{ textField: { fullWidth: true } }}
+                                    />
+                                </div>
+                                <div className="mb-3 col-12 col-xxl-4">
+                                    <label htmlFor="phuongPhapThucHien" className="form-label">Phương pháp thực hiện:</label>
+                                    <input
+                                        type="text"
+                                        className="form-control"
+                                        id="phuongPhapThucHien"
+                                        placeholder="Phương pháp thực hiện"
+                                        value={phuongPhapThucHien}
+                                        onChange={(e) => setPhuongPhapThucHien(e.target.value)}
+                                    />
+                                </div>
+                                <div className="mb-3 col-12 col-md-6 col-xxl-4">
                                     <label htmlFor="nhietDo" className="form-label">Nhiệt độ:</label>
                                     <div className="input-group">
                                         <input
@@ -591,7 +577,7 @@ export default function NewProcessDNBiggerThan32({ className }: NewProcessDNBigg
                                         <span className="input-group-text">°C</span>
                                     </div>
                                 </div>
-                                <div className="mb-3 col-12 col-md-6">
+                                <div className="mb-3 col-12 col-md-6 col-xxl-4">
                                     <label htmlFor="doAm" className="form-label">Độ ẩm:</label>
                                     <div className="input-group">
                                         <input
@@ -618,38 +604,40 @@ export default function NewProcessDNBiggerThan32({ className }: NewProcessDNBigg
                 </div>
 
                 <div className={`m-0 mb-3 p-2 bg-white rounded shadow-sm w-100 w-100`}>
-                    {/* TODO: validate before show form  */}
-                    <NavTab tabContent={
-                        [
-                            {
-                                title: <>Q<sub>{isDHDienTu ? "3" : "n"}</sub></>,
-                                content: <TinhSaiSoTab
-                                    onFormHSSChange={(value: number) => handleFormHSSChange(0, value)}
-                                    d={d ? d : ""} q={{
-                                        title: (isDHDienTu) ? "Q3" : "Qn",
-                                        value: (q3) ? q3 : ((qn) ? qn : "")
-                                    }} className="" tabIndex={1} form={TinhSaiSoForm} />
-                            },
-                            {
-                                title: <>Q<sub>{isDHDienTu ? "2" : "t"}</sub></>,
-                                content: <TinhSaiSoTab
-                                    onFormHSSChange={(value: number) => handleFormHSSChange(1, value)}
-                                    d={d ? d : ""} q={{
-                                        title: (isDHDienTu) ? "Q2" : "Qt",
-                                        value: (qt) ? qt.toString() : ""
-                                    }} tabIndex={2} form={TinhSaiSoForm} />
-                            },
-                            {
-                                title: <>Q<sub>{isDHDienTu ? "1" : "min"}</sub></>,
-                                content: <TinhSaiSoTab
-                                    onFormHSSChange={(value: number) => handleFormHSSChange(2, value)}
-                                    d={d ? d : ""} q={{
-                                        title: (isDHDienTu) ? "Q1" : "Qmin",
-                                        value: (qmin) ? qmin.toString() : ""
-                                    }} tabIndex={3} form={TinhSaiSoForm} />
-                            },
-                        ]
-                    } />
+                    <KiemDinhProvider>
+                        {/* TODO: validate before show form  */}
+                        <NavTab tabContent={
+                            [
+                                {
+                                    title: <>Q<sub>{isDHDienTu ? "3" : "n"}</sub></>,
+                                    content: <TinhSaiSoTab
+                                        onFormHSSChange={(value: number) => handleFormHSSChange(0, value)}
+                                        d={d ? d : ""} q={{
+                                            title: (isDHDienTu) ? "Q3" : "Qn",
+                                            value: (q3) ? q3 : ((qn) ? qn : "")
+                                        }} className="" tabIndex={1} form={TinhSaiSoForm} />
+                                },
+                                {
+                                    title: <>Q<sub>{isDHDienTu ? "2" : "t"}</sub></>,
+                                    content: <TinhSaiSoTab
+                                        onFormHSSChange={(value: number) => handleFormHSSChange(1, value)}
+                                        d={d ? d : ""} q={{
+                                            title: (isDHDienTu) ? "Q2" : "Qt",
+                                            value: (qt) ? qt.toString() : ""
+                                        }} tabIndex={2} form={TinhSaiSoForm} />
+                                },
+                                {
+                                    title: <>Q<sub>{isDHDienTu ? "1" : "min"}</sub></>,
+                                    content: <TinhSaiSoTab
+                                        onFormHSSChange={(value: number) => handleFormHSSChange(2, value)}
+                                        d={d ? d : ""} q={{
+                                            title: (isDHDienTu) ? "Q1" : "Qmin",
+                                            value: (qmin) ? qmin.toString() : ""
+                                        }} tabIndex={3} form={TinhSaiSoForm} />
+                                },
+                            ]
+                        } />
+                    </KiemDinhProvider>
 
                 </div>
             </div>

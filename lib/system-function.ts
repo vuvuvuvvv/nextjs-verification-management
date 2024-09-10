@@ -1,15 +1,16 @@
 import { phuongTienDoOptions } from "./system-constant";
-import { TinhSaiSoValue, TinhSaiSoValueTabs } from "./types";
+import { DuLieuMotLanChay, TinhSaiSoValueTabs } from "./types";
 
-export const getSaiSoDongHo = (formValue: TinhSaiSoValue) => {
-    const VDHCT = formValue.lastNumDHCT - formValue.firstnumDHCT;
-    const VDHC = formValue.lastNumDHC - formValue.firstnumDHC;
-    if (VDHC !== 0) {
-        const error = ((VDHCT - VDHC) / VDHC) * 100;
-        return Number((Math.round(error * 10000) / 10000).toFixed(3));
-    } else {
-        return 0;
+export const getSaiSoDongHo = (formValue: DuLieuMotLanChay) => {
+    if (formValue) {
+        const VDHCT = formValue.V2 - formValue.V1;
+        const VDHC = formValue.Vc2 - formValue.Vc1;
+        if (VDHC !== 0) {
+            const error = ((VDHCT - VDHC) / VDHC) * 100;
+            return Number((Math.round(error * 10000) / 10000).toFixed(3));
+        }
     }
+    return 0;
 };
 
 export const getQtAndQmin = (isDHDienTu: boolean, ccx: string | null, q: string, r: string) => {
@@ -81,7 +82,7 @@ export const getHieuSaiSo = (formValues: TinhSaiSoValueTabs) => {
     return Number((lan1 - lan2 - lan3).toFixed(3));
 }
 
-export const isDongHoDatTieuChuan = (formHSSValues: {hss: number | null}[]) => {
+export const isDongHoDatTieuChuan = (formHSSValues: { hss: number | null }[]) => {
     const hssQ3_n = formHSSValues[0].hss;
     const hssQ2_t = formHSSValues[1].hss;
     const hssQ1_min = formHSSValues[2].hss;
