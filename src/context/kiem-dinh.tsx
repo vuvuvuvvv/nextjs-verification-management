@@ -64,13 +64,14 @@ export const KiemDinhProvider = ({ children }: { children: ReactNode }) => {
             key = TITLE_LUU_LUONG[q.title as keyof typeof TITLE_LUU_LUONG];
         }
 
-        // TODO: CHECK: TỰ NHIÊN CHÈN THÊM UNDEFINED
-        // setDuLieuKiemDinhCacLuuLuong(prevState => ({
-        //     ...prevState,
-        //     [key]: {
-        //         ...newData, lanChay: lanChayMoi
-        //     },
-        // }));
+        // TODO: CHECK: TỰ NHIÊN CHÈN THÊM UNDEFINED - CHECKED
+        setDuLieuKiemDinhCacLuuLuong(prevState => ({
+            ...prevState,
+            [key]: {
+                value: value,
+                lanChay: lanChayMoi,
+            },
+        }));
 
     };
 
