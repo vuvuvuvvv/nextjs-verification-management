@@ -13,14 +13,14 @@ import { viVN } from "@mui/x-date-pickers/locales";
 import dayjs, { Dayjs } from "dayjs";
 
 import NavTab from "@/components/nav-tab";
-import { ccxOptions, phuongTienDoOptions, typeOptions } from "@lib/system-constant";
+import { ccxOptions, phuongTienDoOptions, TITLE_LUU_LUONG, typeOptions } from "@lib/system-constant";
 
 import Select, { GroupBase } from 'react-select';
 
 import { useUser } from "@/context/app-context";
 import { getQtAndQmin } from "@lib/system-function";
 import Link from "next/link";
-import { KiemDinhProvider } from "@/context/kiem-dinh";
+import { KiemDinhProvider, useKiemDinh } from "@/context/kiem-dinh";
 
 interface NewProcessDNBiggerThan32Props {
     className?: string,
@@ -31,6 +31,7 @@ interface TabState {
 };
 
 export default function NewProcessDNBiggerThan32({ className }: NewProcessDNBiggerThan32Props) {
+
     const { user } = useUser();
     const [isCollapsed, setIsCollapsed] = useState<boolean>(false);
 
@@ -604,40 +605,38 @@ export default function NewProcessDNBiggerThan32({ className }: NewProcessDNBigg
                 </div>
 
                 <div className={`m-0 mb-3 p-2 bg-white rounded shadow-sm w-100 w-100`}>
-                    <KiemDinhProvider>
-                        {/* TODO: validate before show form  */}
-                        <NavTab tabContent={
-                            [
-                                {
-                                    title: <>Q<sub>{isDHDienTu ? "3" : "n"}</sub></>,
-                                    content: <TinhSaiSoTab
-                                        onFormHSSChange={(value: number) => handleFormHSSChange(0, value)}
-                                        d={d ? d : ""} q={{
-                                            title: (isDHDienTu) ? "Q3" : "Qn",
-                                            value: (q3) ? q3 : ((qn) ? qn : "")
-                                        }} className="" tabIndex={1} form={TinhSaiSoForm} />
-                                },
-                                {
-                                    title: <>Q<sub>{isDHDienTu ? "2" : "t"}</sub></>,
-                                    content: <TinhSaiSoTab
-                                        onFormHSSChange={(value: number) => handleFormHSSChange(1, value)}
-                                        d={d ? d : ""} q={{
-                                            title: (isDHDienTu) ? "Q2" : "Qt",
-                                            value: (qt) ? qt.toString() : ""
-                                        }} tabIndex={2} form={TinhSaiSoForm} />
-                                },
-                                {
-                                    title: <>Q<sub>{isDHDienTu ? "1" : "min"}</sub></>,
-                                    content: <TinhSaiSoTab
-                                        onFormHSSChange={(value: number) => handleFormHSSChange(2, value)}
-                                        d={d ? d : ""} q={{
-                                            title: (isDHDienTu) ? "Q1" : "Qmin",
-                                            value: (qmin) ? qmin.toString() : ""
-                                        }} tabIndex={3} form={TinhSaiSoForm} />
-                                },
-                            ]
-                        } />
-                    </KiemDinhProvider>
+                    {/* TODO: validate before show form  */}
+                    <NavTab tabContent={
+                        [
+                            {
+                                title: <>Q<sub>{isDHDienTu ? "3" : "n"}</sub></>,
+                                content: <TinhSaiSoTab
+                                    onFormHSSChange={(value: number) => handleFormHSSChange(0, value)}
+                                    d={d ? d : ""} q={{
+                                        title: (isDHDienTu) ? TITLE_LUU_LUONG.q3 : TITLE_LUU_LUONG.qn,
+                                        value: (q3) ? q3 : ((qn) ? qn : "")
+                                    }} className="" tabIndex={1} form={TinhSaiSoForm} />
+                            },
+                            {
+                                title: <>Q<sub>{isDHDienTu ? "2" : "t"}</sub></>,
+                                content: <TinhSaiSoTab
+                                    onFormHSSChange={(value: number) => handleFormHSSChange(1, value)}
+                                    d={d ? d : ""} q={{
+                                        title: (isDHDienTu) ? TITLE_LUU_LUONG.q2 : TITLE_LUU_LUONG.qt,
+                                        value: (qt) ? qt.toString() : ""
+                                    }} tabIndex={2} form={TinhSaiSoForm} />
+                            },
+                            {
+                                title: <>Q<sub>{isDHDienTu ? "1" : "min"}</sub></>,
+                                content: <TinhSaiSoTab
+                                    onFormHSSChange={(value: number) => handleFormHSSChange(2, value)}
+                                    d={d ? d : ""} q={{
+                                        title: (isDHDienTu) ? TITLE_LUU_LUONG.q1 : TITLE_LUU_LUONG.q2,
+                                        value: (qmin) ? qmin.toString() : ""
+                                    }} tabIndex={3} form={TinhSaiSoForm} />
+                            },
+                        ]
+                    } />
 
                 </div>
             </div>

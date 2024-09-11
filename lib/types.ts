@@ -167,4 +167,4 @@ export type DuLieuChayDiemLuuLuong = {
  *  ...
  * }
  */
-export type DuLieuChayDongHo = Record<string, DuLieuChayDiemLuuLuong>;
+export type DuLieuChayDongHo = Record<string, DuLieuChayDiemLuuLuong | null>;

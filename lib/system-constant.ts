@@ -51,4 +51,13 @@ export const limitOptions = [
     { value: 50, label: 50 },
 ]
 
+export const TITLE_LUU_LUONG = {
+    q3: "Q3",
+    q2: "Q2",
+    q1: "Q1",
+    qn: "Qn",
+    qt: "Qt",
+    qmin: "Qmin"
+}
+
 export const BASE_API_URL = process.env.NEXT_PUBLIC_API_URL;

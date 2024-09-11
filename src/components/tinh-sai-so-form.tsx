@@ -74,7 +74,7 @@ export default function DNBT30TinhSaiSoForm({ className, formValue, onFormChange
     return (
         <div className={`${className ? className : ""}`}>
             <form className={`w-100 row m-0 px-0 ${ecf["wrap-form"]}`}>
-                <div className="col-12 col-md-6 col-xxl-12">
+                <div className="col-12 col-md-6">
                     <h5 className="mb-1">Đồng hồ công tác:</h5>
                     <div className={`mb-3 ${ecf["box-input-form"]}`}>
                         <label htmlFor="firstNum" className="form-label">Số đầu</label>
@@ -113,7 +113,7 @@ export default function DNBT30TinhSaiSoForm({ className, formValue, onFormChange
                     </div>
                 </div>
 
-                <div className="col-12 col-md-6 col-xxl-12">
+                <div className="col-12 col-md-6">
                     <h5 className="mb-1">Đồng hồ chuẩn:</h5>
                     <div className={`mb-3 ${ecf["box-input-form"]}`}>
                         <label htmlFor="firstNum" className="form-label">Số đầu</label>
