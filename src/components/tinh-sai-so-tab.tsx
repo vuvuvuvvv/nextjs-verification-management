@@ -1,12 +1,14 @@
 "use client";
 
 import { useKiemDinh } from "@/context/kiem-dinh";
-import { faAdd, faCaretDown } from "@fortawesome/free-solid-svg-icons";
+import { faAdd, faCaretDown, faTimes } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { getHieuSaiSo, getVToiThieu } from "@lib/system-function";
-import { DuLieuMotLanChay, DuLieuCacLanChay, TinhSaiSoValueTabs } from "@lib/types";
+import { DuLieuCacLanChay, DuLieuMotLanChay, TinhSaiSoValueTabs } from "@lib/types";
 import c_ect from "@styles/scss/components/tinh-sai-so-tab.module.scss";
 import { useEffect, useRef, useState } from "react";
+
+import Snackbar, { SnackbarCloseReason } from '@mui/material/Snackbar';
 
 interface TinhSaiSoTabProps {
     className?: string;
@@ -33,17 +35,14 @@ interface FormProps {
 
 export default function TinhSaiSoTab({ className, tabIndex, d, q, form, onFormHSSChange }: TinhSaiSoTabProps) {
 
-    const { duLieuLanChay, themLanChay, updateLuuLuong, duLieuKiemDinhCacLuuLuong } = useKiemDinh();
-
-    const prevDuLieuKiemDinhCacLuuLuong = useRef(duLieuKiemDinhCacLuuLuong);
-
+    const { lanChayMoi, getDuLieuChayCuaLuuLuong, themLanChayCuaLuuLuong, updateLuuLuong, duLieuKiemDinhCacLuuLuong } = useKiemDinh();
 
     if (!tabIndex || tabIndex <= 0) {
         return <></>;
     }
 
     // Cập nhật số tab
-    const initialTabFormState: TabFormState = Object.keys(duLieuLanChay).reduce((prevTabState, key, index) => {
+    const initialTabFormState: TabFormState = Object.keys(getDuLieuChayCuaLuuLuong(q)).reduce((prevTabState, key, index) => {
         prevTabState[Number(key) * tabIndex] = index === 0;
         return prevTabState;
     }, {} as TabFormState);
@@ -52,15 +51,15 @@ export default function TinhSaiSoTab({ className, tabIndex, d, q, form, onFormHS
 
     // Cập nhật lại số lượng form + tab sau khi update số lần
     useEffect(() => {
-        setFormValues(duLieuLanChay);
-        setSelectedTabForm(initialTabFormState);
-    }, [duLieuLanChay]);
+        setFormValues(getDuLieuChayCuaLuuLuong(q));
+        // setSelectedTabForm(initialTabFormState);
+    }, [duLieuKiemDinhCacLuuLuong]);
 
     useEffect(() => {
         updateLuuLuong(q);
     }, [q]);
 
-    const [formValues, setFormValues] = useState<DuLieuCacLanChay>(duLieuLanChay);
+    const [formValues, setFormValues] = useState<DuLieuCacLanChay>(getDuLieuChayCuaLuuLuong(q));
 
     const toggleTabForm = (tab: number) => {
         tab *= tabIndex;
@@ -75,7 +74,7 @@ export default function TinhSaiSoTab({ className, tabIndex, d, q, form, onFormHS
         }
     };
 
-    // useEffect(()=>{
+    // useEffect(()=> {
     //     onFormHSSChange(getHieuSaiSo(formValues as TinhSaiSoValueTabs))
     // }, [formValues]);
 
@@ -87,7 +86,7 @@ export default function TinhSaiSoTab({ className, tabIndex, d, q, form, onFormHS
         }
         setFormValues(newFormValues);
         onFormHSSChange(getHieuSaiSo(formValues as TinhSaiSoValueTabs))
-        console.log("dllc: ", duLieuLanChay);
+        console.log("dllc: ", getDuLieuChayCuaLuuLuong(q));
     };
 
     const Form = form;
@@ -101,7 +100,10 @@ export default function TinhSaiSoTab({ className, tabIndex, d, q, form, onFormHS
                         <label className={`w-100 ${c_ect["tab-radio"]} ${selectedTabForm[Number(key) * tabIndex] ? c_ect["active"] : ""}`}>
                             <h5 className="m-0">Lần {key}</h5>
                             <input type="radio" name={`process-tab-${key}-${tabIndex}`} className="d-none" checked={selectedTabForm[Number(key) * tabIndex]} onChange={() => toggleTabForm(Number(key))} />
-                            <FontAwesomeIcon icon={faCaretDown} className="d-xxl-none" />
+                            {/* <FontAwesomeIcon icon={faCaretDown} className="d-xxl-none" /> */}
+                            <button type="button" className="btn border-0 btn-light text-main-color">
+                                <FontAwesomeIcon icon={faTimes} className="me-1" /> Xóa
+                            </button>
                         </label>
                         {!selectedTabForm[Number(key) * tabIndex] && (
                             <div
@@ -120,8 +122,6 @@ export default function TinhSaiSoTab({ className, tabIndex, d, q, form, onFormHS
             )
         });
     }
-
-    // TODO: tính hiệu sai số 
 
     return (
         <div className={`row m-0 p-0 w-100 justify-content-center ${className ? className : ""} ${c_ect['wrapper']}`}>
@@ -161,7 +161,7 @@ export default function TinhSaiSoTab({ className, tabIndex, d, q, form, onFormHS
             </div>
             <div className="w-100 d-flex align-items-center justify-content-between">
                 <h5 className="m-0">Lần thực hiện:</h5>
-                <button className="btn px-3 py-2 btn-success" onClick={() => themLanChay(q)}>
+                <button className="btn px-3 py-2 btn-success" onClick={() => themLanChayCuaLuuLuong(q)}>
                     <FontAwesomeIcon icon={faAdd} className="me-2"></FontAwesomeIcon>Thêm lần chạy
                 </button>
             </div>

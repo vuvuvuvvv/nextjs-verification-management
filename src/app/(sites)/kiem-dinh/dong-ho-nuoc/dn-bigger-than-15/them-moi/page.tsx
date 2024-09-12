@@ -18,7 +18,7 @@ import { ccxOptions, phuongTienDoOptions, TITLE_LUU_LUONG, typeOptions } from "@
 import Select, { GroupBase } from 'react-select';
 
 import { useUser } from "@/context/app-context";
-import { getQtAndQmin } from "@lib/system-function";
+import { getQ2OrQtAndQ1OrQMin } from "@lib/system-function";
 import Link from "next/link";
 import { KiemDinhProvider, useKiemDinh } from "@/context/kiem-dinh";
 
@@ -70,8 +70,8 @@ export default function NewProcessDNBiggerThan32({ className }: NewProcessDNBigg
 
     const [isDHDienTu, setDHDienTu] = useState(false);
 
-    const [qt, setQt] = useState<number | null>(null);
-    const [qmin, setQmin] = useState<number | null>(null);
+    const [q2Ort, setQ1OrQt] = useState<number | null>(null);
+    const [q1Ormin, setQ2OrQmin] = useState<number | null>(null);
 
     const [formHieuSaiSo, setFormHieuSaiSo] = useState<{ hss: number | null }[]>([
         { hss: null },
@@ -115,9 +115,9 @@ export default function NewProcessDNBiggerThan32({ className }: NewProcessDNBigg
 
     useEffect(() => {
         if (ccx && phuongTienDo && ((q3 && r) || qn)) {
-            const { getQmin, getQt } = getQtAndQmin(isDHDienTu, ccx, q3, r);
-            setQmin(getQmin);
-            setQt(getQt);
+            const { getQ1OrMin, getQ2OrQt } = getQ2OrQtAndQ1OrQMin(isDHDienTu, ccx, q3, r);
+            setQ2OrQmin(getQ1OrMin);
+            setQ1OrQt(getQ2OrQt);
         }
     }, [ccx, phuongTienDo, q3, qn, r]);
 
@@ -623,7 +623,7 @@ export default function NewProcessDNBiggerThan32({ className }: NewProcessDNBigg
                                     onFormHSSChange={(value: number) => handleFormHSSChange(1, value)}
                                     d={d ? d : ""} q={{
                                         title: (isDHDienTu) ? TITLE_LUU_LUONG.q2 : TITLE_LUU_LUONG.qt,
-                                        value: (qt) ? qt.toString() : ""
+                                        value: (q2Ort) ? q2Ort.toString() : ""
                                     }} tabIndex={2} form={TinhSaiSoForm} />
                             },
                             {
@@ -631,8 +631,8 @@ export default function NewProcessDNBiggerThan32({ className }: NewProcessDNBigg
                                 content: <TinhSaiSoTab
                                     onFormHSSChange={(value: number) => handleFormHSSChange(2, value)}
                                     d={d ? d : ""} q={{
-                                        title: (isDHDienTu) ? TITLE_LUU_LUONG.q1 : TITLE_LUU_LUONG.q2,
-                                        value: (qmin) ? qmin.toString() : ""
+                                        title: (isDHDienTu) ? TITLE_LUU_LUONG.q1 : TITLE_LUU_LUONG.qmin,
+                                        value: (q1Ormin) ? q1Ormin.toString() : ""
                                     }} tabIndex={3} form={TinhSaiSoForm} />
                             },
                         ]

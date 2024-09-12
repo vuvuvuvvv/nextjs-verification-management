@@ -110,6 +110,11 @@ export interface PDMData {
     "anh_pdm": string,
 }
 
+export type LuuLuong = {
+    title: string;
+    value: string | number | null;
+}
+
 export type TinhSaiSoValueTabs = [
     DuLieuMotLanChay,
     DuLieuMotLanChay,
@@ -126,17 +131,12 @@ export type DuLieuMotLanChay = {
     Tc: number;
 };
 
-
-export type DuLieuCacLanChay = Record<
-    number, {
-        V1: number;
-        V2: number;
-        Tdh: number;
-        Vc1: number;
-        Vc2: number;
-        Tc: number;
-    }
->;
+// {
+//     1: { V1: 0, V2: 0, Vc1: 0, Vc2: 0, Tdh: 0, Tc: 0 },
+//     2: { V1: 0, V2: 0, Vc1: 0, Vc2: 0, Tdh: 0, Tc: 0 },
+//     3: { V1: 0, V2: 0, Vc1: 0, Vc2: 0, Tdh: 0, Tc: 0 }
+// }
+export type DuLieuCacLanChay = Record<number, DuLieuMotLanChay>
 
 // Tại các điểm Q1 2 3 || n t min có thể có nhiều lần đo
 /*
@@ -155,7 +155,7 @@ export type DuLieuCacLanChay = Record<
 */
 export type DuLieuChayDiemLuuLuong = {
     value: number | null;
-    lanChay: Record<number, DuLieuCacLanChay>;
+    lanChay: Record<number, DuLieuMotLanChay>;
 };
 
 // Tùy theo loại đồng hồ chia ra chạy q 123 hoặc n t min:
