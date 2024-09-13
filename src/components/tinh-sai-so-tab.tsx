@@ -7,12 +7,7 @@ import { getHieuSaiSo, getVToiThieu } from "@lib/system-function";
 import { DuLieuCacLanChay, DuLieuMotLanChay, TinhSaiSoValueTabs } from "@lib/types";
 import c_ect from "@styles/scss/components/tinh-sai-so-tab.module.scss";
 import { useEffect, useRef, useState } from "react";
-
-import React from "react";
-import Button from '@mui/material/Button';
-import { SnackbarProvider, VariantType, useSnackbar } from 'notistack';
-import Snackbar, { SnackbarCloseReason } from '@mui/material/Snackbar';
-import IconButton from '@mui/material/IconButton';
+import Swal from "sweetalert2";
 
 interface TinhSaiSoTabProps {
     className?: string;
@@ -39,8 +34,12 @@ interface FormProps {
 
 export default function TinhSaiSoTab({ className, tabIndex, d, q, form, onFormHSSChange }: TinhSaiSoTabProps) {
 
-    const { lanChayMoi, getDuLieuChayCuaLuuLuong, themLanChayCuaLuuLuong, updateLuuLuong, duLieuKiemDinhCacLuuLuong } = useKiemDinh();
-    const { enqueueSnackbar, closeSnackbar } = useSnackbar();
+    const { lanChayMoi, getDuLieuChayCuaLuuLuong, themLanChayCuaLuuLuong, updateLuuLuong, duLieuKiemDinhCacLuuLuong, xoaLanChayCuaLuuLuong } = useKiemDinh();
+    const refDuLieuKiemDinhCacLuuLuong = useRef(duLieuKiemDinhCacLuuLuong);
+
+    useEffect(() => {
+        updateLuuLuong(q);
+    }, [q]);
 
     if (!tabIndex || tabIndex <= 0) {
         return <></>;
@@ -56,17 +55,17 @@ export default function TinhSaiSoTab({ className, tabIndex, d, q, form, onFormHS
 
     // Cập nhật lại số lượng form + tab sau khi update số lần
     useEffect(() => {
-        setFormValues(getDuLieuChayCuaLuuLuong(q));
-        // setSelectedTabForm(initialTabFormState);
+        if (refDuLieuKiemDinhCacLuuLuong.current != duLieuKiemDinhCacLuuLuong) {
+            setFormValues(getDuLieuChayCuaLuuLuong(q));
+        }
     }, [duLieuKiemDinhCacLuuLuong]);
-
-    useEffect(() => {
-        updateLuuLuong(q);
-    }, [q]);
 
     const [formValues, setFormValues] = useState<DuLieuCacLanChay>(getDuLieuChayCuaLuuLuong(q));
 
+
+    // TODO: Lỗi khi chọn tab
     const toggleTabForm = (tab: number) => {
+        setSelectedTabForm(initialTabFormState);
         tab *= tabIndex;
         if (!selectedTabForm[tab]) {
             setSelectedTabForm({
@@ -79,10 +78,7 @@ export default function TinhSaiSoTab({ className, tabIndex, d, q, form, onFormHS
         }
     };
 
-    // useEffect(()=> {
-    //     onFormHSSChange(getHieuSaiSo(formValues as TinhSaiSoValueTabs))
-    // }, [formValues]);
-
+    // Form: change thì đổi hiệu sai số
     const handleFormChange = (index: number, field: keyof DuLieuMotLanChay, value: number) => {
         const newFormValues = { ...formValues };
         newFormValues[index][field] = value;
@@ -91,74 +87,38 @@ export default function TinhSaiSoTab({ className, tabIndex, d, q, form, onFormHS
         }
         setFormValues(newFormValues);
         onFormHSSChange(getHieuSaiSo(formValues as TinhSaiSoValueTabs))
-        console.log("dllc: ", getDuLieuChayCuaLuuLuong(q));
     };
-
-    const Form = form;
 
     const handleClick = (key: string) => {
-        enqueueSnackbar(`Xóa thành công lần ${key}!`, {
-            variant: 'info',
-            action: (snackbarId) => (
-                <React.Fragment>
-                    <Button className="text-white" size="small" onClick={() => handleUndo(snackbarId, key)}>
-                        HOÀN TÁC
-                    </Button>
-                    <IconButton
-                        size="small"
-                        aria-label="close"
-                        color="inherit"
-                        onClick={() => closeSnackbar(snackbarId)}
-                    >
-                        <FontAwesomeIcon icon={faTimes} />
-                    </IconButton>
-                </React.Fragment>
-            ),
+        Swal.fire({
+            title: `Xóa ${q.title} lần ${key}?`,
+            text: "Không thể hồi phục dữ liệu đã xóa!",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonColor: "#3085d6",
+            cancelButtonColor: "#d33",
+            confirmButtonText: "Xóa"
+        }).then((result) => {
+            if (result.isConfirmed) {
+                xoaLanChayCuaLuuLuong(q, key);
+            }
         });
-    };
+    }
 
-    // const handleClick = (id: string) => () => {
-    //     const key = enqueueSnackbar('This is a message with progress!', {
-    //         variant: "default",
-    //         persist: true, // Để Snackbar tồn tại cho đến khi bị đóng bằng tay
-    //         action: (key) => (
-    //             <>
-    //                 <IconButton size="small" onClick={() => closeSnackbar(key)}>
-    //                     <FontAwesomeIcon icon={faTimes} />
-    //                 </IconButton>
-    //             </>
-    //         ),
-    //     });
-
-    //     let progress = 0;
-    //     const interval = setInterval(() => {
-    //         progress += 10;
-    //         if (progress === 100) {
-    //             clearInterval(interval);
-    //             closeSnackbar(key); // Đóng Snackbar khi progress đạt 100%
-    //         }
-    //         const progressElement = document.getElementById(`progress-${key}`);
-    //         if (progressElement) {
-    //             progressElement.style.width = `${progress}%`;
-    //         }
-    //     }, 300); // Mỗi 300ms, progress sẽ tăng lên 10 đơn vị
-    // };
-
-    const handleUndo = (snackbarId: string | number, key: string) => {
-        console.log(`Undo action for key: ${key}`);
-        closeSnackbar(snackbarId);
-    };
-
+    const Form = form;
+    //
     const renderTabTinhSaiSo = () => {
         return Object.entries(formValues).map(([key, formVal], index) => {
 
             return (
-                <div key={index * tabIndex} className={`col-12 px-1 ${key + "+" + (Number(key) * tabIndex)} pt-2 ${c_ect["tab-form"]}`}>
+                <div
+                    key={index * tabIndex}
+                    className={`col-12 px-1 ${key + "+" + (Number(key) * tabIndex)} pt-2 ${c_ect["tab-form"]}`}
+                >
                     <div className={`${c_ect["wrap-form"]} rounded w-100`}>
                         <label className={`w-100 ${c_ect["tab-radio"]} ${selectedTabForm[Number(key) * tabIndex] ? c_ect["active"] : ""}`}>
                             <h5 className="m-0">Lần {key}</h5>
                             <input type="radio" name={`process-tab-${key}-${tabIndex}`} className="d-none" checked={selectedTabForm[Number(key) * tabIndex]} onChange={() => toggleTabForm(Number(key))} />
-                            {/* <FontAwesomeIcon icon={faCaretDown} className="d-xxl-none" /> */}
                             <button type="button" className="btn border-0 btn-light text-main-color" onClick={() => handleClick(key)}>
                                 <FontAwesomeIcon icon={faTimes} className="me-1" /> Xóa
                             </button>
@@ -177,9 +137,10 @@ export default function TinhSaiSoTab({ className, tabIndex, d, q, form, onFormHS
                         />
                     </div>
                 </div>
-            )
+            );
         });
-    }
+    };
+
 
     return (
         <div className={`row m-0 p-0 w-100 justify-content-center ${className ? className : ""} ${c_ect['wrapper']}`}>

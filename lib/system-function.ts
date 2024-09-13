@@ -61,27 +61,36 @@ export const getQ2OrQtAndQ1OrQMin = (isDHDienTu: boolean, ccx: string | null, q:
 export const getVToiThieu = (q: string | number, d: string | number) => {
     // q: m3/h 
     // d: mm
+    if (q && d) {
+        
+        const qNum = parseFloat(typeof q === 'string' ? q : q.toString());
+        const dNum = parseFloat(typeof d === 'string' ? d : d.toString());
+        
+        if (isNaN(qNum) || isNaN(dNum)) {
+            return 0;
+        }
 
-    if (!q && !d) {
+        const ll_90s = qNum * 90 / 3600 * 1000;
+        const ll_200d = 200 * dNum;
+        return Number(Math.max(ll_200d, ll_90s).toFixed(3));
+    } else {
         return 0;
     }
-
-    const ll_90s = parseFloat(q.toString()) * 90 / 3600 * 1000;
-    const ll_200d = 200 * parseFloat(d.toString());
-
-    // console.log(q, ll_200d, ll_90s);
-
-    return Number(Math.max(ll_200d, ll_90s).toFixed(3));
 }
 
 export const getHieuSaiSo = (formValues: TinhSaiSoValueTabs) => {
-    const lan1 = getSaiSoDongHo(formValues[0]);
-    const lan2 = getSaiSoDongHo(formValues[1]);
-    const lan3 = getSaiSoDongHo(formValues[2]);
-
-    return Number((lan1 - lan2 - lan3).toFixed(3));
+    try {
+        const lan1 = getSaiSoDongHo(formValues[0]);
+        const lan2 = getSaiSoDongHo(formValues[1]);
+        const lan3 = getSaiSoDongHo(formValues[2]);
+    
+        return Number((lan1 - lan2 - lan3).toFixed(3));
+    } catch {
+        return 0;
+    }
 }
 
+// TODO: Check dat chuan
 export const isDongHoDatTieuChuan = (formHSSValues: { hss: number | null }[]) => {
     const hssQ3_n = formHSSValues[0].hss;
     const hssQ2_t = formHSSValues[1].hss;
