@@ -106,8 +106,8 @@ export default function DNBT30TinhSaiSoForm({ className, formValue, onFormChange
                             type="text"
                             className="form-control"
                             id="tdh"
-                            value={formValue.Tdh.toFixed(decimalPlaces)}
-                            onChange={(e) => handleNumericInput(e, "Tdh")}
+                            value={Tdh}
+                            onChange={(e) => handleNumberChange(setTdh, "Tdh")}
                             autoComplete="off"
                         />
                     </div>
@@ -146,8 +146,8 @@ export default function DNBT30TinhSaiSoForm({ className, formValue, onFormChange
                             type="text"
                             className="form-control"
                             id="tc"
-                            value={formValue.Tc.toFixed(decimalPlaces)}
-                            onChange={(e) => handleNumericInput(e, "Tc")}
+                            value={Tc}
+                            onChange={(e) => handleNumberChange(setTc, "Tc")}
                             autoComplete="off"
                         />
                     </div>

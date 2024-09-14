@@ -1,4 +1,4 @@
-import { phuongTienDoOptions } from "./system-constant";
+import { phuongTienDoOptions, TITLE_LUU_LUONG } from "./system-constant";
 import { DuLieuMotLanChay, TinhSaiSoValueTabs } from "./types";
 
 export const getSaiSoDongHo = (formValue: DuLieuMotLanChay) => {
@@ -62,10 +62,10 @@ export const getVToiThieu = (q: string | number, d: string | number) => {
     // q: m3/h 
     // d: mm
     if (q && d) {
-        
+
         const qNum = parseFloat(typeof q === 'string' ? q : q.toString());
         const dNum = parseFloat(typeof d === 'string' ? d : d.toString());
-        
+
         if (isNaN(qNum) || isNaN(dNum)) {
             return 0;
         }
@@ -80,21 +80,39 @@ export const getVToiThieu = (q: string | number, d: string | number) => {
 
 export const getHieuSaiSo = (formValues: TinhSaiSoValueTabs) => {
     try {
-        const lan1 = getSaiSoDongHo(formValues[0]);
-        const lan2 = getSaiSoDongHo(formValues[1]);
-        const lan3 = getSaiSoDongHo(formValues[2]);
-    
-        return Number((lan1 - lan2 - lan3).toFixed(3));
+        const values = Object.values(formValues).map(getSaiSoDongHo);
+
+        const result = values.reduce((acc, curr, index) => {
+            return index === 0 ? curr : acc - curr;
+        }, 0);
+
+        return Number(result.toFixed(3));
     } catch {
         return 0;
     }
 }
 
 // TODO: Check dat chuan
-export const isDongHoDatTieuChuan = (formHSSValues: { hss: number | null }[]) => {
-    const hssQ3_n = formHSSValues[0].hss;
-    const hssQ2_t = formHSSValues[1].hss;
-    const hssQ1_min = formHSSValues[2].hss;
+// export const isDongHoDatTieuChuan = (q: { title: string; value: string }, hss: number | number) => {
+//     if([TITLE_LUU_LUONG.q3, TITLE_LUU_LUONG.q2].includes(q.title)) {
+//         return hss >= -2;
+//     } else if([TITLE_LUU_LUONG.qn, TITLE_LUU_LUONG.qt].includes(q.title)) {
+//         return hss <= 2;
+//     } else if (TITLE_LUU_LUONG.q1 === q.title) {
+//         return hss >= -5;
+//     } else if (TITLE_LUU_LUONG.qmin === q.title) {
+//         return hss <= 5;
+//     }
+//     return null;
+// }
 
-    return 0;
+export const isDongHoDatTieuChuan = (isQ3: boolean, formHieuSaiSo: { hss: number | null }[]) => {
+    const lan1 = formHieuSaiSo[0].hss;
+    const lan2 = formHieuSaiSo[1].hss;
+    const lan3 = formHieuSaiSo[2].hss;
+
+    if (lan1 && lan2 && lan3) {
+        return (isQ3) ? (lan1 >= -2 && lan2 >= -2 && lan3 >= -5) : (lan1 <= 2 && lan2 <= 2 && lan3 <= 5)
+    }
+    return null;
 }

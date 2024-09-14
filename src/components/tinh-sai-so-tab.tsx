@@ -3,7 +3,7 @@
 import { useKiemDinh } from "@/context/kiem-dinh";
 import { faAdd, faCaretDown, faTimes } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { getHieuSaiSo, getVToiThieu } from "@lib/system-function";
+import { getHieuSaiSo, getVToiThieu, isDongHoDatTieuChuan } from "@lib/system-function";
 import { DuLieuCacLanChay, DuLieuMotLanChay, TinhSaiSoValueTabs } from "@lib/types";
 import c_ect from "@styles/scss/components/tinh-sai-so-tab.module.scss";
 import { useEffect, useRef, useState } from "react";
@@ -53,20 +53,38 @@ export default function TinhSaiSoTab({ className, tabIndex, d, q, form, onFormHS
 
     const [selectedTabForm, setSelectedTabForm] = useState<TabFormState>(initialTabFormState);
 
-    // Cập nhật lại số lượng form + tab sau khi update số lần
+    //Func: Lấy ra tab đang active
+    const getActiveTab = (): number => {
+        for (const key in selectedTabForm) {
+            if (selectedTabForm[key]) {
+                return Number(key);
+            }
+        }
+        return parseInt(Object.keys(selectedTabForm)[0]);
+    };
+
+    const [activeTab, setActiveTab] = useState<number>(getActiveTab())
+
+    // Hook: Cập nhật lại số lượng form + tab sau khi update số lần
     useEffect(() => {
         if (refDuLieuKiemDinhCacLuuLuong.current != duLieuKiemDinhCacLuuLuong) {
             setFormValues(getDuLieuChayCuaLuuLuong(q));
         }
+        setSelectedTabForm({
+            ...Object.keys(initialTabFormState).reduce((prevTabState, key) => {
+                prevTabState[Number(key)] = false;
+                return prevTabState;
+            }, {} as TabFormState),
+            [(selectedTabForm[activeTab] ? activeTab : parseInt(Object.keys(selectedTabForm)[0]))]: true
+        });
     }, [duLieuKiemDinhCacLuuLuong]);
 
     const [formValues, setFormValues] = useState<DuLieuCacLanChay>(getDuLieuChayCuaLuuLuong(q));
 
-
-    // TODO: Lỗi khi chọn tab
+    // Func: toggel tab select
     const toggleTabForm = (tab: number) => {
-        setSelectedTabForm(initialTabFormState);
         tab *= tabIndex;
+        setActiveTab(tab);
         if (!selectedTabForm[tab]) {
             setSelectedTabForm({
                 ...Object.keys(selectedTabForm).reduce((prevTabState, key) => {
@@ -82,11 +100,21 @@ export default function TinhSaiSoTab({ className, tabIndex, d, q, form, onFormHS
     const handleFormChange = (index: number, field: keyof DuLieuMotLanChay, value: number) => {
         const newFormValues = { ...formValues };
         newFormValues[index][field] = value;
-        if (field === "V2" && index < Object.entries(formValues).length - 1) {
-            newFormValues[index + 1].V1 = value;
+        const objectKeysFormValues = Object.keys(newFormValues);
+        if (
+            field === "V2"
+            && objectKeysFormValues.includes(index.toString())
+            && objectKeysFormValues.indexOf(index.toString()) < objectKeysFormValues.length - 1
+        ) {
+            const indexOfNextTab = objectKeysFormValues.indexOf(index.toString()) + 1;
+            const keyOfNextTab = objectKeysFormValues[indexOfNextTab];
+            newFormValues[parseInt(keyOfNextTab)].V1 = value;
         }
         setFormValues(newFormValues);
         onFormHSSChange(getHieuSaiSo(formValues as TinhSaiSoValueTabs))
+        // TODO: Dat tieu chuan
+        // console.log("Đạt tiêu chuẩn: ", isDongHoDatTieuChuan(q, getHieuSaiSo(formValues as TinhSaiSoValueTabs)));
+        // console.log("Đạt tiêu chuẩn: ", isDongHoDatTieuChuan(q, getHieuSaiSo(formValues as TinhSaiSoValueTabs)) ? "Đạt" : "Không");
     };
 
     const handleClick = (key: string) => {

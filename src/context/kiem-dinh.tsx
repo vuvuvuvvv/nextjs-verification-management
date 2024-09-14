@@ -40,9 +40,9 @@ export const KiemDinhProvider = ({ children }: { children: ReactNode }) => {
 
     const [duLieuKiemDinhCacLuuLuong, setDuLieuKiemDinhCacLuuLuong] = useState<DuLieuChayDongHo>(initialDuLieuKiemDinhCacLuuLuong);
 
-    useEffect(() => {
-        console.log("dlkdcll: ", duLieuKiemDinhCacLuuLuong);
-    }, [duLieuKiemDinhCacLuuLuong]);
+    // useEffect(() => {
+    //     console.log("dlkdcll: ", duLieuKiemDinhCacLuuLuong);
+    // }, [duLieuKiemDinhCacLuuLuong]);
 
 
     const setDuLieuKiemDinh = (tenLuuLuong: string, data: DuLieuChayDiemLuuLuong | null) => {

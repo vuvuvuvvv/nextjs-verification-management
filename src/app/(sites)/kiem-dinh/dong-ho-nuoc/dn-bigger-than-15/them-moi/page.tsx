@@ -18,7 +18,7 @@ import { ccxOptions, phuongTienDoOptions, TITLE_LUU_LUONG, typeOptions } from "@
 import Select, { GroupBase } from 'react-select';
 
 import { useUser } from "@/context/app-context";
-import { getQ2OrQtAndQ1OrQMin } from "@lib/system-function";
+import { getQ2OrQtAndQ1OrQMin, isDongHoDatTieuChuan } from "@lib/system-function";
 import Link from "next/link";
 import { KiemDinhProvider, useKiemDinh } from "@/context/kiem-dinh";
 
@@ -79,12 +79,19 @@ export default function NewProcessDNBiggerThan32({ className }: NewProcessDNBigg
         { hss: null },
     ]);
 
+    // TODO: Dat tieu chuan:
     const handleFormHSSChange = (index: number, value: number) => {
         const newFormValues = [...formHieuSaiSo];
         newFormValues[index].hss = value;
         setFormHieuSaiSo(newFormValues);
-        // console.log("HSS: ", formHieuSaiSo);
+        console.log("HSS: ", formHieuSaiSo);
     };
+
+    useEffect(() => {
+        if (q3 || qn) {
+            console.log(isDongHoDatTieuChuan((q3) ? true : false, formHieuSaiSo));
+        }
+    }, [formHieuSaiSo])
 
     // Check Đồng hồ điện tử
     const toggleCollapse = () => {
