@@ -84,7 +84,7 @@ export default function NewProcessDNBiggerThan32({ className }: NewProcessDNBigg
         const newFormValues = [...formHieuSaiSo];
         newFormValues[index].hss = value;
         setFormHieuSaiSo(newFormValues);
-        console.log("HSS: ", formHieuSaiSo);
+        // console.log("HSS: ", formHieuSaiSo);
     };
 
     useEffect(() => {

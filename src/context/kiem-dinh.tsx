@@ -40,9 +40,9 @@ export const KiemDinhProvider = ({ children }: { children: ReactNode }) => {
 
     const [duLieuKiemDinhCacLuuLuong, setDuLieuKiemDinhCacLuuLuong] = useState<DuLieuChayDongHo>(initialDuLieuKiemDinhCacLuuLuong);
 
-    // useEffect(() => {
-    //     console.log("dlkdcll: ", duLieuKiemDinhCacLuuLuong);
-    // }, [duLieuKiemDinhCacLuuLuong]);
+    useEffect(() => {
+        console.log("dlkdcll: ", duLieuKiemDinhCacLuuLuong);
+    }, [duLieuKiemDinhCacLuuLuong]);
 
 
     const setDuLieuKiemDinh = (tenLuuLuong: string, data: DuLieuChayDiemLuuLuong | null) => {
@@ -52,6 +52,8 @@ export const KiemDinhProvider = ({ children }: { children: ReactNode }) => {
         }));
     };
 
+    
+    // TODO: Fix dữ
     const updateLuuLuong = (q: { title: string; value: string }) => {
         const value = isNaN(Number(q.value)) ? 0 : Number(q.value);
         const keyOfLuuLuongDHDienTu = [TITLE_LUU_LUONG.q3, TITLE_LUU_LUONG.q2, TITLE_LUU_LUONG.q1];

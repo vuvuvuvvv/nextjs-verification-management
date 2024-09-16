@@ -1,7 +1,7 @@
 "use client";
 
 import { useKiemDinh } from "@/context/kiem-dinh";
-import { faAdd, faCaretDown, faTimes } from "@fortawesome/free-solid-svg-icons";
+import { faAdd, faCaretDown, faTimes, faUndo } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { getHieuSaiSo, getVToiThieu, isDongHoDatTieuChuan } from "@lib/system-function";
 import { DuLieuCacLanChay, DuLieuMotLanChay, TinhSaiSoValueTabs } from "@lib/types";
@@ -96,25 +96,32 @@ export default function TinhSaiSoTab({ className, tabIndex, d, q, form, onFormHS
         }
     };
 
+    useEffect(() => {
+        // onFormHSSChange(getHieuSaiSo(formValues as TinhSaiSoValueTabs))
+        console.log(duLieuKiemDinhCacLuuLuong);
+
+    }, [formValues]);
+
     // Form: change thì đổi hiệu sai số
     const handleFormChange = (index: number, field: keyof DuLieuMotLanChay, value: number) => {
-        const newFormValues = { ...formValues };
-        newFormValues[index][field] = value;
-        const objectKeysFormValues = Object.keys(newFormValues);
-        if (
-            field === "V2"
-            && objectKeysFormValues.includes(index.toString())
-            && objectKeysFormValues.indexOf(index.toString()) < objectKeysFormValues.length - 1
-        ) {
-            const indexOfNextTab = objectKeysFormValues.indexOf(index.toString()) + 1;
-            const keyOfNextTab = objectKeysFormValues[indexOfNextTab];
-            newFormValues[parseInt(keyOfNextTab)].V1 = value;
-        }
-        setFormValues(newFormValues);
-        onFormHSSChange(getHieuSaiSo(formValues as TinhSaiSoValueTabs))
+        setFormValues(prevFormValues => {
+            const newFormValues = { ...prevFormValues };
+            newFormValues[index] = { ...newFormValues[index], [field]: value };
+
+            // Nếu field là "V2", cập nhật V1 của tab tiếp theo
+            if (field === "V2") {
+                const nextIndex = index + 1;
+                if (newFormValues[nextIndex]) {
+                    newFormValues[nextIndex] = { ...newFormValues[nextIndex], V1: value };
+                }
+            }
+
+            return newFormValues;
+        });
+
         // TODO: Dat tieu chuan
-        // console.log("Đạt tiêu chuẩn: ", isDongHoDatTieuChuan(q, getHieuSaiSo(formValues as TinhSaiSoValueTabs)));
-        // console.log("Đạt tiêu chuẩn: ", isDongHoDatTieuChuan(q, getHieuSaiSo(formValues as TinhSaiSoValueTabs)) ? "Đạt" : "Không");
+        // console.log("Đạt tiêu chuẩn: ", isDongHoDatTieuChuan(q, getHieuSaiSo(newFormValues as TinhSaiSoValueTabs)));
+        // console.log("Đạt tiêu chuẩn: ", isDongHoDatTieuChuan(q, getHieuSaiSo(newFormValues as TinhSaiSoValueTabs)) ? "Đạt" : "Không");
     };
 
     const handleClick = (key: string) => {
@@ -208,11 +215,16 @@ export default function TinhSaiSoTab({ className, tabIndex, d, q, form, onFormHS
             </div>
             <div className="w-100 d-flex align-items-center justify-content-between">
                 <h5 className="m-0">Lần thực hiện:</h5>
-                <button className="btn px-3 py-2 btn-success" onClick={() => themLanChayCuaLuuLuong(q)}>
-                    <FontAwesomeIcon icon={faAdd} className="me-2"></FontAwesomeIcon>Thêm lần chạy
-                </button>
-            </div>
+                <div className="d-flex justify-content-between gap-2">
 
+                    <button className="btn px-3 py-2 btn-secondary" onClick={() => themLanChayCuaLuuLuong(q)}>
+                        <FontAwesomeIcon icon={faUndo} className="me-2"></FontAwesomeIcon>Reset
+                    </button>
+                    <button className="btn px-3 py-2 btn-success" onClick={() => themLanChayCuaLuuLuong(q)}>
+                        <FontAwesomeIcon icon={faAdd} className="me-2"></FontAwesomeIcon>Thêm lần chạy
+                    </button>
+                </div>
+            </div>
             {renderTabTinhSaiSo()}
         </div>
     );
