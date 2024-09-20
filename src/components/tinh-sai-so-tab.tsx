@@ -1,12 +1,12 @@
 "use client";
 
 import { useKiemDinh } from "@/context/kiem-dinh";
-import { faAdd, faCaretDown, faTimes, faUndo } from "@fortawesome/free-solid-svg-icons";
+import { faAdd, faTimes, faUndo } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { getHieuSaiSo, getVToiThieu, isDongHoDatTieuChuan } from "@lib/system-function";
+import { getHieuSaiSo, getVToiThieu } from "@lib/system-function";
 import { DuLieuCacLanChay, DuLieuMotLanChay, TinhSaiSoValueTabs } from "@lib/types";
 import c_ect from "@styles/scss/components/tinh-sai-so-tab.module.scss";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import Swal from "sweetalert2";
 
 interface TinhSaiSoTabProps {
@@ -34,12 +34,7 @@ interface FormProps {
 
 export default function TinhSaiSoTab({ className, tabIndex, d, q, form, onFormHSSChange }: TinhSaiSoTabProps) {
 
-    const { lanChayMoi, getDuLieuChayCuaLuuLuong, themLanChayCuaLuuLuong, updateLuuLuong, duLieuKiemDinhCacLuuLuong, xoaLanChayCuaLuuLuong } = useKiemDinh();
-    const refDuLieuKiemDinhCacLuuLuong = useRef(duLieuKiemDinhCacLuuLuong);
-
-    useEffect(() => {
-        updateLuuLuong(q);
-    }, [q]);
+    const { getDuLieuChayCuaLuuLuong, themLanChayCuaLuuLuong, updateLuuLuong, xoaLanChayCuaLuuLuong, resetLanChay } = useKiemDinh();
 
     if (!tabIndex || tabIndex <= 0) {
         return <></>;
@@ -66,10 +61,10 @@ export default function TinhSaiSoTab({ className, tabIndex, d, q, form, onFormHS
     const [activeTab, setActiveTab] = useState<number>(getActiveTab())
 
     // Hook: Cập nhật lại số lượng form + tab sau khi update số lần
+
+    const [formValues, setFormValues] = useState<DuLieuCacLanChay>(getDuLieuChayCuaLuuLuong(q));
+
     useEffect(() => {
-        if (refDuLieuKiemDinhCacLuuLuong.current != duLieuKiemDinhCacLuuLuong) {
-            setFormValues(getDuLieuChayCuaLuuLuong(q));
-        }
         setSelectedTabForm({
             ...Object.keys(initialTabFormState).reduce((prevTabState, key) => {
                 prevTabState[Number(key)] = false;
@@ -77,9 +72,9 @@ export default function TinhSaiSoTab({ className, tabIndex, d, q, form, onFormHS
             }, {} as TabFormState),
             [(selectedTabForm[activeTab] ? activeTab : parseInt(Object.keys(selectedTabForm)[0]))]: true
         });
-    }, [duLieuKiemDinhCacLuuLuong]);
-
-    const [formValues, setFormValues] = useState<DuLieuCacLanChay>(getDuLieuChayCuaLuuLuong(q));
+        onFormHSSChange(getHieuSaiSo(formValues as TinhSaiSoValueTabs));
+        updateLuuLuong(q, formValues);
+    }, [formValues]);
 
     // Func: toggel tab select
     const toggleTabForm = (tab: number) => {
@@ -95,12 +90,6 @@ export default function TinhSaiSoTab({ className, tabIndex, d, q, form, onFormHS
             });
         }
     };
-
-    useEffect(() => {
-        // onFormHSSChange(getHieuSaiSo(formValues as TinhSaiSoValueTabs))
-        console.log(duLieuKiemDinhCacLuuLuong);
-
-    }, [formValues]);
 
     // Form: change thì đổi hiệu sai số
     const handleFormChange = (index: number, field: keyof DuLieuMotLanChay, value: number) => {
@@ -124,7 +113,7 @@ export default function TinhSaiSoTab({ className, tabIndex, d, q, form, onFormHS
         // console.log("Đạt tiêu chuẩn: ", isDongHoDatTieuChuan(q, getHieuSaiSo(newFormValues as TinhSaiSoValueTabs)) ? "Đạt" : "Không");
     };
 
-    const handleClick = (key: string) => {
+    const handleDelete = (key: string) => {
         Swal.fire({
             title: `Xóa ${q.title} lần ${key}?`,
             text: "Không thể hồi phục dữ liệu đã xóa!",
@@ -135,9 +124,29 @@ export default function TinhSaiSoTab({ className, tabIndex, d, q, form, onFormHS
             confirmButtonText: "Xóa"
         }).then((result) => {
             if (result.isConfirmed) {
-                xoaLanChayCuaLuuLuong(q, key);
+                setFormValues(xoaLanChayCuaLuuLuong(q, key));
             }
         });
+    }
+
+    const handleAdd = () => {
+        const newFormValues = themLanChayCuaLuuLuong(q);
+        setFormValues(newFormValues);
+    
+        // Ensure the new tab is selected
+        const newTabIndex = Object.keys(newFormValues).length * tabIndex;
+        setSelectedTabForm({
+            ...Object.keys(selectedTabForm).reduce((prevTabState, key) => {
+                prevTabState[Number(key)] = false;
+                return prevTabState;
+            }, {} as TabFormState),
+            [newTabIndex]: true,
+        });
+        setActiveTab(newTabIndex);
+    };
+
+    const handleReset = () => {
+        setFormValues(resetLanChay(q));
     }
 
     const Form = form;
@@ -154,7 +163,7 @@ export default function TinhSaiSoTab({ className, tabIndex, d, q, form, onFormHS
                         <label className={`w-100 ${c_ect["tab-radio"]} ${selectedTabForm[Number(key) * tabIndex] ? c_ect["active"] : ""}`}>
                             <h5 className="m-0">Lần {key}</h5>
                             <input type="radio" name={`process-tab-${key}-${tabIndex}`} className="d-none" checked={selectedTabForm[Number(key) * tabIndex]} onChange={() => toggleTabForm(Number(key))} />
-                            <button type="button" className="btn border-0 btn-light text-main-color" onClick={() => handleClick(key)}>
+                            <button type="button" className="btn border-0 btn-light text-main-color" onClick={() => handleDelete(key)}>
                                 <FontAwesomeIcon icon={faTimes} className="me-1" /> Xóa
                             </button>
                         </label>
@@ -217,10 +226,10 @@ export default function TinhSaiSoTab({ className, tabIndex, d, q, form, onFormHS
                 <h5 className="m-0">Lần thực hiện:</h5>
                 <div className="d-flex justify-content-between gap-2">
 
-                    <button className="btn px-3 py-2 btn-secondary" onClick={() => themLanChayCuaLuuLuong(q)}>
+                    <button className="btn px-3 py-2 btn-secondary" onClick={() => handleReset()}>
                         <FontAwesomeIcon icon={faUndo} className="me-2"></FontAwesomeIcon>Reset
                     </button>
-                    <button className="btn px-3 py-2 btn-success" onClick={() => themLanChayCuaLuuLuong(q)}>
+                    <button className="btn px-3 py-2 btn-success" onClick={() => handleAdd()}>
                         <FontAwesomeIcon icon={faAdd} className="me-2"></FontAwesomeIcon>Thêm lần chạy
                     </button>
                 </div>

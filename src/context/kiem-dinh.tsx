@@ -5,19 +5,15 @@ import React, { createContext, useState, useContext, ReactNode, useEffect } from
 interface KiemDinhContextType {
     duLieuKiemDinhCacLuuLuong: DuLieuChayDongHo;
     lanChayMoi: DuLieuCacLanChay;
-    updateLuuLuong: (q: { title: string; value: string }) => void;
+    updateLuuLuong: (q: { title: string; value: string }, duLieuChay: DuLieuCacLanChay) => void;
 
-    // <=> DuLieuChayDongHo = Record<string, DuLieuChayDiemLuuLuong>
     setDuLieuKiemDinh: (tenLuuLuong: string, data: DuLieuChayDiemLuuLuong | null) => void;
 
     removeKiemDinh: (id: string) => void;
-    // duLieuLanChay: DuLieuMotLanChay;
-    // setDuLieuMotLanChayCuaLuuLuong: (data: DuLieuMotLanChay) => void;
-    themLanChayCuaLuuLuong: (q: { title: string; value: string }) => void;
     getDuLieuChayCuaLuuLuong: (q: { title: string; value: string }) => DuLieuCacLanChay;
-    xoaLanChayCuaLuuLuong: (q: { title: string; value: string }, id: number | string) => void;
-    // xoaLanChayCuaLuuLuong: (q: { title: string; value: string }, id: number) => void;
-    // resetLanChay: () => void;
+    themLanChayCuaLuuLuong: (q: { title: string; value: string }) => DuLieuCacLanChay;
+    xoaLanChayCuaLuuLuong: (q: { title: string; value: string }, id: number | string) => DuLieuCacLanChay;
+    resetLanChay: (q: { title: string; value: string }) => DuLieuCacLanChay;
 }
 
 const KiemDinhContext = createContext<KiemDinhContextType | undefined>(undefined);
@@ -52,21 +48,18 @@ export const KiemDinhProvider = ({ children }: { children: ReactNode }) => {
         }));
     };
 
-    
-    // TODO: Fix dữ
-    const updateLuuLuong = (q: { title: string; value: string }) => {
+    const updateLuuLuong = (q: { title: string; value: string }, duLieuChay: DuLieuCacLanChay) => {
         const value = isNaN(Number(q.value)) ? 0 : Number(q.value);
         const keyOfLuuLuongDHDienTu = [TITLE_LUU_LUONG.q3, TITLE_LUU_LUONG.q2, TITLE_LUU_LUONG.q1];
         if (q.title) {
             let key = q.title;
             const isDHDienTu = keyOfLuuLuongDHDienTu.includes(q.title);
             setDuLieuKiemDinhCacLuuLuong(prevState => {
-                const existingData = prevState[key] || { value: 0, lanChay: lanChayMoi };
                 return {
                     ...prevState,
                     [key]: {
-                        ...existingData,
                         value: value,
+                        lanChay: duLieuChay
                     },
                     [!isDHDienTu ? TITLE_LUU_LUONG.q3 : TITLE_LUU_LUONG.qn]: null,
                     [!isDHDienTu ? TITLE_LUU_LUONG.q2 : TITLE_LUU_LUONG.qt]: null,
@@ -90,6 +83,7 @@ export const KiemDinhProvider = ({ children }: { children: ReactNode }) => {
     }
 
     const themLanChayCuaLuuLuong = (q: { title: string; value: string }) => {
+        let updatedData: DuLieuChayDongHo = duLieuKiemDinhCacLuuLuong;
         if (q.title) {
             let key = q.title;
             let data = duLieuKiemDinhCacLuuLuong[key]?.lanChay;
@@ -97,7 +91,7 @@ export const KiemDinhProvider = ({ children }: { children: ReactNode }) => {
             if (data) {
                 setDuLieuKiemDinhCacLuuLuong(prevState => {
                     const existingData = prevState[key] || { value: 0, lanChay: lanChayMoi };
-                    return {
+                    updatedData = {
                         ...prevState,
                         [key]: {
                             ...existingData,
@@ -107,30 +101,31 @@ export const KiemDinhProvider = ({ children }: { children: ReactNode }) => {
                             }
                         }
                     }
+                    return updatedData;
                 });
-                updateLuuLuong(q);
             }
         }
-
+        return updatedData[q.title]?.lanChay as DuLieuCacLanChay;
     };
 
-    // TODO: 
     const xoaLanChayCuaLuuLuong = (q: { title: string; value: string }, id: number | string) => {
+        let updatedData: DuLieuChayDongHo = duLieuKiemDinhCacLuuLuong;
         const getId = typeof id === 'string' ? parseInt(id) : id;
         if (q.title) {
             let key = q.title;
             let data = duLieuKiemDinhCacLuuLuong[key]?.lanChay;
 
+
             if (data) {
                 setDuLieuKiemDinhCacLuuLuong(prevState => {
                     const existingData = prevState[key] || { value: 0, lanChay: lanChayMoi };
                     let existingLanChay = prevState[key]?.lanChay || lanChayMoi;
-                    
-                    if((existingLanChay as Record<number, DuLieuMotLanChay>)[getId]) {
+
+                    if ((existingLanChay as Record<number, DuLieuMotLanChay>)[getId]) {
                         delete (existingLanChay as Record<number, DuLieuMotLanChay>)[getId];
                     }
 
-                    return {
+                    let updatedData = {
                         ...prevState,
                         [key]: {
                             ...existingData,
@@ -138,22 +133,39 @@ export const KiemDinhProvider = ({ children }: { children: ReactNode }) => {
                                 ...existingLanChay,
                             }
                         }
-                    }
-                });
-                updateLuuLuong(q);
-            }
+                    };
 
+                    return updatedData;     
+                });
+            }
         }
+        return updatedData[q.title]?.lanChay as DuLieuCacLanChay;
     };
 
-    // TODO:
-    // const resetLanChay = () => {
-    //     setDuLieuMotLanChayCuaLuuLuong({
-    //         1: { V1: 0, V2: 0, Vc1: 0, Vc2: 0, Tdh: 0, Tc: 0 },
-    //         2: { V1: 0, V2: 0, Vc1: 0, Vc2: 0, Tdh: 0, Tc: 0 },
-    //         3: { V1: 0, V2: 0, Vc1: 0, Vc2: 0, Tdh: 0, Tc: 0 }
-    //     })
-    // };
+    const resetLanChay = (q: { title: string; value: string }) => {
+        let updatedData: DuLieuChayDongHo = duLieuKiemDinhCacLuuLuong;
+        if (q.title) {
+            let key = q.title;
+            let data = duLieuKiemDinhCacLuuLuong[key]?.lanChay;
+
+            if (data) {
+                setDuLieuKiemDinhCacLuuLuong(prevState => {
+                    const existingData = prevState[key] || { value: 0, lanChay: lanChayMoi };
+
+                    updatedData = {
+                        ...prevState,
+                        [key]: {
+                            ...existingData,
+                            lanChay: lanChayMoi
+                        }
+                    }
+
+                    return updatedData;
+                });
+            }
+        }
+        return updatedData[q.title]?.lanChay as DuLieuCacLanChay;
+    };
 
     return (
         <KiemDinhContext.Provider value={{
@@ -166,7 +178,8 @@ export const KiemDinhProvider = ({ children }: { children: ReactNode }) => {
             getDuLieuChayCuaLuuLuong: (q: { title: string; value: string; }) => {
                 return getDuLieuChayCuaLuuLuong(q) || lanChayMoi;
             },
-            xoaLanChayCuaLuuLuong
+            xoaLanChayCuaLuuLuong,
+            resetLanChay
         }}>
             {children}
         </KiemDinhContext.Provider>
