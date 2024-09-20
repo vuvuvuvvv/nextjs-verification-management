@@ -84,12 +84,14 @@ export default function NewProcessDNBiggerThan32({ className }: NewProcessDNBigg
         const newFormValues = [...formHieuSaiSo];
         newFormValues[index].hss = value;
         setFormHieuSaiSo(newFormValues);
-        // console.log("HSS: ", formHieuSaiSo);
+        console.log("HSS: ", formHieuSaiSo);
+        // console.log("Đạt tiêu chuẩn: ", isDongHoDatTieuChuan(isDHDienTu, newFormValues) ? "Đạt" : "Không");
     };
 
     useEffect(() => {
         if (q3 || qn) {
-            console.log(isDongHoDatTieuChuan((q3) ? true : false, formHieuSaiSo));
+            // TODO: Tạo button check?
+            console.log("Đạt tiêu chuẩn: ", isDongHoDatTieuChuan(isDHDienTu, formHieuSaiSo) ? "Đạt" : "Không");
         }
     }, [formHieuSaiSo])
 

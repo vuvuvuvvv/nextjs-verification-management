@@ -3,7 +3,8 @@
 import { useKiemDinh } from "@/context/kiem-dinh";
 import { faAdd, faTimes, faUndo } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { getHieuSaiSo, getVToiThieu } from "@lib/system-function";
+import { TITLE_LUU_LUONG } from "@lib/system-constant";
+import { getHieuSaiSo, getVToiThieu, isDongHoDatTieuChuan } from "@lib/system-function";
 import { DuLieuCacLanChay, DuLieuMotLanChay, TinhSaiSoValueTabs } from "@lib/types";
 import c_ect from "@styles/scss/components/tinh-sai-so-tab.module.scss";
 import { useEffect, useState } from "react";
@@ -104,13 +105,13 @@ export default function TinhSaiSoTab({ className, tabIndex, d, q, form, onFormHS
                     newFormValues[nextIndex] = { ...newFormValues[nextIndex], V1: value };
                 }
             }
+            // console.log("Đạt tiêu chuẩn: ", isDongHoDatTieuChuan((q.title == TITLE_LUU_LUONG.q3), getHieuSaiSo(newFormValues as TinhSaiSoValueTabs)) ? "Đạt" : "Không");
 
             return newFormValues;
         });
 
         // TODO: Dat tieu chuan
         // console.log("Đạt tiêu chuẩn: ", isDongHoDatTieuChuan(q, getHieuSaiSo(newFormValues as TinhSaiSoValueTabs)));
-        // console.log("Đạt tiêu chuẩn: ", isDongHoDatTieuChuan(q, getHieuSaiSo(newFormValues as TinhSaiSoValueTabs)) ? "Đạt" : "Không");
     };
 
     const handleDelete = (key: string) => {

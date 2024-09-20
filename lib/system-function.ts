@@ -106,12 +106,14 @@ export const getHieuSaiSo = (formValues: TinhSaiSoValueTabs) => {
 //     return null;
 // }
 
+
+// TODO: Check 
 export const isDongHoDatTieuChuan = (isQ3: boolean, formHieuSaiSo: { hss: number | null }[]) => {
-    const lan1 = formHieuSaiSo[0].hss;
+    const lan1 = formHieuSaiSo[0].hss;    
     const lan2 = formHieuSaiSo[1].hss;
     const lan3 = formHieuSaiSo[2].hss;
 
-    if (lan1 && lan2 && lan3) {
+    if (lan1 !== null && lan2 !== null && lan3 !== null) {
         return (isQ3) ? (lan1 >= -2 && lan2 >= -2 && lan3 >= -5) : (lan1 <= 2 && lan2 <= 2 && lan3 <= 5)
     }
     return null;
