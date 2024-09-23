@@ -116,5 +116,5 @@ export const isDongHoDatTieuChuan = (isQ3: boolean, formHieuSaiSo: { hss: number
     if (lan1 !== null && lan2 !== null && lan3 !== null) {
         return (isQ3) ? (lan1 >= -2 && lan2 >= -2 && lan3 >= -5) : (lan1 <= 2 && lan2 <= 2 && lan3 <= 5)
     }
-    return false;
+    return null;
 }

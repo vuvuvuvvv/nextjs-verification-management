@@ -171,30 +171,39 @@ export type DuLieuChayDongHo = Record<string, DuLieuChayDiemLuuLuong | null>;
 
 
 export interface DongHo {
-    seriNumber: string | null;
-    phuongTienDo: string | null;
-    seriChiThi: string | null;
-    seriSensor: string | null;
-    kieuChiThi: string | null;
-    kieuSensor: string | null;
-    kieuThietBi: string | null;
-    coSoSanXuat: string | null;
-    soTem: string | null;
-    namSanXuat: Date | null;
+    seri_number: string | null;
+    phuong_tien_do: string | null;
+    seri_chi_thi: string | null;
+    seri_sensor: string | null;
+    kieu_chi_thi: string | null;
+    kieu_sensor: string | null;
+    kieu_thiet_bi: string | null;
+    co_so_san_xuat: string | null;
+    so_tem: string | null;
+    nam_san_xuat: Date | null;
     dn: string | null;
     d: string | null;
     ccx: string | null;
     q3: string | null;
     r: string | null;
     qn: string | null;
-    kFactor: string | null;
+    k_factor: string | null;
     so_qd_pdm: string | null;
-    tenKhachHang: string | null;
-    coSoSuDung: string | null;
-    phuongPhapThucHien: string | null;
-    chuanThietBiSuDung: string | null;
+    ten_khach_hang: string | null;
+    co_so_su_dung: string | null;
+    phuong_phap_thuc_hien: string | null;
+    chuan_thiet_bi_su_dung: string | null;
     implementer: string | null;
-    ngayThucHien: Date | null;
-    viTri: string | null;
-    duLieuKiemDinh: string | null;
+    ngay_thuc_hien: Date | null;
+    vi_tri: string | null;
+    nhiet_do: string | null;
+    do_am: string | null;
+    du_lieu_kieu_dinh: string | null;
+}
+
+export interface DongHoFilterParameters {
+    serinumber?: string;
+    tenkhachhang?: string;
+    namsanxuat_from?: string; // Assuming date is in string format, adjust if necessary
+    namsanxuat_to?: string;   // Assuming date is in string format, adjust if necessary
 }

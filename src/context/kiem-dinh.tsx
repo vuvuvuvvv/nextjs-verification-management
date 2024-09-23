@@ -7,7 +7,8 @@ interface KiemDinhContextType {
     duLieuKiemDinhCacLuuLuong: DuLieuChayDongHo;
     formHieuSaiSo: { hss: number | null }[];
     setFormHieuSaiSo: (form: { hss: number | null }[]) => void;
-    setKetQua: (ketQua: boolean) => void;
+    ketQua: boolean | null;
+    setKetQua: (ketQua: boolean | null) => void;
     lanChayMoi: DuLieuCacLanChay;
     updateLuuLuong: (q: { title: string; value: string }, duLieuChay: DuLieuCacLanChay) => void;
 
@@ -18,7 +19,7 @@ interface KiemDinhContextType {
     themLanChayCuaLuuLuong: (q: { title: string; value: string }) => DuLieuCacLanChay;
     xoaLanChayCuaLuuLuong: (q: { title: string; value: string }, id: number | string) => DuLieuCacLanChay;
     resetLanChay: (q: { title: string; value: string }) => DuLieuCacLanChay;
-    getDuLieuKiemDinhJSON: () => void;
+    getDuLieuKiemDinhJSON: () => string;
 }
 
 const KiemDinhContext = createContext<KiemDinhContextType | undefined>(undefined);
@@ -46,7 +47,7 @@ export const KiemDinhProvider = ({ children }: { children: ReactNode }) => {
         { hss: null },
         { hss: null },
     ]);
-    const [ketQua, setKetQua] = useState<boolean>(false);
+    const [ketQua, setKetQua] = useState<boolean | null>(null);
 
     // useEffect(() => {
     //     console.log("dlkdcll: ", duLieuKiemDinhCacLuuLuong);
@@ -180,7 +181,11 @@ export const KiemDinhProvider = ({ children }: { children: ReactNode }) => {
     };
 
     const getDuLieuKiemDinhJSON = () => {
-        return `{"hss": ${formHieuSaiSo},"duLieukiemDinh": ${duLieuKiemDinhCacLuuLuong},"ketQua": ${ketQua}}`;
+        return JSON.stringify({
+            hss: formHieuSaiSo,
+            duLieukiemDinh: duLieuKiemDinhCacLuuLuong,
+            ketQua: ketQua
+        });
     }
 
     return (
@@ -188,6 +193,7 @@ export const KiemDinhProvider = ({ children }: { children: ReactNode }) => {
             duLieuKiemDinhCacLuuLuong,
             formHieuSaiSo,
             lanChayMoi,
+            ketQua,
             updateLuuLuong,
             removeKiemDinh,
             setDuLieuKiemDinh, 

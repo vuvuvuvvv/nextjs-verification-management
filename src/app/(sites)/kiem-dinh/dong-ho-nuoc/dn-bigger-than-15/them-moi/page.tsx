@@ -21,6 +21,11 @@ import { useUser } from "@/context/app-context";
 import { getQ2OrQtAndQ1OrQMin, isDongHoDatTieuChuan } from "@lib/system-function";
 import Link from "next/link";
 import { KiemDinhProvider, useKiemDinh } from "@/context/kiem-dinh";
+import { useDongHo } from "@/context/dong-ho";
+import Swal from "sweetalert2";
+import router from "next/router";
+import { createDongHo } from "@/app/api/dongho/route";
+
 
 interface NewProcessDNBiggerThan32Props {
     className?: string,
@@ -62,7 +67,7 @@ export default function NewProcessDNBiggerThan32({ className }: NewProcessDNBigg
     const [coSoSuDung, setCoSoSuDung] = useState<string>("");                                                                   // Cơ sở sử dụng
     const [phuongPhapThucHien, setPhuongPhapThucHien] = useState<string>("ĐNVN 17:2017");                                       // Phương pháp thực hiện
     const [chuanThietBiSuDung, setChuanThietBiSuDung] = useState<string>("Đồng hồ chuẩn đo nước và Bình chuẩn");                // Chuẩn, thiết bị chính được sử dụng
-    const [implementer, setImplementer] = useState<string>("");                                                                 // Người thực hiện
+    const [implementer, setImplementer] = useState<string>(user?.fullname || "");                                                                 // Người thực hiện
     const [ngayThucHien, setNgayThucHien] = useState<Date | null>(new Date());                                                  // Ngày thực hiện
     const [viTri, setViTri] = useState<string>("");                                                                             // Vị trí
     const [nhietDo, setNhietDo] = useState<string>('');                                                                         // Nhiệt độ
@@ -74,6 +79,175 @@ export default function NewProcessDNBiggerThan32({ className }: NewProcessDNBigg
     const [q1Ormin, setQ2OrQmin] = useState<number | null>(null);
 
     const { formHieuSaiSo, setFormHieuSaiSo, setKetQua } = useKiemDinh();
+    const { dongHo, setDongHo } = useDongHo();
+    const { getDuLieuKiemDinhJSON, ketQua } = useKiemDinh();
+
+    const [canSave, setCanSave] = useState(false);
+    const [error, setError] = useState("");
+
+    useEffect(() => {
+        if (error) {
+            Swal.fire({
+                icon: "error",
+                title: "Lỗi",
+                text: error,
+                showClass: {
+                    popup: `
+                    animate__animated
+                    animate__fadeInUp
+                    animate__faster
+                  `
+                },
+                hideClass: {
+                    popup: `
+                    animate__animated
+                    animate__fadeOutDown
+                    animate__faster
+                  `
+                },
+                confirmButtonColor: "#0980de",
+                confirmButtonText: "OK"
+            }).then(() => {
+                setError("");
+            });
+        }
+    }, [error]);
+
+    // Func: Validate
+    const handleCheck = () => {
+        const fields = [
+            { value: seriNumber, setter: setSeriNumber, id: "seriNumber" },
+            { value: phuongTienDo, setter: setPhuongTienDo, id: "phuongTienDo" },
+            { value: seriChiThi, setter: setSeriChiThi, id: "seriChiThi" },
+            { value: seriSensor, setter: setSeriSensor, id: "seriSensor" },
+            { value: kieuChiThi, setter: setKieuChiThi, id: "kieuChiThi" },
+            { value: kieuSensor, setter: setKieuSensor, id: "kieuSensor" },
+            { value: kieuThietBi, setter: setKieuThietBi, id: "kieuThietBi" },
+            { value: soTem, setter: setSoTem, id: "soTem" },
+            { value: coSoSanXuat, setter: setCoSoSanXuat, id: "coSoSanXuat" },
+            { value: namSanXuat, setter: setNamSanXuat, id: "namSanXuat" },
+            { value: dn, setter: setDN, id: "dn" },
+            { value: d, setter: setD, id: "d" },
+            { value: ccx, setter: setCCX, id: "ccx" },
+            { value: q3, setter: setQ3, id: "q3" },
+            { value: r, setter: setR, id: "r" },
+            { value: qn, setter: setQN, id: "qn" },
+            { value: kFactor, setter: setKFactor, id: "kFactor" },
+            { value: so_qd_pdm, setter: setSoQDPDM, id: "so_qd_pdm" },
+            { value: tenKhachHang, setter: setTenKhachhang, id: "tenKhachHang" },
+            { value: coSoSuDung, setter: setCoSoSuDung, id: "coSoSuDung" },
+            { value: phuongPhapThucHien, setter: setPhuongPhapThucHien, id: "phuongPhapThucHien" },
+            // { value: chuanThietBiSuDung, setter: setChuanThietBiSuDung, id: "chuanThietBiSuDung" },
+            // { value: implementer, setter: setImplementer, id: "implementer" },
+            // { value: ngayThucHien, setter: setNgayThucHien, id: "ngayThucHien" },
+            { value: viTri, setter: setViTri, id: "viTri" },
+            { value: nhietDo, setter: setNhietDo, id: "nhietDo" },
+            { value: doAm, setter: setDoAm, id: "doAm" },
+        ];
+
+        let firstInvalidField = null;
+
+        for (const field of fields) {
+            const element = document.getElementById(field.id);
+            if (field.value) {
+                if (element) {
+                    element.classList.remove("is-invalid");
+                }
+            } else {
+                if (element) {
+                    element.classList.add("is-invalid");
+                    if (!firstInvalidField) {
+                        firstInvalidField = element;
+                    }
+                }
+            }
+        }
+
+        if (firstInvalidField) {
+            firstInvalidField.focus();
+            return;
+        }
+
+        // // If all validations pass, update the context
+        setDongHo({
+            seri_number: seriNumber,
+            phuong_tien_do: phuongTienDo,
+            seri_chi_thi: seriChiThi,
+            seri_sensor: seriSensor,
+            kieu_chi_thi: kieuChiThi,
+            kieu_sensor: kieuSensor,
+            kieu_thiet_bi: kieuThietBi,
+            co_so_san_xuat: soTem,
+            so_tem: coSoSanXuat,
+            nam_san_xuat: namSanXuat,
+            dn: dn,
+            d: d,
+            ccx: ccx,
+            q3: q3,
+            r: r,
+            qn: qn,
+            k_factor: kFactor,
+            so_qd_pdm: so_qd_pdm,
+            ten_khach_hang: tenKhachHang,
+            co_so_su_dung: coSoSuDung,
+            phuong_phap_thuc_hien: phuongPhapThucHien,
+            chuan_thiet_bi_su_dung: chuanThietBiSuDung,
+            implementer: implementer,
+            ngay_thuc_hien: ngayThucHien,
+            vi_tri: viTri,
+            nhiet_do: nhietDo,
+            do_am: doAm,
+            du_lieu_kieu_dinh: getDuLieuKiemDinhJSON(), // Assuming this is not part of the form
+        });
+
+        // TODO: Validate 
+        // Thông báo ketQua null hay không => return kết quả + nhập số tem.
+        if (ketQua != null) {
+            setCanSave(true);
+        } else {
+            setError("Tiến trình không được để trống");
+        }
+    };
+
+    const handleSaveDongHo = async () => {
+        if (canSave) {
+            // TODO: Save Dong ho 
+            console.log(dongHo);
+            try {
+                const response = await createDongHo(dongHo);
+                if (response.status == 201) {
+                    Swal.fire({
+                        icon: "success",
+                        showClass: {
+                            popup: `
+                          animate__animated
+                          animate__fadeInUp
+                          animate__faster
+                        `
+                        },
+                        html: "Lưu Đồng hồ thành công!",
+                        timer: 1500,
+                        allowOutsideClick: false,
+                        allowEscapeKey: false,
+                        didOpen: () => {
+                            Swal.showLoading();
+                        },
+                    }).then((result) => {
+                        if (result.dismiss === Swal.DismissReason.timer) {
+                            Swal.showLoading();
+                            router.push("/kiem-dinh/dong-ho-nuoc/dn-bigger-than-15");
+                        }
+                    });
+                } else {
+                    console.log(response)
+                    setError(response.msg);
+                }
+            } catch (err) {
+                setError("Đã có lỗi xảy ra. Vui lòng thử lại!");
+            }
+        }
+        setError("Chưa thể lưu lúc này!");
+    }
 
     // TODO: Dat tieu chuan:
     const handleFormHSSChange = (index: number, value: number) => {
@@ -543,7 +717,7 @@ export default function NewProcessDNBiggerThan32({ className }: NewProcessDNBigg
                                         className="form-control"
                                         id="implementer"
                                         placeholder="Người thực hiện"
-                                        value={user?.fullname || implementer}
+                                        value={implementer}
                                         onChange={(e) => setImplementer(e.target.value)}
                                     />
                                 </div>
@@ -610,7 +784,7 @@ export default function NewProcessDNBiggerThan32({ className }: NewProcessDNBigg
                 </div>
 
                 <div className={`m-0 mb-3 p-2 bg-white rounded shadow-sm w-100 w-100`}>
-                    <NavTab className="mb-2" tabContent={
+                    <NavTab tabContent={
                         [
                             {
                                 title: <>Q<sub>{isDHDienTu ? "3" : "n"}</sub></>,
@@ -641,9 +815,12 @@ export default function NewProcessDNBiggerThan32({ className }: NewProcessDNBigg
                             },
                         ]
                     } />
-                    <div className="w-100 m-0 p-2">
-                        <button className="btn btn-success">
+                    <div className="w-100 m-0 p-2 d-flex gap-2">
+                        <button className="btn btn-danger" onClick={handleCheck}>
                             Kiểm tra
+                        </button>
+                        <button className={`btn ${canSave ? "btn-success" : "btn-secondary"}`} disabled={!canSave} onClick={handleSaveDongHo}>
+                            Lưu Đồng hồ
                         </button>
                     </div>
                 </div>
@@ -651,3 +828,7 @@ export default function NewProcessDNBiggerThan32({ className }: NewProcessDNBigg
         </LocalizationProvider >
     )
 }
+
+
+
+

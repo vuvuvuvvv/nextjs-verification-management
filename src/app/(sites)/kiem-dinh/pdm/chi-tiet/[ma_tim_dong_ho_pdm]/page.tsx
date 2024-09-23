@@ -281,6 +281,25 @@ export default function Page({ params }: { params: { ma_tim_dong_ho_pdm: string 
                                             </div>
                                         </div>
                                     )}
+                                    {pdmData?.qn && (
+                                        <div className="mb-3 col-12 col-md-6">
+                                            <label htmlFor="qn" className="form-label">- Q<sub>n</sub>:</label>
+                                            <div className="input-group">
+                                                <input
+                                                    type="text"
+                                                    className="form-control"
+                                                    id="qn"
+                                                    name="qn"
+                                                    placeholder="Qn"
+                                                    value={pdmData.qn.replace('.0', '')}
+                                                    onChange={handleInputChange}
+                                                    readOnly={isUser}
+                                                    disabled={isUser}
+                                                />
+                                                <span className="input-group-text">m<sup>3</sup>/h</span>
+                                            </div>
+                                        </div>
+                                    )}
                                     {pdmData?.r && (
                                         <div className="mb-3 col-12 col-md-6">
                                             <label htmlFor="R" className="form-label">- Tỷ số Q<sub>3</sub>/Q<sub>1</sub> (R):</label>
