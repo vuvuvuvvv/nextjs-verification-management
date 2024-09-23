@@ -1,9 +1,13 @@
 import { TITLE_LUU_LUONG } from '@lib/system-constant';
+import { isDongHoDatTieuChuan } from '@lib/system-function';
 import { DuLieuChayDongHo, DuLieuChayDiemLuuLuong, DuLieuMotLanChay, DuLieuCacLanChay } from '@lib/types';
 import React, { createContext, useState, useContext, ReactNode, useEffect } from 'react';
 
 interface KiemDinhContextType {
     duLieuKiemDinhCacLuuLuong: DuLieuChayDongHo;
+    formHieuSaiSo: { hss: number | null }[];
+    setFormHieuSaiSo: (form: { hss: number | null }[]) => void;
+    setKetQua: (ketQua: boolean) => void;
     lanChayMoi: DuLieuCacLanChay;
     updateLuuLuong: (q: { title: string; value: string }, duLieuChay: DuLieuCacLanChay) => void;
 
@@ -14,6 +18,7 @@ interface KiemDinhContextType {
     themLanChayCuaLuuLuong: (q: { title: string; value: string }) => DuLieuCacLanChay;
     xoaLanChayCuaLuuLuong: (q: { title: string; value: string }, id: number | string) => DuLieuCacLanChay;
     resetLanChay: (q: { title: string; value: string }) => DuLieuCacLanChay;
+    getDuLieuKiemDinhJSON: () => void;
 }
 
 const KiemDinhContext = createContext<KiemDinhContextType | undefined>(undefined);
@@ -35,6 +40,13 @@ export const KiemDinhProvider = ({ children }: { children: ReactNode }) => {
     };
 
     const [duLieuKiemDinhCacLuuLuong, setDuLieuKiemDinhCacLuuLuong] = useState<DuLieuChayDongHo>(initialDuLieuKiemDinhCacLuuLuong);
+    const [kiemDinhToJSON, setKiemDinhToJSON] = useState(null);
+    const [formHieuSaiSo, setFormHieuSaiSo] = useState<{ hss: number | null }[]>([
+        { hss: null },
+        { hss: null },
+        { hss: null },
+    ]);
+    const [ketQua, setKetQua] = useState<boolean>(false);
 
     // useEffect(() => {
     //     console.log("dlkdcll: ", duLieuKiemDinhCacLuuLuong);
@@ -135,7 +147,7 @@ export const KiemDinhProvider = ({ children }: { children: ReactNode }) => {
                         }
                     };
 
-                    return updatedData;     
+                    return updatedData;
                 });
             }
         }
@@ -167,19 +179,27 @@ export const KiemDinhProvider = ({ children }: { children: ReactNode }) => {
         return updatedData[q.title]?.lanChay as DuLieuCacLanChay;
     };
 
+    const getDuLieuKiemDinhJSON = () => {
+        return `{"hss": ${formHieuSaiSo},"duLieukiemDinh": ${duLieuKiemDinhCacLuuLuong},"ketQua": ${ketQua}}`;
+    }
+
     return (
         <KiemDinhContext.Provider value={{
             duLieuKiemDinhCacLuuLuong,
+            formHieuSaiSo,
             lanChayMoi,
             updateLuuLuong,
             removeKiemDinh,
-            setDuLieuKiemDinh,
+            setDuLieuKiemDinh, 
+            setKetQua,
             themLanChayCuaLuuLuong,
             getDuLieuChayCuaLuuLuong: (q: { title: string; value: string; }) => {
                 return getDuLieuChayCuaLuuLuong(q) || lanChayMoi;
             },
             xoaLanChayCuaLuuLuong,
-            resetLanChay
+            resetLanChay,
+            getDuLieuKiemDinhJSON,
+            setFormHieuSaiSo, // Added to context value
         }}>
             {children}
         </KiemDinhContext.Provider>

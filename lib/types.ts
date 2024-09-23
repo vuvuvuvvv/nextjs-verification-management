@@ -168,3 +168,33 @@ export type DuLieuChayDiemLuuLuong = {
  * }
  */
 export type DuLieuChayDongHo = Record<string, DuLieuChayDiemLuuLuong | null>;
+
+
+export interface DongHo {
+    seriNumber: string | null;
+    phuongTienDo: string | null;
+    seriChiThi: string | null;
+    seriSensor: string | null;
+    kieuChiThi: string | null;
+    kieuSensor: string | null;
+    kieuThietBi: string | null;
+    coSoSanXuat: string | null;
+    soTem: string | null;
+    namSanXuat: Date | null;
+    dn: string | null;
+    d: string | null;
+    ccx: string | null;
+    q3: string | null;
+    r: string | null;
+    qn: string | null;
+    kFactor: string | null;
+    so_qd_pdm: string | null;
+    tenKhachHang: string | null;
+    coSoSuDung: string | null;
+    phuongPhapThucHien: string | null;
+    chuanThietBiSuDung: string | null;
+    implementer: string | null;
+    ngayThucHien: Date | null;
+    viTri: string | null;
+    duLieuKiemDinh: string | null;
+}

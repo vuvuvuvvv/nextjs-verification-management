@@ -73,25 +73,21 @@ export default function NewProcessDNBiggerThan32({ className }: NewProcessDNBigg
     const [q2Ort, setQ1OrQt] = useState<number | null>(null);
     const [q1Ormin, setQ2OrQmin] = useState<number | null>(null);
 
-    const [formHieuSaiSo, setFormHieuSaiSo] = useState<{ hss: number | null }[]>([
-        { hss: null },
-        { hss: null },
-        { hss: null },
-    ]);
+    const { formHieuSaiSo, setFormHieuSaiSo, setKetQua } = useKiemDinh();
 
     // TODO: Dat tieu chuan:
     const handleFormHSSChange = (index: number, value: number) => {
         const newFormValues = [...formHieuSaiSo];
         newFormValues[index].hss = value;
         setFormHieuSaiSo(newFormValues);
-        console.log("HSS: ", formHieuSaiSo);
+        // console.log("HSS: ", formHieuSaiSo);
         // console.log("Đạt tiêu chuẩn: ", isDongHoDatTieuChuan(isDHDienTu, newFormValues) ? "Đạt" : "Không");
     };
 
     useEffect(() => {
         if (q3 || qn) {
             // TODO: Tạo button check?
-            console.log("Đạt tiêu chuẩn: ", isDongHoDatTieuChuan(isDHDienTu, formHieuSaiSo) ? "Đạt" : "Không");
+            setKetQua(isDongHoDatTieuChuan(isDHDienTu, formHieuSaiSo));
         }
     }, [formHieuSaiSo])
 
@@ -614,8 +610,7 @@ export default function NewProcessDNBiggerThan32({ className }: NewProcessDNBigg
                 </div>
 
                 <div className={`m-0 mb-3 p-2 bg-white rounded shadow-sm w-100 w-100`}>
-                    {/* TODO: validate before show form  */}
-                    <NavTab tabContent={
+                    <NavTab className="mb-2" tabContent={
                         [
                             {
                                 title: <>Q<sub>{isDHDienTu ? "3" : "n"}</sub></>,
@@ -646,7 +641,11 @@ export default function NewProcessDNBiggerThan32({ className }: NewProcessDNBigg
                             },
                         ]
                     } />
-
+                    <div className="w-100 m-0 p-2">
+                        <button className="btn btn-success">
+                            Kiểm tra
+                        </button>
+                    </div>
                 </div>
             </div>
         </LocalizationProvider >

@@ -1,35 +1,5 @@
+import { DongHo } from '@lib/types';
 import React, { createContext, useState, useContext, ReactNode } from 'react';
-
-interface DongHo {
-    seriNumber: string;
-    phuongTienDo: string;
-    seriChiThi: string;
-    seriSensor: string;
-    kieuChiThi: string;
-    kieuSensor: string;
-    kieuThietBi: string;
-    soTem: string;
-    coSoSanXuat: string;
-    namSanXuat: Date | null;
-    dn: string;
-    d: string;
-    ccx: string | null;
-    q3: string;
-    r: string;
-    qn: string;
-    kFactor: string;
-    so_qd_pdm: string;
-    tenKhachHang: string;
-    coSoSuDung: string;
-    phuongPhapThucHien: string;
-    chuanThietBiSuDung: string;
-    implementer: string;
-    ngayThucHien: Date | null;
-    viTri: string;
-    nhietDo: string;
-    doAm: string;
-    isDHDienTu: boolean;
-}
 
 interface DongHoContextType {
     dongHo: DongHo;
@@ -65,9 +35,7 @@ export const DongHoProvider = ({ children }: { children: ReactNode }) => {
         implementer: "",
         ngayThucHien: new Date(),
         viTri: "",
-        nhietDo: "",
-        doAm: "",
-        isDHDienTu: false,
+        duLieuKiemDinh: "", // Added new field
     });
 
     return (
