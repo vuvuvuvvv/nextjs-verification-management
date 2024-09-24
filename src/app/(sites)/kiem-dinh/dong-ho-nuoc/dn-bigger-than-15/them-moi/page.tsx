@@ -1,29 +1,30 @@
 "use client"
 
-import TinhSaiSoTab from "@/components/tinh-sai-so-tab";
-import TinhSaiSoForm from "@/components/tinh-sai-so-form";
 import vrfWm from "@styles/scss/ui/vfm.module.scss"
-import { useEffect, useRef, useState } from "react";
 
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { viVN } from "@mui/x-date-pickers/locales";
 
-import dayjs, { Dayjs } from "dayjs";
 
 import NavTab from "@/components/nav-tab";
-import { ccxOptions, phuongTienDoOptions, TITLE_LUU_LUONG, typeOptions } from "@lib/system-constant";
+import TinhSaiSoTab from "@/components/tinh-sai-so-tab";
+import TinhSaiSoForm from "@/components/tinh-sai-so-form";
+import { useKiemDinh } from "@/context/kiem-dinh";
+import { useDongHo } from "@/context/dong-ho";
+import { useUser } from "@/context/app-context";
 
 import Select, { GroupBase } from 'react-select';
-
-import { useUser } from "@/context/app-context";
-import { getQ2OrQtAndQ1OrQMin, isDongHoDatTieuChuan } from "@lib/system-function";
 import Link from "next/link";
-import { KiemDinhProvider, useKiemDinh } from "@/context/kiem-dinh";
-import { useDongHo } from "@/context/dong-ho";
 import Swal from "sweetalert2";
-import router from "next/router";
+import { useRouter } from "next/navigation";
+import dayjs, { Dayjs } from "dayjs";
+import { useEffect, useState } from "react";
+
+import { getQ2OrQtAndQ1OrQMin, isDongHoDatTieuChuan } from "@lib/system-function";
+import { ccxOptions, phuongTienDoOptions, TITLE_LUU_LUONG, typeOptions } from "@lib/system-constant";
+
 import { createDongHo } from "@/app/api/dongho/route";
 
 
@@ -84,6 +85,7 @@ export default function NewProcessDNBiggerThan32({ className }: NewProcessDNBigg
 
     const [canSave, setCanSave] = useState(false);
     const [error, setError] = useState("");
+    const router = useRouter();
 
     useEffect(() => {
         if (error) {
@@ -114,15 +116,44 @@ export default function NewProcessDNBiggerThan32({ className }: NewProcessDNBigg
     }, [error]);
 
     // Func: Validate
-    const handleCheck = () => {
+    const fieldTitles = {
+        seriNumber: "Số Seri",
+        phuongTienDo: "Tên phương tiện đo",
+        kieuThietBi: "Kiểu thiết bị",
+        seriChiThi: "Serial chỉ thị",
+        seriSensor: "Serial sensor",
+        kieuChiThi: "Kiểu chỉ thị",
+        kieuSensor: "Kiểu sensor",
+        soTem: "Số Tem",
+        coSoSanXuat: "Cơ sở sản xuất",
+        namSanXuat: "Năm sản xuất",
+        dn: "Đường kính danh định (DN)",
+        d: "Độ chia nhỏ nhất (d)",
+        ccx: "Cấp chính xác",
+        q3: "Q3",
+        r: "Tỷ số Q3/Q1 (R)",
+        qn: "Qn",
+        kFactor: "Hệ số K-factor",
+        so_qd_pdm: "Ký hiệu PDM/Số quyết định PDM",
+        tenKhachHang: "Tên khách hàng",
+        coSoSuDung: "Cơ sở sử dụng",
+        phuongPhapThucHien: "Phương pháp thực hiện",
+        viTri: "Địa điểm thực hiện",
+        nhietDo: "Nhiệt độ",
+        doAm: "Độ ẩm",
+        ketQua: "Tiến trình chạy lưu lượng"
+    };
+
+    // Func: validate
+    const validateFields = () => {
         const fields = [
             { value: seriNumber, setter: setSeriNumber, id: "seriNumber" },
             { value: phuongTienDo, setter: setPhuongTienDo, id: "phuongTienDo" },
+            { value: kieuThietBi, setter: setKieuThietBi, id: "kieuThietBi" },
             { value: seriChiThi, setter: setSeriChiThi, id: "seriChiThi" },
             { value: seriSensor, setter: setSeriSensor, id: "seriSensor" },
             { value: kieuChiThi, setter: setKieuChiThi, id: "kieuChiThi" },
             { value: kieuSensor, setter: setKieuSensor, id: "kieuSensor" },
-            { value: kieuThietBi, setter: setKieuThietBi, id: "kieuThietBi" },
             { value: soTem, setter: setSoTem, id: "soTem" },
             { value: coSoSanXuat, setter: setCoSoSanXuat, id: "coSoSanXuat" },
             { value: namSanXuat, setter: setNamSanXuat, id: "namSanXuat" },
@@ -137,15 +168,13 @@ export default function NewProcessDNBiggerThan32({ className }: NewProcessDNBigg
             { value: tenKhachHang, setter: setTenKhachhang, id: "tenKhachHang" },
             { value: coSoSuDung, setter: setCoSoSuDung, id: "coSoSuDung" },
             { value: phuongPhapThucHien, setter: setPhuongPhapThucHien, id: "phuongPhapThucHien" },
-            // { value: chuanThietBiSuDung, setter: setChuanThietBiSuDung, id: "chuanThietBiSuDung" },
-            // { value: implementer, setter: setImplementer, id: "implementer" },
-            // { value: ngayThucHien, setter: setNgayThucHien, id: "ngayThucHien" },
             { value: viTri, setter: setViTri, id: "viTri" },
             { value: nhietDo, setter: setNhietDo, id: "nhietDo" },
             { value: doAm, setter: setDoAm, id: "doAm" },
         ];
 
         let firstInvalidField = null;
+        let validationErrors = [];
 
         for (const field of fields) {
             const element = document.getElementById(field.id);
@@ -156,6 +185,7 @@ export default function NewProcessDNBiggerThan32({ className }: NewProcessDNBigg
             } else {
                 if (element) {
                     element.classList.add("is-invalid");
+                    validationErrors.push(field.id);
                     if (!firstInvalidField) {
                         firstInvalidField = element;
                     }
@@ -163,58 +193,62 @@ export default function NewProcessDNBiggerThan32({ className }: NewProcessDNBigg
             }
         }
 
-        if (firstInvalidField) {
-            firstInvalidField.focus();
-            return;
-        }
+        // if (firstInvalidField) {
+        //     firstInvalidField.focus();
+        // }
 
-        // // If all validations pass, update the context
-        setDongHo({
-            seri_number: seriNumber,
-            phuong_tien_do: phuongTienDo,
-            seri_chi_thi: seriChiThi,
-            seri_sensor: seriSensor,
-            kieu_chi_thi: kieuChiThi,
-            kieu_sensor: kieuSensor,
-            kieu_thiet_bi: kieuThietBi,
-            co_so_san_xuat: soTem,
-            so_tem: coSoSanXuat,
-            nam_san_xuat: namSanXuat,
-            dn: dn,
-            d: d,
-            ccx: ccx,
-            q3: q3,
-            r: r,
-            qn: qn,
-            k_factor: kFactor,
-            so_qd_pdm: so_qd_pdm,
-            ten_khach_hang: tenKhachHang,
-            co_so_su_dung: coSoSuDung,
-            phuong_phap_thuc_hien: phuongPhapThucHien,
-            chuan_thiet_bi_su_dung: chuanThietBiSuDung,
-            implementer: implementer,
-            ngay_thuc_hien: ngayThucHien,
-            vi_tri: viTri,
-            nhiet_do: nhietDo,
-            do_am: doAm,
-            du_lieu_kieu_dinh: getDuLieuKiemDinhJSON(), // Assuming this is not part of the form
-        });
-
-        // TODO: Validate 
-        // Thông báo ketQua null hay không => return kết quả + nhập số tem.
-        if (ketQua != null) {
-            setCanSave(true);
-        } else {
-            setError("Tiến trình không được để trống");
-        }
+        return validationErrors;
     };
+
+    useEffect(() => {
+        const errors = validateFields();
+        if (errors.length === 0) {
+            setDongHo({
+                seri_number: seriNumber,
+                phuong_tien_do: phuongTienDo,
+                seri_chi_thi: seriChiThi,
+                seri_sensor: seriSensor,
+                kieu_chi_thi: kieuChiThi,
+                kieu_sensor: kieuSensor,
+                kieu_thiet_bi: kieuThietBi,
+                co_so_san_xuat: soTem,
+                so_tem: coSoSanXuat,
+                nam_san_xuat: namSanXuat,
+                dn: dn,
+                d: d,
+                ccx: ccx,
+                q3: q3,
+                r: r,
+                qn: qn,
+                k_factor: kFactor,
+                so_qd_pdm: so_qd_pdm,
+                ten_khach_hang: tenKhachHang,
+                co_so_su_dung: coSoSuDung,
+                phuong_phap_thuc_hien: phuongPhapThucHien,
+                chuan_thiet_bi_su_dung: chuanThietBiSuDung,
+                implementer: implementer,
+                ngay_thuc_hien: ngayThucHien,
+                vi_tri: viTri,
+                nhiet_do: nhietDo,
+                do_am: doAm,
+                du_lieu_kieu_dinh: getDuLieuKiemDinhJSON(), // Assuming this is not part of the form
+            });
+
+            if (ketQua != null) {
+                setCanSave(true);
+            }
+        } else {
+            setCanSave(false);
+        }
+    }, [
+        seriNumber, phuongTienDo, kieuThietBi, seriChiThi, seriSensor, kieuChiThi, kieuSensor, soTem, coSoSanXuat, namSanXuat, dn, d, ccx, q3, r, qn, kFactor, so_qd_pdm, tenKhachHang, coSoSuDung, phuongPhapThucHien, viTri, nhietDo, doAm
+    ]);
 
     const handleSaveDongHo = async () => {
         if (canSave) {
-            // TODO: Save Dong ho 
-            console.log(dongHo);
             try {
                 const response = await createDongHo(dongHo);
+                // console.log(response)
                 if (response.status == 201) {
                     Swal.fire({
                         icon: "success",
@@ -239,14 +273,15 @@ export default function NewProcessDNBiggerThan32({ className }: NewProcessDNBigg
                         }
                     });
                 } else {
-                    console.log(response)
+                    // console.log(response)
                     setError(response.msg);
                 }
             } catch (err) {
                 setError("Đã có lỗi xảy ra. Vui lòng thử lại!");
             }
+        } else {
+            setError("Chưa thể lưu lúc này!");
         }
-        setError("Chưa thể lưu lúc này!");
     }
 
     // TODO: Dat tieu chuan:
@@ -489,6 +524,10 @@ export default function NewProcessDNBiggerThan32({ className }: NewProcessDNBigg
                                             indicatorsContainer: (provided) => ({
                                                 ...provided,
                                                 height: '42px'
+                                            }),
+                                            menu: (provided) => ({
+                                                ...provided,
+                                                zIndex: 777
                                             })
                                         }}
                                     />
@@ -503,6 +542,7 @@ export default function NewProcessDNBiggerThan32({ className }: NewProcessDNBigg
                                         placeholder="-- Chọn kiểu --"
                                         classNamePrefix="select"
                                         isClearable
+                                        id="kieuThietBi"
                                         value={typeOptions.find(option => option.value === kieuThietBi) || null}
                                         onChange={(selectedOptions: any) => setKieuThietBi(selectedOptions ? selectedOptions.value : "")}
                                         styles={{
@@ -526,6 +566,10 @@ export default function NewProcessDNBiggerThan32({ className }: NewProcessDNBigg
                                             indicatorsContainer: (provided) => ({
                                                 ...provided,
                                                 height: '42px'
+                                            }),
+                                            menu: (provided) => ({
+                                                ...provided,
+                                                zIndex: 777
                                             })
                                         }}
                                     />
@@ -549,9 +593,10 @@ export default function NewProcessDNBiggerThan32({ className }: NewProcessDNBigg
                                         value={namSanXuat ? dayjs(namSanXuat) : null}
                                         views={['year']}
                                         format="YYYY"
+                                        minDate={dayjs('1900-01-01')}
                                         maxDate={dayjs().endOf('year')}
                                         onChange={(newValue: Dayjs | null) => {
-                                            if (newValue && newValue.year() >= 1900 && newValue.year() <= dayjs().year()) {
+                                            if (newValue) {
 
                                                 setNamSanXuat(newValue.toDate());
                                             } else {
@@ -624,6 +669,10 @@ export default function NewProcessDNBiggerThan32({ className }: NewProcessDNBigg
                                             indicatorsContainer: (provided) => ({
                                                 ...provided,
                                                 height: '42px'
+                                            }),
+                                            menu: (provided) => ({
+                                                ...provided,
+                                                zIndex: 777
                                             })
                                         }}
                                     />
@@ -815,11 +864,26 @@ export default function NewProcessDNBiggerThan32({ className }: NewProcessDNBigg
                             },
                         ]
                     } />
-                    <div className="w-100 m-0 p-2 d-flex gap-2">
-                        <button className="btn btn-danger" onClick={handleCheck}>
+                    <div className={`w-100 p-2 d-flex gap-2 justify-content-between`}>
+                        <div id="validate-info" className={`w-100 px-3 row alert alert-warning m-0 ${(ketQua != null) ? "fade d-none" : "show"}`}>
+                            {validateFields().map((error, index) => (
+                                <div className="col-12 col-sm-6 col-lg-4 col-xxl-3" key={index}><span className="me-2">•</span> {fieldTitles[error as keyof typeof fieldTitles]} là bắt buộc</div>
+                            ))}
+                            {ketQua == null && (
+                                <div className="col-12 col-sm-6 col-lg-4 col-xxl-3"><span className="me-2">•</span>Tiến trình chạy lưu lượng không được bỏ trống</div>
+                            )}
+                        </div>
+                        <div id="validate-info" className={`w-100 px-3 row alert ${ketQua ? "alert-success" : "alert-danger"} m-0 ${(ketQua != null) ? "show" : "fade d-none"}`}>
+                            <h5>Kết quả kiểm tra kỹ thuật:</h5>
+                            <p className="m-0">- Khả năng hoạt động của hệ thống: <b className="text-uppercase">{ketQua ? "Đạt" : "Không đạt"}</b></p>
+
+                        </div>
+                    </div>
+                    <div className="w-100 m-0 p-2 d-flex gap-2 justify-content-between">
+                        {/* <button className="btn py-2 px-3 btn-danger" onClick={handleCheck}>
                             Kiểm tra
-                        </button>
-                        <button className={`btn ${canSave ? "btn-success" : "btn-secondary"}`} disabled={!canSave} onClick={handleSaveDongHo}>
+                        </button> */}
+                        <button className={`btn py-2 px-3 ${canSave ? "btn-success" : "btn-secondary"}`} disabled={!canSave} onClick={handleSaveDongHo}>
                             Lưu Đồng hồ
                         </button>
                     </div>
@@ -828,7 +892,4 @@ export default function NewProcessDNBiggerThan32({ className }: NewProcessDNBigg
         </LocalizationProvider >
     )
 }
-
-
-
 

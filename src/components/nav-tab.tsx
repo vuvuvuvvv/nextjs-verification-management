@@ -58,18 +58,15 @@ export default function NavTab({ className, classNameGroupTab, classNameContent,
                             <div tabIndex={index + 1} key={index + 1} className={`m-0 p-0 ${selectedTab[index + 1] ? nt['show'] : 'd-none'}`}>
                                 {val.content}
                                 <div className="w-100 px-1 py-3 d-flex justify-content-between">
-                                    {(0 == index) ? <span></span> : <button className="btn px-3 py-2 btn-primary" onClick={() => toggleTab(index)}>Quay lại ({tabContent[index - 1].title})</button>}
+                                    {(0 == index) ? <span></span> : <button className="btn p-0 fw-bold text-dark-blue" onClick={() => toggleTab(index)}>Quay lại ({tabContent[index - 1].title})</button>}
 
-                                    {(tabContent.length - 1 == index) ? <button className="btn px-3 py-2 btn-danger" onClick={handleCheckDongHo}>Kết thúc</button> : <button type="button" className="btn px-3 py-2 btn-primary 1" onClick={() => toggleTab(index + 2)}>Tiếp ({tabContent[index + 1].title})</button>}
+                                    {(tabContent.length - 1 == index) ? "" : <button type="button" className="btn p-0 fw-bold text-dark-blue" onClick={() => toggleTab(index + 2)}>Tiếp ({tabContent[index + 1].title})</button>}
 
                                 </div>
                             </div>
                         )
                     })}
                 </div>
-            </div>
-            <div className="w-100">
-                {/* TODO: check success  */}
             </div>
         </div>
     )

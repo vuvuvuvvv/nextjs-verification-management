@@ -105,11 +105,19 @@ export const createDongHo = async (dongho: DongHo) => {
     try {
         const response = await api.post(API_DONGHO_URL, dongho, { withCredentials: true });
 
-        return {
-            "status": response.status,
-            "data": response.data,
-            "msg": response.data.msg || "DongHo created successfully!"
-        };
+        if (response.status == 201) {
+            return {
+                "status": response.status,
+                "msg": response.data.msg || "Lưu Đồng hồ thành công!",
+                "data": response.data
+            }
+        } else {
+            return {
+                "status": response.status,
+                "msg": response.data.msg || "Có lỗi đã xảy ra. Hãy thử lại!",
+
+            }
+        }
 
     } catch (error: any) {
         if (error.response?.data?.data) {

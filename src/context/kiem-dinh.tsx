@@ -41,7 +41,6 @@ export const KiemDinhProvider = ({ children }: { children: ReactNode }) => {
     };
 
     const [duLieuKiemDinhCacLuuLuong, setDuLieuKiemDinhCacLuuLuong] = useState<DuLieuChayDongHo>(initialDuLieuKiemDinhCacLuuLuong);
-    const [kiemDinhToJSON, setKiemDinhToJSON] = useState(null);
     const [formHieuSaiSo, setFormHieuSaiSo] = useState<{ hss: number | null }[]>([
         { hss: null },
         { hss: null },

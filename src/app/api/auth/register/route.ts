@@ -22,7 +22,6 @@ export const register = async (credentials: RegisterCredentials) => {
                 "user": response.data.user
             }
         } else {
-            console.log(response.data)
             return {
                 "status": response.status,
                 "msg": response.data.msg || "Có lỗi đã xảy ra. Hãy thử lại!",

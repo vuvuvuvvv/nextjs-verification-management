@@ -109,9 +109,6 @@ export default function TinhSaiSoTab({ className, tabIndex, d, q, form, onFormHS
 
             return newFormValues;
         });
-
-        // TODO: Dat tieu chuan
-        // console.log("Đạt tiêu chuẩn: ", isDongHoDatTieuChuan(q, getHieuSaiSo(newFormValues as TinhSaiSoValueTabs)));
     };
 
     const handleDelete = (key: string) => {

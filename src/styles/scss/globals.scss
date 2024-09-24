@@ -38,9 +38,9 @@ label {
 
 a,
 button {
-    outline: none;
-    box-shadow: none;
-    border: none;
+    outline: none !important;
+    box-shadow: none !important;
+    border: none !important;
     text-decoration: none;
     user-select: none;
 
@@ -93,11 +93,11 @@ textarea {
 }
 
 .text-blue {
-    color: $blue;
+    color: $blue !important;
 }
 
 .text-dark-blue {
-    color: $dark_blue;
+    color: $dark_blue !important;
 }
 
 .is-invalid {

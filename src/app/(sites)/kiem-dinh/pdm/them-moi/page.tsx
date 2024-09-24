@@ -181,7 +181,7 @@ export default function AddNewPDM({ className }: AddNewPDMProps) {
                     }
                 });
             } else {
-                console.log(response)
+                // console.log(response)
                 Swal.fire({
                     icon: "error",
                     title: "Lỗi",
