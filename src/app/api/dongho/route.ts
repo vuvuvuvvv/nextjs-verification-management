@@ -82,7 +82,7 @@ export const getDongHoByFilter = async (parameters?: DongHoFilterParameters) => 
 
 export const getDongHoBySerinumber = async (serial_number: string) => {
     try {
-        const url = `${API_DONGHO_URL}/serial_number/${serial_number.toString()}`;
+        const url = `${API_DONGHO_URL}/serial-number/${serial_number.toString()}`;
         
         const response = await api.get(url.toString(), { withCredentials: true });
 

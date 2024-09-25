@@ -12,7 +12,8 @@ interface KiemDinhContextType {
     lanChayMoi: DuLieuCacLanChay;
     updateLuuLuong: (q: { title: string; value: string }, duLieuChay: DuLieuCacLanChay) => void;
 
-    setDuLieuKiemDinh: (tenLuuLuong: string, data: DuLieuChayDiemLuuLuong | null) => void;
+    setDuLieuKiemDinhChoMotLuuLuong: (tenLuuLuong: string, data: DuLieuChayDiemLuuLuong | null) => void;
+    setDuLieuKiemDinhCacLuuLuong: (duLieu: DuLieuChayDongHo) => void;
 
     removeKiemDinh: (id: string) => void;
     getDuLieuChayCuaLuuLuong: (q: { title: string; value: string }) => DuLieuCacLanChay;
@@ -48,12 +49,12 @@ export const KiemDinhProvider = ({ children }: { children: ReactNode }) => {
     ]);
     const [ketQua, setKetQua] = useState<boolean | null>(null);
 
-    // useEffect(() => {
-    //     console.log("dlkdcll: ", duLieuKiemDinhCacLuuLuong);
-    // }, [duLieuKiemDinhCacLuuLuong]);
+    useEffect(() => {
+        console.log("dlkdcll: ", duLieuKiemDinhCacLuuLuong);
+    }, [duLieuKiemDinhCacLuuLuong]);
 
 
-    const setDuLieuKiemDinh = (tenLuuLuong: string, data: DuLieuChayDiemLuuLuong | null) => {
+    const setDuLieuKiemDinhChoMotLuuLuong = (tenLuuLuong: string, data: DuLieuChayDiemLuuLuong | null) => {
         setDuLieuKiemDinhCacLuuLuong(prevState => ({
             ...prevState,
             [tenLuuLuong]: data,
@@ -195,7 +196,8 @@ export const KiemDinhProvider = ({ children }: { children: ReactNode }) => {
             ketQua,
             updateLuuLuong,
             removeKiemDinh,
-            setDuLieuKiemDinh, 
+            setDuLieuKiemDinhChoMotLuuLuong,
+            setDuLieuKiemDinhCacLuuLuong, 
             setKetQua,
             themLanChayCuaLuuLuong,
             getDuLieuChayCuaLuuLuong: (q: { title: string; value: string; }) => {
