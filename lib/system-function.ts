@@ -109,7 +109,7 @@ export const getHieuSaiSo = (formValues: TinhSaiSoValueTabs) => {
 
 // TODO: Check 
 export const isDongHoDatTieuChuan = (isQ3: boolean, formHieuSaiSo: { hss: number | null }[]) => {
-    const lan1 = formHieuSaiSo[0].hss;    
+    const lan1 = formHieuSaiSo[0].hss;
     const lan2 = formHieuSaiSo[1].hss;
     const lan3 = formHieuSaiSo[2].hss;
 
@@ -117,4 +117,11 @@ export const isDongHoDatTieuChuan = (isQ3: boolean, formHieuSaiSo: { hss: number
         return (isQ3) ? (lan1 >= -2 && lan2 >= -2 && lan3 >= -5) : (lan1 <= 2 && lan2 <= 2 && lan3 <= 5)
     }
     return null;
+}
+
+export const getLastDayOfMonthInFuture = (isDHDienTu: boolean): Date => {
+    const years = isDHDienTu ? 3 : 5
+    const today = new Date();
+    const futureDate = new Date(today.getFullYear() + years, today.getMonth() + 1, 0);
+    return futureDate;
 }

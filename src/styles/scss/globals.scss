@@ -114,6 +114,16 @@ textarea {
     }
 }
 
+.btn-success {
+    background-color: $green !important;
+    border: none !important;
+    transition: all 0.3s ease;
+
+    &:hover {
+        background-color: $dark_green !important;
+    }
+}
+
 .sr-cover {
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2) !important;
     // border-radius: 4px;

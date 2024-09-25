@@ -22,10 +22,12 @@ import { useRouter } from "next/navigation";
 import dayjs, { Dayjs } from "dayjs";
 import { useEffect, useState } from "react";
 
-import { getQ2OrQtAndQ1OrQMin, isDongHoDatTieuChuan } from "@lib/system-function";
+import { getLastDayOfMonthInFuture, getQ2OrQtAndQ1OrQMin, isDongHoDatTieuChuan } from "@lib/system-function";
 import { ccxOptions, phuongTienDoOptions, TITLE_LUU_LUONG, typeOptions } from "@lib/system-constant";
 
 import { createDongHo } from "@/app/api/dongho/route";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faFileAlt } from "@fortawesome/free-solid-svg-icons";
 
 
 interface NewProcessDNBiggerThan32Props {
@@ -69,7 +71,8 @@ export default function NewProcessDNBiggerThan32({ className }: NewProcessDNBigg
     const [phuongPhapThucHien, setPhuongPhapThucHien] = useState<string>("ĐNVN 17:2017");                                       // Phương pháp thực hiện
     const [chuanThietBiSuDung, setChuanThietBiSuDung] = useState<string>("Đồng hồ chuẩn đo nước và Bình chuẩn");                // Chuẩn, thiết bị chính được sử dụng
     const [implementer, setImplementer] = useState<string>(user?.fullname || "");                                                                 // Người thực hiện
-    const [ngayThucHien, setNgayThucHien] = useState<Date | null>(new Date());                                                  // Ngày thực hiện
+    const [ngayThucHien, setNgayThucHien] = useState<Date | null>(new Date());                                                                    // Người thực hiện
+    const [hieuLucBienBan, setHieuLucBienBan] = useState<Date | null>(new Date());                                                  // Ngày thực hiện
     const [viTri, setViTri] = useState<string>("");                                                                             // Vị trí
     const [nhietDo, setNhietDo] = useState<string>('');                                                                         // Nhiệt độ
     const [doAm, setDoAm] = useState<string>('');                                                                               // Độ ẩm 
@@ -124,7 +127,7 @@ export default function NewProcessDNBiggerThan32({ className }: NewProcessDNBigg
         seriSensor: "Serial sensor",
         kieuChiThi: "Kiểu chỉ thị",
         kieuSensor: "Kiểu sensor",
-        soTem: "Số Tem",
+        // soTem: "Số Tem",
         coSoSanXuat: "Cơ sở sản xuất",
         namSanXuat: "Năm sản xuất",
         dn: "Đường kính danh định (DN)",
@@ -154,7 +157,7 @@ export default function NewProcessDNBiggerThan32({ className }: NewProcessDNBigg
             { value: seriSensor, setter: setSeriSensor, id: "seriSensor" },
             { value: kieuChiThi, setter: setKieuChiThi, id: "kieuChiThi" },
             { value: kieuSensor, setter: setKieuSensor, id: "kieuSensor" },
-            { value: soTem, setter: setSoTem, id: "soTem" },
+            // { value: soTem, setter: setSoTem, id: "soTem" },
             { value: coSoSanXuat, setter: setCoSoSanXuat, id: "coSoSanXuat" },
             { value: namSanXuat, setter: setNamSanXuat, id: "namSanXuat" },
             { value: dn, setter: setDN, id: "dn" },
@@ -180,11 +183,11 @@ export default function NewProcessDNBiggerThan32({ className }: NewProcessDNBigg
             const element = document.getElementById(field.id);
             if (field.value) {
                 if (element) {
-                    element.classList.remove("is-invalid");
+                    // element.classList.remove("is-invalid");
                 }
             } else {
                 if (element) {
-                    element.classList.add("is-invalid");
+                    // element.classList.add("is-invalid");
                     validationErrors.push(field.id);
                     if (!firstInvalidField) {
                         firstInvalidField = element;
@@ -211,8 +214,8 @@ export default function NewProcessDNBiggerThan32({ className }: NewProcessDNBigg
                 kieu_chi_thi: kieuChiThi,
                 kieu_sensor: kieuSensor,
                 kieu_thiet_bi: kieuThietBi,
-                co_so_san_xuat: soTem,
-                so_tem: coSoSanXuat,
+                co_so_san_xuat: coSoSanXuat,
+                so_tem: soTem,
                 nam_san_xuat: namSanXuat,
                 dn: dn,
                 d: d,
@@ -243,6 +246,10 @@ export default function NewProcessDNBiggerThan32({ className }: NewProcessDNBigg
     }, [
         seriNumber, phuongTienDo, kieuThietBi, seriChiThi, seriSensor, kieuChiThi, kieuSensor, soTem, coSoSanXuat, namSanXuat, dn, d, ccx, q3, r, qn, kFactor, so_qd_pdm, tenKhachHang, coSoSuDung, phuongPhapThucHien, viTri, nhietDo, doAm
     ]);
+
+    useEffect(() => {
+        setCanSave(soTem ? true : false);
+    }, [soTem]);
 
     const handleSaveDongHo = async () => {
         if (canSave) {
@@ -476,17 +483,6 @@ export default function NewProcessDNBiggerThan32({ className }: NewProcessDNBigg
                                 onChange={(e) => setSeriNumber(e.target.value)}
                             />
                         </div>
-                        <div className={`col-12 col-lg-6 m-0 mb-3 p-0 ps-lg-2 p-0 d-flex align-items-center justify-content-between ${vrfWm['seri-number-input']}`}>
-                            <label htmlFor="seriNumber" className={`form-label m-0 fs-5 fw-bold d-block`}>Số Tem:</label>
-                            <input
-                                type="text"
-                                id="soTem"
-                                className={`form-control`}
-                                placeholder="Nhập số tem"
-                                value={soTem}
-                                onChange={(e) => setSoTem(e.target.value)}
-                            />
-                        </div>
                     </div>
                     <div className={`collapse ${isCollapsed ? '' : 'show'} w-100 mt-2 p-0`}>
                         <form className="w-100">
@@ -707,7 +703,7 @@ export default function NewProcessDNBiggerThan32({ className }: NewProcessDNBigg
                                 <div className="mb-3 col-12 col-md-6 col-xxl-4 d-flex align-items-end py-1">
                                     <Link
                                         href={"/kiem-dinh/pdm//them-moi"}
-                                        className="btn bg-main-green text-white"
+                                        className="btn btn-success px-3 py-2 text-white"
                                     >
                                         Thêm mới PDM
                                     </Link>
@@ -866,6 +862,7 @@ export default function NewProcessDNBiggerThan32({ className }: NewProcessDNBigg
                     } />
                     <div className={`w-100 p-2 d-flex gap-2 justify-content-between`}>
                         <div id="validate-info" className={`w-100 px-3 row alert alert-warning m-0 ${(ketQua != null) ? "fade d-none" : "show"}`}>
+                            <h6><i>* Điền đủ các thông tin để hiện kết quả kiểm tra!</i></h6>
                             {validateFields().map((error, index) => (
                                 <div className="col-12 col-sm-6 col-lg-4 col-xxl-3" key={index}><span className="me-2">•</span> {fieldTitles[error as keyof typeof fieldTitles]} là bắt buộc</div>
                             ))}
@@ -873,10 +870,43 @@ export default function NewProcessDNBiggerThan32({ className }: NewProcessDNBigg
                                 <div className="col-12 col-sm-6 col-lg-4 col-xxl-3"><span className="me-2">•</span>Tiến trình chạy lưu lượng không được bỏ trống</div>
                             )}
                         </div>
-                        <div id="validate-info" className={`w-100 px-3 row alert ${ketQua ? "alert-success" : "alert-danger"} m-0 ${(ketQua != null) ? "show" : "fade d-none"}`}>
-                            <h5>Kết quả kiểm tra kỹ thuật:</h5>
-                            <p className="m-0">- Khả năng hoạt động của hệ thống: <b className="text-uppercase">{ketQua ? "Đạt" : "Không đạt"}</b></p>
+                        <div id="validate-info" className={`w-100 px-3 p-xl-4 row alert ${ketQua ? "alert-success" : "alert-danger"} m-0 ${(ketQua != null) ? "show" : "fade d-none"}`}>
+                            <h5 className="p-0">Kết quả kiểm tra kỹ thuật:</h5>
+                            <p className="p-0 m-0">- Khả năng hoạt động của hệ thống: <b className="text-uppercase">{ketQua ? "Đạt" : "Không đạt"}</b></p>
+                            <div className={`w-100 m-0 mt-3 p-0 ${ketQua ? "" : "d-none"}`}>
+                                <div className="w-100 row m-0 p-0 gap-xxl-5">
+                                    <div className={`col-12 col-md-10 col-xl-8 col-xxl-5 m-0 mb-3 p-0 ps-lg-2 p-0 d-flex align-items-center justify-content-between ${vrfWm['seri-number-input']}`}>
+                                        <label htmlFor="seriNumber" className={`form-label m-0 fs-6 fw-bold d-block`}>Số Tem:</label>
+                                        <input
+                                            type="text"
+                                            id="soTem"
+                                            className={`form-control`}
+                                            placeholder="Nhập số tem"
+                                            value={ketQua ? soTem : ""}
+                                            onChange={(e) => setSoTem(e.target.value)}
+                                        />
+                                    </div>
 
+                                    <div className={`col-12 col-md-10 col-xl-8 col-xxl-5 m-0 mb-3 p-0 ps-lg-2 p-0 d-flex align-items-center justify-content-between ${vrfWm['seri-number-input']}`}>
+                                        <label htmlFor="hieuLucBienBan" style={{ width: "180px" }} className="form-label m-0 fs-6 fw-bold d-block">Hiệu lực biên bản:</label>
+                                        <DatePicker
+                                            className={`bg-white ${vrfWm['date-picker']}`}
+                                            value={dayjs(!ketQua ? hieuLucBienBan : getLastDayOfMonthInFuture(isDHDienTu))}
+                                            format="DD-MM-YYYY"
+                                            // maxDate={dayjs().endOf('day')}
+                                            minDate={dayjs().endOf('day')}
+                                            onChange={(newValue: Dayjs | null) => setHieuLucBienBan(newValue ? newValue.toDate() : null)}
+                                            slotProps={{ textField: { fullWidth: true } }}
+                                        />
+                                    </div>
+                                </div>
+                                {/* TODO: Giấy chứng nhận */}
+                                <div className="w-100 m-0 p-0">
+                                    <button className="btn px-3 py-2 btn-success" style={{ width: "max-content" }}>
+                                        <FontAwesomeIcon icon={faFileAlt} className="me-2"></FontAwesomeIcon> Giấy chứng nhận
+                                    </button>
+                                </div>
+                            </div>
                         </div>
                     </div>
                     <div className="w-100 m-0 p-2 d-flex gap-2 justify-content-between">
