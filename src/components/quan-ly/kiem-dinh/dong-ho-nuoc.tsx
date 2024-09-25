@@ -15,47 +15,51 @@ import React from "react";
 
 import Select, { GroupBase } from 'react-select';
 import Pagination from "@/components/pagination";
-import { WaterMeterData } from "@lib/types";
+import { DongHo } from "@lib/types";
 
 import { usePathname } from "next/navigation";
 import Link from "next/link";
 
 import { statusOptions, typeOptions, ccxOptions, limitOptions } from "@lib/system-constant";
+import Swal from "sweetalert2";
+import { deleteDongHo, getDongHoByFilter } from "@/app/api/dongho/route";
 
 const Loading = React.lazy(() => import("@/components/loading"));
 
 
 interface WaterMeterManagementProps {
-    data: WaterMeterData[],
+    data: DongHo[],
     className?: string,
 }
 
 interface FilterForm {
-    waterMeterId: string;
-    serialNumber: string;
+    so_giay_chung_nhan: string;
+    serial_number: string;
     type: string;
     ccx: string;
-    implementer: string;
+    nguoi_kiem_dinh: string;
+    ten_khach_hang: string;
     status: string | number;
     fromDate: Date | null;
     toDate: Date | null;
 }
 
 export default function WaterMeterManagement({ data, className }: WaterMeterManagementProps) {
-    const [rootData, setRootData] = useState(data);
+    const [rootData, setRootData] = useState<DongHo[]>(data);
     const [loading, setLoading] = useState(false);
     const [sortConfig, setSortConfig] = useState<{ key: string, direction: 'asc' | 'desc' | 'default' } | null>(null);
-    const [selectedStatus, setSelectedStatus] = useState(null);
     const [limit, setLimit] = useState(5);
+    const [error, setError] = useState("");
 
     const path = usePathname();
 
     const [filterForm, setFilterForm] = useState<FilterForm>({
-        waterMeterId: "",
-        serialNumber: "",
+        so_giay_chung_nhan: "",
+        serial_number: "",
         type: "",
         ccx: "",
-        implementer: "",
+        nguoi_kiem_dinh: "",
+        ten_khach_hang: "",
         status: "",
         fromDate: null,
         toDate: null
@@ -76,7 +80,7 @@ export default function WaterMeterManagement({ data, className }: WaterMeterMana
         setTotalPage(resetTotalPage);
     }, [rootData, limit])
 
-    const sortData = useCallback((key: string) => {
+    const sortData = useCallback((key: keyof DongHo) => {
         if (!loading) {
             setLoading(true);
             let direction: 'asc' | 'desc' = 'asc';
@@ -86,14 +90,14 @@ export default function WaterMeterManagement({ data, className }: WaterMeterMana
             }
 
             const sortedData = [...rootData].sort((a, b) => {
-                if (key === 'createdAt' || key === 'updatedAt') {
-                    const dateA = dayjs(a[key as keyof typeof a], 'DD-MM-YYYY');
-                    const dateB = dayjs(b[key as keyof typeof b], 'DD-MM-YYYY');
+                if (key === 'ngay_thuc_hien' || key === 'hieu_luc_bien_ban') {
+                    const dateA = dayjs(a[key] as Date);
+                    const dateB = dayjs(b[key] as Date);
                     return direction === 'asc' ? dateA.diff(dateB) : dateB.diff(dateA);
                 } else {
                     return direction === 'asc'
-                        ? a[key as keyof typeof a] < b[key as keyof typeof a] ? -1 : 1
-                        : a[key as keyof typeof a] > b[key as keyof typeof a] ? -1 : 1;
+                        ? (a[key] as string | number) < (b[key] as string | number) ? -1 : 1
+                        : (a[key] as string | number) > (b[key] as string | number) ? -1 : 1;
                 }
             });
 
@@ -101,70 +105,27 @@ export default function WaterMeterManagement({ data, className }: WaterMeterMana
             setSortConfig({ key, direction });
             setLoading(false);
         }
-    }, [rootData, sortConfig]);
+    }, [rootData, sortConfig, loading]);
 
     useEffect(() => {
         setLoading(true);
-        const debounce = setTimeout(() => {
-            let filteredData = data;
-
-            if (filterForm.waterMeterId) {
-                filteredData = filteredData.filter(item => {
-                    const keywords = filterForm.waterMeterId.trim().toLowerCase().replace(/[^\d]/g, '').split(' ').filter(Boolean);
-                    const itemId = item.id;
-                    return keywords.some(keyword => itemId.toString().includes(keyword));
-                });
+        const debounce = setTimeout(async () => {
+            try {
+                const res = await getDongHoByFilter(filterForm);
+                if (res.status === 200) {
+                    setRootData(res.data);
+                } else {
+                    console.error(res.msg);
+                    setError("Có lỗi đã xảy ra!");
+                }
+            } catch (error) {
+                console.error('Error fetching PDM data:', error);
+                setError("Có lỗi đã xảy ra!");
+            } finally {
+                setLoading(false);
             }
+        }, 700);
 
-            if (filterForm.serialNumber) {
-                filteredData = filteredData.filter(item => {
-                    const keyword = filterForm.serialNumber.trim().toLowerCase();
-                    const itemSerial = item.serialNumber.toLowerCase().replace(/[^a-zA-Z0-9 ]/g, '');
-                    return itemSerial.includes(keyword);
-                });
-            }
-
-            if (filterForm.implementer) {
-                filteredData = filteredData.filter(item => {
-                    const keywords = filterForm.implementer.trim().toLowerCase().split(' ').filter(Boolean);
-                    const itemImplementer = item.createdBy.toLowerCase().replace(/[^a-zA-Z0-9 ]/g, '');
-                    return keywords.some(keyword => itemImplementer.includes(keyword));
-                });
-            }
-
-            if (filterForm.status) {
-                filteredData = filteredData.filter(item => {
-                    const itemStatus = item.status;
-                    return  filterForm.status == itemStatus;
-                });
-            }
-
-            if (filterForm.type) {
-                filteredData = filteredData.filter(item => item.type === filterForm.type);
-            }
-
-            if (filterForm.ccx) {
-                filteredData = filteredData.filter(item => item.ccx === filterForm.ccx);
-            }
-
-            if (filterForm.fromDate || filterForm.toDate) {
-                const now = new Date();
-                filteredData = filteredData.filter(item => {
-                    const itemDate = new Date(item.createdAt.split('-').reverse().join('-'));
-                    if (filterForm.fromDate && filterForm.toDate) {
-                        return itemDate >= filterForm.fromDate && itemDate <= filterForm.toDate;
-                    } else if (filterForm.fromDate) {
-                        return itemDate >= filterForm.fromDate && itemDate <= now;
-                    } else if (filterForm.toDate) {
-                        return itemDate <= filterForm.toDate;
-                    }
-                });
-            }
-
-            setRootData(filteredData);
-            setSortConfig(null);
-            setLoading(false);
-        }, 500);
         return () => clearTimeout(debounce);
     }, [filterForm]);
 
@@ -175,18 +136,55 @@ export default function WaterMeterManagement({ data, className }: WaterMeterMana
         }));
     };
 
+    const handleDelete = (serial_number: string | null) => {
+        if (serial_number) {
+            Swal.fire({
+                title: "Xác nhận xóa?",
+                text: "Bạn sẽ không thể hoàn tác dữ liệu này!",
+                icon: "warning",
+                showCancelButton: true,
+                confirmButtonColor: "#3085d6",
+                cancelButtonColor: "#d33",
+                confirmButtonText: "Có",
+                cancelButtonText: "Không"
+            }).then(async (result) => {
+                if (result.isConfirmed) {
+                    setLoading(true);
+                    try {
+                        const res = await deleteDongHo(serial_number);
+                        if (res.status === 200) {
+                            setRootData(prevData => prevData.filter(item => item.serial_number !== serial_number));
+                            Swal.fire({
+                                text: "Xóa thành công!",
+                                icon: "success"
+                            });
+                        } else {
+                            console.error(res.msg);
+                            setError("Có lỗi đã xảy ra!");
+                        }
+                    } catch (error) {
+                        console.error('Error deleting PDM:', error);
+                        setError("Có lỗi đã xảy ra!");
+                    } finally {
+                        setLoading(false);
+                    }
+                }
+            });
+        }
+    };
+
     const hanldeResetFilter = () => {
         setFilterForm({
-            waterMeterId: "",
-            serialNumber: "",
+            so_giay_chung_nhan: "",
+            serial_number: "",
             type: "",
             ccx: "",
-            implementer: "",
+            nguoi_kiem_dinh: "",
+            ten_khach_hang: "",
             status: "",
             fromDate: null,
             toDate: null
         });
-        setSelectedStatus(null);
     }
 
     const handlePageChange = (newPage: number) => {
@@ -218,33 +216,46 @@ export default function WaterMeterManagement({ data, className }: WaterMeterMana
                         </div> */}
 
                             <div className="col-12 mb-3 col-md-6 col-xl-4 d-flex">
-                                <label className={`${c_vfml['form-label']}`} htmlFor="serial-number">
-                                    Serial number:
+                                <label className={`${c_vfml['form-label']}`} htmlFor="so_giay_chung_nhan">
+                                    Số giấy chứng nhận:
                                     <input
                                         type="text"
-                                        id="serial-number"
+                                        id="so_giay_chung_nhan"
                                         className="form-control"
-                                        placeholder="Nhập số seri"
-                                        value={filterForm.serialNumber}
-                                        onChange={(e) => handleFilterChange('serialNumber', e.target.value)}
+                                        placeholder="Nhập số giấy"
+                                        value={filterForm.so_giay_chung_nhan}
+                                        onChange={(e) => handleFilterChange('so_giay_chung_nhan', e.target.value)}
                                     />
                                 </label>
                             </div>
                             <div className="col-12 mb-3 col-md-6 col-xl-4">
-                                <label className={`${c_vfml['form-label']}`} htmlFor="implementer">
+                                <label className={`${c_vfml['form-label']}`} htmlFor="ten_khach_hang">
+                                    Tên khách hàng:
+                                    <input
+                                        type="text"
+                                        id="ten_khach_hang"
+                                        className="form-control"
+                                        placeholder="Nhập tên khách hàng"
+                                        value={filterForm.ten_khach_hang}
+                                        onChange={(e) => handleFilterChange('ten_khach_hang', e.target.value)}
+                                    />
+                                </label>
+                            </div>
+                            <div className="col-12 mb-3 col-md-6 col-xl-4">
+                                <label className={`${c_vfml['form-label']}`} htmlFor="nguoi_kiem_dinh">
                                     Người kiểm định:
                                     <input
                                         type="text"
-                                        id="implementer"
+                                        id="nguoi_kiem_dinh"
                                         className="form-control"
                                         placeholder="Nhập tên người kiểm định"
-                                        value={filterForm.implementer}
-                                        onChange={(e) => handleFilterChange('implementer', e.target.value)}
+                                        value={filterForm.nguoi_kiem_dinh}
+                                        onChange={(e) => handleFilterChange('nguoi_kiem_dinh', e.target.value)}
                                     />
                                 </label>
                             </div>
 
-                            <div className="col-12 mb-3 col-md-6 col-xl-4">
+                            {/* <div className="col-12 mb-3 col-md-6 col-xl-4">
                                 <label className={`${c_vfml['form-label']}`}>
                                     Trạng thái:
                                     <Select
@@ -293,7 +304,7 @@ export default function WaterMeterManagement({ data, className }: WaterMeterMana
                                         }}
                                     />
                                 </label>
-                            </div>
+                            </div> */}
 
                             {/* <div className="col-12 mb-3 col-md-6 col-xl-4">
                             <label className={`${c_vfml['form-label']}`}>
@@ -372,42 +383,7 @@ export default function WaterMeterManagement({ data, className }: WaterMeterMana
                                 />
                             </label>
                         </div> */}
-
-                            <div className={`col-12 col-md-8 mb-3 m-0 row p-0 ${c_vfml['search-created-date']}`}>
-                                <label className={`${c_vfml['form-label']} col-12`}>
-                                    Cập nhật cuối:
-                                </label>
-                                <div className={`col-12 row m-0 mt-2 p-0 ${c_vfml['pick-created-date']}`}>
-                                    <div className={`col-12 col-md-6 mb-3 mb-md-0 ${c_vfml['picker-field']}`}>
-                                        <label>Từ:</label>
-
-                                        <DatePicker
-                                            className={`${c_vfml['date-picker']}`}
-                                            value={filterForm.fromDate ? dayjs(filterForm.fromDate) : null}
-                                            format="DD-MM-YYYY"
-
-                                            onChange={(newValue: Dayjs | null) => handleFilterChange('fromDate', newValue ? newValue.toDate() : null)}
-                                            slotProps={{ textField: { fullWidth: true } }}
-                                            maxDate={filterForm.toDate ? dayjs(filterForm.toDate).subtract(1, 'day') : dayjs().endOf('day').subtract(1, 'day')}
-                                        />
-                                    </div>
-
-                                    <div className={`col-12 col-md-6 ${c_vfml['picker-field']}`}>
-                                        <label>Đến:</label>
-                                        <DatePicker
-                                            className={`${c_vfml['date-picker']}`}
-                                            value={filterForm.toDate ? dayjs(filterForm.toDate) : undefined}
-                                            format="DD-MM-YYYY"
-                                            minDate={filterForm.fromDate ? dayjs(filterForm.fromDate).add(1, 'day') : undefined}
-
-                                            maxDate={dayjs().endOf('day')}
-                                            onChange={(newValue: Dayjs | null) => handleFilterChange('toDate', newValue ? newValue.toDate() : undefined)}
-                                            slotProps={{ textField: { fullWidth: true } }}
-                                        />
-                                    </div>
-                                </div>
-                            </div>
-                            <div className={`col-12 col-md-4 mb-3 m-0 p-0 row`}>
+                            <div className={`col-12 col-md-6 col-xl-4 mb-3 m-0 p-0 row`}>
                                 <label className={`${c_vfml['form-label']}`}>
                                     Số lượng bản ghi:
                                     <Select
@@ -445,6 +421,41 @@ export default function WaterMeterManagement({ data, className }: WaterMeterMana
                                 </label>
                             </div>
 
+                            <div className={`col-12 col-xl-8 mb-3 m-0 row p-0 ${c_vfml['search-created-date']}`}>
+                                <label className={`${c_vfml['form-label']} col-12`}>
+                                    Ngày kiểm định:
+                                </label>
+                                <div className={`col-12 row m-0 mt-2 p-0 ${c_vfml['pick-created-date']}`}>
+                                    <div className={`col-12 col-md-6 mb-3 mb-md-0 ${c_vfml['picker-field']}`}>
+                                        <label>Từ:</label>
+
+                                        <DatePicker
+                                            className={`${c_vfml['date-picker']}`}
+                                            value={filterForm.fromDate ? dayjs(filterForm.fromDate) : null}
+                                            format="DD-MM-YYYY"
+
+                                            onChange={(newValue: Dayjs | null) => handleFilterChange('fromDate', newValue ? newValue.toDate() : null)}
+                                            slotProps={{ textField: { fullWidth: true } }}
+                                            maxDate={filterForm.toDate ? dayjs(filterForm.toDate).subtract(1, 'day') : dayjs().endOf('day').subtract(1, 'day')}
+                                        />
+                                    </div>
+
+                                    <div className={`col-12 col-md-6 ${c_vfml['picker-field']}`}>
+                                        <label>Đến:</label>
+                                        <DatePicker
+                                            className={`${c_vfml['date-picker']}`}
+                                            value={filterForm.toDate ? dayjs(filterForm.toDate) : undefined}
+                                            format="DD-MM-YYYY"
+                                            minDate={filterForm.fromDate ? dayjs(filterForm.fromDate).add(1, 'day') : undefined}
+
+                                            maxDate={dayjs().endOf('day')}
+                                            onChange={(newValue: Dayjs | null) => handleFilterChange('toDate', newValue ? newValue.toDate() : undefined)}
+                                            slotProps={{ textField: { fullWidth: true } }}
+                                        />
+                                    </div>
+                                </div>
+                            </div>
+
                             <div className={`col-12 m-0 my-2 d-flex align-items-center justify-content-between`}>
                                 <button type="button" className={`btn bg-main-blue text-white`} onClick={hanldeResetFilter}>
                                     Xóa bộ lọc
@@ -459,96 +470,77 @@ export default function WaterMeterManagement({ data, className }: WaterMeterMana
                         </div>
                     </div>
 
-                    <div className="bg-white w-100 shadow-sm rounded overflow-hidden">
+                    <div className="bg-white w-100 shadow-sm rounded">
                         <div className={`m-0 p-0 w-100 w-100 position-relative ${c_vfml['wrap-process-table']}`}>
                             {loading && <Loading />}
                             {paginatedData.length > 0 ? (
                                 <table className={`table table-hover ${c_vfml['process-table']}`}>
                                     <thead>
                                         <tr className={`${c_vfml['table-header']}`}>
-                                            {/* <th onClick={() => sortData('id')}>
-                                                <div className={`${c_vfml['table-label']}`}>
-                                                    <span>
-                                                        ID
-                                                    </span>
-                                                    {sortConfig && sortConfig.key === 'id' && sortConfig.direction === 'asc' && (
-                                                        <FontAwesomeIcon icon={faChevronUp}></FontAwesomeIcon>
-                                                    )}
-                                                    {sortConfig && sortConfig.key === 'id' && sortConfig.direction === 'desc' && (
-                                                        <FontAwesomeIcon icon={faChevronDown}></FontAwesomeIcon>
-                                                    )}
-                                                </div>
-                                            </th> */}
                                             <th>
                                                 <div className={`${c_vfml['table-label']}`}>
                                                     <span>
-                                                        Serial Number
+                                                        Số giấy CN
                                                     </span>
                                                 </div>
                                             </th>
-                                            <th onClick={() => sortData('createdBy')}>
+                                            <th onClick={() => sortData('ten_khach_hang')}>
+                                                <div className={`${c_vfml['table-label']}`}>
+                                                    <span>
+                                                        Tên khách hàng
+                                                    </span>
+                                                    {sortConfig && sortConfig.key === 'ten_khach_hang' && sortConfig.direction === 'asc' && (
+                                                        <FontAwesomeIcon icon={faChevronUp}></FontAwesomeIcon>
+                                                    )}
+                                                    {sortConfig && sortConfig.key === 'ten_khach_hang' && sortConfig.direction === 'desc' && (
+                                                        <FontAwesomeIcon icon={faChevronDown}></FontAwesomeIcon>
+                                                    )}
+                                                </div>
+                                            </th>
+                                            <th onClick={() => sortData('nguoi_kiem_dinh')}>
                                                 <div className={`${c_vfml['table-label']}`}>
                                                     <span>
                                                         Người kiểm định
                                                     </span>
-                                                    {sortConfig && sortConfig.key === 'createdBy' && sortConfig.direction === 'asc' && (
+                                                    {sortConfig && sortConfig.key === 'nguoi_kiem_dinh' && sortConfig.direction === 'asc' && (
                                                         <FontAwesomeIcon icon={faChevronUp}></FontAwesomeIcon>
                                                     )}
-                                                    {sortConfig && sortConfig.key === 'createdBy' && sortConfig.direction === 'desc' && (
+                                                    {sortConfig && sortConfig.key === 'nguoi_kiem_dinh' && sortConfig.direction === 'desc' && (
                                                         <FontAwesomeIcon icon={faChevronDown}></FontAwesomeIcon>
                                                     )}
                                                 </div>
                                             </th>
-                                            <th onClick={() => sortData('type')}>
+                                            <th onClick={() => sortData('ngay_thuc_hien')}>
                                                 <div className={`${c_vfml['table-label']}`}>
                                                     <span>
-                                                        Kiểu
+                                                        Ngày thực hiện
                                                     </span>
-                                                    {sortConfig && sortConfig.key === 'type' && sortConfig.direction === 'asc' && (
+                                                    {sortConfig && sortConfig.key === 'ngay_thuc_hien' && sortConfig.direction === 'asc' && (
                                                         <FontAwesomeIcon icon={faChevronUp}></FontAwesomeIcon>
                                                     )}
-                                                    {sortConfig && sortConfig.key === 'type' && sortConfig.direction === 'desc' && (
+                                                    {sortConfig && sortConfig.key === 'ngay_thuc_hien' && sortConfig.direction === 'desc' && (
                                                         <FontAwesomeIcon icon={faChevronDown}></FontAwesomeIcon>
                                                     )}
                                                 </div>
                                             </th>
-                                            <th onClick={() => sortData('ccx')}>
-                                                <div className={`${c_vfml['table-label']}`}>
-                                                    <span>
-                                                        Cấp chính xác
-                                                    </span>
-                                                    {sortConfig && sortConfig.key === 'ccx' && sortConfig.direction === 'asc' && (
-                                                        <FontAwesomeIcon icon={faChevronUp}></FontAwesomeIcon>
-                                                    )}
-                                                    {sortConfig && sortConfig.key === 'ccx' && sortConfig.direction === 'desc' && (
-                                                        <FontAwesomeIcon icon={faChevronDown}></FontAwesomeIcon>
-                                                    )}
-                                                </div>
-                                            </th>
-                                            <th onClick={() => sortData('status')}>
+                                            {/* <th onClick={() => sortData('status')}>
+                                    <div className={`${c_vfml['table-label']}`}>
+                                        <span>
+                                            Trạng thái
+                                        </span>
+                                        {sortConfig && sortConfig.key === 'status' && sortConfig.direction === 'asc' && (
+                                            <FontAwesomeIcon icon={faChevronUp}></FontAwesomeIcon>
+                                        )}
+                                        {sortConfig && sortConfig.key === 'status' && sortConfig.direction === 'desc' && (
+                                            <FontAwesomeIcon icon={faChevronDown}></FontAwesomeIcon>
+                                        )}
+                                    </div>
+                                </th> */}
+                                            <th>
                                                 <div className={`${c_vfml['table-label']}`}>
                                                     <span>
                                                         Trạng thái
                                                     </span>
-                                                    {sortConfig && sortConfig.key === 'status' && sortConfig.direction === 'asc' && (
-                                                        <FontAwesomeIcon icon={faChevronUp}></FontAwesomeIcon>
-                                                    )}
-                                                    {sortConfig && sortConfig.key === 'status' && sortConfig.direction === 'desc' && (
-                                                        <FontAwesomeIcon icon={faChevronDown}></FontAwesomeIcon>
-                                                    )}
-                                                </div>
-                                            </th>
-                                            <th onClick={() => sortData('updatedAt')}>
-                                                <div className={`${c_vfml['table-label']}`}>
-                                                    <span>
-                                                        Cập nhật cuối
-                                                    </span>
-                                                    {sortConfig && sortConfig.key === 'updatedAt' && sortConfig.direction === 'asc' && (
-                                                        <FontAwesomeIcon icon={faChevronUp}></FontAwesomeIcon>
-                                                    )}
-                                                    {sortConfig && sortConfig.key === 'updatedAt' && sortConfig.direction === 'desc' && (
-                                                        <FontAwesomeIcon icon={faChevronDown}></FontAwesomeIcon>
-                                                    )}
                                                 </div>
                                             </th>
                                             <th></th>
@@ -557,32 +549,29 @@ export default function WaterMeterManagement({ data, className }: WaterMeterMana
                                     <tbody>
                                         {paginatedData.map((item, index) => (
                                             <tr key={index}>
-                                                {/* <td>{item.id}</td> */}
-                                                <td>{item.serialNumber}</td>
-                                                <td>{item.createdBy}</td>
-                                                <td>{item.type}</td>
-                                                <td>{item.ccx}</td>
-                                                <td>{statusOptions.find(option => option.value == item.status)?.label || "Khôngggg hoạt động"}</td>
-                                                <td>{item.updatedAt}</td>
+                                                <td>{item.so_giay_chung_nhan}</td>
+                                                <td>{item.ten_khach_hang}</td>
+                                                <td>{item.nguoi_kiem_dinh}</td>
+                                                <td>{dayjs(item.ngay_thuc_hien).format('DD-MM-YYYY')}</td>
+                                                <td>{item.serial_number}</td>
                                                 <td>
                                                     <div className={`dropdown ${c_vfml['action']}`}>
                                                         <button className={`${c_vfml['action-button']}`} type="button" data-bs-toggle="dropdown" aria-expanded="false">
                                                             <FontAwesomeIcon icon={faEllipsisH}></FontAwesomeIcon>
                                                         </button>
-                                                        <ul className="dropdown-menu">
+                                                        <ul className={`dropdown-menu ${c_vfml['dropdown-menu']}`} style={{ zIndex: "777" }}>
                                                             <li>
-                                                                <Link href={path + "/chi-tiet/" + item.id} className={`btn w-100`}>
+                                                                <Link href={path + "/chi-tiet/" + item.serial_number} className={`btn w-100`}>
                                                                     Xem chi tiết
                                                                 </Link>
                                                             </li>
                                                             <li>
-                                                                <button type="button" className={`btn w-100`}>
+                                                                <button type="button" onClick={() => handleDelete(item.serial_number)} className={`btn w-100`}>
                                                                     Xóa
                                                                 </button>
                                                             </li>
                                                         </ul>
                                                     </div>
-                                                    
                                                 </td>
                                             </tr>
                                         ))}
@@ -592,7 +581,6 @@ export default function WaterMeterManagement({ data, className }: WaterMeterMana
                                 <p className="text-center w-100">Không có dữ liệu</p>
                             )}
                         </div>
-
                         <div className="w-100 m-0 p-0 px-3 d-flex align-items-center justify-content-center">
                             <Pagination currentPage={currentPage} totalPage={totalPage} handlePageChange={handlePageChange}></Pagination>
                         </div>

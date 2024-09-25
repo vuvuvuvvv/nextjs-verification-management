@@ -90,8 +90,10 @@
 
     .wrap-process-table {
         overflow-x: auto;
-
+        
         .process-table {
+            min-height: 150px !important;
+
             .table-header {
 
                 th {
@@ -139,6 +141,7 @@
             td {
                 padding: 18px 10px;
                 vertical-align: middle;
+                position: relative;
             }
 
             .process-name {

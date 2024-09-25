@@ -4,24 +4,57 @@ import api from '../route';
 
 const API_DONGHO_URL = `${BASE_API_URL}/dongho`;
 
+export const getAllDongHo = async () => {
+    try {
+        const response = await api.get(API_DONGHO_URL.toString());
+        console.log("get dongho: ", response);
+        return {
+            "status": response.status,
+            "data": response.data,
+            "msg": response.data.msg || "Done!"
+        };
+
+    } catch (error: any) {
+        if (error.response?.data?.msg) {
+            return {
+                "status": error.response.status,
+                "msg": error.response.data.msg || 'Error fetching DongHo data!'
+            };
+        } else {
+            return {
+                "status": error.response?.status || 500,
+                "msg": 'An error occurred. Please try again!'
+            };
+        }
+    }
+};
+
 export const getDongHoByFilter = async (parameters?: DongHoFilterParameters) => {
     try {
         const url = new URL(API_DONGHO_URL);
 
-        if (parameters?.serinumber) {
-            url.searchParams.append('serinumber', parameters.serinumber.toString());
+        // if (parameters?.serial_number) {
+        //     url.searchParams.append('serial_number', parameters.serial_number.toString());
+        // }
+
+        if (parameters?.so_giay_chung_nhan) {
+            url.searchParams.append('so_giay_chung_nhan', parameters.so_giay_chung_nhan.toString());
         }
 
-        if (parameters?.tenkhachhang) {
-            url.searchParams.append('tenkhachhang', parameters.tenkhachhang.toString());
+        if (parameters?.ten_khach_hang) {
+            url.searchParams.append('ten_khach_hang', parameters.ten_khach_hang.toString());
         }
 
-        if (parameters?.namsanxuat_from) {
-            url.searchParams.append('namsanxuat_from', parameters.namsanxuat_from.toString());
+        if (parameters?.nguoi_kiem_dinh) {
+            url.searchParams.append('nguoi_kiem_dinh', parameters.nguoi_kiem_dinh.toString());
         }
 
-        if (parameters?.namsanxuat_to) {
-            url.searchParams.append('namsanxuat_to', parameters.namsanxuat_to.toString());
+        if (parameters?.ngay_kiem_dinh_from) {
+            url.searchParams.append('ngay_kiem_dinh_from', parameters.ngay_kiem_dinh_from.toString());
+        }
+
+        if (parameters?.ngay_kiem_dinh_to) {
+            url.searchParams.append('ngay_kiem_dinh_to', parameters.ngay_kiem_dinh_to.toString());
         }
 
         const response = await api.get(url.toString(), { withCredentials: true });
@@ -47,9 +80,9 @@ export const getDongHoByFilter = async (parameters?: DongHoFilterParameters) => 
     }
 };
 
-export const getDongHoBySerinumber = async (serinumber: string) => {
+export const getDongHoBySerinumber = async (serial_number: string) => {
     try {
-        const url = `${API_DONGHO_URL}/serinumber/${serinumber.toString()}`;
+        const url = `${API_DONGHO_URL}/serial_number/${serial_number.toString()}`;
         
         const response = await api.get(url.toString(), { withCredentials: true });
 
@@ -120,24 +153,25 @@ export const createDongHo = async (dongho: DongHo) => {
         }
 
     } catch (error: any) {
-        if (error.response?.data?.data) {
+        console.log("Error:", error);
+        if (error.response?.data) {
             return {
                 "status": error.response.status,
-                "data": error.response.data.data,
+                "data": error.response.data,
                 "msg": "Error: " + error.response.data.msg || 'Error creating DongHo!'
             };
         } else {
             return {
                 "status": error.response?.status || 500,
-                "msg": 'An error occurred. Please try again!'
+                "msg": 'Đã có lỗi xảy ra. Hãy thử lại sau!'
             };
         }
     }
 };
 
-export const deleteDongHo = async (serinumber: string) => {
+export const deleteDongHo = async (serial_number: string) => {
     try {
-        const response = await api.delete(`${API_DONGHO_URL}/serinumber/${serinumber}`, { withCredentials: true });
+        const response = await api.delete(`${API_DONGHO_URL}/${serial_number}`, { withCredentials: true });
 
         return {
             "status": response.status,
@@ -153,7 +187,7 @@ export const deleteDongHo = async (serinumber: string) => {
         } else {
             return {
                 "status": error.response?.status || 500,
-                "msg": 'An error occurred. Please try again!'
+                "msg": 'Đã có lỗi xảy ra. Hãy thử lại sau!'
             };
         }
     }

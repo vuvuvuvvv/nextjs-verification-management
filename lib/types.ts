@@ -80,7 +80,7 @@ export interface ReportData {
 
 export interface WaterMeterData {
     "id": number,
-    "serialNumber": string,
+    "serial_number": string,
     "type": string,
     "ccx": string,
     "createdAt": string,
@@ -142,7 +142,7 @@ export type DuLieuCacLanChay = Record<number, DuLieuMotLanChay>
 /*
  * Ex: q3 {
  *  value: xxx;
- *  lanChay: {
+ *  lan_chay: {
  *      1: {
  *          ...
  *      },
@@ -155,7 +155,7 @@ export type DuLieuCacLanChay = Record<number, DuLieuMotLanChay>
 */
 export type DuLieuChayDiemLuuLuong = {
     value: number | null;
-    lanChay: Record<number, DuLieuMotLanChay>;
+    lan_chay: Record<number, DuLieuMotLanChay>;
 };
 
 // Tùy theo loại đồng hồ chia ra chạy q 123 hoặc n t min:
@@ -171,7 +171,7 @@ export type DuLieuChayDongHo = Record<string, DuLieuChayDiemLuuLuong | null>;
 
 
 export interface DongHo {
-    seri_number: string | null;
+    serial_number: string | null;
     phuong_tien_do: string | null;
     seri_chi_thi: string | null;
     seri_sensor: string | null;
@@ -193,17 +193,21 @@ export interface DongHo {
     co_so_su_dung: string | null;
     phuong_phap_thuc_hien: string | null;
     chuan_thiet_bi_su_dung: string | null;
-    implementer: string | null;
+    nguoi_kiem_dinh: string | null;
     ngay_thuc_hien: Date | null;
     vi_tri: string | null;
     nhiet_do: string | null;
     do_am: string | null;
-    du_lieu_kieu_dinh: string | null;
+    du_lieu_kiem_dinh: string | null;
+    hieu_luc_bien_ban: Date | null;
+    so_giay_chung_nhan: string | null;
 }
 
 export interface DongHoFilterParameters {
-    serinumber?: string;
-    tenkhachhang?: string;
-    namsanxuat_from?: string; // Assuming date is in string format, adjust if necessary
-    namsanxuat_to?: string;   // Assuming date is in string format, adjust if necessary
+    so_giay_chung_nhan?: string;
+    // serial_number?: string;
+    nguoi_kiem_dinh?: string;
+    ten_khach_hang?: string;
+    ngay_kiem_dinh_from?: string; // Assuming date is in string format, adjust if necessary
+    ngay_kiem_dinh_to?: string;   // Assuming date is in string format, adjust if necessary
 }

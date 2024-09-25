@@ -43,39 +43,41 @@ export default function NewProcessDNBiggerThan32({ className }: NewProcessDNBigg
     const { user } = useUser();
     const [isCollapsed, setIsCollapsed] = useState<boolean>(false);
 
-    const [seriNumber, setSeriNumber] = useState<string>("");                                                                   // Serial number
+    const [seriNumber, setSeriNumber] = useState<string>("");
 
-    const [phuongTienDo, setPhuongTienDo] = useState<string>("");                                                         // Tên phương tiện đo
-    const [seriChiThi, setSeriChiThi] = useState<string>("");                                                                   // Serial chỉ thị
-    const [seriSensor, setSeriSensor] = useState<string>("");                                                                   // Serial sensor
-    const [kieuChiThi, setKieuChiThi] = useState<string>("");                                                                   // Kiểu chỉ thị
-    const [kieuSensor, setKieuSensor] = useState<string>("");                                                                   // Kiểu sensor
+    const [phuongTienDo, setPhuongTienDo] = useState<string>("");
+    const [seriChiThi, setSeriChiThi] = useState<string>("");
+    const [seriSensor, setSeriSensor] = useState<string>("");
+    const [kieuChiThi, setKieuChiThi] = useState<string>("");
+    const [kieuSensor, setKieuSensor] = useState<string>("");
 
-    const [kieuThietBi, setKieuThietBi] = useState<string>("");                                                                 // Kiểu
-    const [soTem, setSoTem] = useState<string>("");                                                                             // Số
-    const [coSoSanXuat, setCoSoSanXuat] = useState<string>("");                                                                 // Cơ sở sản xuất
-    const [namSanXuat, setNamSanXuat] = useState<Date | null>(null);                                                            // Năm sản xuất
-    const [dn, setDN] = useState<string>("");                                                                                   // Đường kính danh định
-    const [d, setD] = useState<string>("");                                                                                     // Độ chia nhỏ nhất
+    const [kieuThietBi, setKieuThietBi] = useState<string>("");
+    const [soTem, setSoTem] = useState<string>("");
+    const [coSoSanXuat, setCoSoSanXuat] = useState<string>("");
+    const [namSanXuat, setNamSanXuat] = useState<Date | null>(null);
+    const [dn, setDN] = useState<string>("");
+    const [d, setD] = useState<string>("");
 
-    const [ccx, setCCX] = useState<string | null>(null);                                                                        // Cấp chính xác
-    const [q3, setQ3] = useState<string>("");                                                                                   // Q3
-    const [r, setR] = useState<string>("");                                                                             // Tỷ số Q3/Q1 (R)
-    const [qn, setQN] = useState<string>("");                                                                                   // QN
+    const [ccx, setCCX] = useState<string | null>(null);
+    const [q3, setQ3] = useState<string>("");
+    const [r, setR] = useState<string>("");
+    const [qn, setQN] = useState<string>("");
 
-    const [kFactor, setKFactor] = useState<string>("");                                                                         // k factor
-    const [so_qd_pdm, setSoQDPDM] = useState<string>("");                                                                       // K hiệu PDM/Số quyết định PDM
+    const [kFactor, setKFactor] = useState<string>("");
+    const [so_qd_pdm, setSoQDPDM] = useState<string>("");
 
     const [tenKhachHang, setTenKhachhang] = useState<string>("");
-    const [coSoSuDung, setCoSoSuDung] = useState<string>("");                                                                   // Cơ sở sử dụng
-    const [phuongPhapThucHien, setPhuongPhapThucHien] = useState<string>("ĐNVN 17:2017");                                       // Phương pháp thực hiện
-    const [chuanThietBiSuDung, setChuanThietBiSuDung] = useState<string>("Đồng hồ chuẩn đo nước và Bình chuẩn");                // Chuẩn, thiết bị chính được sử dụng
-    const [implementer, setImplementer] = useState<string>(user?.fullname || "");                                                                 // Người thực hiện
-    const [ngayThucHien, setNgayThucHien] = useState<Date | null>(new Date());                                                                    // Người thực hiện
-    const [hieuLucBienBan, setHieuLucBienBan] = useState<Date | null>(new Date());                                                  // Ngày thực hiện
-    const [viTri, setViTri] = useState<string>("");                                                                             // Vị trí
-    const [nhietDo, setNhietDo] = useState<string>('');                                                                         // Nhiệt độ
-    const [doAm, setDoAm] = useState<string>('');                                                                               // Độ ẩm 
+    const [coSoSuDung, setCoSoSuDung] = useState<string>("");
+    const [phuongPhapThucHien, setPhuongPhapThucHien] = useState<string>("ĐNVN 17:2017");
+    const [chuanThietBiSuDung, setChuanThietBiSuDung] = useState<string>("Đồng hồ chuẩn đo nước và Bình chuẩn");
+    const [nguoiKiemDinh, setNguoiKiemDinh] = useState<string>(user?.fullname || "");
+    const [ngayThucHien, setNgayThucHien] = useState<Date | null>(new Date()); 
+    const [hieuLucBienBan, setHieuLucBienBan] = useState<Date | null>(null);
+    const [viTri, setViTri] = useState<string>("");
+    const [nhietDo, setNhietDo] = useState<string>('');
+    // TODO: Số giấy CN
+    const [soGiayChungNhan, setSoGiayChungN5han] = useState<string>('');
+    const [doAm, setDoAm] = useState<string>('');
 
     const [isDHDienTu, setDHDienTu] = useState(false);
 
@@ -127,7 +129,7 @@ export default function NewProcessDNBiggerThan32({ className }: NewProcessDNBigg
         seriSensor: "Serial sensor",
         kieuChiThi: "Kiểu chỉ thị",
         kieuSensor: "Kiểu sensor",
-        // soTem: "Số Tem",
+        soTem: "Số Tem",
         coSoSanXuat: "Cơ sở sản xuất",
         namSanXuat: "Năm sản xuất",
         dn: "Đường kính danh định (DN)",
@@ -153,9 +155,9 @@ export default function NewProcessDNBiggerThan32({ className }: NewProcessDNBigg
             { value: seriNumber, setter: setSeriNumber, id: "seriNumber" },
             { value: phuongTienDo, setter: setPhuongTienDo, id: "phuongTienDo" },
             { value: kieuThietBi, setter: setKieuThietBi, id: "kieuThietBi" },
-            { value: seriChiThi, setter: setSeriChiThi, id: "seriChiThi" },
+            // { value: seriChiThi, setter: setSeriChiThi, id: "seriChiThi" },
             { value: seriSensor, setter: setSeriSensor, id: "seriSensor" },
-            { value: kieuChiThi, setter: setKieuChiThi, id: "kieuChiThi" },
+            // { value: kieuChiThi, setter: setKieuChiThi, id: "kieuChiThi" },
             { value: kieuSensor, setter: setKieuSensor, id: "kieuSensor" },
             // { value: soTem, setter: setSoTem, id: "soTem" },
             { value: coSoSanXuat, setter: setCoSoSanXuat, id: "coSoSanXuat" },
@@ -166,7 +168,7 @@ export default function NewProcessDNBiggerThan32({ className }: NewProcessDNBigg
             { value: q3, setter: setQ3, id: "q3" },
             { value: r, setter: setR, id: "r" },
             { value: qn, setter: setQN, id: "qn" },
-            { value: kFactor, setter: setKFactor, id: "kFactor" },
+            // { value: kFactor, setter: setKFactor, id: "kFactor" },
             { value: so_qd_pdm, setter: setSoQDPDM, id: "so_qd_pdm" },
             { value: tenKhachHang, setter: setTenKhachhang, id: "tenKhachHang" },
             { value: coSoSuDung, setter: setCoSoSuDung, id: "coSoSuDung" },
@@ -207,7 +209,7 @@ export default function NewProcessDNBiggerThan32({ className }: NewProcessDNBigg
         const errors = validateFields();
         if (errors.length === 0) {
             setDongHo({
-                seri_number: seriNumber,
+                serial_number: seriNumber,
                 phuong_tien_do: phuongTienDo,
                 seri_chi_thi: seriChiThi,
                 seri_sensor: seriSensor,
@@ -229,12 +231,14 @@ export default function NewProcessDNBiggerThan32({ className }: NewProcessDNBigg
                 co_so_su_dung: coSoSuDung,
                 phuong_phap_thuc_hien: phuongPhapThucHien,
                 chuan_thiet_bi_su_dung: chuanThietBiSuDung,
-                implementer: implementer,
+                nguoi_kiem_dinh: nguoiKiemDinh,
                 ngay_thuc_hien: ngayThucHien,
                 vi_tri: viTri,
                 nhiet_do: nhietDo,
                 do_am: doAm,
-                du_lieu_kieu_dinh: getDuLieuKiemDinhJSON(), // Assuming this is not part of the form
+                du_lieu_kiem_dinh: getDuLieuKiemDinhJSON(), // Assuming this is not part of the form
+                hieu_luc_bien_ban: soTem ? getLastDayOfMonthInFuture(isDHDienTu) : null,
+                so_giay_chung_nhan: soGiayChungNhan,
             });
 
             if (ketQua != null) {
@@ -248,7 +252,10 @@ export default function NewProcessDNBiggerThan32({ className }: NewProcessDNBigg
     ]);
 
     useEffect(() => {
-        setCanSave(soTem ? true : false);
+        setCanSave(soTem ? true : false);            
+        setHieuLucBienBan(soTem ? getLastDayOfMonthInFuture(isDHDienTu) : null);
+        console.log(getLastDayOfMonthInFuture(isDHDienTu));
+
     }, [soTem]);
 
     const handleSaveDongHo = async () => {
@@ -756,14 +763,14 @@ export default function NewProcessDNBiggerThan32({ className }: NewProcessDNBigg
                                     />
                                 </div>
                                 <div className="mb-3 col-12 col-md-6 col-xxl-4">
-                                    <label htmlFor="implementer" className="form-label">Người thực hiện:</label>
+                                    <label htmlFor="nguoi_kiem_dinh" className="form-label">Người thực hiện:</label>
                                     <input
                                         type="text"
                                         className="form-control"
-                                        id="implementer"
+                                        id="nguoi_kiem_dinh"
                                         placeholder="Người thực hiện"
-                                        value={implementer}
-                                        onChange={(e) => setImplementer(e.target.value)}
+                                        value={nguoiKiemDinh}
+                                        onChange={(e) => setNguoiKiemDinh(e.target.value)}
                                     />
                                 </div>
                                 <div className="mb-3 col-12 col-md-6 col-xxl-4">
@@ -891,7 +898,7 @@ export default function NewProcessDNBiggerThan32({ className }: NewProcessDNBigg
                                         <label htmlFor="hieuLucBienBan" style={{ width: "180px" }} className="form-label m-0 fs-6 fw-bold d-block">Hiệu lực biên bản:</label>
                                         <DatePicker
                                             className={`bg-white ${vrfWm['date-picker']}`}
-                                            value={dayjs(!ketQua ? hieuLucBienBan : getLastDayOfMonthInFuture(isDHDienTu))}
+                                            value={dayjs(hieuLucBienBan)}
                                             format="DD-MM-YYYY"
                                             // maxDate={dayjs().endOf('day')}
                                             minDate={dayjs().endOf('day')}
