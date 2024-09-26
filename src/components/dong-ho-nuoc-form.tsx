@@ -99,8 +99,17 @@ export default function FormDongHoNuocDNLonHon15({ className, dataDongHo }: Form
                 const dlHSS = duLieuHSS.hieu_sai_so;
                 setFormHieuSaiSo(dlHSS);
             }
+
+            const checkDHDT = dataDongHo.phuong_tien_do !== "" && phuongTienDoOptions.find(option => option.label == dataDongHo.phuong_tien_do)?.value == "1"
+            const { getQ1OrMin, getQ2OrQt } = getQ2OrQtAndQ1OrQMin(checkDHDT, dataDongHo.ccx, dataDongHo.q3 ? dataDongHo.q3 : dataDongHo.qn, dataDongHo.r);
+            setQ2OrQmin(getQ2OrQt);
+            setQ1OrQt(getQ1OrMin);
         }
     }, []);
+
+    useEffect(() => {
+        console.log("qq: ", [q2Ort, q1Ormin]);
+    }, [q2Ort, q1Ormin]);
 
     useEffect(() => {
         if (error) {
@@ -229,7 +238,7 @@ export default function FormDongHoNuocDNLonHon15({ className, dataDongHo }: Form
                 dn: dn,
                 d: d,
                 ccx: ccx,
-                q3: checkQ3 ? q3: "",
+                q3: checkQ3 ? q3 : "",
                 r: r,
                 qn: checkQ3 ? "" : qn,
                 k_factor: kFactor,
@@ -266,7 +275,7 @@ export default function FormDongHoNuocDNLonHon15({ className, dataDongHo }: Form
     }, [soTem]);
 
     const handleSaveDongHo = async () => {
-        if(dataDongHo) {
+        if (dataDongHo) {
             // TODO: Update Dongho
         } else {
             if (canSave) {
@@ -345,7 +354,7 @@ export default function FormDongHoNuocDNLonHon15({ className, dataDongHo }: Form
     }, [ccx, phuongTienDo]);
 
     useEffect(() => {
-        if (ccx && phuongTienDo && ((q3 && r) || qn)) {
+        if (ccx && phuongTienDo && ((q3 && r) || qn) && !dataDongHo) {
             const { getQ1OrMin, getQ2OrQt } = getQ2OrQtAndQ1OrQMin(isDHDienTu, ccx, q3, r);
             setQ2OrQmin(getQ1OrMin);
             setQ1OrQt(getQ2OrQt);
@@ -382,6 +391,7 @@ export default function FormDongHoNuocDNLonHon15({ className, dataDongHo }: Form
                     <label htmlFor="q3" className="form-label">- Q<sub>3</sub>:</label>
                     <div className="input-group">
                         <input
+                            readOnly={dataDongHo ? true : false}
                             type="text"
                             className="form-control"
                             id="q3"
@@ -396,6 +406,7 @@ export default function FormDongHoNuocDNLonHon15({ className, dataDongHo }: Form
                 <div className="mb-3 col-12 col-md-6 col-xxl-4">
                     <label htmlFor="r" className="form-label">- Tỷ số Q<sub>3</sub>/Q<sub>1</sub> (R):</label>
                     <input
+                        readOnly={dataDongHo ? true : false}
                         type="text"
                         className="form-control"
                         id="r"
@@ -410,6 +421,7 @@ export default function FormDongHoNuocDNLonHon15({ className, dataDongHo }: Form
                     <label htmlFor="seriChiThi" className="form-label">Serial chỉ thị:</label>
                     <div className="input-group">
                         <input
+                            readOnly={dataDongHo ? true : false}
                             type="text"
                             className="form-control"
                             id="seriChiThi"
@@ -423,6 +435,7 @@ export default function FormDongHoNuocDNLonHon15({ className, dataDongHo }: Form
                     <label htmlFor="kieuChiThi" className="form-label">Kiểu chỉ thị:</label>
                     <div className="input-group">
                         <input
+                            readOnly={dataDongHo ? true : false}
                             type="text"
                             className="form-control"
                             id="kieuChiThi"
@@ -435,6 +448,7 @@ export default function FormDongHoNuocDNLonHon15({ className, dataDongHo }: Form
                 <div className="mb-3 col-12 col-md-6 col-xxl-4">
                     <label htmlFor="seriSensor" className="form-label">Serial sensor:</label>
                     <input
+                        readOnly={dataDongHo ? true : false}
                         type="text"
                         className="form-control"
                         id="seriSensor"
@@ -446,6 +460,7 @@ export default function FormDongHoNuocDNLonHon15({ className, dataDongHo }: Form
                 <div className="mb-3 col-12 col-md-6 col-xxl-4">
                     <label htmlFor="kieuSensor" className="form-label">Kiểu sensor:</label>
                     <input
+                        readOnly={dataDongHo ? true : false}
                         type="text"
                         className="form-control"
                         id="kieuSensor"
@@ -462,6 +477,7 @@ export default function FormDongHoNuocDNLonHon15({ className, dataDongHo }: Form
                     <label htmlFor="qn" className="form-label">- Q<sub>n</sub>:</label>
                     <div className="input-group">
                         <input
+                            readOnly={dataDongHo ? true : false}
                             type="text"
                             className="form-control"
                             id="qn"
@@ -476,6 +492,7 @@ export default function FormDongHoNuocDNLonHon15({ className, dataDongHo }: Form
                 <div className="mb-3 col-12 col-md-6 col-xxl-4">
                     <label htmlFor="kieuSensor" className="form-label">Kiểu sensor:</label>
                     <input
+                        readOnly={dataDongHo ? true : false}
                         type="text"
                         className="form-control"
                         id="kieuSensor"
@@ -499,6 +516,7 @@ export default function FormDongHoNuocDNLonHon15({ className, dataDongHo }: Form
                         <div className={`col-12 col-lg-6 m-0 mb-3 p-0 pe-lg-2 p-0 d-flex align-items-center justify-content-between ${vrfWm['seri-number-input']}`}>
                             <label htmlFor="seriNumber" className={`form-label m-0 fs-5 fw-bold d-block`}>Số Seri:</label>
                             <input
+                                readOnly={dataDongHo ? true : false}
                                 type="text"
                                 id="seriNumber"
                                 className={`form-control`}
@@ -521,6 +539,7 @@ export default function FormDongHoNuocDNLonHon15({ className, dataDongHo }: Form
                                         classNamePrefix="select"
                                         placeholder="-- Chọn tên --"
                                         isClearable
+                                        isDisabled={dataDongHo ? true : false}
                                         value={phuongTienDoOptions.find(option => option.label == phuongTienDo) || null}
                                         onChange={(selectedOptions: any) => setPhuongTienDo(selectedOptions ? selectedOptions.label : "")}
                                         styles={{
@@ -562,6 +581,7 @@ export default function FormDongHoNuocDNLonHon15({ className, dataDongHo }: Form
                                         placeholder="-- Chọn kiểu --"
                                         classNamePrefix="select"
                                         isClearable
+                                        isDisabled={dataDongHo ? true : false}
                                         id="kieuThietBi"
                                         value={typeOptions.find(option => option.value === kieuThietBi) || null}
                                         onChange={(selectedOptions: any) => setKieuThietBi(selectedOptions ? selectedOptions.value : "")}
@@ -598,6 +618,7 @@ export default function FormDongHoNuocDNLonHon15({ className, dataDongHo }: Form
                                 <div className="mb-3 col-12 col-md-6">
                                     <label htmlFor="coSoSanXuat" className="form-label">Cơ sở sản xuất:</label>
                                     <input
+                                        readOnly={dataDongHo ? true : false}
                                         type="text"
                                         className="form-control"
                                         id="coSoSanXuat"
@@ -613,6 +634,7 @@ export default function FormDongHoNuocDNLonHon15({ className, dataDongHo }: Form
                                         value={namSanXuat ? dayjs(namSanXuat) : null}
                                         views={['year']}
                                         format="YYYY"
+                                        readOnly={dataDongHo ? true : false}
                                         minDate={dayjs('1900-01-01')}
                                         maxDate={dayjs().endOf('year')}
                                         onChange={(newValue: Dayjs | null) => {
@@ -634,6 +656,7 @@ export default function FormDongHoNuocDNLonHon15({ className, dataDongHo }: Form
                                     <label htmlFor="dn" className="form-label">- Đường kính danh định (DN):</label>
                                     <div className="input-group">
                                         <input
+                                            readOnly={dataDongHo ? true : false}
                                             type="text"
                                             className="form-control"
                                             id="dn"
@@ -648,6 +671,7 @@ export default function FormDongHoNuocDNLonHon15({ className, dataDongHo }: Form
                                 <div className="mb-3 col-12 col-md-6 col-xxl-4">
                                     <label htmlFor="dn" className="form-label">- Độ chia nhỏ nhất (d):</label>
                                     <input
+                                        readOnly={dataDongHo ? true : false}
                                         type="text"
                                         className="form-control"
                                         id="d"
@@ -666,6 +690,7 @@ export default function FormDongHoNuocDNLonHon15({ className, dataDongHo }: Form
                                         classNamePrefix="select"
                                         placeholder="-- Chọn cấp --"
                                         isClearable
+                                        isDisabled={dataDongHo ? true : false}
                                         value={ccxOptions.find(option => option.value === ccx) || null}
                                         onChange={(selectedOptions: any) => setCCX(selectedOptions ? selectedOptions.value : "")}
                                         styles={{
@@ -705,6 +730,7 @@ export default function FormDongHoNuocDNLonHon15({ className, dataDongHo }: Form
                                 <div className="mb-3 col-12 col-md-6 col-xxl-4">
                                     <label htmlFor="kFactor" className="form-label">- Hệ số K-factor :</label>
                                     <input
+                                        readOnly={dataDongHo ? true : false}
                                         type="text"
                                         className="form-control"
                                         id="kFactor"
@@ -716,6 +742,7 @@ export default function FormDongHoNuocDNLonHon15({ className, dataDongHo }: Form
                                 <div className="mb-3 col-12 col-md-6 col-xxl-4">
                                     <label htmlFor="so_qd_pdm" className="form-label">- Ký hiệu PDM/Số quyết định PDM:</label>
                                     <input
+                                        readOnly={dataDongHo ? true : false}
                                         type="text"
                                         className="form-control"
                                         id="so_qd_pdm"
@@ -724,7 +751,7 @@ export default function FormDongHoNuocDNLonHon15({ className, dataDongHo }: Form
                                         onChange={(e) => setSoQDPDM(e.target.value)}
                                     />
                                 </div>
-                                <div className="mb-3 col-12 col-md-6 col-xxl-4 d-flex align-items-end py-1">
+                                <div className={`mb-3 col-12 col-md-6 col-xxl-4 d-flex align-items-end py-1 ${dataDongHo ? "d-none" : ""}`}>
                                     <Link
                                         href={"/kiem-dinh/pdm//them-moi"}
                                         className="btn btn-success px-3 py-2 text-white"
@@ -738,6 +765,7 @@ export default function FormDongHoNuocDNLonHon15({ className, dataDongHo }: Form
                                 <div className="mb-3 col-12 col-xxl-6">
                                     <label htmlFor="tenKhachHang" className="form-label">Tên khách hàng:</label>
                                     <input
+                                        readOnly={dataDongHo ? true : false}
                                         type="text"
                                         className="form-control"
                                         id="tenKhachHang"
@@ -749,6 +777,7 @@ export default function FormDongHoNuocDNLonHon15({ className, dataDongHo }: Form
                                 <div className="mb-3 col-12 col-xxl-6">
                                     <label htmlFor="coSoSuDung" className="form-label">Cơ sở sử dụng:</label>
                                     <input
+                                        readOnly={dataDongHo ? true : false}
                                         type="text"
                                         className="form-control"
                                         id="coSoSuDung"
@@ -760,6 +789,7 @@ export default function FormDongHoNuocDNLonHon15({ className, dataDongHo }: Form
                                 <div className="mb-3 col-12 col-xl-6">
                                     <label htmlFor="chuanThietBiSuDung" className="form-label">Chuẩn, thiết bị chính được sử dụng:</label>
                                     <input
+                                        readOnly={dataDongHo ? true : false}
                                         type="text"
                                         className="form-control"
                                         id="chuanThietBiSuDung"
@@ -771,6 +801,7 @@ export default function FormDongHoNuocDNLonHon15({ className, dataDongHo }: Form
                                 <div className="mb-3 col-12 col-xl-6">
                                     <label htmlFor="viTri" className="form-label">Địa điểm thực hiện:</label>
                                     <input
+                                        readOnly={dataDongHo ? true : false}
                                         type="text"
                                         className="form-control"
                                         id="viTri"
@@ -782,6 +813,7 @@ export default function FormDongHoNuocDNLonHon15({ className, dataDongHo }: Form
                                 <div className="mb-3 col-12 col-md-6 col-xxl-4">
                                     <label htmlFor="nguoi_kiem_dinh" className="form-label">Người thực hiện:</label>
                                     <input
+                                        readOnly={dataDongHo ? true : false}
                                         type="text"
                                         className="form-control"
                                         id="nguoi_kiem_dinh"
@@ -796,6 +828,7 @@ export default function FormDongHoNuocDNLonHon15({ className, dataDongHo }: Form
                                         className={`${vrfWm['date-picker']}`}
                                         value={dayjs(ngayThucHien)}
                                         format="DD-MM-YYYY"
+                                        readOnly={dataDongHo ? true : false}
                                         maxDate={dayjs().endOf('day')}
                                         onChange={(newValue: Dayjs | null) => setNgayThucHien(newValue ? newValue.toDate() : null)}
                                         slotProps={{ textField: { fullWidth: true } }}
@@ -804,6 +837,7 @@ export default function FormDongHoNuocDNLonHon15({ className, dataDongHo }: Form
                                 <div className="mb-3 col-12 col-xxl-4">
                                     <label htmlFor="phuongPhapThucHien" className="form-label">Phương pháp thực hiện:</label>
                                     <input
+                                        readOnly={dataDongHo ? true : false}
                                         type="text"
                                         className="form-control"
                                         id="phuongPhapThucHien"
@@ -816,6 +850,7 @@ export default function FormDongHoNuocDNLonHon15({ className, dataDongHo }: Form
                                     <label htmlFor="nhietDo" className="form-label">Nhiệt độ:</label>
                                     <div className="input-group">
                                         <input
+                                            readOnly={dataDongHo ? true : false}
                                             type="text"
                                             className="form-control"
                                             id="nhietDo"
@@ -830,6 +865,7 @@ export default function FormDongHoNuocDNLonHon15({ className, dataDongHo }: Form
                                     <label htmlFor="doAm" className="form-label">Độ ẩm:</label>
                                     <div className="input-group">
                                         <input
+                                            readOnly={dataDongHo ? true : false}
                                             type="text"
                                             className="form-control"
                                             id="doAm"
@@ -853,11 +889,13 @@ export default function FormDongHoNuocDNLonHon15({ className, dataDongHo }: Form
                 </div>
 
                 <div className={`m-0 mb-3 p-2 bg-white rounded shadow-sm w-100 w-100`}>
+                    a{(q3) ? q3 : ((qn) ? qn : "")}
+                    b{(q2Ort) ? q2Ort.toString() : ""}
                     <NavTab buttonControl={true} tabContent={
                         [
                             {
                                 title: <>Q<sub>{isDHDienTu ? "3" : "n"}</sub></>,
-                                content: <TinhSaiSoTab
+                                content: <TinhSaiSoTab readOnly={dataDongHo ? true : false}
                                     onFormHSSChange={(value: number) => handleFormHSSChange(0, value)}
                                     d={d ? d : ""} q={{
                                         title: (isDHDienTu) ? TITLE_LUU_LUONG.q3 : TITLE_LUU_LUONG.qn,
@@ -866,7 +904,7 @@ export default function FormDongHoNuocDNLonHon15({ className, dataDongHo }: Form
                             },
                             {
                                 title: <>Q<sub>{isDHDienTu ? "2" : "t"}</sub></>,
-                                content: <TinhSaiSoTab
+                                content: <TinhSaiSoTab readOnly={dataDongHo ? true : false}
                                     onFormHSSChange={(value: number) => handleFormHSSChange(1, value)}
                                     d={d ? d : ""} q={{
                                         title: (isDHDienTu) ? TITLE_LUU_LUONG.q2 : TITLE_LUU_LUONG.qt,
@@ -875,7 +913,7 @@ export default function FormDongHoNuocDNLonHon15({ className, dataDongHo }: Form
                             },
                             {
                                 title: <>Q<sub>{isDHDienTu ? "1" : "min"}</sub></>,
-                                content: <TinhSaiSoTab
+                                content: <TinhSaiSoTab readOnly={dataDongHo ? true : false}
                                     onFormHSSChange={(value: number) => handleFormHSSChange(2, value)}
                                     d={d ? d : ""} q={{
                                         title: (isDHDienTu) ? TITLE_LUU_LUONG.q1 : TITLE_LUU_LUONG.qmin,
@@ -902,6 +940,7 @@ export default function FormDongHoNuocDNLonHon15({ className, dataDongHo }: Form
                                     <div className={`col-12 col-md-10 col-xl-8 col-xxl-5 m-0 mb-3 p-0 ps-lg-2 p-0 d-flex align-items-center justify-content-between ${vrfWm['seri-number-input']}`}>
                                         <label htmlFor="seriNumber" className={`form-label m-0 fs-6 fw-bold d-block`}>Số Tem:</label>
                                         <input
+                                            readOnly={dataDongHo ? true : false}
                                             type="text"
                                             id="soTem"
                                             className={`form-control`}
@@ -916,6 +955,7 @@ export default function FormDongHoNuocDNLonHon15({ className, dataDongHo }: Form
                                         <DatePicker
                                             className={`bg-white ${vrfWm['date-picker']}`}
                                             value={dayjs(hieuLucBienBan)}
+                                            readOnly={dataDongHo ? true : false}
                                             format="DD-MM-YYYY"
                                             // maxDate={dayjs().endOf('day')}
                                             minDate={dayjs().endOf('day')}
@@ -937,7 +977,7 @@ export default function FormDongHoNuocDNLonHon15({ className, dataDongHo }: Form
                         {/* <button className="btn py-2 px-3 btn-danger" onClick={handleCheck}>
                             Kiểm tra
                         </button> */}
-                        <button className={`btn py-2 px-3 ${canSave ? "btn-success" : "btn-secondary"}`} disabled={!canSave} onClick={handleSaveDongHo}>
+                        <button className={`btn py-2 px-3 ${canSave ? "btn-success" : "btn-secondary"} ${dataDongHo ? "d-none" : ""}`} disabled={!canSave} onClick={handleSaveDongHo}>
                             Lưu Đồng hồ
                         </button>
                     </div>

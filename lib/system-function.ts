@@ -13,49 +13,49 @@ export const getSaiSoDongHo = (formValue: DuLieuMotLanChay) => {
     return 0;
 };
 
-export const getQ2OrQtAndQ1OrQMin = (isDHDienTu: boolean, ccx: string | null, q: string, r: string) => {
+export const getQ2OrQtAndQ1OrQMin = (isDHDienTu: boolean, ccx: string | null, q: string | null, r: string | null) => {
     // Qt:Q2 && Qmin:Q1 
-    const heso = {
-        "A": {
-            "qt": (parseFloat(q) < 15) ? 0.1 : 0.3,
-            "qmin": (parseFloat(q) < 15) ? 0.04 : 0.08,
-        },
-        "B": {
-            "qt": (parseFloat(q) < 15) ? 0.08 : 0.2,
-            "qmin": (parseFloat(q) < 15) ? 0.02 : 0.03,
-        },
-        "C": {
-            "qt": (parseFloat(q) < 15) ? 0.015 : 0.015,
-            "qmin": (parseFloat(q) < 15) ? 0.01 : 0.006,
-        },
-        "D": {
-            "qt": (parseFloat(q) < 15) ? 0.0115 : null,
-            "qmin": (parseFloat(q) < 15) ? 0.0075 : null,
+    if (isDHDienTu != null && ccx && q) {
+        const heso = {
+            "A": {
+                "qt": (parseFloat(q) < 15) ? 0.1 : 0.3,
+                "qmin": (parseFloat(q) < 15) ? 0.04 : 0.08,
+            },
+            "B": {
+                "qt": (parseFloat(q) < 15) ? 0.08 : 0.2,
+                "qmin": (parseFloat(q) < 15) ? 0.02 : 0.03,
+            },
+            "C": {
+                "qt": (parseFloat(q) < 15) ? 0.015 : 0.015,
+                "qmin": (parseFloat(q) < 15) ? 0.01 : 0.006,
+            },
+            "D": {
+                "qt": (parseFloat(q) < 15) ? 0.0115 : null,
+                "qmin": (parseFloat(q) < 15) ? 0.0075 : null,
+            }
         }
-    }
-
-    if (isDHDienTu) {
-        const qmin = parseFloat(q) / parseFloat(r);
-        const qt = 1.6 * qmin;
-        return {
-            getQ1OrMin: parseFloat(qmin.toFixed(3)),
-            getQ2OrQt: parseFloat(qt.toFixed(3))
-        };
-    } else {
-        if (ccx && ccx in heso) {
-            const heso_qt = heso[ccx as keyof typeof heso].qt;
-            const heso_qmin = heso[ccx as keyof typeof heso].qmin;
+        if (isDHDienTu && q && r) {
+            const qmin = parseFloat(q) / parseFloat(r);
+            const qt = 1.6 * qmin;
             return {
-                getQ1OrMin: (heso_qmin) ? parseFloat(q) * heso_qmin : null,
-                getQ2OrQt: (heso_qt) ? parseFloat(q) * heso_qt : null,
+                getQ1OrMin: parseFloat(qmin.toFixed(3)),
+                getQ2OrQt: parseFloat(qt.toFixed(3))
             };
         } else {
-            return {
-                getQ1OrMin: null,
-                getQ2OrQt: null,
-            };
+            if (ccx && ccx in heso) {
+                const heso_qt = heso[ccx as keyof typeof heso].qt;
+                const heso_qmin = heso[ccx as keyof typeof heso].qmin;
+                return {
+                    getQ1OrMin: (heso_qmin) ? parseFloat(q) * heso_qmin : null,
+                    getQ2OrQt: (heso_qt) ? parseFloat(q) * heso_qt : null,
+                };
+            }
         }
     }
+    return {
+        getQ1OrMin: null,
+        getQ2OrQt: null,
+    };
 };
 
 export const getVToiThieu = (q: string | number, d: string | number) => {

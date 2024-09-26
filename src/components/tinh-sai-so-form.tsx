@@ -12,11 +12,12 @@ interface CaculatorFormProps {
         Vc2: number;
         Tc: number;
     };
+    readOnly?: boolean,
     onFormChange: (field: string, value: number) => void;
     d?: string;
 }
 
-export default function DNBT30TinhSaiSoForm({ className, formValue, onFormChange, d }: CaculatorFormProps) {
+export default function DNBT30TinhSaiSoForm({ className, formValue, readOnly = false, onFormChange, d }: CaculatorFormProps) {
     const [Vc1, setVc1] = useState<string>(formValue.Vc1 ? formValue.Vc1.toString() : "0");
     const [Vc2, setVc2] = useState<string>(formValue.Vc2 ? formValue.Vc2.toString() : "0");
     const [Tdh, setTdh] = useState<string>("0");
@@ -86,6 +87,7 @@ export default function DNBT30TinhSaiSoForm({ className, formValue, onFormChange
                     <div className={`mb-3 ${ecf["box-input-form"]}`}>
                         <label htmlFor="firstNum" className="form-label">Số đầu</label>
                         <input
+                            readOnly={readOnly ? true : false}
                             type="text"
                             className="form-control"
                             id="firstNum"
@@ -98,6 +100,7 @@ export default function DNBT30TinhSaiSoForm({ className, formValue, onFormChange
                     <div className={`mb-3 ${ecf["box-input-form"]}`}>
                         <label htmlFor="lastNum" className="form-label">Số cuối</label>
                         <input
+                            readOnly={readOnly ? true : false}
                             type="text"
                             className="form-control"
                             id="lastNum"
@@ -110,6 +113,7 @@ export default function DNBT30TinhSaiSoForm({ className, formValue, onFormChange
                     <div className={`mb-3 ${ecf["box-input-form"]}`}>
                         <label htmlFor="tdh" className="form-label">Nhiệt độ (℃)</label>
                         <input
+                            readOnly={readOnly ? true : false}
                             type="text"
                             className="form-control"
                             id="tdh"
@@ -125,6 +129,7 @@ export default function DNBT30TinhSaiSoForm({ className, formValue, onFormChange
                     <div className={`mb-3 ${ecf["box-input-form"]}`}>
                         <label htmlFor="firstNum" className="form-label">Số đầu</label>
                         <input
+                            readOnly={readOnly ? true : false}
                             type="text"
                             className="form-control"
                             id="firstNum"
@@ -137,6 +142,7 @@ export default function DNBT30TinhSaiSoForm({ className, formValue, onFormChange
                     <div className={`mb-3 ${ecf["box-input-form"]}`}>
                         <label htmlFor="lastNum" className="form-label">Số cuối</label>
                         <input
+                            readOnly={readOnly ? true : false}
                             type="text"
                             className="form-control"
                             id="lastNum"
@@ -150,6 +156,7 @@ export default function DNBT30TinhSaiSoForm({ className, formValue, onFormChange
                     <div className={`mb-3 ${ecf["box-input-form"]}`}>
                         <label htmlFor="tc" className="form-label">Nhiệt độ (℃)</label>
                         <input
+                            readOnly={readOnly ? true : false}
                             type="text"
                             className="form-control"
                             id="tc"
@@ -167,7 +174,7 @@ export default function DNBT30TinhSaiSoForm({ className, formValue, onFormChange
                         <input type="text" className="form-control p-3" id={ecf["errNum"]} value={saiSo} disabled readOnly />
                     </div>
                 </div>
-                <div className={`${ecf["box-button"]}`}>
+                <div className={`${ecf["box-button"]} ${readOnly ? "d-none" : ""}`}>
                     <button type="button" className={`w-100 btn py-2 btn-success ${ecf["btn-save"]}`} disabled={saiSo === "0%"}>
                         Lưu kết quả
                     </button>
