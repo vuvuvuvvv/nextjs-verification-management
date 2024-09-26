@@ -13,33 +13,8 @@ interface DNBiggerThan32Props {
 }
 
 export default function DNBiggerThan32({ className }: DNBiggerThan32Props) {
-    const [dongHoData, setDongHoData] = useState<DongHo[]>([]);
-    const [loading, setLoading] = useState<boolean>(true);
-    const fetchCalled = useRef(false);
-
-    useEffect(() => {
-        if (fetchCalled.current) return;
-        fetchCalled.current = true;
-
-        const fetchData = async () => {
-            try {
-                const res = await api.get(`${BASE_API_URL}/dongho`);
-                setDongHoData(res.data);
-            } catch (error) {
-                console.error("Error fetching data:", error);
-            } finally {
-                setLoading(false);
-            }
-        };
-
-        fetchData();
-    }, []);
-
-    if (loading) {
-        return <Loading></Loading>;
-    }
 
     return <div className="w-100 m-0 p-2">
-        <WaterMeterManagement data={dongHoData}></WaterMeterManagement>
+        <WaterMeterManagement></WaterMeterManagement>
     </div>
 }

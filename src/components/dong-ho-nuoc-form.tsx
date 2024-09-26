@@ -91,8 +91,13 @@ export default function FormDongHoNuocDNLonHon15({ className, dataDongHo }: Form
         if (dataDongHo) {
             const duLieuKiemDinh = dataDongHo.du_lieu_kiem_dinh as { du_lieu?: DuLieuChayDongHo }; // Define the type
             if (duLieuKiemDinh?.du_lieu) { // Optional chaining
-                const duLieu = duLieuKiemDinh.du_lieu;
-                setDuLieuKiemDinhCacLuuLuong(duLieu);
+                const dlKiemDinh = duLieuKiemDinh.du_lieu;
+                setDuLieuKiemDinhCacLuuLuong(dlKiemDinh);
+            }
+            const duLieuHSS = dataDongHo.du_lieu_kiem_dinh as { hieu_sai_so?: { hss: number | null }[] }; // Define the type
+            if (duLieuHSS?.hieu_sai_so) { // Optional chaining
+                const dlHSS = duLieuHSS.hieu_sai_so;
+                setFormHieuSaiSo(dlHSS);
             }
         }
     }, []);
@@ -202,24 +207,21 @@ export default function FormDongHoNuocDNLonHon15({ className, dataDongHo }: Form
                 }
             }
         }
-
-        // if (firstInvalidField) {
-        //     firstInvalidField.focus();
-        // }
-
         return validationErrors;
     };
 
     useEffect(() => {
         const errors = validateFields();
         if (errors.length === 0) {
+            const checkQ3 = ((ccx && (ccx == "1" || ccx == "2")) || isDHDienTu);
+
             setDongHo({
                 serial_number: seriNumber,
                 phuong_tien_do: phuongTienDo,
-                seri_chi_thi: seriChiThi,
-                seri_sensor: seriSensor,
-                kieu_chi_thi: kieuChiThi,
-                kieu_sensor: kieuSensor,
+                seri_chi_thi: checkQ3 ? seriChiThi : "",
+                seri_sensor: checkQ3 ? seriSensor : "",
+                kieu_chi_thi: checkQ3 ? kieuChiThi : "",
+                kieu_sensor: checkQ3 ? kieuSensor : "",
                 kieu_thiet_bi: kieuThietBi,
                 co_so_san_xuat: coSoSanXuat,
                 so_tem: soTem,
@@ -227,9 +229,9 @@ export default function FormDongHoNuocDNLonHon15({ className, dataDongHo }: Form
                 dn: dn,
                 d: d,
                 ccx: ccx,
-                q3: q3,
+                q3: checkQ3 ? q3: "",
                 r: r,
-                qn: qn,
+                qn: checkQ3 ? "" : qn,
                 k_factor: kFactor,
                 so_qd_pdm: so_qd_pdm,
                 ten_khach_hang: tenKhachHang,
@@ -250,6 +252,8 @@ export default function FormDongHoNuocDNLonHon15({ className, dataDongHo }: Form
                 setCanSave(true);
             }
         } else {
+            setSoTem("");
+            setKetQua(null);
             setCanSave(false);
         }
     }, [
@@ -259,47 +263,49 @@ export default function FormDongHoNuocDNLonHon15({ className, dataDongHo }: Form
     useEffect(() => {
         setCanSave(soTem ? true : false);
         setHieuLucBienBan(soTem ? getLastDayOfMonthInFuture(isDHDienTu) : null);
-        console.log(getLastDayOfMonthInFuture(isDHDienTu));
-
     }, [soTem]);
 
     const handleSaveDongHo = async () => {
-        if (canSave) {
-            try {
-                const response = await createDongHo(dongHo);
-                // console.log(response)
-                if (response.status == 201) {
-                    Swal.fire({
-                        icon: "success",
-                        showClass: {
-                            popup: `
-                          animate__animated
-                          animate__fadeInUp
-                          animate__faster
-                        `
-                        },
-                        html: "Lưu Đồng hồ thành công!",
-                        timer: 1500,
-                        allowOutsideClick: false,
-                        allowEscapeKey: false,
-                        didOpen: () => {
-                            Swal.showLoading();
-                        },
-                    }).then((result) => {
-                        if (result.dismiss === Swal.DismissReason.timer) {
-                            Swal.showLoading();
-                            router.push("/kiem-dinh/dong-ho-nuoc/dn-bigger-than-15");
-                        }
-                    });
-                } else {
-                    // console.log(response)
-                    setError(response.msg);
-                }
-            } catch (err) {
-                setError("Đã có lỗi xảy ra. Vui lòng thử lại!");
-            }
+        if(dataDongHo) {
+            // TODO: Update Dongho
         } else {
-            setError("Chưa thể lưu lúc này!");
+            if (canSave) {
+                try {
+                    const response = await createDongHo(dongHo);
+                    // console.log(response)
+                    if (response.status == 201) {
+                        Swal.fire({
+                            icon: "success",
+                            showClass: {
+                                popup: `
+                              animate__animated
+                              animate__fadeInUp
+                              animate__faster
+                            `
+                            },
+                            html: "Lưu Đồng hồ thành công!",
+                            timer: 1500,
+                            allowOutsideClick: false,
+                            allowEscapeKey: false,
+                            didOpen: () => {
+                                Swal.showLoading();
+                            },
+                        }).then((result) => {
+                            if (result.dismiss === Swal.DismissReason.timer) {
+                                Swal.showLoading();
+                                router.push("/kiem-dinh/dong-ho-nuoc/dn-bigger-than-15");
+                            }
+                        });
+                    } else {
+                        // console.log(response)
+                        setError(response.msg);
+                    }
+                } catch (err) {
+                    setError("Đã có lỗi xảy ra. Vui lòng thử lại!");
+                }
+            } else {
+                setError("Chưa thể lưu lúc này!");
+            }
         }
     }
 
@@ -308,8 +314,6 @@ export default function FormDongHoNuocDNLonHon15({ className, dataDongHo }: Form
         const newFormValues = [...formHieuSaiSo];
         newFormValues[index].hss = value;
         setFormHieuSaiSo(newFormValues);
-        // console.log("HSS: ", formHieuSaiSo);
-        // console.log("Đạt tiêu chuẩn: ", isDongHoDatTieuChuan(isDHDienTu, newFormValues) ? "Đạt" : "Không");
     };
 
     useEffect(() => {
@@ -336,16 +340,9 @@ export default function FormDongHoNuocDNLonHon15({ className, dataDongHo }: Form
     };
 
     // TODO: Check lại ccx để nó clear hết data
-    // useEffect(() => {
-    //     setQ3("");
-    //     setR("");
-    //     setQN("");
-    //     setSeriChiThi("");
-    //     setSeriSensor("");
-    //     setKieuSensor("");
-    //     setKieuChiThi("");
-    //     setDHDienTu(phuongTienDo !== "" && phuongTienDoOptions.find(option => option.label == phuongTienDo)?.value == "1");
-    // }, [ccx, phuongTienDo]);
+    useEffect(() => {
+        setDHDienTu(phuongTienDo !== "" && phuongTienDoOptions.find(option => option.label == phuongTienDo)?.value == "1");
+    }, [ccx, phuongTienDo]);
 
     useEffect(() => {
         if (ccx && phuongTienDo && ((q3 && r) || qn)) {
@@ -354,6 +351,19 @@ export default function FormDongHoNuocDNLonHon15({ className, dataDongHo }: Form
             setQ1OrQt(getQ2OrQt);
         }
     }, [ccx, phuongTienDo, q3, qn, r]);
+
+    // useEffect(() => {
+    //     if (!isDHDienTu) {
+    //         setQ3("");
+    //         setR("");
+    //         setSeriChiThi("");
+    //         setSeriSensor("");
+    //         setKieuSensor("");
+    //         setKieuChiThi("");
+    //     } else {
+    //         setQN("");
+    //     }
+    // }, [ccx, phuongTienDo]);
 
     useEffect(() => {
         const humidity = parseFloat(doAm);
@@ -445,36 +455,37 @@ export default function FormDongHoNuocDNLonHon15({ className, dataDongHo }: Form
                     />
                 </div>
             </>
-        }
+        } else {
 
-        return <>
-            <div className="mb-3 col-12 col-md-6 col-xxl-4">
-                <label htmlFor="qn" className="form-label">- Q<sub>n</sub>:</label>
-                <div className="input-group">
+            return <>
+                <div className="mb-3 col-12 col-md-6 col-xxl-4">
+                    <label htmlFor="qn" className="form-label">- Q<sub>n</sub>:</label>
+                    <div className="input-group">
+                        <input
+                            type="text"
+                            className="form-control"
+                            id="qn"
+                            placeholder="Qn"
+                            value={qn}
+                            onChange={handleNumberChange(setQN)}
+                            pattern="\d*"
+                        />
+                        <span className="input-group-text">m<sup>3</sup>/h</span>
+                    </div>
+                </div>
+                <div className="mb-3 col-12 col-md-6 col-xxl-4">
+                    <label htmlFor="kieuSensor" className="form-label">Kiểu sensor:</label>
                     <input
                         type="text"
                         className="form-control"
-                        id="qn"
-                        placeholder="Qn"
-                        value={qn}
-                        onChange={handleNumberChange(setQN)}
-                        pattern="\d*"
+                        id="kieuSensor"
+                        placeholder="Serial sensor"
+                        value={kieuSensor}
+                        onChange={(e) => setKieuSensor(e.target.value)}
                     />
-                    <span className="input-group-text">m<sup>3</sup>/h</span>
                 </div>
-            </div>
-            <div className="mb-3 col-12 col-md-6 col-xxl-4">
-                <label htmlFor="kieuSensor" className="form-label">Kiểu sensor:</label>
-                <input
-                    type="text"
-                    className="form-control"
-                    id="kieuSensor"
-                    placeholder="Serial sensor"
-                    value={kieuSensor}
-                    onChange={(e) => setKieuSensor(e.target.value)}
-                />
-            </div>
-        </>
+            </>
+        }
     }
 
     return (
@@ -842,7 +853,7 @@ export default function FormDongHoNuocDNLonHon15({ className, dataDongHo }: Form
                 </div>
 
                 <div className={`m-0 mb-3 p-2 bg-white rounded shadow-sm w-100 w-100`}>
-                    <NavTab tabContent={
+                    <NavTab buttonControl={true} tabContent={
                         [
                             {
                                 title: <>Q<sub>{isDHDienTu ? "3" : "n"}</sub></>,

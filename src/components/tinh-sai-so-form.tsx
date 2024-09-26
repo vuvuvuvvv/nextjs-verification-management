@@ -17,11 +17,18 @@ interface CaculatorFormProps {
 }
 
 export default function DNBT30TinhSaiSoForm({ className, formValue, onFormChange, d }: CaculatorFormProps) {
-    const [Vc1, setVc1] = useState<string>("0");
-    const [Vc2, setVc2] = useState<string>("0");
+    const [Vc1, setVc1] = useState<string>(formValue.Vc1 ? formValue.Vc1.toString() : "0");
+    const [Vc2, setVc2] = useState<string>(formValue.Vc2 ? formValue.Vc2.toString() : "0");
     const [Tdh, setTdh] = useState<string>("0");
     const [Tc, setTc] = useState<string>("0");
     const [saiSo, setSaiSo] = useState<string>("0%");
+
+    useEffect(() => {
+        setVc1(formValue.Vc1.toString());
+        setVc2(formValue.Vc2.toString());
+        setTdh(formValue.Tdh.toString());
+        setTc(formValue.Tc.toString());
+    }, [formValue]);
 
     const getDecimalPlaces = (d: string) => {
         const parts = d.split(".");

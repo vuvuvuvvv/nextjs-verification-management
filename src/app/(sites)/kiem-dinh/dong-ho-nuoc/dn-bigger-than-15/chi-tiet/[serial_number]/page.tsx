@@ -33,6 +33,10 @@ export default function Page({ params }: { params: { serial_number: string } }) 
         return <Loading></Loading>;
     }
 
+    // return <div className="w-100 m-0 p-2">
+    //     <FormDongHoNuocDNLonHon15 dataDongHo={dongHoData}></FormDongHoNuocDNLonHon15>
+    // </div>
+
     return <div className="w-100 m-0 p-2">
         <FormDongHoNuocDNLonHon15 dataDongHo={dongHoData}></FormDongHoNuocDNLonHon15>
     </div>

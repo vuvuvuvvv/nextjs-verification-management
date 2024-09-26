@@ -7,7 +7,7 @@ import { TITLE_LUU_LUONG } from "@lib/system-constant";
 import { getHieuSaiSo, getVToiThieu, isDongHoDatTieuChuan } from "@lib/system-function";
 import { DuLieuCacLanChay, DuLieuMotLanChay, TinhSaiSoValueTabs } from "@lib/types";
 import c_ect from "@styles/scss/components/tinh-sai-so-tab.module.scss";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Swal from "sweetalert2";
 
 interface TinhSaiSoTabProps {
@@ -35,7 +35,7 @@ interface FormProps {
 
 export default function TinhSaiSoTab({ className, tabIndex, d, q, form, onFormHSSChange }: TinhSaiSoTabProps) {
 
-    const { getDuLieuChayCuaLuuLuong, themLanChayCuaLuuLuong, updateLuuLuong, xoaLanChayCuaLuuLuong, resetLanChay } = useKiemDinh();
+    const { duLieuKiemDinhCacLuuLuong, getDuLieuChayCuaLuuLuong, themLanChayCuaLuuLuong, updateLuuLuong, xoaLanChayCuaLuuLuong, resetLanChay } = useKiemDinh();
 
     if (!tabIndex || tabIndex <= 0) {
         return <></>;
@@ -62,8 +62,14 @@ export default function TinhSaiSoTab({ className, tabIndex, d, q, form, onFormHS
     const [activeTab, setActiveTab] = useState<number>(getActiveTab())
 
     // Hook: Cập nhật lại số lượng form + tab sau khi update số lần
-
     const [formValues, setFormValues] = useState<DuLieuCacLanChay>(getDuLieuChayCuaLuuLuong(q));
+    const formValuesRef = useRef<DuLieuCacLanChay>(formValues);
+
+    useEffect(() => {
+        if (formValuesRef.current != getDuLieuChayCuaLuuLuong(q)) {
+            setFormValues(getDuLieuChayCuaLuuLuong(q));
+        }
+    }, [q]);
 
     useEffect(() => {
         setSelectedTabForm({
@@ -105,8 +111,6 @@ export default function TinhSaiSoTab({ className, tabIndex, d, q, form, onFormHS
                     newFormValues[nextIndex] = { ...newFormValues[nextIndex], V1: value };
                 }
             }
-            // console.log("Đạt tiêu chuẩn: ", isDongHoDatTieuChuan((q.title == TITLE_LUU_LUONG.q3), getHieuSaiSo(newFormValues as TinhSaiSoValueTabs)) ? "Đạt" : "Không");
-
             return newFormValues;
         });
     };
@@ -130,7 +134,7 @@ export default function TinhSaiSoTab({ className, tabIndex, d, q, form, onFormHS
     const handleAdd = () => {
         const newFormValues = themLanChayCuaLuuLuong(q);
         setFormValues(newFormValues);
-    
+
         // Ensure the new tab is selected
         const newTabIndex = Object.keys(newFormValues).length * tabIndex;
         setSelectedTabForm({

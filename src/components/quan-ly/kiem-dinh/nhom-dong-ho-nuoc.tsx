@@ -173,8 +173,8 @@ export default function ProcessManagement({ data, className }: ProcessManagement
 
     return (
         <LocalizationProvider dateAdapter={AdapterDayjs} localeText={viVN.components.MuiLocalizationProvider.defaultProps.localeText}>
-            <div className={`${className ? className : ""} m-0 mb-3 w-100`}>
-                <div className={`${c_vfml['wraper']} pb-3 w-100`}>
+            <div className={`${className ? className : ""} m-0 w-100`}>
+                <div className={`${c_vfml['wraper']} w-100`}>
 
                     <div className="bg-white w-100 shadow-sm mb-3 rounded pb-2 pt-4">
                         <div className={`row m-0 px-md-3 w-100 mb-3 ${c_vfml['search-process']}`}>

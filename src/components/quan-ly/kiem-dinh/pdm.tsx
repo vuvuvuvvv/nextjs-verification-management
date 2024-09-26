@@ -470,7 +470,7 @@ export default function PDMManagement({ data, className }: PDMManagementProps) {
                         </div>
                     </div>
 
-                    <div className="bg-white w-100 shadow-sm rounded">
+                    <div className="bg-white w-100 shadow-sm rounded overflow-hidden">
 
                         <div className={`m-0 p-0 w-100 w-100 mt-4 bg-white position-relative ${c_vfml['wrap-process-table']}`}>
                             {loading && <Loading />}
@@ -597,7 +597,7 @@ export default function PDMManagement({ data, className }: PDMManagementProps) {
                                     </tbody>
                                 </table>
                             ) : (
-                                <p className="text-center w-100">Không có dữ liệu</p>
+                                <p className="text-center py-3 m-0 w-100">Không có dữ liệu</p>
                             )}
                         </div>
 

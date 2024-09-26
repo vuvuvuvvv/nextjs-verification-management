@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState, useCallback, Suspense } from "react";
+import { useEffect, useState, useCallback, Suspense, useRef } from "react";
 import c_vfml from "@styles/scss/components/verification-management-layout.module.scss";
 
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
@@ -15,20 +15,20 @@ import React from "react";
 
 import Select, { GroupBase } from 'react-select';
 import Pagination from "@/components/pagination";
-import { DongHo } from "@lib/types";
+import { DongHo, DuLieuChayDongHo } from "@lib/types";
 
 import { usePathname } from "next/navigation";
 import Link from "next/link";
 
-import { statusOptions, typeOptions, ccxOptions, limitOptions } from "@lib/system-constant";
+import { statusOptions, typeOptions, ccxOptions, limitOptions, BASE_API_URL } from "@lib/system-constant";
 import Swal from "sweetalert2";
 import { deleteDongHo, getDongHoByFilter } from "@/app/api/dongho/route";
+import api from "@/app/api/route";
 
 const Loading = React.lazy(() => import("@/components/loading"));
 
 
 interface WaterMeterManagementProps {
-    data: DongHo[],
     className?: string,
 }
 
@@ -44,9 +44,33 @@ interface FilterForm {
     toDate: Date | null;
 }
 
-export default function WaterMeterManagement({ data, className }: WaterMeterManagementProps) {
-    const [rootData, setRootData] = useState<DongHo[]>(data);
-    const [loading, setLoading] = useState(false);
+export default function WaterMeterManagement({ className }: WaterMeterManagementProps) {
+    const [rootData, setRootData] = useState<DongHo[]>([]);
+    
+    const [loading, setLoading] = useState<boolean>(true);
+    const fetchCalled = useRef(false);
+
+    useEffect(() => {
+        if (fetchCalled.current) return;
+        fetchCalled.current = true;
+
+        const fetchData = async () => {
+            try {
+                const res = await api.get(`${BASE_API_URL}/dongho`);
+                console.log("dataDongHo: ", res.data)
+                setRootData(res.data);
+            } catch (error) {
+                console.error("Error fetching data:", error);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchData();
+    }, []);
+
+
+    const [filterLoading, setFilterLoading] = useState(false);
     const [sortConfig, setSortConfig] = useState<{ key: string, direction: 'asc' | 'desc' | 'default' } | null>(null);
     const [limit, setLimit] = useState(5);
     const [error, setError] = useState("");
@@ -68,7 +92,7 @@ export default function WaterMeterManagement({ data, className }: WaterMeterMana
 
     const resetTotalPage = () => {
         setCurrentPage(1);
-        if (rootData.length <= limit) {
+        if (!rootData || rootData.length <= limit) {
             return 1;
         }
         return Math.ceil(rootData.length / limit);
@@ -81,15 +105,15 @@ export default function WaterMeterManagement({ data, className }: WaterMeterMana
     }, [rootData, limit])
 
     const sortData = useCallback((key: keyof DongHo) => {
-        if (!loading) {
-            setLoading(true);
+        if (!filterLoading) {
+            setFilterLoading(true);
             let direction: 'asc' | 'desc' = 'asc';
 
             if (sortConfig && sortConfig.key === key) {
                 direction = sortConfig.direction === 'asc' ? 'desc' : 'asc';
             }
 
-            const sortedData = [...rootData].sort((a, b) => {
+            const sortedData = rootData ? [...rootData].sort((a, b) => {
                 if (key === 'ngay_thuc_hien' || key === 'hieu_luc_bien_ban') {
                     const dateA = dayjs(a[key] as Date);
                     const dateB = dayjs(b[key] as Date);
@@ -99,16 +123,16 @@ export default function WaterMeterManagement({ data, className }: WaterMeterMana
                         ? (a[key] as string | number) < (b[key] as string | number) ? -1 : 1
                         : (a[key] as string | number) > (b[key] as string | number) ? -1 : 1;
                 }
-            });
+            }) : [];
 
             setRootData(sortedData);
             setSortConfig({ key, direction });
-            setLoading(false);
+            setFilterLoading(false);
         }
-    }, [rootData, sortConfig, loading]);
+    }, [rootData, sortConfig, filterLoading]);
 
     useEffect(() => {
-        setLoading(true);
+        setFilterLoading(true);
         const debounce = setTimeout(async () => {
             try {
                 const res = await getDongHoByFilter(filterForm);
@@ -122,7 +146,7 @@ export default function WaterMeterManagement({ data, className }: WaterMeterMana
                 console.error('Error fetching PDM data:', error);
                 setError("Có lỗi đã xảy ra!");
             } finally {
-                setLoading(false);
+                setFilterLoading(false);
             }
         }, 700);
 
@@ -149,11 +173,11 @@ export default function WaterMeterManagement({ data, className }: WaterMeterMana
                 cancelButtonText: "Không"
             }).then(async (result) => {
                 if (result.isConfirmed) {
-                    setLoading(true);
+                    setFilterLoading(true);
                     try {
                         const res = await deleteDongHo(serial_number);
                         if (res.status === 200) {
-                            setRootData(prevData => prevData.filter(item => item.serial_number !== serial_number));
+                            setRootData(prevData => prevData ? prevData.filter(item => item.serial_number !== serial_number) : []);
                             Swal.fire({
                                 text: "Xóa thành công!",
                                 icon: "success"
@@ -166,7 +190,7 @@ export default function WaterMeterManagement({ data, className }: WaterMeterMana
                         console.error('Error deleting PDM:', error);
                         setError("Có lỗi đã xảy ra!");
                     } finally {
-                        setLoading(false);
+                        setFilterLoading(false);
                     }
                 }
             });
@@ -191,12 +215,32 @@ export default function WaterMeterManagement({ data, className }: WaterMeterMana
         setCurrentPage(newPage);
     };
 
-    const paginatedData = rootData.slice((currentPage - 1) * limit, currentPage * limit);
+    // Function to process du_lieu
+    const processDuLieu = (data: { du_lieu?: DuLieuChayDongHo }): string => {
+        if (data.du_lieu) {
+            let duLieuStr = "";
+            Object.entries(data.du_lieu).map(([key, value]) => {
+                if(value != null) {
+                    const lastKey = value.lan_chay ? Object.keys(value.lan_chay).pop() : null; // Get the last key
+                    duLieuStr += (lastKey ? `${key}: Lần ${lastKey}`: key) + ", ";
+                }
+            });
+            return duLieuStr.substring(0, duLieuStr.length - 2);
+        }
+        return "";
+    };
+
+    const paginatedData = rootData ? rootData.slice((currentPage - 1) * limit, currentPage * limit) : [];
+
+
+    if (loading) {
+        return <Loading></Loading>;
+    }
 
     return (
         <LocalizationProvider dateAdapter={AdapterDayjs} localeText={viVN.components.MuiLocalizationProvider.defaultProps.localeText}>
-            <div className={`${className ? className : ""} m-0 mb-3 w-100`}>
-                <div className={`${c_vfml['wraper']} pb-3 w-100`}>
+            <div className={`${className ? className : ""} m-0 w-100`}>
+                <div className={`${c_vfml['wraper']} w-100`}>
 
 
                     <div className="bg-white w-100 shadow-sm mb-3 rounded pb-2 pt-4">
@@ -470,9 +514,9 @@ export default function WaterMeterManagement({ data, className }: WaterMeterMana
                         </div>
                     </div>
 
-                    <div className="bg-white w-100 shadow-sm rounded">
+                    <div className="bg-white w-100 shadow-sm rounded overflow-hidden">
                         <div className={`m-0 p-0 w-100 w-100 position-relative ${c_vfml['wrap-process-table']}`}>
-                            {loading && <Loading />}
+                            {filterLoading && <Loading />}
                             {paginatedData.length > 0 ? (
                                 <table className={`table table-hover ${c_vfml['process-table']}`}>
                                     <thead>
@@ -553,7 +597,9 @@ export default function WaterMeterManagement({ data, className }: WaterMeterMana
                                                 <td>{item.ten_khach_hang}</td>
                                                 <td>{item.nguoi_kiem_dinh}</td>
                                                 <td>{dayjs(item.ngay_thuc_hien).format('DD-MM-YYYY')}</td>
-                                                <td>{item.serial_number}</td>
+                                                <td>
+                                                    {processDuLieu(item.du_lieu_kiem_dinh as { du_lieu?: DuLieuChayDongHo })}
+                                                </td>
                                                 <td>
                                                     <div className={`dropdown ${c_vfml['action']}`}>
                                                         <button className={`${c_vfml['action-button']}`} type="button" data-bs-toggle="dropdown" aria-expanded="false">
@@ -578,7 +624,7 @@ export default function WaterMeterManagement({ data, className }: WaterMeterMana
                                     </tbody>
                                 </table>
                             ) : (
-                                <p className="text-center w-100">Không có dữ liệu</p>
+                                <p className="text-center py-3 m-0 w-100">Không có dữ liệu</p>
                             )}
                         </div>
                         <div className="w-100 m-0 p-0 px-3 d-flex align-items-center justify-content-center">

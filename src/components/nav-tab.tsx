@@ -12,13 +12,14 @@ interface NavTabProps {
     tabContent: {
         title: string | React.ReactNode,
         content: React.ReactNode,
-    }[]
+    }[],
+    buttonControl?: boolean,
 }
 
 interface TabState {
     [key: number | string]: boolean;
 };
-export default function NavTab({ className, classNameGroupTab, classNameContent, tabContent }: NavTabProps) {
+export default function NavTab({ className, classNameGroupTab, classNameContent, tabContent, buttonControl = false }: NavTabProps) {
 
     const {getDuLieuKiemDinhJSON} = useKiemDinh();
 
@@ -39,7 +40,7 @@ export default function NavTab({ className, classNameGroupTab, classNameContent,
 
     return (
         <div className={`${nt['wraper']} m-0 p-2 w-100 ${className ? className : ""}`}>
-            <h5 className="mb-3">Nhóm lưu lượng:</h5>
+            {/* <h5 className="mb-3">Nhóm lưu lượng:</h5> */}
             <div className={`m-0 w-100`} id={nt['process-tab']}>
                 <div className={`${nt['group-tab']} ${classNameGroupTab ? classNameGroupTab : ""}`}>
                     {tabContent.map((val, index) => {
@@ -57,7 +58,7 @@ export default function NavTab({ className, classNameGroupTab, classNameContent,
                         return (
                             <div tabIndex={index + 1} key={index + 1} className={`m-0 p-0 ${selectedTab[index + 1] ? nt['show'] : 'd-none'}`}>
                                 {val.content}
-                                <div className="w-100 px-1 py-3 d-flex justify-content-between">
+                                <div className={`w-100 px-1 py-3 d-flex justify-content-between ${buttonControl ? "" : "d-none"}`}>
                                     {(0 == index) ? <span></span> : <button className="btn p-0 fw-bold text-dark-blue" onClick={() => toggleTab(index)}>Quay lại ({tabContent[index - 1].title})</button>}
 
                                     {(tabContent.length - 1 == index) ? "" : <button type="button" className="btn p-0 fw-bold text-dark-blue" onClick={() => toggleTab(index + 2)}>Tiếp ({tabContent[index + 1].title})</button>}

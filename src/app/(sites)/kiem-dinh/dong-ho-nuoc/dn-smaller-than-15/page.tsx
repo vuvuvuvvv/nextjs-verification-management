@@ -1,5 +1,3 @@
-// "use server"
-
 const ProcessManagement = dynamic(() => import("@/components/quan-ly/kiem-dinh/nhom-dong-ho-nuoc"), { ssr: false })
 const WaterMeterManagement = dynamic(() => import("@/components/quan-ly/kiem-dinh/dong-ho-nuoc"), { ssr: false })
 
@@ -34,13 +32,13 @@ export default function DNSmallerThan32({ className }: DNSmallerThan32Props) {
         },
         {
             title: "Quản lý theo đồng hồ",
-            content: <WaterMeterManagement data={sampleWaterMeterData} />
+            content: <WaterMeterManagement />
         }
     ]
 
     return (
-        <div className={`${className ? className : ""} ${vrfWm['wraper']} m-0w-100 p-2`}>
-            <NavTab tabContent={tabContent} />
+        <div className={`${className ? className : ""} ${vrfWm['wraper']} m-0 w-100 p-2`}>
+            <NavTab tabContent={tabContent} className="bg-white" />
         </div>
     )
 }

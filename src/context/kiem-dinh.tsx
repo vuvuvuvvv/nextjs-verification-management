@@ -49,9 +49,9 @@ export const KiemDinhProvider = ({ children }: { children: ReactNode }) => {
     ]);
     const [ketQua, setKetQua] = useState<boolean | null>(null);
 
-    useEffect(() => {
-        console.log("dlkdcll: ", duLieuKiemDinhCacLuuLuong);
-    }, [duLieuKiemDinhCacLuuLuong]);
+    // useEffect(() => {
+    // console.log("dlkdcll: ", duLieuKiemDinhCacLuuLuong);
+    // }, [duLieuKiemDinhCacLuuLuong]);
 
 
     const setDuLieuKiemDinhChoMotLuuLuong = (tenLuuLuong: string, data: DuLieuChayDiemLuuLuong | null) => {
@@ -197,7 +197,7 @@ export const KiemDinhProvider = ({ children }: { children: ReactNode }) => {
             updateLuuLuong,
             removeKiemDinh,
             setDuLieuKiemDinhChoMotLuuLuong,
-            setDuLieuKiemDinhCacLuuLuong, 
+            setDuLieuKiemDinhCacLuuLuong,
             setKetQua,
             themLanChayCuaLuuLuong,
             getDuLieuChayCuaLuuLuong: (q: { title: string; value: string; }) => {
