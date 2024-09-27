@@ -108,10 +108,6 @@ export default function FormDongHoNuocDNLonHon15({ className, dataDongHo }: Form
     }, []);
 
     useEffect(() => {
-        console.log("qq: ", [q2Ort, q1Ormin]);
-    }, [q2Ort, q1Ormin]);
-
-    useEffect(() => {
         if (error) {
             Swal.fire({
                 icon: "error",
@@ -548,12 +544,14 @@ export default function FormDongHoNuocDNLonHon15({ className, dataDongHo }: Form
                                                 height: '42px',
                                                 minHeight: '42px',
                                                 borderColor: '#dee2e6 !important',
-                                                boxShadow: 'none !important'
+                                                boxShadow: 'none !important',
+                                                backgroundColor: "white",
                                             }),
                                             valueContainer: (provided) => ({
                                                 ...provided,
                                                 height: '42px',
-                                                padding: '0 8px'
+                                                padding: '0 8px',
+                                                color: "#000 !important",
                                             }),
                                             input: (provided) => ({
                                                 ...provided,
@@ -567,6 +565,10 @@ export default function FormDongHoNuocDNLonHon15({ className, dataDongHo }: Form
                                             menu: (provided) => ({
                                                 ...provided,
                                                 zIndex: 777
+                                            }),
+                                            singleValue: (provided, state) => ({
+                                                ...provided,
+                                                color: state.isDisabled ? '#000' : provided.color, // Set color to black when disabled
                                             })
                                         }}
                                     />
@@ -591,7 +593,8 @@ export default function FormDongHoNuocDNLonHon15({ className, dataDongHo }: Form
                                                 height: '42px',
                                                 minHeight: '42px',
                                                 borderColor: '#dee2e6 !important',
-                                                boxShadow: 'none !important'
+                                                boxShadow: 'none !important',
+                                                backgroundColor: "white",
                                             }),
                                             valueContainer: (provided) => ({
                                                 ...provided,
@@ -610,6 +613,10 @@ export default function FormDongHoNuocDNLonHon15({ className, dataDongHo }: Form
                                             menu: (provided) => ({
                                                 ...provided,
                                                 zIndex: 777
+                                            }),
+                                            singleValue: (provided, state) => ({
+                                                ...provided,
+                                                color: state.isDisabled ? '#000' : provided.color, // Set color to black when disabled
                                             })
                                         }}
                                     />
@@ -699,7 +706,8 @@ export default function FormDongHoNuocDNLonHon15({ className, dataDongHo }: Form
                                                 height: '42px',
                                                 minHeight: '42px',
                                                 borderColor: '#dee2e6 !important',
-                                                boxShadow: 'none !important'
+                                                boxShadow: 'none !important',
+                                                backgroundColor: "white",
                                             }),
                                             valueContainer: (provided) => ({
                                                 ...provided,
@@ -718,6 +726,10 @@ export default function FormDongHoNuocDNLonHon15({ className, dataDongHo }: Form
                                             menu: (provided) => ({
                                                 ...provided,
                                                 zIndex: 777
+                                            }),
+                                            singleValue: (provided, state) => ({
+                                                ...provided,
+                                                color: state.isDisabled ? '#000' : provided.color, // Set color to black when disabled
                                             })
                                         }}
                                     />
