@@ -1,39 +1,48 @@
 "use client"
 
 import vrfWm from "@styles/scss/ui/vfm.module.scss"
-import dynamic from "next/dynamic";
+
+import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
+import { DatePicker } from '@mui/x-date-pickers/DatePicker';
+import { viVN } from "@mui/x-date-pickers/locales";
+
+
+import NavTab from "@/components/nav-tab";
+import TinhSaiSoTab from "@/components/tinh-sai-so-tab";
+import TinhSaiSoForm from "@/components/tinh-sai-so-form";
 import { useKiemDinh } from "@/context/kiem-dinh";
 import { useDongHo } from "@/context/dong-ho";
 import { useUser } from "@/context/app-context";
+
 import Select, { GroupBase } from 'react-select';
 import Link from "next/link";
 import Swal from "sweetalert2";
 import { useRouter } from "next/navigation";
 import dayjs, { Dayjs } from "dayjs";
-import { useEffect, useState, useMemo, useCallback } from "react";
+import { useEffect, useRef, useState } from "react";
+
 import { getLastDayOfMonthInFuture, getQ2OrQtAndQ1OrQMin, isDongHoDatTieuChuan } from "@lib/system-function";
 import { ccxOptions, phuongTienDoOptions, TITLE_LUU_LUONG, typeOptions } from "@lib/system-constant";
+
 import { createDongHo } from "@/app/api/dongho/route";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faFileAlt } from "@fortawesome/free-solid-svg-icons";
-import { DongHo, DuLieuChayDongHo } from "@lib/types";
-
-import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
-import { viVN } from "@mui/x-date-pickers/locales";
-
-const LocalizationProvider = dynamic(() => import('@mui/x-date-pickers/LocalizationProvider').then(mod => mod.LocalizationProvider), { ssr: false });
-const DatePicker = dynamic(() => import('@mui/x-date-pickers/DatePicker').then(mod => mod.DatePicker), { ssr: false });
-const NavTab = dynamic(() => import('@/components/nav-tab'), { ssr: false });
-const TinhSaiSoTab = dynamic(() => import('@/components/tinh-sai-so-tab'), { ssr: false });
-const TinhSaiSoForm = dynamic(() => import('@/components/tinh-sai-so-form'), { ssr: false });
+import { faArrowLeft, faArrowRight, faChevronLeft, faFileAlt } from "@fortawesome/free-solid-svg-icons";
+import { DongHo, DuLieuChayDiemLuuLuong, DuLieuChayDongHo } from "@lib/types";
+import { useDongHoList } from "@/context/list-dong-ho";
 
 
-interface FormDongHoNuocDNLonHon15Props {
+interface FormDongHoNuocDNNhoHon15Props {
     className?: string,
     dataDongHo?: DongHo
 }
 
-export default function FormDongHoNuocDNLonHon15({ className, dataDongHo }: FormDongHoNuocDNLonHon15Props) {
+interface TabState {
+    [key: number | string]: boolean;
+};
+
+
+export default function FormDongHoNuocDNNhoHon15({ className, dataDongHo }: FormDongHoNuocDNNhoHon15Props) {
 
     const { user } = useUser();
     const [isCollapsed, setIsCollapsed] = useState<boolean>(false);
@@ -76,10 +85,18 @@ export default function FormDongHoNuocDNLonHon15({ className, dataDongHo }: Form
     const { getDuLieuKiemDinhJSON, ketQua, formHieuSaiSo, setDuLieuKiemDinhCacLuuLuong, setFormHieuSaiSo, setKetQua } = useKiemDinh();
     const { dongHo, setDongHo } = useDongHo();
 
+    const { dongHoList } = useDongHoList();
+
+    useEffect(() => {
+        console.log(dongHoList);
+    }, [])
+
     const [canSave, setCanSave] = useState(false);
     const [error, setError] = useState("");
     const router = useRouter();
 
+
+    // Func: Set Q1 2
     useEffect(() => {
         if (dataDongHo) {
             const duLieuKiemDinh = dataDongHo.du_lieu_kiem_dinh as { du_lieu?: DuLieuChayDongHo }; // Define the type
@@ -100,6 +117,8 @@ export default function FormDongHoNuocDNLonHon15({ className, dataDongHo }: Form
         }
     }, []);
 
+
+    // Func: Set err
     useEffect(() => {
         if (error) {
             Swal.fire({
@@ -128,7 +147,7 @@ export default function FormDongHoNuocDNLonHon15({ className, dataDongHo }: Form
         }
     }, [error]);
 
-    // Func: Validate
+    // Func: Validate all
     const fieldTitles = {
         seriNumber: "Số Seri",
         phuongTienDo: "Tên phương tiện đo",
@@ -157,7 +176,7 @@ export default function FormDongHoNuocDNLonHon15({ className, dataDongHo }: Form
         ketQua: "Tiến trình chạy lưu lượng"
     };
 
-    // Func: validate
+    // Func: validate all
     const validateFields = () => {
         const fields = [
             { value: seriNumber, setter: setSeriNumber, id: "seriNumber" },
@@ -208,6 +227,7 @@ export default function FormDongHoNuocDNLonHon15({ className, dataDongHo }: Form
         return validationErrors;
     };
 
+    // Func: validate all
     useEffect(() => {
         const errors = validateFields();
         if (errors.length === 0) {
@@ -258,11 +278,13 @@ export default function FormDongHoNuocDNLonHon15({ className, dataDongHo }: Form
         seriNumber, phuongTienDo, kieuThietBi, seriChiThi, seriSensor, kieuChiThi, kieuSensor, soTem, coSoSanXuat, namSanXuat, dn, d, ccx, q3, r, qn, kFactor, so_qd_pdm, tenKhachHang, coSoSuDung, phuongPhapThucHien, viTri, nhietDo, doAm
     ]);
 
+    // Set Hieu luc 
     useEffect(() => {
         setCanSave(soTem ? true : false);
         setHieuLucBienBan(soTem ? getLastDayOfMonthInFuture(isDHDienTu) : null);
     }, [soTem]);
 
+    // Func: Save dong ho
     const handleSaveDongHo = async () => {
         if (dataDongHo) {
             // TODO: Update Dongho
@@ -349,19 +371,6 @@ export default function FormDongHoNuocDNLonHon15({ className, dataDongHo }: Form
             setQ1OrQt(getQ2OrQt);
         }
     }, [ccx, phuongTienDo, q3, qn, r]);
-
-    // useEffect(() => {
-    //     if (!isDHDienTu) {
-    //         setQ3("");
-    //         setR("");
-    //         setSeriChiThi("");
-    //         setSeriSensor("");
-    //         setKieuSensor("");
-    //         setKieuChiThi("");
-    //     } else {
-    //         setQN("");
-    //     }
-    // }, [ccx, phuongTienDo]);
 
     useEffect(() => {
         const humidity = parseFloat(doAm);
@@ -494,26 +503,70 @@ export default function FormDongHoNuocDNLonHon15({ className, dataDongHo }: Form
         }
     }
 
+    // const [selectedDongHo, setSelectedDongHo] = useState<DongHo | null>(dongHoList[0]);
+
+    // // Handle selection change
+    // const handleDongHoChange = (selectedIndex: number) => {
+    //     // Set the selected dong ho based on the index
+    //     setSelectedDongHo(dongHoList[selectedIndex] || null);
+    // };
+
+    // // Handle previous and next button clicks
+    // const handlePrevDongHo = () => {
+    //     if (selectedDongHo) {
+    //         const currentIndex = dongHoList.indexOf(selectedDongHo);
+    //         if (currentIndex > 0) {
+    //             setSelectedDongHo(dongHoList[currentIndex - 1]);
+    //         }
+    //     }
+    // };
+
+    // const handleNextDongHo = () => {
+    //     if (selectedDongHo) {
+    //         const currentIndex = dongHoList.indexOf(selectedDongHo);
+    //         if (currentIndex < dongHoList.length - 1) {
+    //             setSelectedDongHo(dongHoList[currentIndex + 1]);
+    //         }
+    //     }
+    // };
+
+    const [selectedDongHoIndex, setSelectedDongHoIndex] = useState<number>(0); // State để lưu trữ chỉ số đồng hồ đã chọn
+    const [selectedDongHo, setSelectedDongHo] = useState<DongHo | null>(dongHoList[0]);
+    const scrollRef = useRef<HTMLDivElement | null>(null);
+
+    useEffect(() => {
+        console.log("select: ", selectedDongHo);
+    }, [selectedDongHo]);
+
+    // Handle selection change
+    const handleDongHoChange = (selectedIndex: number) => {
+        setSelectedDongHoIndex(selectedIndex);
+        setSelectedDongHo(dongHoList[selectedIndex]);
+    };
+
+    // Handle previous and next button clicks
+    const handlePrevDongHo = () => {
+        if (selectedDongHoIndex > 0) {
+            setSelectedDongHoIndex(selectedDongHoIndex - 1);
+            setSelectedDongHo(dongHoList[selectedDongHoIndex - 1]);
+
+        }
+    };
+
+    const handleNextDongHo = () => {
+        if (selectedDongHoIndex < dongHoList.length - 1) {
+            setSelectedDongHoIndex(selectedDongHoIndex + 1);
+            setSelectedDongHo(dongHoList[selectedDongHoIndex + 1]);
+        }
+    };
+
+
     return (
         <LocalizationProvider dateAdapter={AdapterDayjs} localeText={viVN.components.MuiLocalizationProvider.defaultProps.localeText}>
             <div className={`${className ? className : ""} ${vrfWm['wraper']} container-fluid p-0 px-2 py-3 w-100`}>
                 <div className={`row m-0 mb-3 p-3 w-100 bg-white shadow-sm rounded`}>
                     <div className="w-100 m-0 p-0 mb-3 position-relative">
                         <h3 className="text-uppercase fw-bolder text-center mt-3 mb-0">thông tin đồng hồ</h3>
-                    </div>
-                    <div className={`w-100 p-0 row m-0`}>
-                        <div className={`col-12 col-lg-6 m-0 mb-3 p-0 pe-lg-2 p-0 d-flex align-items-center justify-content-between ${vrfWm['seri-number-input']}`}>
-                            <label htmlFor="seriNumber" className={`form-label m-0 fs-5 fw-bold d-block`}>Số Seri:</label>
-                            <input
-                                readOnly={dataDongHo ? true : false}
-                                type="text"
-                                id="seriNumber"
-                                className={`form-control`}
-                                placeholder="Nhập số serial"
-                                value={seriNumber}
-                                onChange={(e) => setSeriNumber(e.target.value)}
-                            />
-                        </div>
                     </div>
                     <div className={`collapse ${isCollapsed ? '' : 'show'} w-100 mt-2 p-0`}>
                         <form className="w-100">
@@ -884,104 +937,273 @@ export default function FormDongHoNuocDNLonHon15({ className, dataDongHo }: Form
                             </div>
                         </form>
                     </div>
-                    <div className="w-100 m-0 p-0 d-flex justify-content-center align-items-center gap-4">
+                    <div className="w-100 m-0 p-0 d-flex justify-content-center align-items-center gap-4" ref={scrollRef}>
                         <span className={vrfWm['end-line']}></span>
-                        <button aria-label={isCollapsed ? "Hiện thêm" : "Ẩn bớt"} type="button" className={`btn ${vrfWm['btn-collapse-info']} ${vrfWm['btn-collapse-end']}`} onClick={toggleCollapse}>
+                        <button aria-label={`${isCollapsed ? "Hiện thêm" : "Ẩn bớt"}`} type="button" className={`btn ${vrfWm['btn-collapse-info']} ${vrfWm['btn-collapse-end']}`} onClick={toggleCollapse}>
                             {isCollapsed ? "Hiện thêm" : "Ẩn bớt"}
                         </button>
                         <span className={vrfWm['end-line']}></span>
                     </div>
                 </div>
+                {/* <div ref={scrollRef}></div> */}
+                <div className={`m-0 mb-3 bg-white rounded shadow-sm w-100`}>
+                    <div className={`w-100 p-3 bg-main-blue d-flex align-items-center`}>
+                        <span className="fs-5 fw-bold mb-0 text-white me-2">Đồng hồ:</span>
+                        <button aria-label="Đồng hồ trước" className="btn bg-white m-0 p-0 px-2 d-flex align-items-center justify-content-center" style={{ height: "42px", width: "42px" }} onClick={handlePrevDongHo}>
+                            <FontAwesomeIcon icon={faArrowLeft} className="fa-2x text-blue"></FontAwesomeIcon>
+                        </button>
 
-                <div className={`m-0 mb-3 p-2 bg-white rounded shadow-sm w-100 w-100`}>
-                    <NavTab buttonControl={true} tabContent={
-                        [
-                            {
-                                title: <>Q<sub>{isDHDienTu ? "3" : "n"}</sub></>,
-                                content: <TinhSaiSoTab readOnly={dataDongHo ? true : false}
-                                    onFormHSSChange={(value: number) => handleFormHSSChange(0, value)}
-                                    d={d ? d : ""} q={{
-                                        title: isDHDienTu ? TITLE_LUU_LUONG.q3 : TITLE_LUU_LUONG.qn,
-                                        value: q3 ? q3 : (qn ? qn : "")
-                                    }} className="" tabIndex={1} form={TinhSaiSoForm as any} />
-                            },
-                            {
-                                title: <>Q<sub>{isDHDienTu ? "2" : "t"}</sub></>,
-                                content: <TinhSaiSoTab readOnly={dataDongHo ? true : false}
-                                    onFormHSSChange={(value: number) => handleFormHSSChange(1, value)}
-                                    d={d ? d : ""} q={{
-                                        title: (isDHDienTu) ? TITLE_LUU_LUONG.q2 : TITLE_LUU_LUONG.qt,
-                                        value: (q2Ort) ? q2Ort.toString() : ""
-                                    }} tabIndex={2} form={TinhSaiSoForm as any} />
-                            },
-                            {
-                                title: <>Q<sub>{isDHDienTu ? "1" : "min"}</sub></>,
-                                content: <TinhSaiSoTab readOnly={dataDongHo ? true : false}
-                                    onFormHSSChange={(value: number) => handleFormHSSChange(2, value)}
-                                    d={d ? d : ""} q={{
-                                        title: (isDHDienTu) ? TITLE_LUU_LUONG.q1 : TITLE_LUU_LUONG.qmin,
-                                        value: (q1Ormin) ? q1Ormin.toString() : ""
-                                    }} tabIndex={3} form={TinhSaiSoForm as any} />
-                            },
-                        ]
-                    } />
-                    <div className={`w-100 p-2 d-flex gap-2 justify-content-between`}>
-                        <div id="validate-info" className={`w-100 px-3 row alert alert-warning m-0 ${(ketQua != null) ? "fade d-none" : "show"}`}>
-                            <h6><i>* Điền đủ các thông tin để hiện kết quả kiểm tra!</i></h6>
-                            {validateFields().map((error, index) => (
-                                <div className="col-12 col-sm-6 col-lg-4 col-xxl-3" key={index}><span className="me-2">•</span> {fieldTitles[error as keyof typeof fieldTitles]} là bắt buộc</div>
-                            ))}
-                            {ketQua == null && (
-                                <div className="col-12 col-sm-6 col-lg-4 col-xxl-3"><span className="me-2">•</span>Tiến trình chạy lưu lượng không được bỏ trống</div>
-                            )}
+                        <div className="mx-2">
+                            <Select
+                                name="phuongTienDo"
+                                options={dongHoList.map((dongHo, index) => ({ value: index, label: "Đồng hồ " + (index + 1) }))} // Assuming each dong ho has a 'name' property
+                                className="basic-multi-select"
+                                classNamePrefix="select"
+                                placeholder="- Chọn đồng hồ -"
+                                isClearable
+                                isDisabled={!!dataDongHo}
+                                value={{ value: selectedDongHoIndex, label: "Đồng hồ " + (selectedDongHoIndex + 1) }} // Đặt giá trị dựa trên state
+                                onChange={(selectedOptions) => {
+                                    if (selectedOptions) {
+                                        handleDongHoChange(selectedOptions.value); // Cập nhật chỉ số đã chọn
+                                    }
+                                }} // Pass the index
+                                styles={{
+                                    control: (provided) => ({
+                                        ...provided,
+                                        minWidth: "180px",
+                                        width: "30vw",
+                                        height: '42px',
+                                        minHeight: '42px',
+                                        borderColor: '#dee2e6 !important',
+                                        boxShadow: 'none !important',
+                                        backgroundColor: "white",
+                                        overflow: "hidden"
+                                    }),
+                                    valueContainer: (provided) => ({
+                                        ...provided,
+                                        height: '42px',
+                                        padding: '0 8px',
+                                        color: "#000 !important",
+                                    }),
+                                    input: (provided) => ({
+                                        ...provided,
+                                        margin: '0',
+                                        padding: '0'
+                                    }),
+                                    indicatorsContainer: (provided) => ({
+                                        ...provided,
+                                        height: '42px',
+                                        width: '34px'
+                                    }),
+                                    menu: (provided) => ({
+                                        ...provided,
+                                        zIndex: 777
+                                    }),
+                                    singleValue: (provided, state) => ({
+                                        ...provided,
+                                        color: state.isDisabled ? '#000' : provided.color,
+                                    })
+                                }}
+                            />
                         </div>
-                        <div id="validate-info" className={`w-100 px-3 p-xl-4 row alert ${ketQua ? "alert-success" : "alert-danger"} m-0 ${(ketQua != null) ? "show" : "fade d-none"}`}>
-                            <h5 className="p-0">Kết quả kiểm tra kỹ thuật:</h5>
-                            <p className="p-0 m-0">- Khả năng hoạt động của hệ thống: <b className="text-uppercase">{ketQua ? "Đạt" : "Không đạt"}</b></p>
-                            <div className={`w-100 m-0 mt-3 p-0 ${ketQua ? "" : "d-none"}`}>
-                                <div className="w-100 row m-0 p-0 gap-xxl-5">
-                                    <div className={`col-12 col-md-10 col-xl-8 col-xxl-5 m-0 mb-3 p-0 ps-lg-2 p-0 d-flex align-items-center justify-content-between ${vrfWm['seri-number-input']}`}>
-                                        <label htmlFor="seriNumber" className={`form-label m-0 fs-6 fw-bold d-block`}>Số Tem:</label>
-                                        <input
-                                            readOnly={dataDongHo ? true : false}
-                                            type="text"
-                                            id="soTem"
-                                            className={`form-control`}
-                                            placeholder="Nhập số tem"
-                                            value={ketQua ? soTem : ""}
-                                            onChange={(e) => setSoTem(e.target.value)}
-                                        />
-                                    </div>
 
-                                    <div className={`col-12 col-md-10 col-xl-8 col-xxl-5 m-0 mb-3 p-0 ps-lg-2 p-0 d-flex align-items-center justify-content-between ${vrfWm['seri-number-input']}`}>
-                                        <label htmlFor="hieuLucBienBan" style={{ width: "180px" }} className="form-label m-0 fs-6 fw-bold d-block">Hiệu lực biên bản:</label>
-                                        <DatePicker
-                                            className={`bg-white ${vrfWm['date-picker']}`}
-                                            value={dayjs(hieuLucBienBan)}
-                                            readOnly={dataDongHo ? true : false}
-                                            format="DD-MM-YYYY"
-                                            // maxDate={dayjs().endOf('day')}
-                                            minDate={dayjs().endOf('day')}
-                                            onChange={(newValue: Dayjs | null) => setHieuLucBienBan(newValue ? newValue.toDate() : null)}
-                                            slotProps={{ textField: { fullWidth: true } }}
-                                        />
-                                    </div>
-                                </div>
-                                {/* TODO: Giấy chứng nhận */}
-                                <div className="w-100 m-0 p-0">
-                                    <button aria-label="Giấy chứng nhận" className="btn px-3 py-2 btn-success" style={{ width: "max-content" }}>
-                                        <FontAwesomeIcon icon={faFileAlt} className="me-2"></FontAwesomeIcon> Giấy chứng nhận
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
+                        <button aria-label="Đồng hồ tiếp theo" className="btn bg-white m-0 p-0 px-2 d-flex align-items-center justify-content-center" style={{ height: "42px", width: "42px" }} onClick={handleNextDongHo}>
+                            <FontAwesomeIcon icon={faArrowRight} className="fa-2x text-blue"></FontAwesomeIcon>
+                        </button>
                     </div>
-                    <div className="w-100 m-0 p-2 d-flex gap-2 justify-content-between">
-                        {/* <button className="btn py-2 px-3 btn-danger" onClick={handleCheck}>
-                            Kiểm tra
-                        </button> */}
-                        <button aria-label="Lưu Đồng hồ" className={`btn py-2 px-3 ${canSave ? "btn-success" : "btn-secondary"} ${dataDongHo ? "d-none" : ""}`} disabled={!canSave} onClick={handleSaveDongHo}>
-                            Lưu Đồng hồ
+
+                    <div className={`w-100 p-2`}>
+                        {selectedDongHo ? (
+                            <>
+                                <div className={`w-100 p-2`}>
+                                    <div className={`col-12 col-md-10 col-xl-8 col-xxl-5 m-0 mb-3 p-0 ps-lg-2 p-0 d-flex align-items-center justify-content-between ${vrfWm['seri-number-input']}`}>
+                                        <label htmlFor="seriNumber" className={`form-label m-0 fs-5 fw-bold d-block`}>Số Serial:</label>
+                                        <input
+                                            type="text"
+                                            id="seriNumber"
+                                            className={`form-control`}
+                                            placeholder="Nhập số serial"
+                                            value={selectedDongHo.serial_number || ""}
+                                            // TODO: 
+                                            // onChange={(e) => setSerial(e.target.value)}
+                                        />
+                                    </div>
+                                    <NavTab buttonControl={true} tabContent={[
+                                        {
+                                            title: <>Q<sub>{isDHDienTu ? "3" : "n"}</sub></>,
+                                            content: <TinhSaiSoTab readOnly={dataDongHo ? true : false}
+                                                onFormHSSChange={(value: number) => handleFormHSSChange(0, value)}
+                                                d={d ? d : ""} q={{
+                                                    title: (isDHDienTu) ? TITLE_LUU_LUONG.q3 : TITLE_LUU_LUONG.qn,
+                                                    value: (q3) ? q3 : ((qn) ? qn : "")
+                                                }} className="" tabIndex={1} form={TinhSaiSoForm} />
+                                        },
+                                        {
+                                            title: <>Q<sub>{isDHDienTu ? "2" : "t"}</sub></>,
+                                            content: <TinhSaiSoTab readOnly={dataDongHo ? true : false}
+                                                onFormHSSChange={(value: number) => handleFormHSSChange(1, value)}
+                                                d={d ? d : ""} q={{
+                                                    title: (isDHDienTu) ? TITLE_LUU_LUONG.q2 : TITLE_LUU_LUONG.qt,
+                                                    value: (q2Ort) ? q2Ort.toString() : ""
+                                                }} tabIndex={2} form={TinhSaiSoForm} />
+                                        },
+                                        {
+                                            title: <>Q<sub>{isDHDienTu ? "1" : "min"}</sub></>,
+                                            content: <TinhSaiSoTab readOnly={dataDongHo ? true : false}
+                                                onFormHSSChange={(value: number) => handleFormHSSChange(2, value)}
+                                                d={d ? d : ""} q={{
+                                                    title: (isDHDienTu) ? TITLE_LUU_LUONG.q1 : TITLE_LUU_LUONG.qmin,
+                                                    value: (q1Ormin) ? q1Ormin.toString() : ""
+                                                }} tabIndex={3} form={TinhSaiSoForm} />
+                                        },
+                                    ]} />
+                                    <div className={`w-100 p-2 d-flex gap-2 justify-content-between`}>
+                                        <div id="validate-info" className={`w-100 px-3 row alert alert-warning m-0 ${(ketQua != null) ? "fade d-none" : "show"}`}>
+                                            <h6><i>* Điền đủ các thông tin để hiện kết quả kiểm tra!</i></h6>
+                                            {validateFields().map((error, index) => (
+                                                <div className="col-12 col-sm-6 col-lg-4 col-xxl-3" key={index}>
+                                                    <span className="me-2">•</span> {fieldTitles[error as keyof typeof fieldTitles]} là bắt buộc
+                                                </div>
+                                            ))}
+                                            {ketQua == null && (
+                                                <div className="col-12 col-sm-6 col-lg-4 col-xxl-3">
+                                                    <span className="me-2">•</span>Tiến trình chạy lưu lượng không được bỏ trống
+                                                </div>
+                                            )}
+                                        </div>
+                                        <div id="validate-info" className={`w-100 px-3 p-xl-4 row alert ${ketQua ? "alert-success" : "alert-danger"} m-0 ${(ketQua != null) ? "show" : "fade d-none"}`}>
+                                            <h5 className="p-0">Kết quả kiểm tra kỹ thuật:</h5>
+                                            <p className="p-0 m-0">- Khả năng hoạt động của hệ thống: <b className="text-uppercase">{ketQua ? "Đạt" : "Không đạt"}</b></p>
+                                            <div className={`w-100 m-0 mt-3 p-0 ${ketQua ? "" : "d-none"}`}>
+                                                <div className="w-100 row m-0 p-0 gap-xxl-5">
+                                                    <div className={`col-12 col-md-10 col-xl-8 col-xxl-5 m-0 mb-3 p-0 ps-lg-2 p-0 d-flex align-items-center justify-content-between ${vrfWm['seri-number-input']}`}>
+                                                        <label htmlFor="soTem" className={`form-label m-0 fs-6 fw-bold d-block`}>Số Tem:</label>
+                                                        <input
+                                                            type="text"
+                                                            id="soTem"
+                                                            className={`form-control`}
+                                                            placeholder="Nhập số tem"
+                                                            value={soTem}
+                                                            onChange={(e) => setSoTem(e.target.value)}
+                                                        />
+                                                    </div>
+
+                                                    <div className={`col-12 col-md-10 col-xl-8 col-xxl-5 m-0 mb-3 p-0 ps-lg-2 p-0 d-flex align-items-center justify-content-between ${vrfWm['seri-number-input']}`}>
+                                                        <label htmlFor="hieuLucBienBan" style={{ width: "180px" }} className="form-label m-0 fs-6 fw-bold d-block">Hiệu lực biên bản:</label>
+                                                        <DatePicker
+                                                            className={`bg-white ${vrfWm['date-picker']}`}
+                                                            value={dayjs(hieuLucBienBan)}
+                                                            readOnly={dataDongHo ? true : false}
+                                                            format="DD-MM-YYYY"
+                                                            minDate={dayjs().endOf('day')}
+                                                            onChange={(newValue: Dayjs | null) => setHieuLucBienBan(newValue ? newValue.toDate() : null)}
+                                                            slotProps={{ textField: { fullWidth: true } }}
+                                                        />
+                                                    </div>
+                                                </div>
+                                                {/* TODO: Giấy chứng nhận */}
+                                                <div className="w-100 m-0 p-0">
+                                                    <button aria-label="Giấy chứng nhận" className="btn px-3 py-2 btn-success" style={{ width: "max-content" }}>
+                                                        <FontAwesomeIcon icon={faFileAlt} className="me-2"></FontAwesomeIcon> Giấy chứng nhận
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div className="w-100 m-0 p-2 d-flex gap-2 justify-content-between">
+                                        <button aria-label="Lưu Đồng hồ" className={`btn py-2 px-3 ${canSave ? "btn-success" : "btn-secondary"} ${dataDongHo ? "d-none" : ""}`} disabled={!canSave} onClick={handleSaveDongHo}>
+                                            Lưu Đồng hồ
+                                        </button>
+                                    </div>
+                                </div>
+                            </>
+                        ) : (
+                            <p className="py-4"><i>CHƯA CHỌN ĐỒNG HỒ</i></p>
+                        )}
+                    </div>
+
+                    <div className={`w-100 p-3 bg-main-blue d-flex align-items-center`}>
+                        <span className="fs-5 fw-bold mb-0 text-white me-2">Đồng hồ:</span>
+                        <button aria-label="Đồng hồ trước" className="btn bg-white m-0 p-0 px-2 d-flex align-items-center justify-content-center" style={{ height: "42px", width: "42px" }}
+                            onClick={() => {
+
+                                if (scrollRef.current) {
+                                    scrollRef.current.scrollIntoView({ behavior: 'smooth' });
+                                }
+                                handlePrevDongHo()
+                            }}>
+                            <FontAwesomeIcon icon={faArrowLeft} className="fa-2x text-blue"></FontAwesomeIcon>
+                        </button>
+
+                        <div className="mx-2">
+                            <Select
+                                name="phuongTienDo"
+                                options={dongHoList.map((dongHo, index) => ({ value: index, label: "Đồng hồ " + (index + 1) }))}
+                                className="basic-multi-select"
+                                classNamePrefix="select"
+                                placeholder="- Chọn đồng hồ -"
+                                isClearable
+                                isDisabled={!!dataDongHo}
+                                value={{ value: selectedDongHoIndex, label: "Đồng hồ " + (selectedDongHoIndex + 1) }}
+                                onChange={(selectedOptions) => {
+                                    if (selectedOptions) {
+                                        if (scrollRef.current) {
+                                            scrollRef.current.scrollIntoView({ behavior: 'smooth' });
+                                        }
+                                        handleDongHoChange(selectedOptions.value);
+                                    }
+                                }} // Pass the index
+                                menuPlacement="top"
+                                styles={{
+                                    control: (provided) => ({
+                                        ...provided,
+                                        minWidth: "180px",
+                                        width: "30vw",
+                                        height: '42px',
+                                        minHeight: '42px',
+                                        borderColor: '#dee2e6 !important',
+                                        boxShadow: 'none !important',
+                                        backgroundColor: "white",
+                                        overflow: "hidden"
+                                    }),
+                                    valueContainer: (provided) => ({
+                                        ...provided,
+                                        height: '42px',
+                                        padding: '0 8px',
+                                        color: "#000 !important",
+                                    }),
+                                    input: (provided) => ({
+                                        ...provided,
+                                        margin: '0',
+                                        padding: '0'
+                                    }),
+                                    indicatorsContainer: (provided) => ({
+                                        ...provided,
+                                        height: '42px',
+                                        width: '34px'
+                                    }),
+                                    menu: (provided) => ({
+                                        ...provided,
+                                        zIndex: 777
+                                    }),
+                                    singleValue: (provided, state) => ({
+                                        ...provided,
+                                        color: state.isDisabled ? '#000' : provided.color,
+                                    })
+                                }}
+                            />
+                        </div>
+
+                        <button aria-label="Đồng hồ tiếp theo" className="btn bg-white m-0 p-0 px-2 d-flex align-items-center justify-content-center" style={{ height: "42px", width: "42px" }}
+                            onClick={() => {
+
+                                if (scrollRef.current) {
+                                    scrollRef.current.scrollIntoView({ behavior: 'smooth' });
+                                }
+                                handleNextDongHo()
+                            }}>
+                            <FontAwesomeIcon icon={faArrowRight} className="fa-2x text-blue"></FontAwesomeIcon>
                         </button>
                     </div>
                 </div>
@@ -989,4 +1211,3 @@ export default function FormDongHoNuocDNLonHon15({ className, dataDongHo }: Form
         </LocalizationProvider >
     )
 }
-

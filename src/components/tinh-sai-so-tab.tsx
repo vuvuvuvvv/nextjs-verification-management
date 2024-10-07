@@ -71,7 +71,7 @@ export default function TinhSaiSoTab({ className, tabIndex, readOnly = false, d,
         if (formValuesRef.current != getDuLieuChayCuaLuuLuong(q)) {
             setFormValues(getDuLieuChayCuaLuuLuong(q));
         }
-        console.log(q);
+        // console.log(q);
     }, [q]);
 
     useEffect(() => {
@@ -168,7 +168,7 @@ export default function TinhSaiSoTab({ className, tabIndex, readOnly = false, d,
                         <label className={`w-100 ${c_ect["tab-radio"]} ${selectedTabForm[Number(key) * tabIndex] ? c_ect["active"] : ""}`}>
                             <h5 className="m-0">Lần {key}</h5>
                             <input type="radio" name={`process-tab-${key}-${tabIndex}`} className="d-none" checked={selectedTabForm[Number(key) * tabIndex]} onChange={() => toggleTabForm(Number(key))} />
-                            <button type="button" className={`btn border-0 btn-light text-main-color ${readOnly ? "d-none" : ""}`} onClick={() => handleDelete(key)}>
+                            <button aria-label={`Xóa lần ${key}`} type="button" className={`btn border-0 btn-light text-main-color ${readOnly ? "d-none" : ""}`} onClick={() => handleDelete(key)}>
                                 <FontAwesomeIcon icon={faTimes} className="me-1" /> Xóa
                             </button>
                         </label>
@@ -232,10 +232,10 @@ export default function TinhSaiSoTab({ className, tabIndex, readOnly = false, d,
                 <h5 className="m-0">Lần thực hiện:</h5>
                 <div className={`${readOnly?"d-none":"d-flex"} justify-content-between gap-2`}>
 
-                    <button className="btn px-3 py-2 btn-secondary" onClick={() => handleReset()}>
+                    <button aria-label="Reset lần chạy" className="btn px-3 py-2 btn-secondary" onClick={() => handleReset()}>
                         <FontAwesomeIcon icon={faUndo} className="me-2"></FontAwesomeIcon>Reset
                     </button>
-                    <button className="btn px-3 py-2 btn-success" onClick={() => handleAdd()}>
+                    <button aria-label="Thêm lần chạy" className="btn px-3 py-2 btn-success" onClick={() => handleAdd()}>
                         <FontAwesomeIcon icon={faAdd} className="me-2"></FontAwesomeIcon>Thêm lần chạy
                     </button>
                 </div>

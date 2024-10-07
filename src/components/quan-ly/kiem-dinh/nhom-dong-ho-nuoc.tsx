@@ -326,10 +326,11 @@ export default function ProcessManagement({ data, className }: ProcessManagement
                             </div>
 
                             <div className={`col-12 m-0 my-2 d-flex align-items-center justify-content-between`}>
-                                <button type="button" className={`btn p-2 px-3 bg-main-blue text-white`} onClick={hanldeResetFilter}>
+                                <button aria-label="Xóa bộ lọc" type="button" className={`btn p-2 px-3 bg-main-blue text-white`} onClick={hanldeResetFilter}>
                                     Xóa bộ lọc
                                 </button>
                                 <Link
+                                    aria-label="Thêm nhóm"
                                     href={path + "/them-moi"}
                                     className="btn p-2 px-3 bg-main-green text-white"
                                 >
@@ -423,17 +424,17 @@ export default function ProcessManagement({ data, className }: ProcessManagement
                                                 <td>{item.updatedAt}</td>
                                                 <td>
                                                     <div className={`dropdown ${c_vfml['action']}`}>
-                                                        <button className={`${c_vfml['action-button']}`} type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                                        <button aria-label="Lựa chọn" className={`${c_vfml['action-button']}`} type="button" data-bs-toggle="dropdown" aria-expanded="false">
                                                             <FontAwesomeIcon icon={faEllipsisH}></FontAwesomeIcon>
                                                         </button>
                                                         <ul className="dropdown-menu">
                                                             <li>
-                                                                <Link href={path + "/chi-tiet/" + item.id} className={`btn w-100`}>
+                                                                <Link aria-label="Xem chi tiết" href={path + "/chi-tiet/" + item.id} className={`btn w-100`}>
                                                                     Xem chi tiết
                                                                 </Link>
                                                             </li>
                                                             <li>
-                                                                <button type="button" className={`btn w-100`}>
+                                                                <button aria-label="Xóa" type="button" className={`btn w-100`}>
                                                                     Xóa
                                                                 </button>
                                                             </li>

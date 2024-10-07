@@ -57,7 +57,7 @@ export default function WaterMeterManagement({ className }: WaterMeterManagement
         const fetchData = async () => {
             try {
                 const res = await api.get(`${BASE_API_URL}/dongho`);
-                console.log("dataDongHo: ", res.data)
+                // console.log("dataDongHo: ", res.data)
                 setRootData(res.data);
             } catch (error) {
                 console.error("Error fetching data:", error);
@@ -501,7 +501,7 @@ export default function WaterMeterManagement({ className }: WaterMeterManagement
                             </div>
 
                             <div className={`col-12 m-0 my-2 d-flex align-items-center justify-content-between`}>
-                                <button type="button" className={`btn bg-main-blue text-white`} onClick={hanldeResetFilter}>
+                                <button aria-label="Xóa bộ lọc" type="button" className={`btn bg-main-blue text-white`} onClick={hanldeResetFilter}>
                                     Xóa bộ lọc
                                 </button>
                                 <Link
@@ -602,17 +602,17 @@ export default function WaterMeterManagement({ className }: WaterMeterManagement
                                                 </td>
                                                 <td>
                                                     <div className={`dropdown ${c_vfml['action']}`}>
-                                                        <button className={`${c_vfml['action-button']}`} type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                                        <button aria-label="Lựa chọn" className={`${c_vfml['action-button']}`} type="button" data-bs-toggle="dropdown" aria-expanded="false">
                                                             <FontAwesomeIcon icon={faEllipsisH}></FontAwesomeIcon>
                                                         </button>
                                                         <ul className={`dropdown-menu ${c_vfml['dropdown-menu']}`} style={{ zIndex: "777" }}>
                                                             <li>
-                                                                <Link href={path + "/chi-tiet/" + item.serial_number} className={`btn w-100`}>
+                                                                <Link aria-label="Xem chi tiết" href={path + "/chi-tiet/" + item.serial_number} className={`btn w-100`}>
                                                                     Xem chi tiết
                                                                 </Link>
                                                             </li>
                                                             <li>
-                                                                <button type="button" onClick={() => handleDelete(item.serial_number)} className={`btn w-100`}>
+                                                                <button aria-label="Xóa" type="button" onClick={() => handleDelete(item.serial_number)} className={`btn w-100`}>
                                                                     Xóa
                                                                 </button>
                                                             </li>

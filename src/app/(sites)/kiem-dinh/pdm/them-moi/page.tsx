@@ -531,7 +531,7 @@ export default function AddNewPDM({ className }: AddNewPDMProps) {
                         </form>
                     </div>
                     <div className={`w-100 mt-2 p-0 d-flex justify-content-end`}>
-                        <button type="button" onClick={handleSubmit} className="btn text-white bg-main-green">
+                        <button aria-label="Thêm mới phê duyệt mẫu" type="button" onClick={handleSubmit} className="btn text-white bg-main-green">
                             Thêm mới PDM
                         </button>
                     </div>

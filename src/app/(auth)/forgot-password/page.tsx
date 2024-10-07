@@ -113,7 +113,7 @@ export default function ForgotPassword() {
                 />
                 <FontAwesomeIcon className={`${layout['placeholder-icon']}`} icon={faEnvelope}></FontAwesomeIcon>
             </div>
-            <button type="submit" disabled={loading || success} className={`btn border-0 p-2 btn-primary w-100 ${loading ? 'bg-main-grey' : ''}`}>
+            <button aria-label="Gửi" type="submit" disabled={loading || success} className={`btn border-0 p-2 btn-primary w-100 ${loading ? 'bg-main-grey' : ''}`}>
                 {loading ?
                     <FontAwesomeIcon icon={faSpinner} className={`${layout.icon} ${layout.spinning}`}></FontAwesomeIcon>
                     :

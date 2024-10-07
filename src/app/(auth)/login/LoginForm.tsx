@@ -141,7 +141,7 @@ export default function LoginForm({ className }: FormProps) {
                     Quên mật khẩu?
                 </Link>
             </div>
-            <button type="submit" className="btn btn-primary py-2 w-100">Đăng nhập</button>
+            <button aria-label="Đăng nhập" type="submit" className="btn btn-primary py-2 w-100">Đăng nhập</button>
         </form>
     );
 }

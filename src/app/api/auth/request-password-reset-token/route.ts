@@ -9,7 +9,7 @@ export const requestPasswordResetToken = async (email: string) => {
             "email": email
         });
 
-        console.log(response);
+        // console.log(response);
 
         if (response.status === 200) {
             return {

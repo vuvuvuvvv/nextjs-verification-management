@@ -127,7 +127,7 @@ export default function ChangeEmail({ className }: FormProps) {
                     />
                     <FontAwesomeIcon className={`${reset['placeholder-icon']}`} icon={faLock}></FontAwesomeIcon>
                 </div>
-                <button type="submit" className="btn btn-primary w-100">Đổi Email</button>
+                <button aria-label="Đổi Email" type="submit" className="btn btn-primary w-100">Đổi Email</button>
             </form>
         </>
     )

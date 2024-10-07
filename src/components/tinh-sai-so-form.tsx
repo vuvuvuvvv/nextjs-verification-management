@@ -175,10 +175,10 @@ export default function DNBT30TinhSaiSoForm({ className, formValue, readOnly = f
                     </div>
                 </div>
                 <div className={`${ecf["box-button"]} ${readOnly ? "d-none" : ""}`}>
-                    <button type="button" className={`w-100 btn py-2 btn-success ${ecf["btn-save"]}`} disabled={saiSo === "0%"}>
+                    <button aria-label="Lưu kết quả" type="button" className={`w-100 btn py-2 d-none btn-success ${ecf["btn-save"]}`} disabled={saiSo === "0%"}>
                         Lưu kết quả
                     </button>
-                    <button type="reset" onClick={handleReset} className="btn py-2 btn-secondary">
+                    <button aria-label="Nhập lại" type="reset" onClick={handleReset} className="btn py-2 btn-secondary">
                         Nhập lại
                     </button>
                 </div>
