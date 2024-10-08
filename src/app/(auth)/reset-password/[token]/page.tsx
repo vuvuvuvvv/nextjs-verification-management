@@ -156,7 +156,7 @@ export default function ResetPassword({ params }: { params: { token: string } })
                     </div>
                 )
             }
-            <button type="submit" className="btn btn-primary w-100">Đổi mật khẩu</button>
+            <button aria-label="Đổi mật khẩu" type="submit" className="btn btn-primary w-100">Đổi mật khẩu</button>
         </form>
         <div className="mt-3 d-flex align-items-center justify-content-end">
             <Link href="/login" className='btn m-0 p-0 '>

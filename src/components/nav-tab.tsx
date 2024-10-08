@@ -45,7 +45,7 @@ export default function NavTab({ className, classNameGroupTab, classNameContent,
                 <div className={`${nt['group-tab']} ${classNameGroupTab ? classNameGroupTab : ""}`}>
                     {tabContent.map((val, index) => {
                         return (
-                            <button type="button" style={{ minWidth: "80px" }} key={index + 1} className={`${nt['nav-link']} ${selectedTab[index + 1] ? nt['active'] : ''} fs-5 px-4`} onClick={() => toggleTab(index + 1)}>
+                            <button aria-label={`Tab ${index + 1}`} type="button" style={{ minWidth: "80px" }} key={index + 1} className={`${nt['nav-link']} ${selectedTab[index + 1] ? nt['active'] : ''} fs-5 px-4`} onClick={() => toggleTab(index + 1)}>
                                 {val.title}
                             </button>
                         )
@@ -59,9 +59,9 @@ export default function NavTab({ className, classNameGroupTab, classNameContent,
                             <div tabIndex={index + 1} key={index + 1} className={`m-0 p-0 ${selectedTab[index + 1] ? nt['show'] : 'd-none'}`}>
                                 {val.content}
                                 <div className={`w-100 px-1 py-3 d-flex justify-content-between ${buttonControl ? "" : "d-none"}`}>
-                                    {(0 == index) ? <span></span> : <button className="btn p-0 fw-bold text-dark-blue" onClick={() => toggleTab(index)}>Quay lại ({tabContent[index - 1].title})</button>}
+                                    {(0 == index) ? <span></span> : <button aria-label={`Quay lại (${tabContent[index - 1].title})`} className="btn p-0 fw-bold text-dark-blue" onClick={() => toggleTab(index)}>Quay lại ({tabContent[index - 1].title})</button>}
 
-                                    {(tabContent.length - 1 == index) ? "" : <button type="button" className="btn p-0 fw-bold text-dark-blue" onClick={() => toggleTab(index + 2)}>Tiếp ({tabContent[index + 1].title})</button>}
+                                    {(tabContent.length - 1 == index) ? "" : <button aria-label={`Tiếp (${tabContent[index + 1].title})`} type="button" className="btn p-0 fw-bold text-dark-blue" onClick={() => toggleTab(index + 2)}>Tiếp ({tabContent[index + 1].title})</button>}
 
                                 </div>
                             </div>

@@ -7,7 +7,7 @@ const API_DONGHO_URL = `${BASE_API_URL}/dongho`;
 export const getAllDongHo = async () => {
     try {
         const response = await api.get(API_DONGHO_URL.toString());
-        console.log("get dongho: ", response);
+        // console.log("get dongho: ", response);
         return {
             "status": response.status,
             "data": response.data,
@@ -153,7 +153,7 @@ export const createDongHo = async (dongho: DongHo) => {
         }
 
     } catch (error: any) {
-        console.log("Error:", error);
+        // console.log("Error:", error);
         if (error.response?.data) {
             return {
                 "status": error.response.status,

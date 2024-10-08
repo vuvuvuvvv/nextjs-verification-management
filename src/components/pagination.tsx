@@ -13,20 +13,20 @@ const Pagination: React.FC<PaginationProps> = ({ className, currentPage, totalPa
 
     return (totalPage == 0) ? <></> : (
         <div className={`mb-3 ${pg['pagination']} ${className ? className : ''}`}>
-            <button type="button" className={`${pg['btn']}`} onClick={() => handlePageChange(1)} disabled={currentPage === 1}>
+            <button aria-label="Trang đầu" type="button" className={`${pg['btn']}`} onClick={() => handlePageChange(1)} disabled={currentPage === 1}>
                 ❬❬
             </button>
-            <button type="button" className={`${pg['btn']}`} onClick={() => handlePageChange(currentPage - 1)} disabled={currentPage === 1}>
+            <button aria-label="Trang trước" type="button" className={`${pg['btn']}`} onClick={() => handlePageChange(currentPage - 1)} disabled={currentPage === 1}>
                 ❬
             </button>
 
             <span>Trang {currentPage} / {totalPage}</span>
 
 
-            <button type="button" className={`${pg['btn']}`} onClick={() => handlePageChange(currentPage + 1)} disabled={currentPage === totalPage}>
+            <button aria-label="Trang sau" type="button" className={`${pg['btn']}`} onClick={() => handlePageChange(currentPage + 1)} disabled={currentPage === totalPage}>
                 ❭
             </button>
-            <button type="button" className={`${pg['btn']}`} onClick={() => handlePageChange(totalPage)} disabled={currentPage === totalPage}>
+            <button aria-label="Trang cuối" type="button" className={`${pg['btn']}`} onClick={() => handlePageChange(totalPage)} disabled={currentPage === totalPage}>
                 ❭❭
             </button>
         </div>

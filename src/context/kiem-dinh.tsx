@@ -5,6 +5,8 @@ import React, { createContext, useState, useContext, ReactNode, useEffect } from
 
 interface KiemDinhContextType {
     duLieuKiemDinhCacLuuLuong: DuLieuChayDongHo;
+    initialDuLieuKiemDinhCacLuuLuong: DuLieuChayDongHo;
+    initialFormHieuSaiSo: { hss: number | null }[];
     formHieuSaiSo: { hss: number | null }[];
     setFormHieuSaiSo: (form: { hss: number | null }[]) => void;
     ketQua: boolean | null;
@@ -41,17 +43,19 @@ export const KiemDinhProvider = ({ children }: { children: ReactNode }) => {
         [TITLE_LUU_LUONG.qmin]: null,
     };
 
+    const initialFormHieuSaiSo: { hss: number | null }[] = [
+        { hss: null },
+        { hss: null },
+        { hss: null },
+    ];
+
     const [duLieuKiemDinhCacLuuLuong, setDuLieuKiemDinhCacLuuLuong] = useState<DuLieuChayDongHo>(initialDuLieuKiemDinhCacLuuLuong);
-    const [formHieuSaiSo, setFormHieuSaiSo] = useState<{ hss: number | null }[]>([
-        { hss: null },
-        { hss: null },
-        { hss: null },
-    ]);
+    const [formHieuSaiSo, setFormHieuSaiSo] = useState<{ hss: number | null }[]>(initialFormHieuSaiSo);
     const [ketQua, setKetQua] = useState<boolean | null>(null);
 
-    // useEffect(() => {
-    // console.log("dlkdcll: ", duLieuKiemDinhCacLuuLuong);
-    // }, [duLieuKiemDinhCacLuuLuong]);
+    useEffect(() => {
+        console.log("dlkdcll: ", duLieuKiemDinhCacLuuLuong);
+    }, [duLieuKiemDinhCacLuuLuong]);
 
 
     const setDuLieuKiemDinhChoMotLuuLuong = (tenLuuLuong: string, data: DuLieuChayDiemLuuLuong | null) => {
@@ -191,6 +195,8 @@ export const KiemDinhProvider = ({ children }: { children: ReactNode }) => {
     return (
         <KiemDinhContext.Provider value={{
             duLieuKiemDinhCacLuuLuong,
+            initialFormHieuSaiSo,
+            initialDuLieuKiemDinhCacLuuLuong,
             formHieuSaiSo,
             lanChayMoi,
             ketQua,

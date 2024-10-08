@@ -209,7 +209,7 @@ export default function RegisterForm({ className }: FormProps) {
                     </div>
                 )
             }
-            <button type="submit" className="btn btn-primary w-100">Đăng ký</button>
+            <button aria-label="Đăng ký" type="submit" className="btn btn-primary w-100">Đăng ký</button>
         </form>
     );
 }

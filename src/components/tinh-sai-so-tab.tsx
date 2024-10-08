@@ -35,7 +35,7 @@ interface FormProps {
     d?: string;
 }
 
-export default function TinhSaiSoTab({ className, tabIndex, readOnly = false, d, q, form, onFormHSSChange }: TinhSaiSoTabProps) {
+export default function TinhSaiSoTab({ className, tabIndex, d, q, form, onFormHSSChange }: TinhSaiSoTabProps) {
 
     const {getDuLieuChayCuaLuuLuong, themLanChayCuaLuuLuong, updateLuuLuong, xoaLanChayCuaLuuLuong, resetLanChay } = useKiemDinh();
 
@@ -63,16 +63,15 @@ export default function TinhSaiSoTab({ className, tabIndex, readOnly = false, d,
 
     const [activeTab, setActiveTab] = useState<number>(getActiveTab())
 
+
+    // TODO: Cập nhật form value:
     // Hook: Cập nhật lại số lượng form + tab sau khi update số lần
     const [formValues, setFormValues] = useState<DuLieuCacLanChay>(getDuLieuChayCuaLuuLuong(q));
-    const formValuesRef = useRef<DuLieuCacLanChay>(formValues);
 
-    useEffect(() => {
-        if (formValuesRef.current != getDuLieuChayCuaLuuLuong(q)) {
-            setFormValues(getDuLieuChayCuaLuuLuong(q));
-        }
-        console.log(q);
-    }, [q]);
+    // TODO: Check update q
+    // useEffect(() => {
+    //     updateLuuLuong(q, formValues);
+    // }, [q]);
 
     useEffect(() => {
         setSelectedTabForm({
@@ -168,7 +167,7 @@ export default function TinhSaiSoTab({ className, tabIndex, readOnly = false, d,
                         <label className={`w-100 ${c_ect["tab-radio"]} ${selectedTabForm[Number(key) * tabIndex] ? c_ect["active"] : ""}`}>
                             <h5 className="m-0">Lần {key}</h5>
                             <input type="radio" name={`process-tab-${key}-${tabIndex}`} className="d-none" checked={selectedTabForm[Number(key) * tabIndex]} onChange={() => toggleTabForm(Number(key))} />
-                            <button type="button" className={`btn border-0 btn-light text-main-color ${readOnly ? "d-none" : ""}`} onClick={() => handleDelete(key)}>
+                            <button aria-label={`Xóa lần ${key}`} type="button" className={`btn border-0 btn-light text-main-color`} onClick={() => handleDelete(key)}>
                                 <FontAwesomeIcon icon={faTimes} className="me-1" /> Xóa
                             </button>
                         </label>
@@ -181,7 +180,6 @@ export default function TinhSaiSoTab({ className, tabIndex, readOnly = false, d,
                         <Form
                             className={`w-100 ${!selectedTabForm[Number(key) * tabIndex] ? "d-none" : ""}`}
                             formValue={formVal}
-                            readOnly={readOnly}
                             onFormChange={(field: string, value: number) => handleFormChange(Number(key), field as keyof DuLieuMotLanChay, value)}
                             d={d}
                         />
@@ -196,7 +194,7 @@ export default function TinhSaiSoTab({ className, tabIndex, readOnly = false, d,
         <div className={`row m-0 p-0 w-100 justify-content-center ${className ? className : ""} ${c_ect['wrapper']}`}>
             <div className="w-100 m-0 mb-3 p-0">
                 <div className={`w-100 py-2 row m-0 ${c_ect['info']}`}>
-                    <div className={`col-12 col-lg-6 col-xxl-5 mb-2 p-0 px-2`}>
+                    <div className={`col-12 col-lg-6 col-xxl-5 mb-2 p-0 px-1`}>
                         <h5 className="w-100">Lưu lượng:</h5>
                         <div className="w-100 px-3 pe-lg-2  d-flex align-items-center justify-content-between gap-3">
                             <label className={`form-label m-0 fs-5 fw-bold d-block`}>{q.title}:</label>
@@ -228,14 +226,14 @@ export default function TinhSaiSoTab({ className, tabIndex, readOnly = false, d,
                     </div>
                 </div>
             </div>
-            <div className="w-100 d-flex align-items-center justify-content-between">
+            <div className="w-100 d-flex px-1 align-items-center justify-content-between">
                 <h5 className="m-0">Lần thực hiện:</h5>
-                <div className={`${readOnly?"d-none":"d-flex"} justify-content-between gap-2`}>
+                <div className={`justify-content-between gap-2`}>
 
-                    <button className="btn px-3 py-2 btn-secondary" onClick={() => handleReset()}>
+                    <button aria-label="Reset lần chạy" className="btn px-3 py-2 me-2 btn-secondary" onClick={() => handleReset()}>
                         <FontAwesomeIcon icon={faUndo} className="me-2"></FontAwesomeIcon>Reset
                     </button>
-                    <button className="btn px-3 py-2 btn-success" onClick={() => handleAdd()}>
+                    <button aria-label="Thêm lần chạy" className="btn px-3 py-2 btn-success" onClick={() => handleAdd()}>
                         <FontAwesomeIcon icon={faAdd} className="me-2"></FontAwesomeIcon>Thêm lần chạy
                     </button>
                 </div>
