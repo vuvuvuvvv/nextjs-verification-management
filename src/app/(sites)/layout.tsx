@@ -5,18 +5,20 @@ import layout from "@styles/scss/layouts/home-layout.module.scss";
 
 import Loading from "@/components/loading";
 
-const Navbar = dynamic(() => import('@/components/ui/navbar'), {
-    ssr: false,
-});
+// const Navbar = dynamic(() => import('@/components/ui/navbar'));
 
 const BackToTopButton = dynamic(() => import('@/components/ui/BackToTopButton'), {
     ssr: false,
 });
 
-import { AppProvider } from "@/context/app-context";
+const AppProvider = dynamic(() => import("@/context/app-context").then(mod => mod.AppProvider), {
+    ssr: false,
+    loading: () => <Loading />,
+});
 
 import { usePathname } from "next/navigation";
 import dynamic from "next/dynamic";
+import Navbar from "@/components/ui/navbar";
 
 const routeTitles: { [key: string]: string } = {
     "/": "Trang chủ",

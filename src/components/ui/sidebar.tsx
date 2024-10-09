@@ -16,7 +16,7 @@ import {
     faCertificate
 }
     from '@fortawesome/free-solid-svg-icons';
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, Suspense } from 'react';
 import { usePathname } from 'next/navigation';
 
 import Offcanvas from 'react-bootstrap/Offcanvas';
@@ -24,6 +24,7 @@ import Offcanvas from 'react-bootstrap/Offcanvas';
 import sb from "@styles/scss/ui/sidebar.module.scss";
 import Link from 'next/link';
 import { SideLink } from '@lib/types';
+import Loading from '../loading';
 
 interface SidebarProps {
     // "?" can be undefind
@@ -156,7 +157,7 @@ export default function Sidebar({
         });
     };
 
-    return <>
+    return <Suspense fallback={<Loading />}>
         <button aria-label="Menu" className={`bg-transparent d-xl-none px-3 ${sb['btn-toggle']}`} onClick={toggleOpen}>
             <FontAwesomeIcon icon={faBars} fontSize={24}></FontAwesomeIcon>
         </button>
@@ -265,5 +266,5 @@ export default function Sidebar({
                 </Link>
             </div> */}
         </div>
-    </>
+    </Suspense>
 }

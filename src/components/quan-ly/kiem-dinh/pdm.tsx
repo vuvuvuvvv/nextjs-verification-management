@@ -140,7 +140,7 @@ export default function PDMManagement({ data, className }: PDMManagementProps) {
             } finally {
                 setLoading(false);
             }
-        }, 700);
+        }, 500);
 
         return () => clearTimeout(debounce);
 

@@ -282,7 +282,7 @@ export default function FormDongHoNuocDNLonHon15({ className }: FormDongHoNuocDN
     }
 
     // TODO: Dat tieu chuan:
-    const handleFormHSSChange = (index: number, value: number) => {
+    const handleFormHSSChange = (index: number, value: number | null) => {
         const newFormValues = [...formHieuSaiSo];
         newFormValues[index].hss = value;
         setFormHieuSaiSo(newFormValues);
@@ -863,7 +863,7 @@ export default function FormDongHoNuocDNLonHon15({ className }: FormDongHoNuocDN
                             {
                                 title: <>Q<sub>{isDHDienTu ? "3" : "n"}</sub></>,
                                 content: <TinhSaiSoTab
-                                    onFormHSSChange={(value: number) => handleFormHSSChange(0, value)}
+                                    onFormHSSChange={(value: number | null) => handleFormHSSChange(0, value)}
                                     d={d ? d : ""} q={{
                                         title: isDHDienTu ? TITLE_LUU_LUONG.q3 : TITLE_LUU_LUONG.qn,
                                         value: q3 ? q3 : (qn ? qn : "")
@@ -872,7 +872,7 @@ export default function FormDongHoNuocDNLonHon15({ className }: FormDongHoNuocDN
                             {
                                 title: <>Q<sub>{isDHDienTu ? "2" : "t"}</sub></>,
                                 content: <TinhSaiSoTab
-                                    onFormHSSChange={(value: number) => handleFormHSSChange(1, value)}
+                                    onFormHSSChange={(value: number | null) => handleFormHSSChange(1, value)}
                                     d={d ? d : ""} q={{
                                         title: (isDHDienTu) ? TITLE_LUU_LUONG.q2 : TITLE_LUU_LUONG.qt,
                                         value: (q2Ort) ? q2Ort.toString() : ""
@@ -881,7 +881,7 @@ export default function FormDongHoNuocDNLonHon15({ className }: FormDongHoNuocDN
                             {
                                 title: <>Q<sub>{isDHDienTu ? "1" : "min"}</sub></>,
                                 content: <TinhSaiSoTab
-                                    onFormHSSChange={(value: number) => handleFormHSSChange(2, value)}
+                                    onFormHSSChange={(value: number | null) => handleFormHSSChange(2, value)}
                                     d={d ? d : ""} q={{
                                         title: (isDHDienTu) ? TITLE_LUU_LUONG.q1 : TITLE_LUU_LUONG.qmin,
                                         value: (q1Ormin) ? q1Ormin.toString() : ""

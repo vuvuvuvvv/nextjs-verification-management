@@ -19,7 +19,7 @@ interface TinhSaiSoTabProps {
         value: string;
     }
     form: ({ className, d }: FormProps) => JSX.Element;
-    onFormHSSChange: (value: number) => void;
+    onFormHSSChange: (value: number | null) => void;
 }
 
 interface TabFormState {

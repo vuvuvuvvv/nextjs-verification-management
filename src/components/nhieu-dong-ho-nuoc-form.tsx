@@ -40,7 +40,6 @@ interface FormDongHoNuocDNNhoHon15Props {
 
 
 export default function FormDongHoNuocDNNhoHon15({ className }: FormDongHoNuocDNNhoHon15Props) {
-
     const { user } = useUser();
     const [isCollapsed, setIsCollapsed] = useState<boolean>(false);
 
@@ -68,7 +67,7 @@ export default function FormDongHoNuocDNNhoHon15({ className }: FormDongHoNuocDN
     const [coSoSuDung, setCoSoSuDung] = useState<string>("");
     const [phuongPhapThucHien, setPhuongPhapThucHien] = useState<string>("ĐNVN 17:2017");
     const [chuanThietBiSuDung, setChuanThietBiSuDung] = useState<string>("Đồng hồ chuẩn đo nước và Bình chuẩn");
-    const [nguoiKiemDinh, setNguoiKiemDinh] = useState<string>("");
+    const [nguoiKiemDinh, setNguoiKiemDinh] = useState<string>(user?.fullname || "");
     const [ngayThucHien, setNgayThucHien] = useState<Date | null>(new Date());
     const [hieuLucBienBan, setHieuLucBienBan] = useState<Date | null>(new Date());
     const [viTri, setViTri] = useState<string>("");
@@ -321,7 +320,7 @@ export default function FormDongHoNuocDNNhoHon15({ className }: FormDongHoNuocDN
     }
 
     // TODO: Dat tieu chuan:
-    const handleFormHSSChange = (index: number, value: number) => {
+    const handleFormHSSChange = (index: number, value: number | null) => {
         const newFormValues = [...formHieuSaiSo];
         newFormValues[index].hss = value;
         setFormHieuSaiSo(newFormValues);
@@ -497,6 +496,7 @@ export default function FormDongHoNuocDNNhoHon15({ className }: FormDongHoNuocDN
     // TODO: Gán value (Chuyển đồng hồ bị giữ giá trị => Gán giá trị nếu có else tạo mới )
     useEffect(() => {
         if (dongHoSelected) {
+            setCanSave(false);
             setSeriNumber(dongHoSelected.serial_number || "");
             const duLieuKiemDinhJSON = dongHoSelected.du_lieu_kiem_dinh; // Define the type
 
@@ -512,6 +512,7 @@ export default function FormDongHoNuocDNNhoHon15({ className }: FormDongHoNuocDN
 
                 if (duLieuKiemDinh?.hieu_sai_so) {
                     const dlHSS = duLieuKiemDinh.hieu_sai_so;
+                    console.log("dlHSS: ", dlHSS);
                     setFormHieuSaiSo(dlHSS);
                 } else {
                     setFormHieuSaiSo(initialFormHieuSaiSo);
@@ -1023,28 +1024,27 @@ export default function FormDongHoNuocDNNhoHon15({ className }: FormDongHoNuocDN
                         <button aria-label="Đồng hồ tiếp theo" className="btn bg-white m-0 p-0 px-2 d-flex align-items-center justify-content-center" style={{ height: "42px", width: "42px" }} onClick={handleNextDongHo}>
                             <FontAwesomeIcon icon={faArrowRight} className="fa-2x text-blue"></FontAwesomeIcon>
                         </button>
-                    </div>
+                    </div> 
 
                     <div className={`w-100 p-2`}>
                         {dongHoSelected ? (
                             <>
                                 <div className={`w-100 p-2`}>
                                     <div className={`col-12 col-md-10 col-xl-8 col-xxl-5 m-0 mb-3 p-0 ps-lg-2 p-0 d-flex align-items-center justify-content-between ${vrfWm['seri-number-input']}`}>
-                                        <label htmlFor="seriNumber" className={`form-label m-0 fs-5 fw-bold d-block`}>Số Serial:</label>
+                                        <label htmlFor="seriNumber" style={{ width: "110px" }} className={`form-label m-0 fs-5 fw-bold d-block`}>Số Serial:</label>
                                         <input
                                             type="text"
                                             id="seriNumber"
                                             className={`form-control`}
                                             placeholder="Nhập số serial"
                                             value={seriNumber || ""}
-                                            // TODO: 
                                             onChange={handleChangeSerialNumber}
                                         />
                                     </div>
                                     <NavTab buttonControl={true} tabContent={[
                                         {
                                             title: <>Q<sub>{isDHDienTu ? "3" : "n"}</sub></>,
-                                            content: <TinhSaiSoTab onFormHSSChange={(value: number) => handleFormHSSChange(0, value)}
+                                            content: <TinhSaiSoTab onFormHSSChange={(value: number | null) => handleFormHSSChange(0, value)}
                                                 d={d ? d : ""} q={{
                                                     title: (isDHDienTu) ? TITLE_LUU_LUONG.q3 : TITLE_LUU_LUONG.qn,
                                                     value: (q3) ? q3 : ((qn) ? qn : "")
@@ -1052,7 +1052,7 @@ export default function FormDongHoNuocDNNhoHon15({ className }: FormDongHoNuocDN
                                         },
                                         {
                                             title: <>Q<sub>{isDHDienTu ? "2" : "t"}</sub></>,
-                                            content: <TinhSaiSoTab onFormHSSChange={(value: number) => handleFormHSSChange(1, value)}
+                                            content: <TinhSaiSoTab onFormHSSChange={(value: number | null) => handleFormHSSChange(1, value)}
                                                 d={d ? d : ""} q={{
                                                     title: (isDHDienTu) ? TITLE_LUU_LUONG.q2 : TITLE_LUU_LUONG.qt,
                                                     value: (q2Ort) ? q2Ort.toString() : ""
@@ -1060,7 +1060,7 @@ export default function FormDongHoNuocDNNhoHon15({ className }: FormDongHoNuocDN
                                         },
                                         {
                                             title: <>Q<sub>{isDHDienTu ? "1" : "min"}</sub></>,
-                                            content: <TinhSaiSoTab onFormHSSChange={(value: number) => handleFormHSSChange(2, value)}
+                                            content: <TinhSaiSoTab onFormHSSChange={(value: number | null) => handleFormHSSChange(2, value)}
                                                 d={d ? d : ""} q={{
                                                     title: (isDHDienTu) ? TITLE_LUU_LUONG.q1 : TITLE_LUU_LUONG.qmin,
                                                     value: (q1Ormin) ? q1Ormin.toString() : ""
@@ -1119,11 +1119,12 @@ export default function FormDongHoNuocDNNhoHon15({ className }: FormDongHoNuocDN
                                             </div>
                                         </div>
                                     </div>
-                                    <div className="w-100 m-0 p-2 d-flex gap-2 justify-content-between">
+                                    {/* TODO: Save DH */}
+                                    {/* <div className="w-100 m-0 p-2 d-flex gap-2 justify-content-between">
                                         <button aria-label="Lưu Đồng hồ" className={`btn py-2 px-3 ${canSave ? "btn-success" : "btn-secondary"}`} disabled={!canSave} onClick={handleSaveDongHo}>
                                             Lưu Đồng hồ
                                         </button>
-                                    </div>
+                                    </div> */}
                                 </div>
                             </>
                         ) : (

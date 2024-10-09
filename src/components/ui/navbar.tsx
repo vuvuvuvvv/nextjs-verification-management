@@ -2,10 +2,14 @@
 // Import Layout css
 import layout from "@styles/scss/ui/navbar.module.scss";
 
-// Import Sidebar
-import Sidebar from "@/components/ui/sidebar";
+// import Sidebar from "@/components/ui/sidebar";
+const Sidebar = dynamic(() => import("@/components/ui/sidebar"), {
+    ssr: false,
+});
 
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+const FontAwesomeIcon = dynamic(() => import('@fortawesome/react-fontawesome').then(mod => mod.FontAwesomeIcon), {
+    ssr: false,
+});
 
 import {
     faKey,
@@ -20,6 +24,7 @@ import Link from "next/link";
 import { useUser } from "@/context/app-context";
 
 import React from "react";
+import dynamic from "next/dynamic";
 
 interface NavbarProps {
     className?: string,

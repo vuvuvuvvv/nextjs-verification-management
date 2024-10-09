@@ -54,7 +54,7 @@ export default function DNBT30TinhSaiSoForm({ className, formValue, readOnly = f
             if (numericInputTimeout) {
                 clearTimeout(numericInputTimeout);
             }
-            const timeout = setTimeout(() => onFormChange(field, numericValue), 700);
+            const timeout = setTimeout(() => onFormChange(field, numericValue), 500);
             setNumericInputTimeout(timeout);
         };
     };
@@ -78,7 +78,7 @@ export default function DNBT30TinhSaiSoForm({ className, formValue, readOnly = f
                 if (numberChangeTimeout) {
                     clearTimeout(numberChangeTimeout);
                 }
-                const timeout = setTimeout(() => onFormChange(field, parseFloat(value)), 700);
+                const timeout = setTimeout(() => onFormChange(field, parseFloat(value)), 500);
                 setNumberChangeTimeout(timeout);
             }
         };
@@ -100,7 +100,7 @@ export default function DNBT30TinhSaiSoForm({ className, formValue, readOnly = f
     };
 
     useEffect(() => {
-        setSaiSo(getSaiSoDongHo(formValue).toString() + "%");
+        setSaiSo(getSaiSoDongHo(formValue) ? getSaiSoDongHo(formValue)?.toString() + "%" : "0%");
     }, [formValue.Vc2, formValue.V2, formValue.Vc1, formValue.V1]);
 
     return (

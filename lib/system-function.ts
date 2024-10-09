@@ -1,8 +1,10 @@
-import { phuongTienDoOptions, TITLE_LUU_LUONG } from "./system-constant";
 import { DuLieuMotLanChay, TinhSaiSoValueTabs } from "./types";
 
 export const getSaiSoDongHo = (formValue: DuLieuMotLanChay) => {
     if (formValue) {
+
+        if (formValue.V2 == 0 && formValue.V1 == 0 && formValue.Vc2 == 0 && formValue.Vc1 == 0) return null;
+
         const VDHCT = formValue.V2 - formValue.V1;
         const VDHC = formValue.Vc2 - formValue.Vc1;
         if (VDHC !== 0) {
@@ -10,7 +12,7 @@ export const getSaiSoDongHo = (formValue: DuLieuMotLanChay) => {
             return Number((Math.round(error * 10000) / 10000).toFixed(3));
         }
     }
-    return 0;
+    return null;
 };
 
 export const getQ2OrQtAndQ1OrQMin = (isDHDienTu: boolean, ccx: string | null, q: string | null, r: string | null) => {
@@ -80,7 +82,11 @@ export const getVToiThieu = (q: string | number, d: string | number) => {
 
 export const getHieuSaiSo = (formValues: TinhSaiSoValueTabs) => {
     try {
-        const values = Object.values(formValues).map(getSaiSoDongHo);
+        const values = Object.values(formValues)
+            .map(getSaiSoDongHo)
+            .filter(value => value !== null); 
+
+        if (values.length === 0) return null; 
 
         const result = values.reduce((acc, curr, index) => {
             return index === 0 ? curr : acc - curr;
@@ -88,7 +94,7 @@ export const getHieuSaiSo = (formValues: TinhSaiSoValueTabs) => {
 
         return Number(result.toFixed(3));
     } catch {
-        return 0;
+        return null;
     }
 }
 

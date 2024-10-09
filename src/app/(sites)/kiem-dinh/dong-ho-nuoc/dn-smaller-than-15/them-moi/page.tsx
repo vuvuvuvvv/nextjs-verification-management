@@ -102,7 +102,7 @@ export default function NewProcessDNSmallerThan15({ className }: NewProcessDNSma
             // TODO: Call API để kiểm tra serial number
             console.log(`Checking if serial ${serial} exists...`);
             // Thực hiện API call ở đây
-        }, 700); // Thay đổi thời gian debounce nếu cần
+        }, 500); // Thay đổi thời gian debounce nếu cần
         setTimeoutId(id); // Lưu timeout ID
     };
 

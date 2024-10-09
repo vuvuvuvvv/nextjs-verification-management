@@ -148,7 +148,7 @@ export default function WaterMeterManagement({ className }: WaterMeterManagement
             } finally {
                 setFilterLoading(false);
             }
-        }, 700);
+        }, 500);
 
         return () => clearTimeout(debounce);
     }, [filterForm]);
