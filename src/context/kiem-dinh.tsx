@@ -1,7 +1,7 @@
 import { TITLE_LUU_LUONG } from '@lib/system-constant';
 import { isDongHoDatTieuChuan } from '@lib/system-function';
 import { DuLieuChayDongHo, DuLieuChayDiemLuuLuong, DuLieuMotLanChay, DuLieuCacLanChay } from '@lib/types';
-import React, { createContext, useState, useContext, ReactNode, useEffect } from 'react';
+import React, { createContext, useState, useContext, ReactNode, useEffect, useRef } from 'react';
 
 interface KiemDinhContextType {
     duLieuKiemDinhCacLuuLuong: DuLieuChayDongHo;
@@ -50,6 +50,8 @@ export const KiemDinhProvider = ({ children }: { children: ReactNode }) => {
     ];
 
     const [duLieuKiemDinhCacLuuLuong, setDuLieuKiemDinhCacLuuLuong] = useState<DuLieuChayDongHo>(initialDuLieuKiemDinhCacLuuLuong);
+    const previousDuLieuRef = useRef<DuLieuChayDongHo>(duLieuKiemDinhCacLuuLuong);
+
     const [formHieuSaiSo, setFormHieuSaiSo] = useState<{ hss: number | null }[]>(initialFormHieuSaiSo);
     const [ketQua, setKetQua] = useState<boolean | null>(null);
 
@@ -59,20 +61,28 @@ export const KiemDinhProvider = ({ children }: { children: ReactNode }) => {
 
 
     const setDuLieuKiemDinhChoMotLuuLuong = (tenLuuLuong: string, data: DuLieuChayDiemLuuLuong | null) => {
-        setDuLieuKiemDinhCacLuuLuong(prevState => ({
-            ...prevState,
-            [tenLuuLuong]: data,
-        }));
+        if (previousDuLieuRef.current[tenLuuLuong] !== data) {
+            setDuLieuKiemDinhCacLuuLuong(prevState => ({
+                ...prevState,
+                [tenLuuLuong]: data,
+            }));
+            previousDuLieuRef.current = {
+                ...previousDuLieuRef.current,
+                [tenLuuLuong]: data,
+            };
+        }
     };
 
     const updateLuuLuong = (q: { title: string; value: string }, duLieuChay: DuLieuCacLanChay) => {
         const value = isNaN(Number(q.value)) ? 0 : Number(q.value);
         const keyOfLuuLuongDHDienTu = [TITLE_LUU_LUONG.q3, TITLE_LUU_LUONG.q2, TITLE_LUU_LUONG.q1];
+        
         if (q.title) {
             let key = q.title;
             const isDHDienTu = keyOfLuuLuongDHDienTu.includes(q.title);
+    
             setDuLieuKiemDinhCacLuuLuong(prevState => {
-                return {
+                const newState = {
                     ...prevState,
                     [key]: {
                         value: value,
@@ -81,9 +91,16 @@ export const KiemDinhProvider = ({ children }: { children: ReactNode }) => {
                     [!isDHDienTu ? TITLE_LUU_LUONG.q3 : TITLE_LUU_LUONG.qn]: null,
                     [!isDHDienTu ? TITLE_LUU_LUONG.q2 : TITLE_LUU_LUONG.qt]: null,
                     [!isDHDienTu ? TITLE_LUU_LUONG.q1 : TITLE_LUU_LUONG.qmin]: null,
+                };
+    
+                // Check if the new state is different from the previous state
+                if (JSON.stringify(prevState) !== JSON.stringify(newState)) {
+                    previousDuLieuRef.current = newState;
+                    return newState;
                 }
-            })
-        };
+                return prevState;
+            });
+        }
     };
 
 

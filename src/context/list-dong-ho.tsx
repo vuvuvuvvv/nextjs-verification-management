@@ -3,6 +3,8 @@ import React, { createContext, useState, useContext, ReactNode, useEffect } from
 
 interface DongHoListContextType {
     dongHoList: DongHo[];
+    dongHoSelected: DongHo | null;
+    setDongHoSelected: React.Dispatch<React.SetStateAction<DongHo | null>>;
     setDongHoList: React.Dispatch<React.SetStateAction<DongHo[]>>;
     addToListDongHo: (dongHo: DongHo) => void;
     updateListDongHo: (index: number, updatedDongHo: DongHo) => void;
@@ -50,10 +52,14 @@ export const DongHoListProvider = ({ children, serialNumbers = [] }: { children:
     });
 
     useEffect(() => {
-        console.log("DH: ", dongHoList);
+        console.log("DHL: ", dongHoList);
     }, [dongHoList]);
 
-    const [amount, setAmount] = useState<number>(serialNumbers.length)
+    const [dongHoSelected, setDongHoSelected] = useState<DongHo | null>(dongHoList[0] || null);
+
+    useEffect(() => {
+        console.log("DH: ", dongHoSelected);
+    }, [dongHoSelected]);
 
     // Initial with amount. Ex create 5 sample DonHo for dongHoList
 
@@ -82,6 +88,8 @@ export const DongHoListProvider = ({ children, serialNumbers = [] }: { children:
     return (
         <DongHoListContext.Provider value={{
             dongHoList,
+            dongHoSelected,
+            setDongHoSelected,
             setDongHoList,
             addToListDongHo,
             updateSerialDongHoInList,

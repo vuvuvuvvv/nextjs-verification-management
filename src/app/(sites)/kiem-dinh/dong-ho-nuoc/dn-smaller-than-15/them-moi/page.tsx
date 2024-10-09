@@ -2,7 +2,7 @@
 
 import dynamic from "next/dynamic";
 
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import uiDNSm from "@/styles/scss/ui/dn-smt-15.module.scss";
 import Loading from "@/components/loading";
 
@@ -27,13 +27,21 @@ export default function NewProcessDNSmallerThan15({ className }: NewProcessDNSma
             if (value === "") {
                 setTypingSerial(false);
             }
-            setter(Number(value));
+            if (Number(value) > 100) {
+                setAmount(100);
+                setError("Tối đa 100.");
+                setTimeout(() => {
+                    setError(null);
+                }, 3000);
+            } else {
+                setter(Number(value));
+            }
             setError(null);
         }
     };
 
     useEffect(() => {
-        if(isTypingSerial && amount !== null) {
+        if (isTypingSerial && amount !== null) {
             setSerialNumbers(Array.from({ length: amount }, () => ""))
         }
     }, [amount]);
@@ -100,7 +108,7 @@ export default function NewProcessDNSmallerThan15({ className }: NewProcessDNSma
 
     if (isModalOpen) {
         return (
-            <>
+            <Suspense fallback={<Loading />}>
                 <div className={`${uiDNSm['wraper-modal']}`}>
                     <div className={`${uiDNSm['modal']}`}>
                         <h5 className="modal-title mb-2">Nhập số lượng đồng hồ:</h5>
@@ -145,7 +153,7 @@ export default function NewProcessDNSmallerThan15({ className }: NewProcessDNSma
                         </div>
                     </div>
                 </div>
-            </>
+            </Suspense>
         );
     }
 

@@ -3,7 +3,6 @@
 import { useKiemDinh } from "@/context/kiem-dinh";
 import { faAdd, faTimes, faUndo } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { TITLE_LUU_LUONG } from "@lib/system-constant";
 import { getHieuSaiSo, getVToiThieu, isDongHoDatTieuChuan } from "@lib/system-function";
 import { DuLieuCacLanChay, DuLieuMotLanChay, TinhSaiSoValueTabs } from "@lib/types";
 import c_ect from "@styles/scss/components/tinh-sai-so-tab.module.scss";
@@ -36,8 +35,7 @@ interface FormProps {
 }
 
 export default function TinhSaiSoTab({ className, tabIndex, d, q, form, onFormHSSChange }: TinhSaiSoTabProps) {
-
-    const {getDuLieuChayCuaLuuLuong, themLanChayCuaLuuLuong, updateLuuLuong, xoaLanChayCuaLuuLuong, resetLanChay } = useKiemDinh();
+    const { duLieuKiemDinhCacLuuLuong, getDuLieuChayCuaLuuLuong, themLanChayCuaLuuLuong, updateLuuLuong, xoaLanChayCuaLuuLuong, resetLanChay } = useKiemDinh();
 
     if (!tabIndex || tabIndex <= 0) {
         return <></>;
@@ -67,11 +65,14 @@ export default function TinhSaiSoTab({ className, tabIndex, d, q, form, onFormHS
     // TODO: Cập nhật form value:
     // Hook: Cập nhật lại số lượng form + tab sau khi update số lần
     const [formValues, setFormValues] = useState<DuLieuCacLanChay>(getDuLieuChayCuaLuuLuong(q));
+    const prevFormValuesRef = useRef<DuLieuCacLanChay>(formValues);
 
     // TODO: Check update q
-    // useEffect(() => {
-    //     updateLuuLuong(q, formValues);
-    // }, [q]);
+    useEffect(() => {
+        if(prevFormValuesRef.current != getDuLieuChayCuaLuuLuong(q)) {
+            setFormValues(getDuLieuChayCuaLuuLuong(q));
+        }
+    }, [duLieuKiemDinhCacLuuLuong]);
 
     useEffect(() => {
         setSelectedTabForm({
@@ -241,4 +242,8 @@ export default function TinhSaiSoTab({ className, tabIndex, d, q, form, onFormHS
             {renderTabTinhSaiSo()}
         </div>
     );
+}
+
+function useListDongHo(): { dongHoSelected: any; } {
+    throw new Error("Function not implemented.");
 }
