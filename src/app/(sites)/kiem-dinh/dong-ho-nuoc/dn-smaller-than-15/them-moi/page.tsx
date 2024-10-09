@@ -120,6 +120,7 @@ export default function NewProcessDNSmallerThan15({ className }: NewProcessDNSma
                             value={amount || ""}
                             onChange={handleNumberChange(setAmount)}
                             onKeyPress={handleKeyPress}
+                            autoComplete="off"
                             pattern="\d*"
                         />
                         {error && <div className="text-danger mb-2">{error}</div>}

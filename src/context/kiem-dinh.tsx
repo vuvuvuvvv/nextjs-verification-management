@@ -76,7 +76,6 @@ export const KiemDinhProvider = ({ children }: { children: ReactNode }) => {
     const updateLuuLuong = (q: { title: string; value: string }, duLieuChay: DuLieuCacLanChay) => {
         const value = isNaN(Number(q.value)) ? 0 : Number(q.value);
         const keyOfLuuLuongDHDienTu = [TITLE_LUU_LUONG.q3, TITLE_LUU_LUONG.q2, TITLE_LUU_LUONG.q1];
-        
         if (q.title) {
             let key = q.title;
             const isDHDienTu = keyOfLuuLuongDHDienTu.includes(q.title);

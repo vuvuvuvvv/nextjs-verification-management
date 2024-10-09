@@ -18,6 +18,8 @@ interface CaculatorFormProps {
 }
 
 export default function DNBT30TinhSaiSoForm({ className, formValue, readOnly = false, onFormChange, d }: CaculatorFormProps) {
+    const [V1, setV1] = useState<string>(formValue.V1.toString() || "0");
+    const [V2, setV2] = useState<string>(formValue.V2.toString() || "0");
     const [Vc1, setVc1] = useState<string>(formValue.Vc1 ? formValue.Vc1.toString() : "0");
     const [Vc2, setVc2] = useState<string>(formValue.Vc2 ? formValue.Vc2.toString() : "0");
     const [Tdh, setTdh] = useState<string>("0");
@@ -25,6 +27,8 @@ export default function DNBT30TinhSaiSoForm({ className, formValue, readOnly = f
     const [saiSo, setSaiSo] = useState<string>("0%");
 
     useEffect(() => {
+        setV1(formValue.V1.toString());
+        setV2(formValue.V2.toString());
         setVc1(formValue.Vc1.toString());
         setVc2(formValue.Vc2.toString());
         setTdh(formValue.Tdh.toString());
@@ -38,28 +42,49 @@ export default function DNBT30TinhSaiSoForm({ className, formValue, readOnly = f
 
     const decimalPlaces = d ? getDecimalPlaces(d) : 0;
 
-    const handleNumericInput = (e: React.FormEvent<HTMLInputElement>, field: string) => {
-        const value = e.currentTarget.value.replace(/[^0-9]/g, '');
-        const numericValue = Number(value) / Math.pow(10, decimalPlaces);
-        onFormChange(field, numericValue);
+    const [numericInputTimeout, setNumericInputTimeout] = useState<NodeJS.Timeout | null>(null);
+    const [numberChangeTimeout, setNumberChangeTimeout] = useState<NodeJS.Timeout | null>(null);
+
+    const handleNumericInput = (setter: (value: string) => void, field: string) => {
+        return (e: React.FormEvent<HTMLInputElement>) => {
+            const value = e.currentTarget.value.replace(/[^0-9]/g, '');
+            const numericValue = Number(value) / Math.pow(10, decimalPlaces);
+            setter(numericValue.toString());
+
+            if (numericInputTimeout) {
+                clearTimeout(numericInputTimeout);
+            }
+            const timeout = setTimeout(() => {
+                onFormChange(field, numericValue);
+            }
+                , 700);
+            setNumericInputTimeout(timeout);
+        };
     };
 
-    const handleNumberChange = (setter: (value: string) => void, field: string) => (e: React.ChangeEvent<HTMLInputElement>) => {
-        let value = e.target.value;
-        value = value.replace(/,/g, '.');
-        if (/^\d*\.?\d*$/.test(value)) {
-            if (value.includes('.')) {
-                value = value.replace(/^0+(?=\d)/, '');
-            } else {
-                value = value.replace(/^0+/, '');
-            }
+    const handleNumberChange = (setter: (value: string) => void, field: string) => {
+        return (e: React.ChangeEvent<HTMLInputElement>) => {
+            let value = e.target.value;
+            value = value.replace(/,/g, '.');
+            if (/^\d*\.?\d*$/.test(value)) {
+                if (value.includes('.')) {
+                    value = value.replace(/^0+(?=\d)/, '');
+                } else {
+                    value = value.replace(/^0+/, '');
+                }
 
-            if (value === "") {
-                value = "0";
+                if (value === "") {
+                    value = "0";
+                }
+                setter(value);
+
+                if (numberChangeTimeout) {
+                    clearTimeout(numberChangeTimeout);
+                }
+                const timeout = setTimeout(() => onFormChange(field, parseFloat(value)), 700);
+                setNumberChangeTimeout(timeout);
             }
-            setter(value);
-            onFormChange(field, parseFloat(value));
-        }
+        };
     };
 
     const handleReset = () => {
@@ -69,6 +94,8 @@ export default function DNBT30TinhSaiSoForm({ className, formValue, readOnly = f
         onFormChange("Vc2", 0);
         onFormChange("Tdh", 0);
         onFormChange("Tc", 0);
+        setV1("0");
+        setV2("0");
         setVc1("0");
         setVc2("0");
         setTdh("0");
@@ -91,8 +118,8 @@ export default function DNBT30TinhSaiSoForm({ className, formValue, readOnly = f
                             type="text"
                             className="form-control"
                             id="firstNum"
-                            value={formValue.V1.toFixed(decimalPlaces)}
-                            onChange={(e) => handleNumericInput(e, "V1")}
+                            value={V1}
+                            onChange={handleNumericInput(setV1, "V1")}
                             autoComplete="off"
                         />
                     </div>
@@ -104,8 +131,8 @@ export default function DNBT30TinhSaiSoForm({ className, formValue, readOnly = f
                             type="text"
                             className="form-control"
                             id="lastNum"
-                            value={formValue.V2.toFixed(decimalPlaces)}
-                            onChange={(e) => handleNumericInput(e, "V2")}
+                            value={V2}
+                            onChange={handleNumericInput(setV2, "V2")}
                             autoComplete="off"
                         />
                     </div>
@@ -118,7 +145,7 @@ export default function DNBT30TinhSaiSoForm({ className, formValue, readOnly = f
                             className="form-control"
                             id="tdh"
                             value={Tdh}
-                            onChange={(e) => handleNumberChange(setTdh, "Tdh")}
+                            onChange={handleNumberChange(setTdh, "Tdh")}
                             autoComplete="off"
                         />
                     </div>
@@ -161,12 +188,11 @@ export default function DNBT30TinhSaiSoForm({ className, formValue, readOnly = f
                             className="form-control"
                             id="tc"
                             value={Tc}
-                            onChange={(e) => handleNumberChange(setTc, "Tc")}
+                            onChange={handleNumberChange(setTc, "Tc")}
                             autoComplete="off"
                         />
                     </div>
                 </div>
-
 
                 <div className="mb-3 w-100">
                     <div className={`${ecf["box-input-form"]}`}>

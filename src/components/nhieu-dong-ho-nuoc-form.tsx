@@ -496,34 +496,24 @@ export default function FormDongHoNuocDNNhoHon15({ className }: FormDongHoNuocDN
     // TODO: Mult dongHo
     // TODO: Gán value (Chuyển đồng hồ bị giữ giá trị => Gán giá trị nếu có else tạo mới )
     useEffect(() => {
-        // console.log("select: ", dongHoSelected);
-        console.log("okeeee");
-        console.log("oke DH: ", dongHoSelected);
         if (dongHoSelected) {
-            console.log("okeeee22222222");
             setSeriNumber(dongHoSelected.serial_number || "");
             const duLieuKiemDinhJSON = dongHoSelected.du_lieu_kiem_dinh; // Define the type
 
             if (duLieuKiemDinhJSON) {
-                console.log("okeeee");
                 const duLieuKiemDinh = JSON.parse(duLieuKiemDinhJSON);
-                console.log("duLieuKiemDinh2: ", duLieuKiemDinh);
 
-                if (duLieuKiemDinh?.du_lieu) { // Optional chaining
+                if (duLieuKiemDinh?.du_lieu) {
                     const dlKiemDinh = duLieuKiemDinh.du_lieu;
-                    // console.log("dlkd: ", dlKiemDinh);
                     setDuLieuKiemDinhCacLuuLuong(dlKiemDinh);
                 } else {
-                    console.log("khong co dlkd dlkd");
                     setDuLieuKiemDinhCacLuuLuong(initialDuLieuKiemDinhCacLuuLuong);
                 }
 
-                if (duLieuKiemDinh?.hieu_sai_so) { // Optional chaining
+                if (duLieuKiemDinh?.hieu_sai_so) {
                     const dlHSS = duLieuKiemDinh.hieu_sai_so;
-                    console.log("hss: ", dlHSS);
                     setFormHieuSaiSo(dlHSS);
                 } else {
-                    console.log("khong co hss");
                     setFormHieuSaiSo(initialFormHieuSaiSo);
                 }
 
@@ -531,7 +521,6 @@ export default function FormDongHoNuocDNNhoHon15({ className }: FormDongHoNuocDN
                     setSeriNumber(duLieuKiemDinh.serial_number);
                 }
             } else {
-                console.log("khong co dlkd");
                 setFormHieuSaiSo(initialFormHieuSaiSo);
                 setDuLieuKiemDinhCacLuuLuong(initialDuLieuKiemDinhCacLuuLuong);
             }

@@ -51,15 +51,15 @@ export const DongHoListProvider = ({ children, serialNumbers = [] }: { children:
         }));
     });
 
-    useEffect(() => {
-        console.log("DHL: ", dongHoList);
-    }, [dongHoList]);
+    // useEffect(() => {
+    //     console.log("DHL: ", dongHoList);
+    // }, [dongHoList]);
 
     const [dongHoSelected, setDongHoSelected] = useState<DongHo | null>(dongHoList[0] || null);
 
-    useEffect(() => {
-        console.log("DH: ", dongHoSelected);
-    }, [dongHoSelected]);
+    // useEffect(() => {
+    //     console.log("DH: ", dongHoSelected);
+    // }, [dongHoSelected]);
 
     // Initial with amount. Ex create 5 sample DonHo for dongHoList
 
