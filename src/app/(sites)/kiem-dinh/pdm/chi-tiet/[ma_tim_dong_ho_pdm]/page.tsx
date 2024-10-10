@@ -134,7 +134,7 @@ export default function Page({ params }: { params: { ma_tim_dong_ho_pdm: string 
                 setLoading(true);
                 try {
                     const res = await deletePDM(params.ma_tim_dong_ho_pdm);
-                    if (res.status === 200) {
+                    if (res.status === 200 || res.status === 201) {
                         Swal.fire({
                             text: "Xóa thành công!",
                             icon: "success",

@@ -53,7 +53,7 @@ export default function ForgotPassword() {
         setLoading(true);
         try {
             const response = await requestPasswordResetToken(email);
-            if (response?.status == 200) {
+            if (response?.status == 200 || response?.status == 201) {
                 setSuccess(true);
                 Swal.fire({
                     title: "Thành công",

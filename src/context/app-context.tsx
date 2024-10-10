@@ -56,7 +56,7 @@ export const AppProvider : React.FC<{ children: React.ReactNode }> = ({ children
 
     const logoutUser = async () => {
         const res = await logout();
-        if (res?.status == 200) {
+        if (res?.status == 200 || res?.status == 201) {
             window.location.href = '/login';
         } else if (res?.status == 401) {
             Swal.fire({

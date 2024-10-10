@@ -67,7 +67,7 @@ export default function LoginForm({ className }: FormProps) {
 
         try {
             const response = await login(credentials);
-            if (response.status == 200) {
+            if (response.status == 200 || response.status == 201) {
                 Swal.fire({
                     // title: "Auto close alert!",
                     icon: "success",

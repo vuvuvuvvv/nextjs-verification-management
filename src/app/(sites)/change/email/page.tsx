@@ -60,7 +60,7 @@ export default function ChangeEmail({ className }: FormProps) {
                 password: password
             }
             const response = await resetEmail(credentials)
-            if (response?.status == 200) {
+            if (response?.status == 200 || response?.status == 201) {
                 updateUser(response.user);
                 Swal.fire({
                     title: "Thành công",

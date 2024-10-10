@@ -136,7 +136,7 @@ export default function WaterMeterManagement({ className }: WaterMeterManagement
         const debounce = setTimeout(async () => {
             try {
                 const res = await getDongHoByFilter(filterForm);
-                if (res.status === 200) {
+                if (res.status === 200 || res.status === 201) {
                     setRootData(res.data);
                 } else {
                     console.error(res.msg);
@@ -176,7 +176,7 @@ export default function WaterMeterManagement({ className }: WaterMeterManagement
                     setFilterLoading(true);
                     try {
                         const res = await deleteDongHo(serial_number);
-                        if (res.status === 200) {
+                        if (res.status === 200 || res.status === 201) {
                             setRootData(prevData => prevData ? prevData.filter(item => item.serial_number !== serial_number) : []);
                             Swal.fire({
                                 text: "Xóa thành công!",

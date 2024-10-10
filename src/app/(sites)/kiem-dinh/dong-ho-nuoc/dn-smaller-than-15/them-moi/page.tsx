@@ -1,13 +1,14 @@
 "use client"
 
 import dynamic from "next/dynamic";
-
 import { Suspense, useEffect, useState } from "react";
 import uiDNSm from "@/styles/scss/ui/dn-smt-15.module.scss";
 import Loading from "@/components/loading";
+import { getDongHoBySerinumber } from "@/app/api/dongho/route";
 
 const DongHoListProvider = dynamic(() => import("@/context/list-dong-ho").then(mod => mod.DongHoListProvider), { ssr: false, loading: () => <Loading /> });
 const FormDongHoNuocDNNhoHon15 = dynamic(() => import("@/components/nhieu-dong-ho-nuoc-form"), { ssr: false });
+
 interface NewProcessDNSmallerThan15Props {
     className?: string,
 }
@@ -16,9 +17,9 @@ export default function NewProcessDNSmallerThan15({ className }: NewProcessDNSma
     const [amount, setAmount] = useState<number | null>(null);
     const [isModalOpen, setModalOpen] = useState(true);
     const [error, setError] = useState<string | null>(null);
-    const [errorSerial, setErrorSerial] = useState<string | null>(null);
-    const [serialNumbers, setSerialNumbers] = useState<string[]>([]); // State để lưu serial numbers
-    const [timeoutId, setTimeoutId] = useState<NodeJS.Timeout | null>(null); // State để lưu timeout
+    const [errorSerials, setErrorSerials] = useState<string[]>([]); // Array to store errors for each serial
+    const [serialNumbers, setSerialNumbers] = useState<string[]>([]); // State to store serial numbers
+    const [timeoutId, setTimeoutId] = useState<NodeJS.Timeout | null>(null); // State to store timeout
     const [isTypingSerial, setTypingSerial] = useState(false);
 
     const handleNumberChange = (setter: (value: number) => void) => (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -42,7 +43,8 @@ export default function NewProcessDNSmallerThan15({ className }: NewProcessDNSma
 
     useEffect(() => {
         if (isTypingSerial && amount !== null) {
-            setSerialNumbers(Array.from({ length: amount }, () => ""))
+            setSerialNumbers(Array.from({ length: amount }, () => ""));
+            setErrorSerials(Array.from({ length: amount }, () => "")); // Initialize error array
         }
     }, [amount]);
 
@@ -60,9 +62,10 @@ export default function NewProcessDNSmallerThan15({ className }: NewProcessDNSma
 
     const handleRenderSerialInput = () => {
         if (amount !== null && amount > 0 && amount <= 100) {
-            setSerialNumbers(Array.from({ length: amount }, () => "")); // Khởi tạo mảng serial numbers
+            setSerialNumbers(Array.from({ length: amount }, () => ""));
+            setErrorSerials(Array.from({ length: amount }, () => "")); // Initialize error array
         } else if (amount !== null && amount > 100) {
-            setAmount(100); // Khởi tạo mảng serial numbers
+            setAmount(100);
             setError("Tối đa 100.");
             setTimeout(() => {
                 setError(null);
@@ -76,9 +79,9 @@ export default function NewProcessDNSmallerThan15({ className }: NewProcessDNSma
     const handleConfirm = () => {
         if (isTypingSerial) {
             if (serialNumbers.every(serial => serial.trim() !== "")) {
-                setModalOpen(false); // Đóng modal nếu tất cả serial không rỗng
+                setModalOpen(false);
             } else {
-                setErrorSerial("Vui lòng nhập tất cả các số serial!"); // Thông báo lỗi nếu có trường rỗng
+                setError("Vui lòng nhập tất cả các số serial!");
             }
         } else {
             handleRenderSerialInput();
@@ -89,21 +92,32 @@ export default function NewProcessDNSmallerThan15({ className }: NewProcessDNSma
         const newSerialNumbers = [...serialNumbers];
         newSerialNumbers[index] = e.target.value;
         setSerialNumbers(newSerialNumbers);
-        debounceCheckSerial(newSerialNumbers[index]); // Gọi hàm kiểm tra serial
+        debounceCheckSerial(newSerialNumbers[index], index);
     };
 
-
-    // TODO: Check if serial exists
-    const debounceCheckSerial = (serial: string) => {
+    const debounceCheckSerial = (serial: string, index: number) => {
         if (timeoutId) {
-            clearTimeout(timeoutId); // Xóa timeout cũ nếu có
+            clearTimeout(timeoutId);
         }
-        const id = setTimeout(() => {
-            // TODO: Call API để kiểm tra serial number
-            console.log(`Checking if serial ${serial} exists...`);
-            // Thực hiện API call ở đây
-        }, 500); // Thay đổi thời gian debounce nếu cần
-        setTimeoutId(id); // Lưu timeout ID
+        const id = setTimeout(async () => {
+            try {
+                const result = await getDongHoBySerinumber(serial);
+                const newErrorSerials = [...errorSerials];
+                if (result?.status === 200 || result?.status === 201) {
+                    newErrorSerials[index] = `Serial ${serial} đã tồn tại!`;
+                } else if (result?.status === 404) {
+                    newErrorSerials[index] = ""; // No error, serial number does not exist
+                } else {
+                    newErrorSerials[index] = 'Có lỗi xảy ra trong quá trình xác minh số Serial';
+                }
+                setErrorSerials(newErrorSerials);
+            } catch (error) {
+                const newErrorSerials = [...errorSerials];
+                newErrorSerials[index] = 'Có lỗi xảy ra trong quá trình xác minh số Serial';
+                setErrorSerials(newErrorSerials);
+            }
+        }, 1000); // Adjust debounce time if needed
+        setTimeoutId(id); // Save timeout ID
     };
 
     if (isModalOpen) {
@@ -133,20 +147,20 @@ export default function NewProcessDNSmallerThan15({ className }: NewProcessDNSma
                                             <label className="form-label">Đồng hồ {index + 1}:</label>
                                             <input
                                                 type="text"
-                                                className="form-control"
+                                                className={`form-control ${errorSerials[index] ? "is-invalid" : ""}`}
                                                 style={{ boxShadow: "none" }}
                                                 placeholder={`Serial đồng hồ ${index + 1}`}
                                                 onKeyPress={handleKeyPressConfirm}
                                                 value={serial}
                                                 onChange={handleSerialChange(index)}
                                             />
-                                            {/* Hiển thị lỗi dưới input */}
+                                            {/* Display error below each input */}
+                                            {errorSerials[index] && <div className="text-danger">{errorSerials[index]}</div>}
                                         </div>
                                     ))}
                                 </div>
                             </>
                         }
-                        {errorSerial && <div className="text-danger">{errorSerial}</div>}
                         <div className="modal-footer">
                             <button aria-label="Xác nhận" type="button" className="btn btn-primary" onClick={() => handleConfirm()}>
                                 Xác nhận

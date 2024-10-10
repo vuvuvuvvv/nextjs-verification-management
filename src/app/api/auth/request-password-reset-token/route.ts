@@ -11,7 +11,7 @@ export const requestPasswordResetToken = async (email: string) => {
 
         // console.log(response);
 
-        if (response.status === 200) {
+        if (response.status === 200 || response.status === 201) {
             return {
                 "status": 200,
                 "msg": 'Gửi mail thành công! Hãy kiểm tra hòm thư của bạn!'

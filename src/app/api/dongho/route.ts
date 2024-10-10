@@ -86,24 +86,33 @@ export const getDongHoBySerinumber = async (serial_number: string) => {
         
         const response = await api.get(url.toString(), { withCredentials: true });
 
-        return {
-            "status": response.status,
-            "data": response.data,
-            "msg": response.data.msg || "Done!"
-        };
-
-    } catch (error: any) {
-        if (error.response?.data?.msg) {
+        if (response.status === 200 || response.status === 201) {
             return {
-                "status": error.response.status,
-                "msg": error.response.data.msg || 'Error fetching DongHo data!'
-            };
-        } else {
-            return {
-                "status": error.response?.status || 500,
-                "msg": 'An error occurred. Please try again!'
+                "status": response.status,
+                "data": response.data,
+                "msg": response.data.msg || "Done!"
             };
         }
+
+    } catch (error: any) {
+        if (error.response) {
+            if (error.response.status === 404) {
+                return {
+                    "status": 404,
+                    "msg": 'Serial number not found!'
+                };
+            }
+            if (error.response.data?.msg) {
+                return {
+                    "status": error.response.status,
+                    "msg": error.response.data.msg || 'Error fetching DongHo data!'
+                };
+            }
+        }
+        return {
+            "status": error.response?.status || 500,
+            "msg": 'An error occurred. Please try again!'
+        };
     }
 };
 

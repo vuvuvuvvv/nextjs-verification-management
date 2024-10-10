@@ -128,7 +128,7 @@ export default function PDMManagement({ data, className }: PDMManagementProps) {
         const debounce = setTimeout(async () => {
             try {
                 const res = await getPDMByFilter(filterForm);
-                if (res.status === 200) {
+                if (res.status === 200 || res.status === 201) {
                     setRootData(res.data);
                 } else {
                     console.error(res.msg);
@@ -168,7 +168,7 @@ export default function PDMManagement({ data, className }: PDMManagementProps) {
                 setLoading(true);
                 try {
                     const res = await deletePDM(ma_tim_dong_ho_pdm);
-                    if (res.status === 200) {
+                    if (res.status === 200 || res.status === 201) {
                         setRootData(prevData => prevData.filter(item => item.ma_tim_dong_ho_pdm !== ma_tim_dong_ho_pdm));
                         Swal.fire({
                             text: "Xóa thành công!",

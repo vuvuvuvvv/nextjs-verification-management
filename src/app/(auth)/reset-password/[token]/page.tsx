@@ -72,7 +72,7 @@ export default function ResetPassword({ params }: { params: { token: string } })
                     Authorization: `Bearer ${params.token}` // Include the token in the Authorization header
                 }
             });
-            if (response?.status == 200) {
+            if (response?.status == 200 || response?.status == 201) {
                 Swal.fire({
                     title: "Thành công",
                     text: "Đặt lại mật khẩu thành công. Vui lòng đăng nhập lại.",

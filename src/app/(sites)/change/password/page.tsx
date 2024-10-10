@@ -70,7 +70,7 @@ export default function ChangePassword({ className }: FormProps) {
                 new_password: newPassword
             }
             const response = await resetPassword(credentials)
-            if (response?.status == 200) {
+            if (response?.status == 200 || response?.status == 201) {
                 Swal.fire({
                     title: "Thành công",
                     text: response?.msg + " Hãy đăng nhập lại!",

@@ -13,7 +13,7 @@ export const logout = async () => {
             Cookies.remove(cookie); // Remove each cookie
         }
 
-        if (response.status === 200) {
+        if (response.status === 200 || response.status === 201) {
             return {
                 "status": 200,
                 "msg": 'Đăng xuất thành công!'
