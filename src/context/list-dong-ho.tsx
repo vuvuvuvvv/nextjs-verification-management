@@ -19,7 +19,6 @@ const DongHoListContext = createContext<DongHoListContextType | undefined>(undef
 export const DongHoListProvider = ({ children, serialNumbers = [] }: { children: ReactNode, serialNumbers: string[] }) => {
 
     const [dongHoList, setDongHoList] = useState<DongHo[]>(() => {
-        console.log("serialNumbers: ", serialNumbers);
         // Khởi tạo danh sách với số lượng dongHo
         return serialNumbers.map((val, i) => ({
             serial_number: val.trim(),
