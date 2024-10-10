@@ -83,6 +83,7 @@ export default function TinhSaiSoTab({ className, tabIndex, d, q, form, onFormHS
             [(selectedTabForm[activeTab] ? activeTab : parseInt(Object.keys(selectedTabForm)[0]))]: true
         });
         onFormHSSChange(getHieuSaiSo(formValues as TinhSaiSoValueTabs));
+        console.log("HSS: ", getHieuSaiSo(formValues as TinhSaiSoValueTabs), formValues);
         updateLuuLuong(q, formValues);
     }, [formValues]);
 

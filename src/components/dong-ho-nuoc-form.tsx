@@ -720,7 +720,7 @@ export default function FormDongHoNuocDNLonHon15({ className }: FormDongHoNuocDN
                                         onChange={(e) => setSoQDPDM(e.target.value)}
                                     />
                                 </div>
-                                <div className={`mb-3 col-12 col-md-6 col-xxl-4 d-flex align-items-end py-1`}>
+                                <div className={`mb-3 col-12 col-md-6 col-xxl-4 d-flex align-items-end`}>
                                     <Link
                                         href={"/kiem-dinh/pdm//them-moi"}
                                         className="btn btn-success px-3 py-2 text-white"

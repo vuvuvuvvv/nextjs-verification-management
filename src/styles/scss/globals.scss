@@ -20,6 +20,8 @@ body {
     min-height: 100dvh;
     background-color: $body_bg_color !important;
     position: relative;
+    padding-right: 0 !important;
+    width: 100%;
 }
 
 footer {
@@ -41,7 +43,7 @@ a,
 button {
     outline: none !important;
     box-shadow: none !important;
-    border: none !important;
+    border: none;
     text-decoration: none;
     user-select: none;
 
@@ -97,6 +99,10 @@ textarea {
     color: $blue !important;
 }
 
+.text-success {
+    color: $green !important;
+}
+
 .text-dark-blue {
     color: $dark_blue !important;
 }
@@ -117,11 +123,13 @@ textarea {
 
 .btn-success {
     background-color: $green !important;
-    border: none !important;
+    border-color: $green !important;
     transition: all 0.3s ease;
 
     &:hover {
+        border-color: $dark_green !important;
         background-color: $dark_green !important;
+        color: #fff !important;
     }
 }
 

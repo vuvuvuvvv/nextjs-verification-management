@@ -17,11 +17,12 @@
     transition: all 0.3s ease-in-out;
 
 
-    bottom: calc($footer_height + 10px);
+    bottom: calc($footer_height + 4px);
     right: 10px;
 
     &:hover {
-        background-color: $dark_blue;
+        background-color: #fff;
+        color: $blue;
     }
 }
 

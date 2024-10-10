@@ -29,8 +29,8 @@ export default function DNBT30TinhSaiSoForm({ className, formValue, readOnly = f
     useEffect(() => {
         setV1(formValue.V1.toString());
         setV2(formValue.V2.toString());
-        setVc1(Vc1 || formValue.Vc1.toString());
-        setVc2(Vc2 || formValue.Vc2.toString());
+        setVc1(formValue.Vc1.toString());
+        setVc2(formValue.Vc2.toString());
         setTdh(formValue.Tdh.toString());
         setTc(formValue.Tc.toString());
     }, [formValue]);

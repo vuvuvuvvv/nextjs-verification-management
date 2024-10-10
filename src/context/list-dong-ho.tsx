@@ -1,3 +1,4 @@
+import { TITLE_LUU_LUONG } from '@lib/system-constant';
 import { DongHo } from '@lib/types';
 import React, { createContext, useState, useContext, ReactNode, useEffect } from 'react';
 
@@ -10,12 +11,15 @@ interface DongHoListContextType {
     updateListDongHo: (index: number, updatedDongHo: DongHo) => void;
     updateSerialDongHoInList: (index: number, newSerial: string) => void;
     deleteDongHoInList: (index: number) => void;
+    getDongHoChuaKiemDinh: (dongHoList: DongHo[]) => DongHo[];
 }
 
 const DongHoListContext = createContext<DongHoListContextType | undefined>(undefined);
 
 export const DongHoListProvider = ({ children, serialNumbers = [] }: { children: ReactNode, serialNumbers: string[] }) => {
+
     const [dongHoList, setDongHoList] = useState<DongHo[]>(() => {
+        console.log("serialNumbers: ", serialNumbers);
         // Khởi tạo danh sách với số lượng dongHo
         return serialNumbers.map((val, i) => ({
             serial_number: val.trim(),
@@ -45,15 +49,30 @@ export const DongHoListProvider = ({ children, serialNumbers = [] }: { children:
             vi_tri: "",
             nhiet_do: "",
             do_am: "",
-            du_lieu_kiem_dinh: "", // Added new field
-            hieu_luc_bien_ban: new Date(),
+            du_lieu_kiem_dinh: JSON.stringify({
+                hieu_sai_so: [
+                    { hss: null },
+                    { hss: null },
+                    { hss: null }
+                ],
+                du_lieu: {
+                    [TITLE_LUU_LUONG.q3]: null,
+                    [TITLE_LUU_LUONG.q2]: null,
+                    [TITLE_LUU_LUONG.q1]: null,
+                    [TITLE_LUU_LUONG.qn]: null,
+                    [TITLE_LUU_LUONG.qt]: null,
+                    [TITLE_LUU_LUONG.qmin]: null,
+                },
+                ket_qua: null
+            }),
+            hieu_luc_bien_ban: null,
             so_giay_chung_nhan: "",
         }));
     });
 
-    // useEffect(() => {
-    //     console.log("DHL: ", dongHoList);
-    // }, [dongHoList]);
+    useEffect(() => {
+        console.log("DHL: ", dongHoList);
+    }, [dongHoList]);
 
     const [dongHoSelected, setDongHoSelected] = useState<DongHo | null>(dongHoList[0] || null);
 
@@ -85,6 +104,17 @@ export const DongHoListProvider = ({ children, serialNumbers = [] }: { children:
         setDongHoList(prevList => prevList.filter((_, i) => i !== index));
     };
 
+    const getDongHoChuaKiemDinh = (dongHoList: DongHo[]) => {
+        return dongHoList.filter(dongHo => {
+            try {
+                const duLieuKiemDinh = JSON.parse(dongHo?.du_lieu_kiem_dinh || "{}");
+                return duLieuKiemDinh.ket_qua === null;
+            } catch {
+                return true; // Consider as incomplete if parsing fails
+            }
+        });
+    }
+
     return (
         <DongHoListContext.Provider value={{
             dongHoList,
@@ -94,7 +124,8 @@ export const DongHoListProvider = ({ children, serialNumbers = [] }: { children:
             addToListDongHo,
             updateSerialDongHoInList,
             updateListDongHo,
-            deleteDongHoInList
+            deleteDongHoInList,
+            getDongHoChuaKiemDinh
         }}>
             {children}
         </DongHoListContext.Provider>

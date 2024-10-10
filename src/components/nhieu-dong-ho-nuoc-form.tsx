@@ -11,6 +11,7 @@ const DatePicker = dynamic(() => import('@mui/x-date-pickers/DatePicker').then(m
 const NavTab = dynamic(() => import('@/components/nav-tab'), { ssr: false });
 const TinhSaiSoTab = dynamic(() => import('@/components/tinh-sai-so-tab'), { ssr: false });
 const TinhSaiSoForm = dynamic(() => import('@/components/tinh-sai-so-form'), { ssr: false });
+const ModalSelectDongHoToSave = dynamic(() => import('@/components/ui/ModalSelectDongHoToSave'), { ssr: false });
 
 import { useKiemDinh } from "@/context/kiem-dinh";
 import { useDongHo } from "@/context/dong-ho";
@@ -23,11 +24,11 @@ import { useRouter } from "next/navigation";
 import dayjs, { Dayjs } from "dayjs";
 import { useEffect, useRef, useState } from "react";
 
-import { getLastDayOfMonthInFuture, getQ2OrQtAndQ1OrQMin, isDongHoDatTieuChuan } from "@lib/system-function";
+import { convertToUppercaseNonAccent, getLastDayOfMonthInFuture, getQ2OrQtAndQ1OrQMin, isDongHoDatTieuChuan } from "@lib/system-function";
 import { ccxOptions, phuongTienDoOptions, TITLE_LUU_LUONG, typeOptions } from "@lib/system-constant";
 
 import { createDongHo } from "@/app/api/dongho/route";
-import { faArrowLeft, faArrowRight, faFileAlt } from "@fortawesome/free-solid-svg-icons";
+import { faArrowLeft, faArrowRight, faCheckSquare, faFileAlt, faSave } from "@fortawesome/free-solid-svg-icons";
 import { DongHo, DuLieuChayDongHo } from "@lib/types";
 import { useDongHoList } from "@/context/list-dong-ho";
 
@@ -106,7 +107,9 @@ export default function FormDongHoNuocDNNhoHon15({ className }: FormDongHoNuocDN
     } = useKiemDinh();
     const { dongHo, setDongHo } = useDongHo();
 
-    const { dongHoList, updateListDongHo, updateSerialDongHoInList, dongHoSelected, setDongHoSelected } = useDongHoList();
+    const { dongHoList, updateListDongHo, updateSerialDongHoInList, dongHoSelected, setDongHoSelected, getDongHoChuaKiemDinh } = useDongHoList();
+
+    const [showModalSelectDongHoToSave, setShowModalSelectDongHoToSave] = useState(false);
 
     const [canSave, setCanSave] = useState(false);
     const [error, setError] = useState("");
@@ -323,6 +326,7 @@ export default function FormDongHoNuocDNNhoHon15({ className }: FormDongHoNuocDN
     const handleFormHSSChange = (index: number, value: number | null) => {
         const newFormValues = [...formHieuSaiSo];
         newFormValues[index].hss = value;
+        console.log("newFormVHSS: ", newFormValues);
         setFormHieuSaiSo(newFormValues);
     };
 
@@ -332,6 +336,7 @@ export default function FormDongHoNuocDNNhoHon15({ className }: FormDongHoNuocDN
             // TODO: Tạo button check?
             setKetQua(isDongHoDatTieuChuan(isDHDienTu, formHieuSaiSo));
         }
+        console.log("1111111111111: ", formHieuSaiSo);
     }, [formHieuSaiSo])
 
     // Check Đồng hồ điện tử
@@ -497,11 +502,19 @@ export default function FormDongHoNuocDNNhoHon15({ className }: FormDongHoNuocDN
     useEffect(() => {
         if (dongHoSelected) {
             setCanSave(false);
+            setDebouncedSerial(dongHoSelected.serial_number || "");
             setSeriNumber(dongHoSelected.serial_number || "");
             const duLieuKiemDinhJSON = dongHoSelected.du_lieu_kiem_dinh; // Define the type
 
             if (duLieuKiemDinhJSON) {
                 const duLieuKiemDinh = JSON.parse(duLieuKiemDinhJSON);
+
+                if (duLieuKiemDinh?.serial_number) {
+                    const dlKiemDinh = duLieuKiemDinh.du_lieu;
+                    setDuLieuKiemDinhCacLuuLuong(dlKiemDinh);
+                } else {
+                    setDuLieuKiemDinhCacLuuLuong(initialDuLieuKiemDinhCacLuuLuong);
+                }
 
                 if (duLieuKiemDinh?.du_lieu) {
                     const dlKiemDinh = duLieuKiemDinh.du_lieu;
@@ -512,7 +525,7 @@ export default function FormDongHoNuocDNNhoHon15({ className }: FormDongHoNuocDN
 
                 if (duLieuKiemDinh?.hieu_sai_so) {
                     const dlHSS = duLieuKiemDinh.hieu_sai_so;
-                    console.log("dlHSS: ", dlHSS);
+                    // console.log("dlHSS: ", dlHSS);
                     setFormHieuSaiSo(dlHSS);
                 } else {
                     setFormHieuSaiSo(initialFormHieuSaiSo);
@@ -592,9 +605,29 @@ export default function FormDongHoNuocDNNhoHon15({ className }: FormDongHoNuocDN
         }
     };
 
+    const handleSaveDongHoWithOptions = () => {
+        // console.log("dongHoList: ", dongHoList);
+        handleShowModal();
+    }
+
+    const handleSaveAllDongHo = () => {
+        // console.log("dongHoList: ", dongHoList);
+    }
+
+    const handleShowModal = () => {
+        handleSaveCurrentDongHo();
+        setShowModalSelectDongHoToSave(true)
+    };
+    const handleCloseModal = () => setShowModalSelectDongHoToSave(false);
+
 
     return (
         <LocalizationProvider dateAdapter={AdapterDayjs} localeText={viVN.components.MuiLocalizationProvider.defaultProps.localeText}>
+            <ModalSelectDongHoToSave
+                dongHoList={dongHoList}
+                show={showModalSelectDongHoToSave}
+                handleClose={handleCloseModal}
+            />
             <div className={`${className ? className : ""} ${vrfWm['wraper']} container-fluid p-0 px-2 py-3 w-100`}>
                 <div className={`row m-0 mb-3 p-3 w-100 bg-white shadow-sm rounded`}>
                     <div className="w-100 m-0 p-0 mb-3 position-relative">
@@ -832,7 +865,7 @@ export default function FormDongHoNuocDNNhoHon15({ className }: FormDongHoNuocDN
                                         onChange={(e) => setSoQDPDM(e.target.value)}
                                     />
                                 </div>
-                                <div className={`mb-3 col-12 col-md-6 col-xxl-4 d-flex align-items-end py-1`}>
+                                <div className={`mb-3 col-12 col-md-6 col-xxl-4 d-flex align-items-end`}>
                                     <Link
                                         href={"/kiem-dinh/pdm//them-moi"}
                                         className="btn btn-success px-3 py-2 text-white"
@@ -1024,7 +1057,7 @@ export default function FormDongHoNuocDNNhoHon15({ className }: FormDongHoNuocDN
                         <button aria-label="Đồng hồ tiếp theo" className="btn bg-white m-0 p-0 px-2 d-flex align-items-center justify-content-center" style={{ height: "42px", width: "42px" }} onClick={handleNextDongHo}>
                             <FontAwesomeIcon icon={faArrowRight} className="fa-2x text-blue"></FontAwesomeIcon>
                         </button>
-                    </div> 
+                    </div>
 
                     <div className={`w-100 p-2`}>
                         {dongHoSelected ? (
@@ -1212,6 +1245,14 @@ export default function FormDongHoNuocDNNhoHon15({ className }: FormDongHoNuocDN
                                 handleNextDongHo()
                             }}>
                             <FontAwesomeIcon icon={faArrowRight} className="fa-2x text-blue"></FontAwesomeIcon>
+                        </button>
+                    </div>
+                    <div className={`w-100 px-2 py-3 p-md-3 d-flex gap-2 align-items-center justify-content-end mb-4 `}>
+                        <button aria-label="Lưu tùy chọn" className="btn py-2 px-4 border border-2" style={{ color: "#489444", border: "2px solid #489444 !important" }} onClick={handleSaveDongHoWithOptions}>
+                            <FontAwesomeIcon icon={faCheckSquare} className="me-2"></FontAwesomeIcon> Lưu tùy chọn
+                        </button>
+                        <button aria-label="Lưu toàn bộ" className="btn btn-success py-2 px-4" onClick={handleSaveAllDongHo}>
+                            <FontAwesomeIcon icon={faSave} className="me-2"></FontAwesomeIcon> Lưu toàn bộ
                         </button>
                     </div>
                 </div>
