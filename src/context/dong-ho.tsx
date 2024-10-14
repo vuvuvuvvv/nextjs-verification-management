@@ -11,29 +11,31 @@ const DongHoContext = createContext<DongHoContextType | undefined>(undefined);
 export const DongHoProvider = ({ children }: { children: ReactNode }) => {
 
     // TODO: Check chưa save!
-    useEffect(() => {
-        const handleBeforeUnload = (event: BeforeUnloadEvent) => {
-            event.preventDefault();
-            event.returnValue = '';
-        };
+    // useEffect(() => {
+    //     const handleBeforeUnload = (event: BeforeUnloadEvent) => {
+    //         event.preventDefault();
+    //         event.returnValue = '';
+    //     };
 
-        // const handleVisibilityChange = () => {
-        //     if (document.visibilityState === 'hidden') {                                                         
-        //         console.log('Tab is hidden or user switched tabs.');
-        //     }
-        // };
+    //     // const handleVisibilityChange = () => {
+    //     //     if (document.visibilityState === 'hidden') {                                                         
+    //     //         console.log('Tab is hidden or user switched tabs.');
+    //     //     }
+    //     // };
 
-        window.addEventListener('beforeunload', handleBeforeUnload);
-        // document.addEventListener('visibilitychange', handleVisibilityChange);
+    //     window.addEventListener('beforeunload', handleBeforeUnload);
+    //     // document.addEventListener('visibilitychange', handleVisibilityChange);
 
-        return () => {
-            window.removeEventListener('beforeunload', handleBeforeUnload);
-            // document.removeEventListener('visibilitychange', handleVisibilityChange);
-        };
-    }, []);
+    //     return () => {
+    //         window.removeEventListener('beforeunload', handleBeforeUnload);
+    //         // document.removeEventListener('visibilitychange', handleVisibilityChange);
+    //     };
+    // }, []);
 
     const [dongHo, setDongHo] = useState<DongHo>({
-        serial_number: "",
+        id: "",
+        ten_dong_ho: "",
+        group_id: "",
         phuong_tien_do: "",
         seri_chi_thi: "",
         seri_sensor: "",

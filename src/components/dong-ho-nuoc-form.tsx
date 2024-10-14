@@ -19,12 +19,12 @@ import { faFileAlt } from "@fortawesome/free-solid-svg-icons";
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { viVN } from "@mui/x-date-pickers/locales";
 
-const FontAwesomeIcon = dynamic(() => import('@fortawesome/react-fontawesome').then(mod => mod.FontAwesomeIcon), { ssr: false});
+const FontAwesomeIcon = dynamic(() => import('@fortawesome/react-fontawesome').then(mod => mod.FontAwesomeIcon), { ssr: false });
 const LocalizationProvider = dynamic(() => import('@mui/x-date-pickers/LocalizationProvider').then(mod => mod.LocalizationProvider), { ssr: false });
 const DatePicker = dynamic(() => import('@mui/x-date-pickers/DatePicker').then(mod => mod.DatePicker), { ssr: false });
-const NavTab = dynamic(() => import('@/components/nav-tab'), { ssr: false});
-const TinhSaiSoTab = dynamic(() => import('@/components/tinh-sai-so-tab'), { ssr: false});
-const TinhSaiSoForm = dynamic(() => import('@/components/tinh-sai-so-form'), { ssr: false});
+const NavTab = dynamic(() => import('@/components/nav-tab'), { ssr: false });
+const TinhSaiSoTab = dynamic(() => import('@/components/tinh-sai-so-tab'), { ssr: false });
+const TinhSaiSoForm = dynamic(() => import('@/components/tinh-sai-so-form'), { ssr: false });
 
 
 interface FormDongHoNuocDNLonHon15Props {
@@ -36,7 +36,7 @@ export default function FormDongHoNuocDNLonHon15({ className }: FormDongHoNuocDN
     const { user } = useUser();
     const [isCollapsed, setIsCollapsed] = useState<boolean>(false);
 
-    const [seriNumber, setSeriNumber] = useState<string>("");
+    const [tenDongHo, setTenDongHo] = useState<string>("");
     const [phuongTienDo, setPhuongTienDo] = useState<string>("");
     const [seriChiThi, setSeriChiThi] = useState<string>("");
     const [seriSensor, setSeriSensor] = useState<string>("");
@@ -76,6 +76,9 @@ export default function FormDongHoNuocDNLonHon15({ className }: FormDongHoNuocDN
 
     const [canSave, setCanSave] = useState(false);
     const [error, setError] = useState("");
+
+    const [errorFields, setErrorFields] = useState<string[]>([]);
+
     const router = useRouter();
 
     useEffect(() => {
@@ -108,16 +111,16 @@ export default function FormDongHoNuocDNLonHon15({ className }: FormDongHoNuocDN
 
     // Func: Validate
     const fieldTitles = {
-        seriNumber: "Số Seri",
-        phuongTienDo: "Tên phương tiện đo",
-        kieuThietBi: "Kiểu thiết bị",
-        seriChiThi: "Serial chỉ thị",
-        seriSensor: "Serial sensor",
-        kieuChiThi: "Kiểu chỉ thị",
-        kieuSensor: "Kiểu sensor",
-        soTem: "Số Tem",
-        coSoSanXuat: "Cơ sở sản xuất",
-        namSanXuat: "Năm sản xuất",
+        ten_dong_ho: "Tên đồng hồ",
+        phuong_tien_do: "Tên phương tiện đo",
+        kieu_thiet_bi: "Kiểu thiết bị",
+        seri_chi_thi: "Serial chỉ thị",
+        seri_sensor: "Serial sensor",
+        kieu_chi_thi: "Kiểu chỉ thị",
+        kieu_sensor: "Kiểu sensor",
+        so_tem: "Số Tem",
+        co_so_san_xuat: "Cơ sở sản xuất",
+        nam_san_xuat: "Năm sản xuất",
         dn: "Đường kính danh định (DN)",
         d: "Độ chia nhỏ nhất (d)",
         ccx: "Cấp chính xác",
@@ -126,73 +129,50 @@ export default function FormDongHoNuocDNLonHon15({ className }: FormDongHoNuocDN
         qn: "Qn",
         kFactor: "Hệ số K-factor",
         so_qd_pdm: "Ký hiệu PDM/Số quyết định PDM",
-        tenKhachHang: "Tên khách hàng",
-        coSoSuDung: "Cơ sở sử dụng",
-        phuongPhapThucHien: "Phương pháp thực hiện",
-        viTri: "Địa điểm thực hiện",
-        nhietDo: "Nhiệt độ",
-        doAm: "Độ ẩm",
-        ketQua: "Tiến trình chạy lưu lượng"
+        ten_khach_hang: "Tên khách hàng",
+        co_so_su_dung: "Cơ sở sử dụng",
+        phuong_phap_thuc_hien: "Phương pháp thực hiện",
+        vi_tri: "Địa điểm thực hiện",
+        nhiet_do: "Nhiệt độ",
+        do_am: "Độ ẩm",
+        ket_qua: "Tiến trình chạy lưu lượng"
     };
 
-    // Func: validate
-    const validateFields = () => {
-        const fields = [
-            { value: seriNumber, setter: setSeriNumber, id: "seriNumber" },
-            { value: phuongTienDo, setter: setPhuongTienDo, id: "phuongTienDo" },
-            { value: kieuThietBi, setter: setKieuThietBi, id: "kieuThietBi" },
-            // { value: seriChiThi, setter: setSeriChiThi, id: "seriChiThi" },
-            { value: seriSensor, setter: setSeriSensor, id: "seriSensor" },
-            // { value: kieuChiThi, setter: setKieuChiThi, id: "kieuChiThi" },
-            { value: kieuSensor, setter: setKieuSensor, id: "kieuSensor" },
-            // { value: soTem, setter: setSoTem, id: "soTem" },
-            { value: coSoSanXuat, setter: setCoSoSanXuat, id: "coSoSanXuat" },
-            { value: namSanXuat, setter: setNamSanXuat, id: "namSanXuat" },
-            { value: dn, setter: setDN, id: "dn" },
-            { value: d, setter: setD, id: "d" },
-            { value: ccx, setter: setCCX, id: "ccx" },
-            { value: q3, setter: setQ3, id: "q3" },
-            { value: r, setter: setR, id: "r" },
-            { value: qn, setter: setQN, id: "qn" },
-            // { value: kFactor, setter: setKFactor, id: "kFactor" },
-            { value: so_qd_pdm, setter: setSoQDPDM, id: "so_qd_pdm" },
-            { value: tenKhachHang, setter: setTenKhachhang, id: "tenKhachHang" },
-            { value: coSoSuDung, setter: setCoSoSuDung, id: "coSoSuDung" },
-            { value: phuongPhapThucHien, setter: setPhuongPhapThucHien, id: "phuongPhapThucHien" },
-            { value: viTri, setter: setViTri, id: "viTri" },
-            { value: nhietDo, setter: setNhietDo, id: "nhietDo" },
-            { value: doAm, setter: setDoAm, id: "doAm" },
-        ];
-
-        let firstInvalidField = null;
-        let validationErrors = [];
-
-        for (const field of fields) {
-            const element = document.getElementById(field.id);
-            if (field.value) {
-                if (element) {
-                    // element.classList.remove("is-invalid");
-                }
-            } else {
-                if (element) {
-                    // element.classList.add("is-invalid");
-                    validationErrors.push(field.id);
-                    if (!firstInvalidField) {
-                        firstInvalidField = element;
-                    }
-                }
-            }
-        }
-        return validationErrors;
-    };
+    const fields = [
+        { value: tenDongHo, setter: setTenDongHo, id: "ten_dong_ho" },
+        { value: phuongTienDo, setter: setPhuongTienDo, id: "phuong_tien_do" },
+        { value: kieuThietBi, setter: setKieuThietBi, id: "kieu_thiet_bi" },
+        { value: seriChiThi, setter: setSeriChiThi, id: "seri_chi_thi" },
+        { value: seriSensor, setter: setSeriSensor, id: "seri_sensor" },
+        { value: kieuChiThi, setter: setKieuChiThi, id: "kieu_chi_thi" },
+        { value: kieuSensor, setter: setKieuSensor, id: "kieu_sensor" },
+        { value: soTem, setter: setSoTem, id: "so_tem" },
+        { value: coSoSanXuat, setter: setCoSoSanXuat, id: "co_so_san_xuat" },
+        { value: namSanXuat, setter: setNamSanXuat, id: "nam_san_xuat" },
+        { value: dn, setter: setDN, id: "dn" },
+        { value: d, setter: setD, id: "d" },
+        { value: ccx, setter: setCCX, id: "ccx" },
+        { value: q3, setter: setQ3, id: "q3" },
+        { value: r, setter: setR, id: "r" },
+        { value: qn, setter: setQN, id: "qn" },
+        // { value: kFactor, setter: setKFactor, id: "kFactor" },
+        { value: so_qd_pdm, setter: setSoQDPDM, id: "so_qd_pdm" },
+        { value: tenKhachHang, setter: setTenKhachhang, id: "ten_khach_hang" },
+        { value: coSoSuDung, setter: setCoSoSuDung, id: "co_so_su_dung" },
+        { value: phuongPhapThucHien, setter: setPhuongPhapThucHien, id: "phuong_phap_thuc_hien" },
+        { value: viTri, setter: setViTri, id: "vi_tri" },
+        { value: nhietDo, setter: setNhietDo, id: "nhiet_do" },
+        { value: doAm, setter: setDoAm, id: "do_am" },
+    ];
 
     useEffect(() => {
-        const errors = validateFields();
-        if (errors.length === 0) {
+        if (errorFields.length > 0) {
             const checkQ3 = ((ccx && (ccx == "1" || ccx == "2")) || isDHDienTu);
 
             setDongHo({
-                serial_number: seriNumber,
+                id: null,
+                ten_dong_ho: tenDongHo || "",
+                group_id: null,
                 phuong_tien_do: phuongTienDo,
                 seri_chi_thi: checkQ3 ? seriChiThi : "",
                 seri_sensor: checkQ3 ? seriSensor : "",
@@ -231,9 +211,29 @@ export default function FormDongHoNuocDNLonHon15({ className }: FormDongHoNuocDN
             setSoTem("");
             setKetQua(null);
             setCanSave(false);
+
         }
+    }, [errorFields]);
+
+    const validateFields = () => {
+        let validationErrors = [];
+
+        for (const field of fields) {
+            const shouldValidate = (ccx && (ccx === "1" || ccx === "2")) || isDHDienTu
+                ? field.id !== "qn"
+                : field.id !== "q3" && field.id !== "r" && field.id !== "seri_sensor" && field.id !== "kieu_sensor";
+
+            if (shouldValidate && !field.value) {
+                validationErrors.push(field.id);
+            }
+        }
+        return validationErrors;
+    };
+
+    useEffect(() => {
+        setErrorFields(validateFields());
     }, [
-        seriNumber, phuongTienDo, kieuThietBi, seriChiThi, seriSensor, kieuChiThi, kieuSensor, soTem, coSoSanXuat, namSanXuat, dn, d, ccx, q3, r, qn, kFactor, so_qd_pdm, tenKhachHang, coSoSuDung, phuongPhapThucHien, viTri, nhietDo, doAm
+        tenDongHo, phuongTienDo, kieuThietBi, seriChiThi, seriSensor, kieuChiThi, kieuSensor, soTem, coSoSanXuat, namSanXuat, dn, d, ccx, q3, r, qn, so_qd_pdm, tenKhachHang, coSoSuDung, phuongPhapThucHien, viTri, nhietDo, doAm, isDHDienTu
     ]);
 
     useEffect(() => {
@@ -313,7 +313,7 @@ export default function FormDongHoNuocDNLonHon15({ className }: FormDongHoNuocDN
 
     // TODO: Check lại ccx để nó clear hết data
     useEffect(() => {
-        setDHDienTu(phuongTienDo !== "" && phuongTienDoOptions.find(option => option.label == phuongTienDo)?.value == "1");
+        setDHDienTu(phuongTienDo !== "" && ["1", "2"].includes(phuongTienDoOptions.find(option => option.label == phuongTienDo)?.value ?? ""));
     }, [ccx, phuongTienDo]);
 
     useEffect(() => {
@@ -379,25 +379,23 @@ export default function FormDongHoNuocDNLonHon15({ className }: FormDongHoNuocDN
                 </div>
 
                 <div className="mb-3 col-12 col-md-6 col-xxl-4">
-                    <label htmlFor="seriChiThi" className="form-label">Serial chỉ thị:</label>
-                    <div className="input-group">
-                        <input
-                            type="text"
-                            className="form-control"
-                            id="seriChiThi"
-                            placeholder="Serial chỉ thị"
-                            value={seriChiThi}
-                            onChange={(e) => setSeriChiThi(e.target.value)}
-                        />
-                    </div>
+                    <label htmlFor="kieu_sensor" className="form-label">Kiểu sensor:</label>
+                    <input
+                        type="text"
+                        className="form-control"
+                        id="kieu_sensor"
+                        placeholder="Serial sensor"
+                        value={kieuSensor}
+                        onChange={(e) => setKieuSensor(e.target.value)}
+                    />
                 </div>
                 <div className="mb-3 col-12 col-md-6 col-xxl-4">
-                    <label htmlFor="kieuChiThi" className="form-label">Kiểu chỉ thị:</label>
+                    <label htmlFor="kieu_chi_thi" className="form-label">Kiểu chỉ thị:</label>
                     <div className="input-group">
                         <input
                             type="text"
                             className="form-control"
-                            id="kieuChiThi"
+                            id="kieu_chi_thi"
                             placeholder="Serial chỉ thị"
                             value={kieuChiThi}
                             onChange={(e) => setKieuChiThi(e.target.value)}
@@ -405,26 +403,28 @@ export default function FormDongHoNuocDNLonHon15({ className }: FormDongHoNuocDN
                     </div>
                 </div>
                 <div className="mb-3 col-12 col-md-6 col-xxl-4">
-                    <label htmlFor="seriSensor" className="form-label">Serial sensor:</label>
+                    <label htmlFor="seri_sensor" className="form-label">Serial sensor:</label>
                     <input
                         type="text"
                         className="form-control"
-                        id="seriSensor"
+                        id="seri_sensor"
                         placeholder="Serial sensor"
                         value={seriSensor}
                         onChange={(e) => setSeriSensor(e.target.value)}
                     />
                 </div>
                 <div className="mb-3 col-12 col-md-6 col-xxl-4">
-                    <label htmlFor="kieuSensor" className="form-label">Kiểu sensor:</label>
-                    <input
-                        type="text"
-                        className="form-control"
-                        id="kieuSensor"
-                        placeholder="Serial sensor"
-                        value={kieuSensor}
-                        onChange={(e) => setKieuSensor(e.target.value)}
-                    />
+                    <label htmlFor="seri_chi_thi" className="form-label">Serial chỉ thị:</label>
+                    <div className="input-group">
+                        <input
+                            type="text"
+                            className="form-control"
+                            id="seri_chi_thi"
+                            placeholder="Serial chỉ thị"
+                            value={seriChiThi}
+                            onChange={(e) => setSeriChiThi(e.target.value)}
+                        />
+                    </div>
                 </div>
             </>
         } else {
@@ -447,15 +447,30 @@ export default function FormDongHoNuocDNLonHon15({ className }: FormDongHoNuocDN
                     </div>
                 </div>
                 <div className="mb-3 col-12 col-md-6 col-xxl-4">
-                    <label htmlFor="kieuSensor" className="form-label">Kiểu sensor:</label>
-                    <input
-                        type="text"
-                        className="form-control"
-                        id="kieuSensor"
-                        placeholder="Serial sensor"
-                        value={kieuSensor}
-                        onChange={(e) => setKieuSensor(e.target.value)}
-                    />
+                    <label htmlFor="seri_chi_thi" className="form-label">Serial chỉ thị:</label>
+                    <div className="input-group">
+                        <input
+                            type="text"
+                            className="form-control"
+                            id="seri_chi_thi"
+                            placeholder="Serial chỉ thị"
+                            value={seriChiThi}
+                            onChange={(e) => setSeriChiThi(e.target.value)}
+                        />
+                    </div>
+                </div>
+                <div className="mb-3 col-12 col-md-6 col-xxl-4">
+                    <label htmlFor="kieu_chi_thi" className="form-label">Kiểu chỉ thị:</label>
+                    <div className="input-group">
+                        <input
+                            type="text"
+                            className="form-control"
+                            id="kieu_chi_thi"
+                            placeholder="Kiểu chỉ thị"
+                            value={kieuChiThi}
+                            onChange={(e) => setKieuChiThi(e.target.value)}
+                        />
+                    </div>
                 </div>
             </>
         }
@@ -469,16 +484,16 @@ export default function FormDongHoNuocDNLonHon15({ className }: FormDongHoNuocDN
                         <h3 className="text-uppercase fw-bolder text-center mt-3 mb-0">thông tin đồng hồ</h3>
                     </div>
                     <div className={`w-100 p-0 row m-0`}>
-                        <div className={`col-12 col-lg-6 m-0 mb-3 p-0 pe-lg-2 p-0 d-flex align-items-center justify-content-between ${vrfWm['seri-number-input']}`}>
-                            <label htmlFor="seriNumber" className={`form-label m-0 fs-5 fw-bold d-block`}>Số Seri:</label>
+                        <div className={`col-12 col-lg-8 col-xxl-6 m-0 mb-3 p-0 pe-lg-2 p-0 d-flex align-items-center justify-content-between ${vrfWm['seri-number-input']}`}>
+                            <label htmlFor="ten_dong_ho" className={`form-label m-0 fs-5 fw-bold d-block`} style={{ width: "150px" }}>Tên đồng hồ:</label>
                             <input
-    
+
                                 type="text"
-                                id="seriNumber"
+                                id="ten_dong_ho"
                                 className={`form-control`}
-                                placeholder="Nhập số serial"
-                                value={seriNumber}
-                                onChange={(e) => setSeriNumber(e.target.value)}
+                                placeholder="Nhập tên đồng hồ"
+                                value={tenDongHo}
+                                onChange={(e) => setTenDongHo(e.target.value)}
                             />
                         </div>
                     </div>
@@ -487,9 +502,9 @@ export default function FormDongHoNuocDNLonHon15({ className }: FormDongHoNuocDN
                             <label className="w-100 fs-5 fw-bold">Thông tin thiết bị:</label>
                             <div className="row mx-0 w-100 mb-3">
                                 <div className="mb-3 col-12 col-xxl-6">
-                                    <label htmlFor="phuongTienDo" className="form-label">Tên phương tiện đo:</label>
+                                    <label htmlFor="phuong_tien_do" className="form-label">Tên phương tiện đo:</label>
                                     <Select
-                                        name="phuongTienDo"
+                                        name="phuong_tien_do"
                                         options={phuongTienDoOptions as unknown as readonly GroupBase<never>[]}
                                         className="basic-multi-select"
                                         classNamePrefix="select"
@@ -534,7 +549,7 @@ export default function FormDongHoNuocDNLonHon15({ className }: FormDongHoNuocDN
                                 </div>
 
                                 <div className="mb-3 col-12 col-md-6">
-                                    <label htmlFor="kieuThietBi" className="form-label">Kiểu:</label>
+                                    <label htmlFor="kieu_thiet_bi" className="form-label">Kiểu:</label>
                                     <Select
                                         name="type"
                                         options={typeOptions as unknown as readonly GroupBase<never>[]}
@@ -542,7 +557,7 @@ export default function FormDongHoNuocDNLonHon15({ className }: FormDongHoNuocDN
                                         placeholder="-- Chọn kiểu --"
                                         classNamePrefix="select"
                                         isClearable
-                                        id="kieuThietBi"
+                                        id="kieu_thiet_bi"
                                         value={typeOptions.find(option => option.value === kieuThietBi) || null}
                                         onChange={(selectedOptions: any) => setKieuThietBi(selectedOptions ? selectedOptions.value : "")}
                                         styles={{
@@ -581,25 +596,24 @@ export default function FormDongHoNuocDNLonHon15({ className }: FormDongHoNuocDN
                                 </div>
 
                                 <div className="mb-3 col-12 col-md-6">
-                                    <label htmlFor="coSoSanXuat" className="form-label">Cơ sở sản xuất:</label>
+                                    <label htmlFor="co_so_san_xuat" className="form-label">Cơ sở sản xuất:</label>
                                     <input
-            
+
                                         type="text"
                                         className="form-control"
-                                        id="coSoSanXuat"
+                                        id="co_so_san_xuat"
                                         placeholder="Cơ sở sản xuất"
                                         value={coSoSanXuat}
                                         onChange={(e) => setCoSoSanXuat(e.target.value)}
                                     />
                                 </div>
                                 <div className="mb-3 col-12 col-md-6">
-                                    <label htmlFor="namSanXuat" className="form-label">Năm sản xuất:</label>
+                                    <label htmlFor="nam_san_xuat" className="form-label">Năm sản xuất:</label>
                                     <DatePicker
                                         className={`${vrfWm['date-picker']}`}
                                         value={namSanXuat ? dayjs(namSanXuat) : null}
                                         views={['year']}
                                         format="YYYY"
-            
                                         minDate={dayjs('1900-01-01')}
                                         maxDate={dayjs().endOf('year')}
                                         onChange={(newValue: Dayjs | null) => {
@@ -621,7 +635,7 @@ export default function FormDongHoNuocDNLonHon15({ className }: FormDongHoNuocDN
                                     <label htmlFor="dn" className="form-label">- Đường kính danh định (DN):</label>
                                     <div className="input-group">
                                         <input
-                
+
                                             type="text"
                                             className="form-control"
                                             id="dn"
@@ -636,7 +650,7 @@ export default function FormDongHoNuocDNLonHon15({ className }: FormDongHoNuocDN
                                 <div className="mb-3 col-12 col-md-6 col-xxl-4">
                                     <label htmlFor="dn" className="form-label">- Độ chia nhỏ nhất (d):</label>
                                     <input
-            
+
                                         type="text"
                                         className="form-control"
                                         id="d"
@@ -699,7 +713,7 @@ export default function FormDongHoNuocDNLonHon15({ className }: FormDongHoNuocDN
                                 <div className="mb-3 col-12 col-md-6 col-xxl-4">
                                     <label htmlFor="kFactor" className="form-label">- Hệ số K-factor :</label>
                                     <input
-            
+
                                         type="text"
                                         className="form-control"
                                         id="kFactor"
@@ -711,7 +725,7 @@ export default function FormDongHoNuocDNLonHon15({ className }: FormDongHoNuocDN
                                 <div className="mb-3 col-12 col-md-6 col-xxl-4">
                                     <label htmlFor="so_qd_pdm" className="form-label">- Ký hiệu PDM/Số quyết định PDM:</label>
                                     <input
-            
+
                                         type="text"
                                         className="form-control"
                                         id="so_qd_pdm"
@@ -732,48 +746,48 @@ export default function FormDongHoNuocDNLonHon15({ className }: FormDongHoNuocDN
                             <label className="w-100 fs-5 fw-bold">Chi tiết kiểm định:</label>
                             <div className="row mx-0 w-100 mb-3">
                                 <div className="mb-3 col-12 col-xxl-6">
-                                    <label htmlFor="tenKhachHang" className="form-label">Tên khách hàng:</label>
+                                    <label htmlFor="ten_khach_hang" className="form-label">Tên khách hàng:</label>
                                     <input
-            
+
                                         type="text"
                                         className="form-control"
-                                        id="tenKhachHang"
+                                        id="ten_khach_hang"
                                         placeholder="Tên khách hàng"
                                         value={tenKhachHang}
                                         onChange={(e) => setTenKhachhang(e.target.value)}
                                     />
                                 </div>
                                 <div className="mb-3 col-12 col-xxl-6">
-                                    <label htmlFor="coSoSuDung" className="form-label">Cơ sở sử dụng:</label>
+                                    <label htmlFor="co_so_su_dung" className="form-label">Cơ sở sử dụng:</label>
                                     <input
-            
+
                                         type="text"
                                         className="form-control"
-                                        id="coSoSuDung"
+                                        id="co_so_su_dung"
                                         placeholder="Cơ sở sử dụng"
                                         value={coSoSuDung}
                                         onChange={(e) => setCoSoSuDung(e.target.value)}
                                     />
                                 </div>
                                 <div className="mb-3 col-12 col-xl-6">
-                                    <label htmlFor="chuanThietBiSuDung" className="form-label">Chuẩn, thiết bị chính được sử dụng:</label>
+                                    <label htmlFor="chuan_thiet_bii_su_dung" className="form-label">Chuẩn, thiết bị chính được sử dụng:</label>
                                     <input
-            
+
                                         type="text"
                                         className="form-control"
-                                        id="chuanThietBiSuDung"
+                                        id="chuan_thiet_bii_su_dung"
                                         placeholder="Chuẩn, thiết bị chính được sử dụng"
                                         value={chuanThietBiSuDung}
                                         onChange={(e) => setChuanThietBiSuDung(e.target.value)}
                                     />
                                 </div>
                                 <div className="mb-3 col-12 col-xl-6">
-                                    <label htmlFor="viTri" className="form-label">Địa điểm thực hiện:</label>
+                                    <label htmlFor="vi_tri" className="form-label">Địa điểm thực hiện:</label>
                                     <input
-            
+
                                         type="text"
                                         className="form-control"
-                                        id="viTri"
+                                        id="vi_tri"
                                         placeholder="Địa điểm thực hiện"
                                         value={viTri}
                                         onChange={(e) => setViTri(e.target.value)}
@@ -782,7 +796,7 @@ export default function FormDongHoNuocDNLonHon15({ className }: FormDongHoNuocDN
                                 <div className="mb-3 col-12 col-md-6 col-xxl-4">
                                     <label htmlFor="nguoi_kiem_dinh" className="form-label">Người thực hiện:</label>
                                     <input
-            
+
                                         type="text"
                                         className="form-control"
                                         id="nguoi_kiem_dinh"
@@ -797,32 +811,32 @@ export default function FormDongHoNuocDNLonHon15({ className }: FormDongHoNuocDN
                                         className={`${vrfWm['date-picker']}`}
                                         value={dayjs(ngayThucHien)}
                                         format="DD-MM-YYYY"
-            
+
                                         maxDate={dayjs().endOf('day')}
                                         onChange={(newValue: Dayjs | null) => setNgayThucHien(newValue ? newValue.toDate() : null)}
                                         slotProps={{ textField: { fullWidth: true } }}
                                     />
                                 </div>
                                 <div className="mb-3 col-12 col-xxl-4">
-                                    <label htmlFor="phuongPhapThucHien" className="form-label">Phương pháp thực hiện:</label>
+                                    <label htmlFor="phuong_phap_thuc_hien" className="form-label">Phương pháp thực hiện:</label>
                                     <input
-            
+
                                         type="text"
                                         className="form-control"
-                                        id="phuongPhapThucHien"
+                                        id="phuong_phap_thuc_hien"
                                         placeholder="Phương pháp thực hiện"
                                         value={phuongPhapThucHien}
                                         onChange={(e) => setPhuongPhapThucHien(e.target.value)}
                                     />
                                 </div>
                                 <div className="mb-3 col-12 col-md-6 col-xxl-4">
-                                    <label htmlFor="nhietDo" className="form-label">Nhiệt độ:</label>
+                                    <label htmlFor="nhiet_do" className="form-label">Nhiệt độ:</label>
                                     <div className="input-group">
                                         <input
-                
+
                                             type="text"
                                             className="form-control"
-                                            id="nhietDo"
+                                            id="nhiet_do"
                                             placeholder="Nhiệt độ"
                                             value={nhietDo}
                                             onChange={handleNumberChange(setNhietDo)}
@@ -831,13 +845,13 @@ export default function FormDongHoNuocDNLonHon15({ className }: FormDongHoNuocDN
                                     </div>
                                 </div>
                                 <div className="mb-3 col-12 col-md-6 col-xxl-4">
-                                    <label htmlFor="doAm" className="form-label">Độ ẩm:</label>
+                                    <label htmlFor="do_am" className="form-label">Độ ẩm:</label>
                                     <div className="input-group">
                                         <input
-                
+
                                             type="text"
                                             className="form-control"
-                                            id="doAm"
+                                            id="do_am"
                                             placeholder="Độ ẩm"
                                             value={doAm}
                                             onChange={handleNumberChange(setDoAm)}
@@ -892,7 +906,7 @@ export default function FormDongHoNuocDNLonHon15({ className }: FormDongHoNuocDN
                     <div className={`w-100 p-2 d-flex gap-2 justify-content-between`}>
                         <div id="validate-info" className={`w-100 px-3 row alert alert-warning m-0 ${(ketQua != null) ? "fade d-none" : "show"}`}>
                             <h6><i>* Điền đủ các thông tin để hiện kết quả kiểm tra!</i></h6>
-                            {validateFields().map((error, index) => (
+                            {errorFields.map((error, index) => (
                                 <div className="col-12 col-sm-6 col-lg-4 col-xxl-3" key={index}><span className="me-2">•</span> {fieldTitles[error as keyof typeof fieldTitles]} là bắt buộc</div>
                             ))}
                             {ketQua == null && (
@@ -905,9 +919,9 @@ export default function FormDongHoNuocDNLonHon15({ className }: FormDongHoNuocDN
                             <div className={`w-100 m-0 mt-3 p-0 ${ketQua ? "" : "d-none"}`}>
                                 <div className="w-100 row m-0 p-0 gap-xxl-5">
                                     <div className={`col-12 col-md-10 col-xl-8 col-xxl-5 m-0 mb-3 p-0 ps-lg-2 p-0 d-flex align-items-center justify-content-between ${vrfWm['seri-number-input']}`}>
-                                        <label htmlFor="seriNumber" className={`form-label m-0 fs-6 fw-bold d-block`}>Số Tem:</label>
+                                        <label htmlFor="soTem" className={`form-label m-0 fs-6 fw-bold d-block`}>Số Tem:</label>
                                         <input
-                
+
                                             type="text"
                                             id="soTem"
                                             className={`form-control`}
@@ -922,7 +936,7 @@ export default function FormDongHoNuocDNLonHon15({ className }: FormDongHoNuocDN
                                         <DatePicker
                                             className={`bg-white ${vrfWm['date-picker']}`}
                                             value={dayjs(hieuLucBienBan)}
-                
+
                                             format="DD-MM-YYYY"
                                             // maxDate={dayjs().endOf('day')}
                                             minDate={dayjs().endOf('day')}

@@ -44,7 +44,7 @@ export default function FormDongHoNuocDNNhoHon15({ className }: FormDongHoNuocDN
     const { user } = useUser();
     const [isCollapsed, setIsCollapsed] = useState<boolean>(false);
 
-    const [debouncedSerial, setDebouncedSerial] = useState<string>("");
+    // const [debouncedSerial, setDebouncedSerial] = useState<string>("");
     const [seriNumber, setSeriNumber] = useState<string>("");
 
     const [phuongTienDo, setPhuongTienDo] = useState<string>("");
@@ -81,20 +81,20 @@ export default function FormDongHoNuocDNNhoHon15({ className }: FormDongHoNuocDN
     const [q2Ort, setQ1OrQt] = useState<number | null>(null);
     const [q1Ormin, setQ2OrQmin] = useState<number | null>(null);
 
-    // Debounce effect
-    useEffect(() => {
-        const handler = setTimeout(() => {
-            updateSerialDongHoInList(selectedDongHoIndex, debouncedSerial); // Assuming you have access to updateSerialDongHo
-        }, 500); // 500ms debounce delay
+    // // Debounce effect
+    // useEffect(() => {
+    //     const handler = setTimeout(() => {
+    //         updateSerialDongHoInList(selectedDongHoIndex, debouncedSerial); // Assuming you have access to updateSerialDongHo
+    //     }, 500); // 500ms debounce delay
 
-        return () => {
-            clearTimeout(handler);
-        };
-    }, [debouncedSerial]);
+    //     return () => {
+    //         clearTimeout(handler);
+    //     };
+    // }, [debouncedSerial]);
 
     const handleChangeSerialNumber = (e: React.ChangeEvent<HTMLInputElement>) => {
         setSeriNumber(e.target.value);
-        setDebouncedSerial(e.target.value);
+        // setDebouncedSerial(e.target.value);
     };
 
     const {
@@ -231,7 +231,10 @@ export default function FormDongHoNuocDNNhoHon15({ className }: FormDongHoNuocDN
             const checkQ3 = ((ccx && (ccx == "1" || ccx == "2")) || isDHDienTu);
 
             setDongHo({
-                serial_number: seriNumber,
+                // TODO: Tên đồng hồ
+                id: "",
+                ten_dong_ho: seriNumber,
+                group_id: seriNumber,
                 phuong_tien_do: phuongTienDo,
                 seri_chi_thi: checkQ3 ? seriChiThi : "",
                 seri_sensor: checkQ3 ? seriSensor : "",
@@ -326,7 +329,6 @@ export default function FormDongHoNuocDNNhoHon15({ className }: FormDongHoNuocDN
     const handleFormHSSChange = (index: number, value: number | null) => {
         const newFormValues = [...formHieuSaiSo];
         newFormValues[index].hss = value;
-        console.log("newFormVHSS: ", newFormValues);
         setFormHieuSaiSo(newFormValues);
     };
 
@@ -336,7 +338,6 @@ export default function FormDongHoNuocDNNhoHon15({ className }: FormDongHoNuocDN
             // TODO: Tạo button check?
             setKetQua(isDongHoDatTieuChuan(isDHDienTu, formHieuSaiSo));
         }
-        console.log("1111111111111: ", formHieuSaiSo);
     }, [formHieuSaiSo])
 
     // Check Đồng hồ điện tử
@@ -502,8 +503,9 @@ export default function FormDongHoNuocDNNhoHon15({ className }: FormDongHoNuocDN
     useEffect(() => {
         if (dongHoSelected) {
             setCanSave(false);
-            setDebouncedSerial(dongHoSelected.serial_number || "");
-            setSeriNumber(dongHoSelected.serial_number || "");
+            // TODO: Tên đồng hồ
+            // setDebouncedSerial(dongHoSelected.serial_number || "");
+            // setSeriNumber(dongHoSelected.serial_number || "");
             const duLieuKiemDinhJSON = dongHoSelected.du_lieu_kiem_dinh; // Define the type
 
             if (duLieuKiemDinhJSON) {
@@ -531,6 +533,7 @@ export default function FormDongHoNuocDNNhoHon15({ className }: FormDongHoNuocDN
                     setFormHieuSaiSo(initialFormHieuSaiSo);
                 }
 
+                // TODO: Tên đồng hồ
                 if (duLieuKiemDinh.serial_number) {
                     setSeriNumber(duLieuKiemDinh.serial_number);
                 }
@@ -544,7 +547,9 @@ export default function FormDongHoNuocDNNhoHon15({ className }: FormDongHoNuocDN
     const handleSaveCurrentDongHo = () => {
         const checkQ3 = ((ccx && (ccx == "1" || ccx == "2")) || isDHDienTu);
         const currentDongHo = {
-            serial_number: seriNumber || "",
+            id: null,
+            ten_dong_ho: "",
+            group_id: "",
             phuong_tien_do: phuongTienDo,
             seri_chi_thi: checkQ3 ? seriChiThi : "",
             seri_sensor: checkQ3 ? seriSensor : "",

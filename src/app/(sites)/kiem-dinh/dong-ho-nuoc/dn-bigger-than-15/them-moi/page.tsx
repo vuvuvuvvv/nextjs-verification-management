@@ -1,16 +1,10 @@
 "use client"
 
+import Loading from '@/components/loading';
 import dynamic from 'next/dynamic';
+const FormDongHoNuocDNLonHon15 = dynamic(() => import('@/components/dong-ho-nuoc-form'), { ssr: false, loading: () => <Loading /> });
 
-const Loading = dynamic(() => import('@/components/loading'), { ssr: false });
-const FormDongHoNuocDNLonHon15 = dynamic(() => import('@/components/dong-ho-nuoc-form'), { ssr: false });
-
-
-interface NewProcessDNBiggerThan15Props {
-    className?: string,
-}
-
-export default function NewProcessDNBiggerThan15({ className }: NewProcessDNBiggerThan15Props) {
+export default function NewProcessDNBiggerThan15() {
     return <FormDongHoNuocDNLonHon15/>
 }
 

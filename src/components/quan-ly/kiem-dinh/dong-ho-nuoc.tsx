@@ -46,7 +46,7 @@ interface FilterForm {
 
 export default function WaterMeterManagement({ className }: WaterMeterManagementProps) {
     const [rootData, setRootData] = useState<DongHo[]>([]);
-    
+
     const [loading, setLoading] = useState<boolean>(true);
     const fetchCalled = useRef(false);
 
@@ -160,8 +160,8 @@ export default function WaterMeterManagement({ className }: WaterMeterManagement
         }));
     };
 
-    const handleDelete = (serial_number: string | null) => {
-        if (serial_number) {
+    const handleDelete = (id: string | null) => {
+        if (id) {
             Swal.fire({
                 title: "Xác nhận xóa?",
                 text: "Bạn sẽ không thể hoàn tác dữ liệu này!",
@@ -175,9 +175,10 @@ export default function WaterMeterManagement({ className }: WaterMeterManagement
                 if (result.isConfirmed) {
                     setFilterLoading(true);
                     try {
-                        const res = await deleteDongHo(serial_number);
+                        // TODO: Serial number
+                        const res = await deleteDongHo(id);
                         if (res.status === 200 || res.status === 201) {
-                            setRootData(prevData => prevData ? prevData.filter(item => item.serial_number !== serial_number) : []);
+                            setRootData(prevData => prevData ? prevData.filter(item => item.id !== id) : []);
                             Swal.fire({
                                 text: "Xóa thành công!",
                                 icon: "success"
@@ -220,9 +221,9 @@ export default function WaterMeterManagement({ className }: WaterMeterManagement
         if (data.du_lieu) {
             let duLieuStr = "";
             Object.entries(data.du_lieu).map(([key, value]) => {
-                if(value != null) {
+                if (value != null) {
                     const lastKey = value.lan_chay ? Object.keys(value.lan_chay).pop() : null; // Get the last key
-                    duLieuStr += (lastKey ? `${key}: Lần ${lastKey}`: key) + ", ";
+                    duLieuStr += (lastKey ? `${key}: Lần ${lastKey}` : key) + ", ";
                 }
             });
             return duLieuStr.substring(0, duLieuStr.length - 2);
@@ -601,7 +602,10 @@ export default function WaterMeterManagement({ className }: WaterMeterManagement
                                                     {processDuLieu(item.du_lieu_kiem_dinh as { du_lieu?: DuLieuChayDongHo })}
                                                 </td>
                                                 <td>
-                                                    <div className={`dropdown ${c_vfml['action']}`}>
+                                                    <Link aria-label="Xem chi tiết" href={path + "/chi-tiet/" + item.id} className={`btn w-100 text-blue`}>
+                                                        <FontAwesomeIcon icon={faEye}></FontAwesomeIcon>
+                                                    </Link>
+                                                    {/* <div className={`dropdown ${c_vfml['action']}`}>
                                                         <button aria-label="Lựa chọn" className={`${c_vfml['action-button']}`} type="button" data-bs-toggle="dropdown" aria-expanded="false">
                                                             <FontAwesomeIcon icon={faEllipsisH}></FontAwesomeIcon>
                                                         </button>
@@ -617,7 +621,7 @@ export default function WaterMeterManagement({ className }: WaterMeterManagement
                                                                 </button>
                                                             </li>
                                                         </ul>
-                                                    </div>
+                                                    </div> */}
                                                 </td>
                                             </tr>
                                         ))}

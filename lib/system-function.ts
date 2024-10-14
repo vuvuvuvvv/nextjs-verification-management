@@ -85,7 +85,6 @@ export const getHieuSaiSo = (formValues: TinhSaiSoValueTabs) => {
         const values = Object.values(formValues)
             .map(getSaiSoDongHo)
             .filter(value => value !== null);
-            console.log("values: ", values);
 
         if (values.length === 0) return null;
 

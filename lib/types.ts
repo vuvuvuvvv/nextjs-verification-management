@@ -171,7 +171,9 @@ export type DuLieuChayDongHo = Record<string, DuLieuChayDiemLuuLuong | null>;
 
 
 export interface DongHo {
-    serial_number: string | null;
+    id: string | null;
+    group_id: string | null;
+    ten_dong_ho: string | null;
     phuong_tien_do: string | null;
     seri_chi_thi: string | null;
     seri_sensor: string | null;

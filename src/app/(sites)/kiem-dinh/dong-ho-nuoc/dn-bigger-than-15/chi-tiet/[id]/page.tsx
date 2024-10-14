@@ -9,7 +9,7 @@ import dtp from "@styles/scss/ui/dn-bgt-15.detail.module.scss";
 import { getSaiSoDongHo } from "@lib/system-function";
 import dynamic from "next/dynamic";
 
-export default function Page({ params }: { params: { serial_number: string } }) {
+export default function Page({ params }: { params: { id: string } }) {
     const [dongHoData, setDongHoData] = useState<DongHo>();
     const [duLieuKiemDinhCacLuuLuong, setDuLieuKiemDinhCacLuuLuong] = useState<DuLieuChayDongHo>();
     const [ketQua, setKetQua] = useState<string>("");
@@ -23,9 +23,9 @@ export default function Page({ params }: { params: { serial_number: string } }) 
 
         const fetchData = async () => {
             try {
-                const res = await getDongHoBySerinumber(params.serial_number);
-                // console.log("res: ", res.data);
-                setDongHoData(res.data);
+                const res = await getDongHoBySerinumber(params.id);
+                console.log("res: ", res?.data);
+                // setDongHoData(res?.data);
             } catch (error) {
                 console.error("Error fetching data:", error);
             } finally {
@@ -34,7 +34,7 @@ export default function Page({ params }: { params: { serial_number: string } }) 
         };
 
         fetchData();
-    }, [params.serial_number]);
+    }, [params.id]);
 
     useEffect(() => {
         if (dongHoData) {
@@ -61,10 +61,10 @@ export default function Page({ params }: { params: { serial_number: string } }) 
     }
 
     return <div className="w-100 m-0 p-2">
-        <title>{dongHoData?.serial_number + " - " + dongHoData?.co_so_san_xuat}</title>
+        <title>{dongHoData?.ten_dong_ho}</title>
         {dongHoData ? (
             <div className="container bg-white px-4 px-md-5 py-4">
-                <div className="row mb-3">
+                {/* <div className="row mb-3">
                     <div className="col-6">
                         <p className="text-center fs-5">
                             CÔNG TY CỔ PHẦN<br />
@@ -77,10 +77,16 @@ export default function Page({ params }: { params: { serial_number: string } }) 
                             <b className="fs-5">Số: {dongHoData.so_giay_chung_nhan || "Chưa có số giấy chứng nhận"}</b>
                         </p>
                     </div>
-                </div>
+                </div> */}
                 <div className="row mb-3">
                     <div className="col-12">
-                        <p>Tên đối tượng: <b>{dongHoData.phuong_tien_do || "Chưa có tên đối tượng"}</b></p>
+                        <p>Số: <b>{dongHoData.so_giay_chung_nhan || "Chưa có số giấy chứng nhận"}</b></p>
+                    </div>
+                    <div className="col-12">
+                        <p>Tên đồng hồ: <b>{dongHoData.ten_dong_ho || "Chưa có tên đồng hồ"}</b></p>
+                    </div>
+                    <div className="col-12">
+                        <p>Tên phương tiện đo: <b>{dongHoData.phuong_tien_do || "Chưa có tên phương tiện đo"}</b></p>
                     </div>
                     <div className="col-12">
                         <p>Nơi sản xuất: <b>{dongHoData.co_so_san_xuat || "Chưa có nơi sản xuất"}</b></p>
@@ -88,9 +94,10 @@ export default function Page({ params }: { params: { serial_number: string } }) 
                     <div className="col-6">
                         <p>Kiểu sản xuất: <b>{dongHoData.kieu_thiet_bi || "Chưa có kiểu sản xuất"}</b></p>
                     </div>
-                    <div className="col-6">
+                    {/* TODO: Serial number */}
+                    {/* <div className="col-6">
                         <p>Số: <b>{dongHoData.serial_number}</b></p>
-                    </div>
+                    </div> */}
                 </div>
                 <div className="row mb-3">
                     <div className="col-12 col-md-4">

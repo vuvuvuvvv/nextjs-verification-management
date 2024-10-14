@@ -423,7 +423,11 @@ export default function ProcessManagement({ data, className }: ProcessManagement
                                                 <td>{item.status.split(',').map((s: string) => processStatusOptions.find(option => option.value === s)?.label).join(', ')}</td>
                                                 <td>{item.updatedAt}</td>
                                                 <td>
-                                                    <div className={`dropdown ${c_vfml['action']}`}>
+
+                                                    <Link aria-label="Xem chi tiết" href={path + "/chi-tiet/" + item.id} className={`btn w-100`}>
+                                                        <FontAwesomeIcon icon={faEye}></FontAwesomeIcon>
+                                                    </Link>
+                                                    {/* <div className={`dropdown ${c_vfml['action']}`}>
                                                         <button aria-label="Lựa chọn" className={`${c_vfml['action-button']}`} type="button" data-bs-toggle="dropdown" aria-expanded="false">
                                                             <FontAwesomeIcon icon={faEllipsisH}></FontAwesomeIcon>
                                                         </button>
@@ -439,7 +443,7 @@ export default function ProcessManagement({ data, className }: ProcessManagement
                                                                 </button>
                                                             </li>
                                                         </ul>
-                                                    </div>
+                                                    </div> */}
                                                 </td>
                                             </tr>
                                         ))}

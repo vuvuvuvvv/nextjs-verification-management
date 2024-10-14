@@ -16,12 +16,16 @@ interface DongHoListContextType {
 
 const DongHoListContext = createContext<DongHoListContextType | undefined>(undefined);
 
+
+// TODO: Serial number
 export const DongHoListProvider = ({ children, serialNumbers = [] }: { children: ReactNode, serialNumbers: string[] }) => {
 
     const [dongHoList, setDongHoList] = useState<DongHo[]>(() => {
         // Khởi tạo danh sách với số lượng dongHo
         return serialNumbers.map((val, i) => ({
-            serial_number: val.trim(),
+            id: null,
+            group_id: "",
+            ten_dong_ho: "",
             phuong_tien_do: "",
             seri_chi_thi: "",
             seri_sensor: "",
@@ -69,9 +73,9 @@ export const DongHoListProvider = ({ children, serialNumbers = [] }: { children:
         }));
     });
 
-    useEffect(() => {
-        console.log("DHL: ", dongHoList);
-    }, [dongHoList]);
+    // useEffect(() => {
+    //     console.log("DHL: ", dongHoList);
+    // }, [dongHoList]);
 
     const [dongHoSelected, setDongHoSelected] = useState<DongHo | null>(dongHoList[0] || null);
 
