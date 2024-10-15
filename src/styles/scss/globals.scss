@@ -147,3 +147,12 @@ textarea {
 .notistack-SnackbarContainer {
     bottom: 80px !important;
 }
+
+/* Custom CSS for x-axis gap */
+.gap-x-xxl-5 {
+    column-gap: 3rem; /* Adjust the value as needed */
+}
+
+.gap-y-xxl-5 {
+    row-gap: 3rem; /* Adjust the value as needed */
+}

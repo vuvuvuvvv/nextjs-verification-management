@@ -1,7 +1,6 @@
 import { TITLE_LUU_LUONG } from '@lib/system-constant';
-import { isDongHoDatTieuChuan } from '@lib/system-function';
 import { DuLieuChayDongHo, DuLieuChayDiemLuuLuong, DuLieuMotLanChay, DuLieuCacLanChay } from '@lib/types';
-import React, { createContext, useState, useContext, ReactNode, useEffect, useRef } from 'react';
+import React, { createContext, useState, useContext, ReactNode, useRef } from 'react';
 
 interface KiemDinhContextType {
     duLieuKiemDinhCacLuuLuong: DuLieuChayDongHo;
@@ -30,8 +29,8 @@ const KiemDinhContext = createContext<KiemDinhContextType | undefined>(undefined
 export const KiemDinhProvider = ({ children }: { children: ReactNode }) => {
     const lanChayMoi = {
         1: { V1: 0, V2: 0, Vc1: 0, Vc2: 0, Tdh: 0, Tc: 0 },
-        2: { V1: 0, V2: 0, Vc1: 0, Vc2: 0, Tdh: 0, Tc: 0 },
-        3: { V1: 0, V2: 0, Vc1: 0, Vc2: 0, Tdh: 0, Tc: 0 }
+        // 2: { V1: 0, V2: 0, Vc1: 0, Vc2: 0, Tdh: 0, Tc: 0 },
+        // 3: { V1: 0, V2: 0, Vc1: 0, Vc2: 0, Tdh: 0, Tc: 0 }
     };
 
     const initialDuLieuKiemDinhCacLuuLuong: DuLieuChayDongHo = {

@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import ecf from "@styles/scss/components/tinh-sai-so-form.module.scss";
 import { getSaiSoDongHo } from "@lib/system-function";
 
@@ -26,39 +26,64 @@ export default function DNBT30TinhSaiSoForm({ className, formValue, readOnly = f
     const [Tc, setTc] = useState<string>("0");
     const [saiSo, setSaiSo] = useState<string>("0%");
 
+    const prevFormValuesRef = useRef(formValue);
+
     useEffect(() => {
-        setV1(formValue.V1.toString());
-        setV2(formValue.V2.toString());
-        setVc1(formValue.Vc1.toString());
-        setVc2(formValue.Vc2.toString());
-        setTdh(formValue.Tdh.toString());
-        setTc(formValue.Tc.toString());
+        if (prevFormValuesRef.current != formValue) {
+            setV1(formValue.V1.toString());
+            setV2(formValue.V2.toString());
+            // TODO: Check xem bị cái gì mà không dùng Vc1 Vc2
+            setVc1(Vc1 || formValue.Vc1.toString());
+            setVc2(Vc2 || formValue.Vc2.toString());
+            setTdh(formValue.Tdh.toString());
+            setTc(formValue.Tc.toString());
+            console.log(formValue)
+
+            prevFormValuesRef.current = formValue;
+        }
     }, [formValue]);
 
-    const getDecimalPlaces = (d: string) => {
+    const [numericInputTimeout, setNumericInputTimeout] = useState<NodeJS.Timeout | null>(null);
+
+    const getDecimalPlaces = () => {
+        if (!d) return null;
         const parts = d.split(".");
         return parts.length > 1 ? parts[1].length : 0;
     };
 
-    const decimalPlaces = d ? getDecimalPlaces(d) : 0;
-
-    const [numericInputTimeout, setNumericInputTimeout] = useState<NodeJS.Timeout | null>(null);
-    const [numberChangeTimeout, setNumberChangeTimeout] = useState<NodeJS.Timeout | null>(null);
-
     const handleNumericInput = (setter: (value: string) => void, field: string) => {
+        const decimalPlaces = getDecimalPlaces() || 0;
+
         return (e: React.FormEvent<HTMLInputElement>) => {
-            const value = e.currentTarget.value.replace(/[^0-9]/g, '');
-            const numericValue = Number(value) / Math.pow(10, decimalPlaces);
-            setter(numericValue.toString());
+            const rawValue = e.currentTarget.value.replace(/[^0-9]/g, '');
+            let formattedValue = '';
+
+            if (rawValue.length <= decimalPlaces) {
+                formattedValue = `0.${rawValue.padEnd(decimalPlaces, '0')}`;
+            } else {
+                const integerPart = rawValue.slice(0, rawValue.length - decimalPlaces);
+                const decimalPart = rawValue.slice(rawValue.length - decimalPlaces);
+                formattedValue = `${integerPart}.${decimalPart}`;
+            }
+
+            setter(formattedValue);
 
             if (numericInputTimeout) {
                 clearTimeout(numericInputTimeout);
             }
-            const timeout = setTimeout(() => onFormChange(field, numericValue), 500);
+
+            // Capture the numeric value before setting the timeout
+            const numericValue = Number(formattedValue);
+
+            const timeout = setTimeout(() => {
+                onFormChange(field, numericValue);
+            }, 500);
             setNumericInputTimeout(timeout);
         };
     };
 
+
+    const [numberChangeTimeout, setNumberChangeTimeout] = useState<NodeJS.Timeout | null>(null);
     const handleNumberChange = (setter: (value: string) => void, field: string) => {
         return (e: React.ChangeEvent<HTMLInputElement>) => {
             let value = e.target.value;
@@ -157,7 +182,6 @@ export default function DNBT30TinhSaiSoForm({ className, formValue, readOnly = f
                             type="text"
                             className="form-control"
                             id="firstNum"
-                            placeholder={`Nhập số đầu (0.${'0'.repeat(decimalPlaces)})`}
                             value={Vc1}
                             onChange={handleNumberChange(setVc1, "Vc1")}
                             autoComplete="off"
@@ -170,7 +194,6 @@ export default function DNBT30TinhSaiSoForm({ className, formValue, readOnly = f
                             type="text"
                             className="form-control"
                             id="lastNum"
-                            placeholder={`Nhập số cuối (0.${'0'.repeat(decimalPlaces)})`}
                             value={Vc2}
                             onChange={handleNumberChange(setVc2, "Vc2")}
                             autoComplete="off"

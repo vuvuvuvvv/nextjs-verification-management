@@ -69,8 +69,9 @@ export default function TinhSaiSoTab({ className, tabIndex, d, q, form, onFormHS
 
     // TODO: Check update q
     useEffect(() => {
-        if(prevFormValuesRef.current != getDuLieuChayCuaLuuLuong(q)) {
+        if (prevFormValuesRef.current != getDuLieuChayCuaLuuLuong(q)) {
             setFormValues(getDuLieuChayCuaLuuLuong(q));
+            prevFormValuesRef.current = getDuLieuChayCuaLuuLuong(q);
         }
     }, [duLieuKiemDinhCacLuuLuong]);
 

@@ -74,6 +74,7 @@ export default function FormDongHoNuocDNLonHon15({ className }: FormDongHoNuocDN
     const { getDuLieuKiemDinhJSON, ketQua, formHieuSaiSo, setDuLieuKiemDinhCacLuuLuong, setFormHieuSaiSo, setKetQua } = useKiemDinh();
     const { dongHo, setDongHo } = useDongHo();
 
+    const [showFormTienTrinh, setShowFormTienTrinh] = useState(false);
     const [canSave, setCanSave] = useState(false);
     const [error, setError] = useState("");
 
@@ -142,11 +143,11 @@ export default function FormDongHoNuocDNLonHon15({ className }: FormDongHoNuocDN
         { value: tenDongHo, setter: setTenDongHo, id: "ten_dong_ho" },
         { value: phuongTienDo, setter: setPhuongTienDo, id: "phuong_tien_do" },
         { value: kieuThietBi, setter: setKieuThietBi, id: "kieu_thiet_bi" },
-        { value: seriChiThi, setter: setSeriChiThi, id: "seri_chi_thi" },
+        // { value: seriChiThi, setter: setSeriChiThi, id: "seri_chi_thi" },
         { value: seriSensor, setter: setSeriSensor, id: "seri_sensor" },
-        { value: kieuChiThi, setter: setKieuChiThi, id: "kieu_chi_thi" },
+        // { value: kieuChiThi, setter: setKieuChiThi, id: "kieu_chi_thi" },
         { value: kieuSensor, setter: setKieuSensor, id: "kieu_sensor" },
-        { value: soTem, setter: setSoTem, id: "so_tem" },
+        // { value: soTem, setter: setSoTem, id: "so_tem" },
         { value: coSoSanXuat, setter: setCoSoSanXuat, id: "co_so_san_xuat" },
         { value: namSanXuat, setter: setNamSanXuat, id: "nam_san_xuat" },
         { value: dn, setter: setDN, id: "dn" },
@@ -166,9 +167,9 @@ export default function FormDongHoNuocDNLonHon15({ className }: FormDongHoNuocDN
     ];
 
     useEffect(() => {
-        if (errorFields.length > 0) {
+        if (errorFields.length === 0) {
             const checkQ3 = ((ccx && (ccx == "1" || ccx == "2")) || isDHDienTu);
-
+            setShowFormTienTrinh(true);
             setDongHo({
                 id: null,
                 ten_dong_ho: tenDongHo || "",
@@ -204,10 +205,11 @@ export default function FormDongHoNuocDNLonHon15({ className }: FormDongHoNuocDN
                 so_giay_chung_nhan: soGiayChungNhan,
             });
 
-            if (ketQua != null) {
+            if (ketQua != null && (soTem && soGiayChungNhan)) {
                 setCanSave(true);
             }
         } else {
+            setShowFormTienTrinh(false);
             setSoTem("");
             setKetQua(null);
             setCanSave(false);
@@ -237,9 +239,9 @@ export default function FormDongHoNuocDNLonHon15({ className }: FormDongHoNuocDN
     ]);
 
     useEffect(() => {
-        setCanSave(soTem ? true : false);
-        setHieuLucBienBan(soTem ? getLastDayOfMonthInFuture(isDHDienTu) : null);
-    }, [soTem]);
+        setCanSave(soTem && soGiayChungNhan ? true : false);
+        setHieuLucBienBan(soTem && soGiayChungNhan ? getLastDayOfMonthInFuture(isDHDienTu) : null);
+    }, [soTem, soGiayChungNhan]);
 
     const handleSaveDongHo = async () => {
         if (canSave) {
@@ -872,95 +874,113 @@ export default function FormDongHoNuocDNLonHon15({ className }: FormDongHoNuocDN
                 </div>
 
                 <div className={`m-0 mb-3 p-2 bg-white rounded shadow-sm w-100 w-100`}>
-                    <NavTab buttonControl={true} tabContent={
-                        [
-                            {
-                                title: <>Q<sub>{isDHDienTu ? "3" : "n"}</sub></>,
-                                content: <TinhSaiSoTab
-                                    onFormHSSChange={(value: number | null) => handleFormHSSChange(0, value)}
-                                    d={d ? d : ""} q={{
-                                        title: isDHDienTu ? TITLE_LUU_LUONG.q3 : TITLE_LUU_LUONG.qn,
-                                        value: q3 ? q3 : (qn ? qn : "")
-                                    }} className="" tabIndex={1} form={TinhSaiSoForm as any} />
-                            },
-                            {
-                                title: <>Q<sub>{isDHDienTu ? "2" : "t"}</sub></>,
-                                content: <TinhSaiSoTab
-                                    onFormHSSChange={(value: number | null) => handleFormHSSChange(1, value)}
-                                    d={d ? d : ""} q={{
-                                        title: (isDHDienTu) ? TITLE_LUU_LUONG.q2 : TITLE_LUU_LUONG.qt,
-                                        value: (q2Ort) ? q2Ort.toString() : ""
-                                    }} tabIndex={2} form={TinhSaiSoForm as any} />
-                            },
-                            {
-                                title: <>Q<sub>{isDHDienTu ? "1" : "min"}</sub></>,
-                                content: <TinhSaiSoTab
-                                    onFormHSSChange={(value: number | null) => handleFormHSSChange(2, value)}
-                                    d={d ? d : ""} q={{
-                                        title: (isDHDienTu) ? TITLE_LUU_LUONG.q1 : TITLE_LUU_LUONG.qmin,
-                                        value: (q1Ormin) ? q1Ormin.toString() : ""
-                                    }} tabIndex={3} form={TinhSaiSoForm as any} />
-                            },
-                        ]
-                    } />
-                    <div className={`w-100 p-2 d-flex gap-2 justify-content-between`}>
-                        <div id="validate-info" className={`w-100 px-3 row alert alert-warning m-0 ${(ketQua != null) ? "fade d-none" : "show"}`}>
-                            <h6><i>* Điền đủ các thông tin để hiện kết quả kiểm tra!</i></h6>
+
+                    <div className={`w-100 p-2 d-flex gap-2 justify-content-between ${showFormTienTrinh ? "d-none" : ""}`}>
+                        <div className={`w-100 px-3 row alert alert-warning m-0 ${(ketQua != null) ? "fade d-none" : "show"}`}>
+                            <h6><i>* Điền đủ các thông tin để hiện Form tiến trình!</i></h6>
                             {errorFields.map((error, index) => (
                                 <div className="col-12 col-sm-6 col-lg-4 col-xxl-3" key={index}><span className="me-2">•</span> {fieldTitles[error as keyof typeof fieldTitles]} là bắt buộc</div>
                             ))}
-                            {ketQua == null && (
-                                <div className="col-12 col-sm-6 col-lg-4 col-xxl-3"><span className="me-2">•</span>Tiến trình chạy lưu lượng không được bỏ trống</div>
-                            )}
                         </div>
-                        <div id="validate-info" className={`w-100 px-3 p-xl-4 row alert ${ketQua ? "alert-success" : "alert-danger"} m-0 ${(ketQua != null) ? "show" : "fade d-none"}`}>
-                            <h5 className="p-0">Kết quả kiểm tra kỹ thuật:</h5>
-                            <p className="p-0 m-0">- Khả năng hoạt động của hệ thống: <b className="text-uppercase">{ketQua ? "Đạt" : "Không đạt"}</b></p>
-                            <div className={`w-100 m-0 mt-3 p-0 ${ketQua ? "" : "d-none"}`}>
-                                <div className="w-100 row m-0 p-0 gap-xxl-5">
-                                    <div className={`col-12 col-md-10 col-xl-8 col-xxl-5 m-0 mb-3 p-0 ps-lg-2 p-0 d-flex align-items-center justify-content-between ${vrfWm['seri-number-input']}`}>
-                                        <label htmlFor="soTem" className={`form-label m-0 fs-6 fw-bold d-block`}>Số Tem:</label>
-                                        <input
+                    </div>
+                    <div className={`w-100 ${showFormTienTrinh ? "" : "d-none"}`}>
+                        <NavTab buttonControl={true} tabContent={
+                            [
+                                {
+                                    title: <>Q<sub>{isDHDienTu ? "3" : "n"}</sub></>,
+                                    content: <TinhSaiSoTab
+                                        onFormHSSChange={(value: number | null) => handleFormHSSChange(0, value)}
+                                        d={d ? d : ""} q={{
+                                            title: isDHDienTu ? TITLE_LUU_LUONG.q3 : TITLE_LUU_LUONG.qn,
+                                            value: q3 ? q3 : (qn ? qn : "")
+                                        }} className="" tabIndex={1} form={TinhSaiSoForm as any} />
+                                },
+                                {
+                                    title: <>Q<sub>{isDHDienTu ? "2" : "t"}</sub></>,
+                                    content: <TinhSaiSoTab
+                                        onFormHSSChange={(value: number | null) => handleFormHSSChange(1, value)}
+                                        d={d ? d : ""} q={{
+                                            title: (isDHDienTu) ? TITLE_LUU_LUONG.q2 : TITLE_LUU_LUONG.qt,
+                                            value: (q2Ort) ? q2Ort.toString() : ""
+                                        }} tabIndex={2} form={TinhSaiSoForm as any} />
+                                },
+                                {
+                                    title: <>Q<sub>{isDHDienTu ? "1" : "min"}</sub></>,
+                                    content: <TinhSaiSoTab
+                                        onFormHSSChange={(value: number | null) => handleFormHSSChange(2, value)}
+                                        d={d ? d : ""} q={{
+                                            title: (isDHDienTu) ? TITLE_LUU_LUONG.q1 : TITLE_LUU_LUONG.qmin,
+                                            value: (q1Ormin) ? q1Ormin.toString() : ""
+                                        }} tabIndex={3} form={TinhSaiSoForm as any} />
+                                },
+                            ]
+                        } />
+                        <div className={`w-100 p-2 d-flex gap-2 justify-content-between`}>
+                            <div id="validate-info" className={`w-100 px-3 row alert alert-warning m-0 ${(ketQua != null) ? "fade d-none" : "show"}`}>
+                                <h6><i>* Điền đủ các thông tin để hiện kết quả kiểm tra!</i></h6>
 
-                                            type="text"
-                                            id="soTem"
-                                            className={`form-control`}
-                                            placeholder="Nhập số tem"
-                                            value={ketQua ? soTem : ""}
-                                            onChange={(e) => setSoTem(e.target.value)}
-                                        />
+                                {ketQua == null && (
+                                    <div className="col-12"><span className="me-2">•</span>Tiến trình chạy lưu lượng không được bỏ trống</div>
+                                )}
+                            </div>
+                            <div id="validate-info" className={`w-100 px-3 p-xl-4 row alert ${ketQua ? "alert-success" : "alert-danger"} m-0 ${(ketQua != null) ? "show" : "fade d-none"}`}>
+                                <h5 className="p-0">Kết quả kiểm tra kỹ thuật:</h5>
+                                <p className="p-0 m-0">- Khả năng hoạt động của hệ thống: <b className="text-uppercase">{ketQua ? "Đạt" : "Không đạt"}</b></p>
+                                <div className={`w-100 m-0 mt-3 p-0 ${ketQua ? "" : "d-none"}`}>
+                                    <div className="w-100 row m-0 p-0 justify-content-between">
+                                        <div className={`col-12 col-md-10 col-xl-8 col-xxl-6 m-0 mb-3 p-0 ps-lg-4 d-flex align-items-center justify-content-between ${vrfWm['seri-number-input']}`}>
+                                            <label htmlFor="soTem" className={`form-label m-0 fs-6 fw-bold d-block`}>Số Tem:</label>
+                                            <input
+                                                type="text"
+                                                id="soTem"
+                                                className={`form-control`}
+                                                placeholder="Nhập số tem"
+                                                value={ketQua ? soTem : ""}
+                                                onChange={(e) => setSoTem(e.target.value)}
+                                            />
+                                        </div>
+                                        <div className={`col-12 col-md-10 col-xl-8 col-xxl-6 m-0 mb-3 p-0 ps-lg-4 d-flex align-items-center justify-content-between ${vrfWm['seri-number-input']}`}>
+                                            <label htmlFor="soGiayChungNhan" className={`form-label m-0 fs-6 fw-bold d-block`}>Số giấy chứng nhận:</label>
+                                            <input
+                                                type="text"
+                                                id="soGiayChungNhan"
+                                                className={`form-control`}
+                                                placeholder="Nhập số giấy chứng nhận"
+                                                value={ketQua ? soGiayChungNhan : ""}
+                                                onChange={(e) => setSoGiayChungNhan(e.target.value)}
+                                            />
+                                        </div>
+
+                                        <div className={`col-12 col-md-10 col-xl-8 col-xxl-6 m-0 mb-3 p-0 ps-lg-4 d-flex align-items-center justify-content-between ${(soTem && soGiayChungNhan) ? "" : "d-none"} ${vrfWm['seri-number-input']}`}>
+                                            <label htmlFor="hieuLucBienBan" style={{ width: "180px" }} className="form-label m-0 fs-6 fw-bold d-block">Hiệu lực biên bản:</label>
+                                            <DatePicker
+                                                className={`bg-white ${vrfWm['date-picker']}`}
+                                                value={dayjs(hieuLucBienBan)}
+                                                format="DD-MM-YYYY"
+                                                // maxDate={dayjs().endOf('day')}
+                                                minDate={dayjs().endOf('day')}
+                                                onChange={(newValue: Dayjs | null) => setHieuLucBienBan(newValue ? newValue.toDate() : null)}
+                                                slotProps={{ textField: { fullWidth: true } }}
+                                            />
+                                        </div>
                                     </div>
-
-                                    <div className={`col-12 col-md-10 col-xl-8 col-xxl-5 m-0 mb-3 p-0 ps-lg-2 p-0 d-flex align-items-center justify-content-between ${vrfWm['seri-number-input']}`}>
-                                        <label htmlFor="hieuLucBienBan" style={{ width: "180px" }} className="form-label m-0 fs-6 fw-bold d-block">Hiệu lực biên bản:</label>
-                                        <DatePicker
-                                            className={`bg-white ${vrfWm['date-picker']}`}
-                                            value={dayjs(hieuLucBienBan)}
-
-                                            format="DD-MM-YYYY"
-                                            // maxDate={dayjs().endOf('day')}
-                                            minDate={dayjs().endOf('day')}
-                                            onChange={(newValue: Dayjs | null) => setHieuLucBienBan(newValue ? newValue.toDate() : null)}
-                                            slotProps={{ textField: { fullWidth: true } }}
-                                        />
-                                    </div>
-                                </div>
-                                {/* TODO: Giấy chứng nhận */}
-                                <div className="w-100 m-0 p-0">
+                                    {/* TODO: Giấy chứng nhận */}
+                                    {/* <div className="w-100 m-0 p-0">
                                     <button aria-label="Giấy chứng nhận" className="btn px-3 py-2 btn-success" style={{ width: "max-content" }}>
                                         <FontAwesomeIcon icon={faFileAlt} className="me-2"></FontAwesomeIcon> Giấy chứng nhận
                                     </button>
+                                </div> */}
                                 </div>
                             </div>
                         </div>
-                    </div>
-                    <div className="w-100 m-0 p-2 d-flex gap-2 justify-content-between">
-                        {/* <button className="btn py-2 px-3 btn-danger" onClick={handleCheck}>
+                        <div className="w-100 m-0 p-2 d-flex gap-2 justify-content-between">
+                            {/* <button className="btn py-2 px-3 btn-danger" onClick={handleCheck}>
                             Kiểm tra
                         </button> */}
-                        <button aria-label="Lưu Đồng hồ" className={`btn py-2 px-3 ${canSave ? "btn-success" : "btn-secondary"}`} disabled={!canSave} onClick={handleSaveDongHo}>
-                            Lưu Đồng hồ
-                        </button>
+                            <button aria-label="Lưu Đồng hồ" className={`btn py-2 px-3 ${canSave ? "btn-success" : "btn-secondary"}`} disabled={!canSave} onClick={handleSaveDongHo}>
+                                Lưu Đồng hồ
+                            </button>
+                        </div>
                     </div>
                 </div>
             </div>

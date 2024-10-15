@@ -1,6 +1,6 @@
 "use client"
 
-import { getDongHoBySerinumber } from "@/app/api/dongho/route";
+import { getDongHoById } from "@/app/api/dongho/route";
 const Loading = dynamic(() => import('@/components/loading'), { ssr: false });
 import { DongHo, DuLieuChayDongHo } from "@lib/types";
 import dayjs from "dayjs";
@@ -23,9 +23,9 @@ export default function Page({ params }: { params: { id: string } }) {
 
         const fetchData = async () => {
             try {
-                const res = await getDongHoBySerinumber(params.id);
-                console.log("res: ", res?.data);
-                // setDongHoData(res?.data);
+                const res = await getDongHoById(params.id);
+                // console.log("res: ", res?.data);
+                setDongHoData(res?.data);
             } catch (error) {
                 console.error("Error fetching data:", error);
             } finally {

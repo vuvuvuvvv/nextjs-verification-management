@@ -4,7 +4,7 @@ import dynamic from "next/dynamic";
 import { Suspense, useEffect, useState } from "react";
 import uiDNSm from "@/styles/scss/ui/dn-smt-15.module.scss";
 import Loading from "@/components/loading";
-import { getDongHoBySerinumber } from "@/app/api/dongho/route";
+// import { getDongHoBySerinumber } from "@/app/api/dongho/route";
 
 const DongHoListProvider = dynamic(() => import("@/context/list-dong-ho").then(mod => mod.DongHoListProvider), { ssr: false, loading: () => <Loading /> });
 const FormDongHoNuocDNNhoHon15 = dynamic(() => import("@/components/nhieu-dong-ho-nuoc-form"), { ssr: false });
@@ -92,33 +92,34 @@ export default function NewProcessDNSmallerThan15({ className }: NewProcessDNSma
         const newSerialNumbers = [...serialNumbers];
         newSerialNumbers[index] = e.target.value;
         setSerialNumbers(newSerialNumbers);
-        debounceCheckSerial(newSerialNumbers[index], index);
+        // debounceCheckSerial(newSerialNumbers[index], index);
     };
 
-    const debounceCheckSerial = (serial: string, index: number) => {
-        if (timeoutId) {
-            clearTimeout(timeoutId);
-        }
-        const id = setTimeout(async () => {
-            try {
-                const result = await getDongHoBySerinumber(serial);
-                const newErrorSerials = [...errorSerials];
-                if (result?.status === 200 || result?.status === 201) {
-                    newErrorSerials[index] = `Serial ${serial} đã tồn tại!`;
-                } else if (result?.status === 404) {
-                    newErrorSerials[index] = ""; // No error, serial number does not exist
-                } else {
-                    newErrorSerials[index] = 'Có lỗi xảy ra trong quá trình xác minh số Serial';
-                }
-                setErrorSerials(newErrorSerials);
-            } catch (error) {
-                const newErrorSerials = [...errorSerials];
-                newErrorSerials[index] = 'Có lỗi xảy ra trong quá trình xác minh số Serial';
-                setErrorSerials(newErrorSerials);
-            }
-        }, 1000); // Adjust debounce time if needed
-        setTimeoutId(id); // Save timeout ID
-    };
+    // TODO: 
+    // const debounceCheckSerial = (serial: string, index: number) => {
+    //     if (timeoutId) {
+    //         clearTimeout(timeoutId);
+    //     }
+    //     const id = setTimeout(async () => {
+    //         try {
+    //             const result = await getDongHoBySerinumber(serial);
+    //             const newErrorSerials = [...errorSerials];
+    //             if (result?.status === 200 || result?.status === 201) {
+    //                 newErrorSerials[index] = `Serial ${serial} đã tồn tại!`;
+    //             } else if (result?.status === 404) {
+    //                 newErrorSerials[index] = ""; // No error, serial number does not exist
+    //             } else {
+    //                 newErrorSerials[index] = 'Có lỗi xảy ra trong quá trình xác minh số Serial';
+    //             }
+    //             setErrorSerials(newErrorSerials);
+    //         } catch (error) {
+    //             const newErrorSerials = [...errorSerials];
+    //             newErrorSerials[index] = 'Có lỗi xảy ra trong quá trình xác minh số Serial';
+    //             setErrorSerials(newErrorSerials);
+    //         }
+    //     }, 1000); // Adjust debounce time if needed
+    //     setTimeoutId(id); // Save timeout ID
+    // };
 
     if (isModalOpen) {
         return (
