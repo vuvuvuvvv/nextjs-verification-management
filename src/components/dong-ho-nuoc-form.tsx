@@ -175,9 +175,9 @@ export default function FormDongHoNuocDNLonHon15({ className }: FormDongHoNuocDN
                 ten_dong_ho: tenDongHo || "",
                 group_id: null,
                 phuong_tien_do: phuongTienDo,
-                seri_chi_thi: checkQ3 ? seriChiThi : "",
+                seri_chi_thi: seriChiThi,
                 seri_sensor: checkQ3 ? seriSensor : "",
-                kieu_chi_thi: checkQ3 ? kieuChiThi : "",
+                kieu_chi_thi: kieuChiThi,
                 kieu_sensor: checkQ3 ? kieuSensor : "",
                 kieu_thiet_bi: kieuThietBi,
                 co_so_san_xuat: coSoSanXuat,
@@ -283,7 +283,6 @@ export default function FormDongHoNuocDNLonHon15({ className }: FormDongHoNuocDN
         }
     }
 
-    // TODO: Dat tieu chuan:
     const handleFormHSSChange = (index: number, value: number | null) => {
         const newFormValues = [...formHieuSaiSo];
         newFormValues[index].hss = value;
@@ -313,7 +312,6 @@ export default function FormDongHoNuocDNLonHon15({ className }: FormDongHoNuocDN
         }
     };
 
-    // TODO: Check lại ccx để nó clear hết data
     useEffect(() => {
         setDHDienTu(phuongTienDo !== "" && ["1", "2"].includes(phuongTienDoOptions.find(option => option.label == phuongTienDo)?.value ?? ""));
     }, [ccx, phuongTienDo]);
@@ -325,19 +323,6 @@ export default function FormDongHoNuocDNLonHon15({ className }: FormDongHoNuocDN
             setQ1OrQt(getQ2OrQt);
         }
     }, [ccx, phuongTienDo, q3, qn, r]);
-
-    // useEffect(() => {
-    //     if (!isDHDienTu) {
-    //         setQ3("");
-    //         setR("");
-    //         setSeriChiThi("");
-    //         setSeriSensor("");
-    //         setKieuSensor("");
-    //         setKieuChiThi("");
-    //     } else {
-    //         setQN("");
-    //     }
-    // }, [ccx, phuongTienDo]);
 
     useEffect(() => {
         const humidity = parseFloat(doAm);
@@ -392,19 +377,6 @@ export default function FormDongHoNuocDNLonHon15({ className }: FormDongHoNuocDN
                     />
                 </div>
                 <div className="mb-3 col-12 col-md-6 col-xxl-4">
-                    <label htmlFor="kieu_chi_thi" className="form-label">Kiểu chỉ thị:</label>
-                    <div className="input-group">
-                        <input
-                            type="text"
-                            className="form-control"
-                            id="kieu_chi_thi"
-                            placeholder="Serial chỉ thị"
-                            value={kieuChiThi}
-                            onChange={(e) => setKieuChiThi(e.target.value)}
-                        />
-                    </div>
-                </div>
-                <div className="mb-3 col-12 col-md-6 col-xxl-4">
                     <label htmlFor="seri_sensor" className="form-label">Serial sensor:</label>
                     <input
                         type="text"
@@ -425,6 +397,19 @@ export default function FormDongHoNuocDNLonHon15({ className }: FormDongHoNuocDN
                             placeholder="Serial chỉ thị"
                             value={seriChiThi}
                             onChange={(e) => setSeriChiThi(e.target.value)}
+                        />
+                    </div>
+                </div>
+                <div className="mb-3 col-12 col-md-6 col-xxl-4">
+                    <label htmlFor="kieu_chi_thi" className="form-label">Kiểu chỉ thị:</label>
+                    <div className="input-group">
+                        <input
+                            type="text"
+                            className="form-control"
+                            id="kieu_chi_thi"
+                            placeholder="Serial chỉ thị"
+                            value={kieuChiThi}
+                            onChange={(e) => setKieuChiThi(e.target.value)}
                         />
                     </div>
                 </div>
@@ -916,14 +901,22 @@ export default function FormDongHoNuocDNLonHon15({ className }: FormDongHoNuocDN
                             ]
                         } />
                         <div className={`w-100 p-2 d-flex gap-2 justify-content-between`}>
-                            <div id="validate-info" className={`w-100 px-3 row alert alert-warning m-0 ${(ketQua != null) ? "fade d-none" : "show"}`}>
-                                <h6><i>* Điền đủ các thông tin để hiện kết quả kiểm tra!</i></h6>
+                            <div className={`w-100 px-3 row alert alert-warning m-0 ${(ketQua != null) ? "fade d-none" : "show"}`}>
+                                <h6><i>* Điền đủ các thông tin để kiểm tra kết quả!</i></h6>
 
                                 {ketQua == null && (
                                     <div className="col-12"><span className="me-2">•</span>Tiến trình chạy lưu lượng không được bỏ trống</div>
                                 )}
                             </div>
-                            <div id="validate-info" className={`w-100 px-3 p-xl-4 row alert ${ketQua ? "alert-success" : "alert-danger"} m-0 ${(ketQua != null) ? "show" : "fade d-none"}`}>
+                            <div className={`w-100 px-3 m-0 d-flex align-items-center justify-content-end ${(ketQua != null) ? "fade d-none" : "show"}`}>
+                                <button aria-label="Kiểm tra" className="btn btn-success px-3 py-2 text-white" onClick={
+                                    () => {
+                                        // TODO:
+                                        // handleCheck();
+                                    }
+                                }><FontAwesomeIcon className="me-2" icon="fas fa-tasks" />Kiểm tra</button>
+                            </div>
+                            <div className={`w-100 px-3 p-xl-4 row alert ${ketQua ? "alert-success" : "alert-danger"} m-0 ${(ketQua != null) ? "show" : "fade d-none"}`}>
                                 <h5 className="p-0">Kết quả kiểm tra kỹ thuật:</h5>
                                 <p className="p-0 m-0">- Khả năng hoạt động của hệ thống: <b className="text-uppercase">{ketQua ? "Đạt" : "Không đạt"}</b></p>
                                 <div className={`w-100 m-0 mt-3 p-0 ${ketQua ? "" : "d-none"}`}>

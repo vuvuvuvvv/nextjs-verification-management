@@ -37,7 +37,7 @@ export default function DNBT30TinhSaiSoForm({ className, formValue, readOnly = f
             setVc2(Vc2 || formValue.Vc2.toString());
             setTdh(formValue.Tdh.toString());
             setTc(formValue.Tc.toString());
-            console.log(formValue)
+            // console.log(formValue)
 
             prevFormValuesRef.current = formValue;
         }

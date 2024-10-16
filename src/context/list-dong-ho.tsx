@@ -9,20 +9,18 @@ interface DongHoListContextType {
     setDongHoList: React.Dispatch<React.SetStateAction<DongHo[]>>;
     addToListDongHo: (dongHo: DongHo) => void;
     updateListDongHo: (index: number, updatedDongHo: DongHo) => void;
-    updateSerialDongHoInList: (index: number, newSerial: string) => void;
+    updateDongHoFieldsInList: (index: number, fields: Partial<DongHo>) => void;
     deleteDongHoInList: (index: number) => void;
     getDongHoChuaKiemDinh: (dongHoList: DongHo[]) => DongHo[];
 }
 
 const DongHoListContext = createContext<DongHoListContextType | undefined>(undefined);
 
-
-// TODO: Serial number
-export const DongHoListProvider = ({ children, serialNumbers = [] }: { children: ReactNode, serialNumbers: string[] }) => {
+export const DongHoListProvider = ({ children, amount = 1 }: { children: ReactNode, amount: number }) => {
 
     const [dongHoList, setDongHoList] = useState<DongHo[]>(() => {
         // Khởi tạo danh sách với số lượng dongHo
-        return serialNumbers.map((val, i) => ({
+        return Array.from({ length: amount }, (_, i) => ({
             id: null,
             group_id: "",
             ten_dong_ho: "",
@@ -73,17 +71,11 @@ export const DongHoListProvider = ({ children, serialNumbers = [] }: { children:
         }));
     });
 
-    // useEffect(() => {
-    //     console.log("DHL: ", dongHoList);
-    // }, [dongHoList]);
+    useEffect(() => {
+        console.log("DHL: ", dongHoList);
+    }, [dongHoList]);
 
     const [dongHoSelected, setDongHoSelected] = useState<DongHo | null>(dongHoList[0] || null);
-
-    // useEffect(() => {
-    //     console.log("DH: ", dongHoSelected);
-    // }, [dongHoSelected]);
-
-    // Initial with amount. Ex create 5 sample DonHo for dongHoList
 
     const addToListDongHo = (dongHo: DongHo) => {
         setDongHoList(prevList => [...prevList, dongHo]);
@@ -94,11 +86,11 @@ export const DongHoListProvider = ({ children, serialNumbers = [] }: { children:
             prevList.map((item, i) => (i === index ? updatedDongHo : item))
         );
     };
-
-    const updateSerialDongHoInList = (index: number, newSerial: string) => {
+    
+    const updateDongHoFieldsInList = (index: number, fields: Partial<DongHo>) => {
         setDongHoList(prevList =>
             prevList.map((item, i) =>
-                i === index ? { ...item, serial_number: newSerial } : item
+                i === index ? { ...item, ...fields } : item
             )
         );
     };
@@ -125,7 +117,7 @@ export const DongHoListProvider = ({ children, serialNumbers = [] }: { children:
             setDongHoSelected,
             setDongHoList,
             addToListDongHo,
-            updateSerialDongHoInList,
+            updateDongHoFieldsInList,
             updateListDongHo,
             deleteDongHoInList,
             getDongHoChuaKiemDinh

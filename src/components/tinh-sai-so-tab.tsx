@@ -61,13 +61,10 @@ export default function TinhSaiSoTab({ className, tabIndex, d, q, form, onFormHS
 
     const [activeTab, setActiveTab] = useState<number>(getActiveTab())
 
-
-    // TODO: Cập nhật form value:
     // Hook: Cập nhật lại số lượng form + tab sau khi update số lần
     const [formValues, setFormValues] = useState<DuLieuCacLanChay>(getDuLieuChayCuaLuuLuong(q));
     const prevFormValuesRef = useRef<DuLieuCacLanChay>(formValues);
 
-    // TODO: Check update q
     useEffect(() => {
         if (prevFormValuesRef.current != getDuLieuChayCuaLuuLuong(q)) {
             setFormValues(getDuLieuChayCuaLuuLuong(q));

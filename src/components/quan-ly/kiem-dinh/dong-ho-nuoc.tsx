@@ -175,7 +175,6 @@ export default function WaterMeterManagement({ className }: WaterMeterManagement
                 if (result.isConfirmed) {
                     setFilterLoading(true);
                     try {
-                        // TODO: Serial number
                         const res = await deleteDongHo(id);
                         if (res.status === 200 || res.status === 201) {
                             setRootData(prevData => prevData ? prevData.filter(item => item.id !== id) : []);

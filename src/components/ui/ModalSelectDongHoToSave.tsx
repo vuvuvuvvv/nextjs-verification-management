@@ -30,7 +30,8 @@ export default function ModalSelectDongHoToSave({ dongHoList, show, handleClose 
     const handleSave = () => {
         // onSave(selectedDongHo); // TODO: Save List DH
         const dongHoChuaKiemDinh = getDongHoChuaKiemDinh(selectedDongHo);
-        if(dongHoChuaKiemDinh.length > 0) {
+        if (dongHoChuaKiemDinh.length > 0) {
+            document.querySelector('.modal')?.setAttribute('aria-hidden', 'true');
             // SweetAlert2
             Swal.fire({
                 title: 'Chú ý!',
@@ -43,18 +44,19 @@ export default function ModalSelectDongHoToSave({ dongHoList, show, handleClose 
                 confirmButtonText: 'Lưu',
                 reverseButtons: true
             }).then((rs) => {
-                if(rs.isConfirmed) {
+                if (rs.isConfirmed) {
                     // TODO: Save List DH
-                    console.log(selectedDongHo);
+                    // console.log(selectedDongHo);
                     handleClose();
                 }
+                document.querySelector('.modal')?.setAttribute('aria-hidden', 'false');
             });
         }
-         // Close the modal after saving
+        // Close the modal after saving
     };
 
     const selectAllDongHo = () => {
-        console.log(dongHoList);
+        // console.log(dongHoList);
         setSelectedDongHo(dongHoList);
     };
 
@@ -92,7 +94,9 @@ export default function ModalSelectDongHoToSave({ dongHoList, show, handleClose 
                                 <label className='w-100 d-flex align-items-center gap-3'>
                                     <Form.Check
                                         type="checkbox"
-                                        label={"ĐH" + (index + 1) + ": " + dongHo.serial_number + " - " + (duLieuKiemDinh.ket_qua != null ? (duLieuKiemDinh.ket_qua ? "Đạt" : "Không đạt") : "Chưa kiểm định")}
+                                        label={"ĐH" + (index + 1) + ": "
+                                            // + dongHo.ten_dong_ho
+                                            + " - " + (duLieuKiemDinh.ket_qua != null ? (duLieuKiemDinh.ket_qua ? "Đạt" : "Không đạt") : "Chưa kiểm định")}
                                         checked={selectedDongHo.includes(dongHo)}
                                         onChange={() => toggleSelectDongHo(dongHo)}
                                     />
@@ -105,7 +109,7 @@ export default function ModalSelectDongHoToSave({ dongHoList, show, handleClose 
                     <small>Chọn <b>{selectedDongHo.length} / {dongHoList.length}</b> đồng hồ</small>
                     <div className='d-flex align-items-center gap-2'>
                         <Button variant={selectedDongHo.length === 0 ? 'secondary' : 'danger'} disabled={selectedDongHo.length === 0} onClick={deselectAllDongHo}>
-                            <FontAwesomeIcon className="me-2" icon={faTimes} /> Xóa
+                            <FontAwesomeIcon className="me-2" icon={faTimes} /> Hủy
                         </Button>
                         <Button variant="primary" onClick={selectAllDongHo}>
                             <FontAwesomeIcon className="me-2" icon={faCheck} />Toàn bộ
@@ -115,7 +119,7 @@ export default function ModalSelectDongHoToSave({ dongHoList, show, handleClose 
             </Modal.Body>
             <Modal.Footer className='d-flex align-items-center justify-content-between'>
                 <Button variant="secondary" onClick={handleClose}>
-                    Close
+                    Đóng
                 </Button>
                 <Button variant={selectedDongHo.length === 0 ? 'secondary' : 'success'} disabled={selectedDongHo.length === 0} onClick={handleSave}>
                     Lưu

@@ -38,18 +38,18 @@ export default function Page({ params }: { params: { id: string } }) {
 
     useEffect(() => {
         if (dongHoData) {
-            const duLieuKiemDinh = dongHoData.du_lieu_kiem_dinh as { du_lieu?: DuLieuChayDongHo }; 
+            const duLieuKiemDinh = dongHoData.du_lieu_kiem_dinh as { du_lieu?: DuLieuChayDongHo };
             if (duLieuKiemDinh?.du_lieu) { // Optional chaining
                 const dlKiemDinh = duLieuKiemDinh.du_lieu;
                 setDuLieuKiemDinhCacLuuLuong(dlKiemDinh);
             }
-            const duLieuHSS = dongHoData.du_lieu_kiem_dinh as { hieu_sai_so?: { hss: number | null }[] }; 
+            const duLieuHSS = dongHoData.du_lieu_kiem_dinh as { hieu_sai_so?: { hss: number | null }[] };
             if (duLieuHSS?.hieu_sai_so) { // Optional chaining
                 const dlHSS = duLieuHSS.hieu_sai_so;
                 // Reverse array HSS
                 setFormHieuSaiSo(dlHSS.reverse());
             }
-            const duLieuKetQua = dongHoData.du_lieu_kiem_dinh as { ket_qua?: boolean } | null; 
+            const duLieuKetQua = dongHoData.du_lieu_kiem_dinh as { ket_qua?: boolean } | null;
             if (duLieuKetQua != null) {
                 setKetQua(duLieuKetQua ? "Đạt" : "Không đạt");
             }
@@ -94,10 +94,6 @@ export default function Page({ params }: { params: { id: string } }) {
                     <div className="col-6">
                         <p>Kiểu sản xuất: <b>{dongHoData.kieu_thiet_bi || "Chưa có kiểu sản xuất"}</b></p>
                     </div>
-                    {/* TODO: Serial number */}
-                    {/* <div className="col-6">
-                        <p>Số: <b>{dongHoData.serial_number}</b></p>
-                    </div> */}
                 </div>
                 <div className="row mb-3">
                     <div className="col-12 col-md-4">
@@ -108,6 +104,10 @@ export default function Page({ params }: { params: { id: string } }) {
                             <li>- Đường kính danh định: <b>DN ={dongHoData.dn || 0}</b> mm</li>
                             <li>- Lưu lượng danh định: {dongHoData.q3 ? <b>Q3= {dongHoData.q3 || 0}</b> : <b>Qn= {dongHoData.qn || 0}</b>} m<sup>3</sup>/h</li>
                             <li>- Cấp chính xác: <b>{dongHoData.ccx || "Chưa có cấp chính xác"}</b></li>
+                            {(dongHoData.kieu_sensor) && <li>- Model sensor: <b>{dongHoData.kieu_sensor}</b></li>}
+                            {(dongHoData.kieu_chi_thi) && <li>- Model chỉ thị: <b>{dongHoData.kieu_chi_thi}</b></li>}
+                            {(dongHoData.seri_sensor) && <li>- Serial sensor: <b>{dongHoData.seri_sensor}</b></li>}
+                            {(dongHoData.seri_chi_thi) && <li>- Serial chỉ thị: <b>{dongHoData.seri_chi_thi}</b></li>}
                             <li>- Ký hiệu PDM / Số quyết định: <b>{dongHoData.so_qd_pdm || "Chưa có số quyết định"}</b></li>
                         </ul>
                     </div>
@@ -131,9 +131,9 @@ export default function Page({ params }: { params: { id: string } }) {
                     </div>
                 </div>
                 <div className="row mb-3">
-                <p className="fs-5 text-center text-uppercase">Kết quả kiểm tra</p>
-                <p>1. Khả năng hoạt động: <b>{ketQua}</b></p>
-                <p>2. Kết quả kiểm tra đo lường: </p>
+                    <p className="fs-5 text-center text-uppercase">Kết quả kiểm tra</p>
+                    <p>1. Khả năng hoạt động: <b>{ketQua}</b></p>
+                    <p>2. Kết quả kiểm tra đo lường: </p>
                     <div className={`${dtp.wrapper} w-100`}>
                         <table>
                             <thead>

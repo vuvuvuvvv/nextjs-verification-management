@@ -10,28 +10,6 @@ const DongHoContext = createContext<DongHoContextType | undefined>(undefined);
 
 export const DongHoProvider = ({ children }: { children: ReactNode }) => {
 
-    // TODO: Check chưa save!
-    // useEffect(() => {
-    //     const handleBeforeUnload = (event: BeforeUnloadEvent) => {
-    //         event.preventDefault();
-    //         event.returnValue = '';
-    //     };
-
-    //     // const handleVisibilityChange = () => {
-    //     //     if (document.visibilityState === 'hidden') {                                                         
-    //     //         console.log('Tab is hidden or user switched tabs.');
-    //     //     }
-    //     // };
-
-    //     window.addEventListener('beforeunload', handleBeforeUnload);
-    //     // document.addEventListener('visibilitychange', handleVisibilityChange);
-
-    //     return () => {
-    //         window.removeEventListener('beforeunload', handleBeforeUnload);
-    //         // document.removeEventListener('visibilitychange', handleVisibilityChange);
-    //     };
-    // }, []);
-
     const [dongHo, setDongHo] = useState<DongHo>({
         id: "",
         ten_dong_ho: "",

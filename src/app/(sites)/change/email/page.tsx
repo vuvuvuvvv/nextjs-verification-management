@@ -90,7 +90,7 @@ export default function ChangeEmail({ className }: FormProps) {
                 setError(response?.msg);
             }
         } catch (err) {
-            console.log(err);
+            // console.log(err);
             setError("Có lỗi đã xảy ra. Hãy thử lại!");
         }
     };

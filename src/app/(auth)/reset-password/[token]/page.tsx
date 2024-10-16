@@ -101,7 +101,7 @@ export default function ResetPassword({ params }: { params: { token: string } })
                 setError(response?.data?.msg);
             }
         } catch (err) {
-            console.log(err);
+            // console.log(err);
             setError("Có lỗi đã xảy ra. Hãy thử lại!");
         }
     }
