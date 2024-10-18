@@ -12,7 +12,7 @@ import Swal from 'sweetalert2';
 import { resetPassword } from '@/app/api/auth/change/password/route';
 import { logout } from '@/app/api/auth/logout/route';
 import Head from 'next/head';
-import { useUser } from "@/context/app-context";
+import { useUser } from "@/context/AppContext";
 
 interface FormProps {
     className?: string
@@ -70,7 +70,7 @@ export default function ChangePassword({ className }: FormProps) {
                 new_password: newPassword
             }
             const response = await resetPassword(credentials)
-            if (response?.status == 200) {
+            if (response?.status == 200 || response?.status == 201) {
                 Swal.fire({
                     title: "Thành công",
                     text: response?.msg + " Hãy đăng nhập lại!",
@@ -99,7 +99,7 @@ export default function ChangePassword({ className }: FormProps) {
                 setError(response?.msg);
             }
         } catch (err) {
-            console.log(err);
+            // console.log(err);
             setError("Có lỗi đã xảy ra. Hãy thử lại!");
         }
     };
@@ -168,7 +168,7 @@ export default function ChangePassword({ className }: FormProps) {
                         </div>
                     )
                 }
-                <button type="submit" className="btn btn-primary w-100">Đổi mật khẩu</button>
+                <button aria-label="Đổi mật khẩu" type="submit" className="btn btn-primary w-100">Đổi mật khẩu</button>
             </form>
         </>
     )

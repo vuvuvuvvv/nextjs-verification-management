@@ -8,14 +8,14 @@ import { faChevronDown, faChevronUp, faEllipsisH } from "@fortawesome/free-solid
 import React from "react";
 
 import Select, { GroupBase } from 'react-select';
-import Pagination from "@/components/pagination";
+import Pagination from "@/components/Pagination";
 import { User } from "@lib/types";
 
 import { usePathname } from "next/navigation";
 import Link from "next/link";
 import { limitOptions, statusOptions } from "@lib/system-constant";
 
-const Loading = React.lazy(() => import("@/components/loading"));
+const Loading = React.lazy(() => import("@/components/Loading"));
 
 interface UserManagementProps {
     data: User[],

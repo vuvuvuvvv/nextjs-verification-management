@@ -1,5 +1,5 @@
 import { DongHo } from '@lib/types';
-import React, { createContext, useState, useContext, ReactNode } from 'react';
+import React, { createContext, useState, useContext, ReactNode, useEffect } from 'react';
 
 interface DongHoContextType {
     dongHo: DongHo;
@@ -9,8 +9,11 @@ interface DongHoContextType {
 const DongHoContext = createContext<DongHoContextType | undefined>(undefined);
 
 export const DongHoProvider = ({ children }: { children: ReactNode }) => {
+
     const [dongHo, setDongHo] = useState<DongHo>({
-        serial_number: "",
+        id: "",
+        ten_dong_ho: "",
+        group_id: "",
         phuong_tien_do: "",
         seri_chi_thi: "",
         seri_sensor: "",
@@ -29,7 +32,7 @@ export const DongHoProvider = ({ children }: { children: ReactNode }) => {
         k_factor: "",
         so_qd_pdm: "",
         ten_khach_hang: "",
-        co_so_su_dung : "",
+        co_so_su_dung: "",
         phuong_phap_thuc_hien: "ĐNVN 17:2017",
         chuan_thiet_bi_su_dung: "Đồng hồ chuẩn đo nước và Bình chuẩn",
         nguoi_kiem_dinh: "",

@@ -14,7 +14,7 @@ import { faChevronDown, faChevronUp, faEye, faTrash, faEllipsisH } from "@fortaw
 import React from "react";
 
 import Select, { GroupBase } from 'react-select';
-import Pagination from "@/components/pagination";
+import Pagination from "@/components/Pagination";
 import { PDMData, PDMFilterParameters } from "@lib/types";
 
 import { usePathname } from "next/navigation";
@@ -25,7 +25,7 @@ import api from "@/app/api/route";
 import { deletePDM, getPDMByFilter } from "@/app/api/pdm/route";
 import Swal from "sweetalert2";
 
-const Loading = React.lazy(() => import("@/components/loading"));
+const Loading = React.lazy(() => import("@/components/Loading"));
 
 
 interface PDMManagementProps {
@@ -128,7 +128,7 @@ export default function PDMManagement({ data, className }: PDMManagementProps) {
         const debounce = setTimeout(async () => {
             try {
                 const res = await getPDMByFilter(filterForm);
-                if (res.status === 200) {
+                if (res.status === 200 || res.status === 201) {
                     setRootData(res.data);
                 } else {
                     console.error(res.msg);
@@ -140,7 +140,7 @@ export default function PDMManagement({ data, className }: PDMManagementProps) {
             } finally {
                 setLoading(false);
             }
-        }, 700);
+        }, 500);
 
         return () => clearTimeout(debounce);
 
@@ -168,7 +168,7 @@ export default function PDMManagement({ data, className }: PDMManagementProps) {
                 setLoading(true);
                 try {
                     const res = await deletePDM(ma_tim_dong_ho_pdm);
-                    if (res.status === 200) {
+                    if (res.status === 200 || res.status === 201) {
                         setRootData(prevData => prevData.filter(item => item.ma_tim_dong_ho_pdm !== ma_tim_dong_ho_pdm));
                         Swal.fire({
                             text: "Xóa thành công!",
@@ -457,10 +457,11 @@ export default function PDMManagement({ data, className }: PDMManagementProps) {
                             </div>
 
                             <div className={`col-12 m-0 my-2 d-flex align-items-center justify-content-between`}>
-                                <button type="button" className={`btn bg-main-blue text-white`} onClick={hanldeResetFilter}>
+                                <button aria-label="Xóa bộ lọc" type="button" className={`btn bg-main-blue text-white`} onClick={hanldeResetFilter}>
                                     Xóa bộ lọc
                                 </button>
                                 <Link
+                                    aria-label="Thêm mới"
                                     href={path + "/them-moi"}
                                     className="btn bg-main-green text-white"
                                 >
@@ -574,17 +575,17 @@ export default function PDMManagement({ data, className }: PDMManagementProps) {
                                                 </td>
                                                 <td>
                                                     <div className={`dropdown ${c_vfml['action']}`}>
-                                                        <button className={`${c_vfml['action-button']}`} type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                                        <button aria-label="Lựa chọn" className={`${c_vfml['action-button']}`} type="button" data-bs-toggle="dropdown" aria-expanded="false">
                                                             <FontAwesomeIcon icon={faEllipsisH}></FontAwesomeIcon>
                                                         </button>
                                                         <ul className="dropdown-menu">
                                                             <li>
-                                                                <Link target="blank" href={path + "/chi-tiet/" + item.ma_tim_dong_ho_pdm} className={`btn w-100`}>
+                                                                <Link aria-label="Xem chi tiết" target="blank" href={path + "/chi-tiet/" + item.ma_tim_dong_ho_pdm} className={`btn w-100`}>
                                                                     Xem chi tiết
                                                                 </Link>
                                                             </li>
                                                             <li>
-                                                                <button type="button" onClick={() => handleDelete(item.ma_tim_dong_ho_pdm)} className={`btn w-100`}>
+                                                                <button aria-label="Xóa" type="button" onClick={() => handleDelete(item.ma_tim_dong_ho_pdm)} className={`btn w-100`}>
                                                                     Xóa
                                                                 </button>
                                                             </li>

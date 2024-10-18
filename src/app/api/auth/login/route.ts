@@ -14,9 +14,9 @@ export const login = async (credentials: LoginCredentials) => {
 
         if (response.data.access_token && response.data.user && response.data.refresh_token) {
             Cookies.set('accessToken', response.data.access_token, { expires: new Date(new Date().getTime() + 10 * 1000) });
-            Cookies.set('user', JSON.stringify(response.data.user), { expires: credentials.remember ? 3 : undefined });
-            Cookies.set('refreshToken', response.data.refresh_token, { expires: credentials.remember ? 3 : undefined });
-            
+            Cookies.set('user', JSON.stringify(response.data.user), { expires: credentials.remember ? 5 : 1 });
+            Cookies.set('refreshToken', response.data.refresh_token, { expires: credentials.remember ? 5 : 1 });
+
             return {
                 "status": response.status,
                 "msg": response.data.msg || "Đăng nhập thành công!",

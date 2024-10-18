@@ -5,9 +5,9 @@ import { PDMData } from "@lib/types";
 import { useState, useEffect, useRef } from "react";
 import api from "@/app/api/route";
 import { BASE_API_URL } from "@lib/system-constant";
-import Loading from "@/components/loading";
+import Loading from "@/components/Loading";
 
-const PDMManagement = dynamic(() => import("@/components/quan-ly/kiem-dinh/pdm"), { ssr: true });
+const PDMManagement = dynamic(() => import("@/components/quan-ly/kiem-dinh/PDMMng"), { ssr: true });
 
 interface PDMProps {
     className?: string,

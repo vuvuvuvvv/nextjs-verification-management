@@ -6,7 +6,7 @@ import Cookies from 'js-cookie';
 import { logout } from '@/app/api/auth/logout/route';
 import Swal from 'sweetalert2';
 import { User } from '@lib/types';
-import Loading from '@/components/loading';
+import Loading from '@/components/Loading';
 
 // Define user type
 
@@ -56,7 +56,7 @@ export const AppProvider : React.FC<{ children: React.ReactNode }> = ({ children
 
     const logoutUser = async () => {
         const res = await logout();
-        if (res?.status == 200) {
+        if (res?.status == 200 || res?.status == 201) {
             window.location.href = '/login';
         } else if (res?.status == 401) {
             Swal.fire({

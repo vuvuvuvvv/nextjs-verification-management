@@ -53,7 +53,7 @@ export default function ForgotPassword() {
         setLoading(true);
         try {
             const response = await requestPasswordResetToken(email);
-            if (response?.status == 200) {
+            if (response?.status == 200 || response?.status == 201) {
                 setSuccess(true);
                 Swal.fire({
                     title: "Thành công",
@@ -83,7 +83,7 @@ export default function ForgotPassword() {
                 setError(response?.msg);
             }
         } catch (err) {
-            console.log(err);
+            // console.log(err);
             setError("Có lỗi đã xảy ra. Hãy thử lại!");
         } finally {
             setLoading(false);
@@ -113,7 +113,7 @@ export default function ForgotPassword() {
                 />
                 <FontAwesomeIcon className={`${layout['placeholder-icon']}`} icon={faEnvelope}></FontAwesomeIcon>
             </div>
-            <button type="submit" disabled={loading || success} className={`btn border-0 p-2 btn-primary w-100 ${loading ? 'bg-main-grey' : ''}`}>
+            <button aria-label="Gửi" type="submit" disabled={loading || success} className={`btn border-0 p-2 btn-primary w-100 ${loading ? 'bg-grey' : ''}`}>
                 {loading ?
                     <FontAwesomeIcon icon={faSpinner} className={`${layout.icon} ${layout.spinning}`}></FontAwesomeIcon>
                     :

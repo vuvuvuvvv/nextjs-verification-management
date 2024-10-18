@@ -16,7 +16,7 @@ import {
     faCertificate
 }
     from '@fortawesome/free-solid-svg-icons';
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, Suspense } from 'react';
 import { usePathname } from 'next/navigation';
 
 import Offcanvas from 'react-bootstrap/Offcanvas';
@@ -24,6 +24,7 @@ import Offcanvas from 'react-bootstrap/Offcanvas';
 import sb from "@styles/scss/ui/sidebar.module.scss";
 import Link from 'next/link';
 import { SideLink } from '@lib/types';
+import Loading from './Loading';
 
 interface SidebarProps {
     // "?" can be undefind
@@ -156,8 +157,8 @@ export default function Sidebar({
         });
     };
 
-    return <>
-        <button className={`bg-transparent d-xl-none px-3 ${sb['btn-toggle']}`} onClick={toggleOpen}>
+    return <Suspense fallback={<Loading />}>
+        <button aria-label="Menu" className={`bg-transparent d-xl-none px-3 ${sb['btn-toggle']}`} onClick={toggleOpen}>
             <FontAwesomeIcon icon={faBars} fontSize={24}></FontAwesomeIcon>
         </button>
         {show && (
@@ -169,7 +170,7 @@ export default function Sidebar({
                     <img src="/images/logo.png" alt="profileImg" />
                     <h5 className='fw-bold m-0 p-0'>{title ? title : ""}</h5>
                 </Offcanvas.Title>
-                <button onClick={toggleOpen} className={`btn border-0 shadow-0 ${''}`}>
+                <button aria-label="Đóng" onClick={toggleOpen} className={`btn border-0 shadow-0 ${''}`}>
                     <FontAwesomeIcon icon={faTimes} fontSize={24}></FontAwesomeIcon>
                 </button>
             </div>
@@ -185,6 +186,7 @@ export default function Sidebar({
                             {item.children ? (
                                 <>
                                     <button
+                                        aria-label={item.title}
                                         className={`${sb["nav-link"]} btn ${sb['btn-collapse']} ${(collapseState[index]) ? sb['btn-showed'] : ""} ${isActive ? sb['active'] : ""}`}
                                         type="button"
                                         onClick={() => toggleCollapse(index)}
@@ -202,6 +204,7 @@ export default function Sidebar({
                                             'children' in child ? (
                                                 <div key={index + "-" + childIndex}>
                                                     <button
+                                                        aria-label={child.title}
                                                         className={`${sb["nav-link"]} p-0 w-100 ${sb["clp-link"]} btn ${sb['btn-collapse']} ${(collapseState[index + "-" + childIndex]) ? sb['btn-showed'] : ""}`}
                                                         type="button"
                                                         onClick={() => toggleCollapse(index + "-" + childIndex)}
@@ -263,5 +266,5 @@ export default function Sidebar({
                 </Link>
             </div> */}
         </div>
-    </>
+    </Suspense>
 }

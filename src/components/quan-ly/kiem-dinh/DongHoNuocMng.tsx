@@ -14,41 +14,51 @@ import { faChevronDown, faChevronUp, faEye, faTrash, faEllipsisH } from "@fortaw
 import React from "react";
 
 import Select, { GroupBase } from 'react-select';
-import Pagination from "@/components/pagination";
-import { DongHo, DuLieuChayDongHo } from "@lib/types";
+import Pagination from "@/components/Pagination";
+import { DongHo, DongHoFilterParameters, DuLieuChayDongHo } from "@lib/types";
 
 import { usePathname } from "next/navigation";
 import Link from "next/link";
 
 import { statusOptions, typeOptions, ccxOptions, limitOptions, BASE_API_URL } from "@lib/system-constant";
 import Swal from "sweetalert2";
-import { deleteDongHo, getDongHoByFilter } from "@/app/api/dongho/route";
+import { deleteDongHo, getAllDongHo, getDongHoByFilter } from "@/app/api/dongho/route";
 import api from "@/app/api/route";
 
-const Loading = React.lazy(() => import("@/components/loading"));
+const Loading = React.lazy(() => import("@/components/Loading"));
 
 
 interface WaterMeterManagementProps {
     className?: string,
+    isBiggerThan15?: boolean
 }
 
-interface FilterForm {
-    so_giay_chung_nhan: string;
-    serial_number: string;
-    type: string;
-    ccx: string;
-    nguoi_kiem_dinh: string;
-    ten_khach_hang: string;
-    status: string | number;
-    fromDate: Date | null;
-    toDate: Date | null;
-}
-
-export default function WaterMeterManagement({ className }: WaterMeterManagementProps) {
+export default function WaterMeterManagement({ className, isBiggerThan15 = false }: WaterMeterManagementProps) {
     const [rootData, setRootData] = useState<DongHo[]>([]);
-    
+
     const [loading, setLoading] = useState<boolean>(true);
     const fetchCalled = useRef(false);
+
+    const [filterLoading, setFilterLoading] = useState(false);
+    const [sortConfig, setSortConfig] = useState<{ key: string, direction: 'asc' | 'desc' | 'default' } | null>(null);
+    const [limit, setLimit] = useState(5);
+    const [error, setError] = useState("");
+
+    const path = usePathname();
+
+    const [filterForm, setFilterForm] = useState<DongHoFilterParameters>({
+        is_bigger_than_15: isBiggerThan15,
+        so_giay_chung_nhan: "",
+        serial_number: "",
+        type: "",
+        ccx: "",
+        nguoi_kiem_dinh: "",
+        ten_khach_hang: "",
+        status: "",
+        ngay_kiem_dinh_from: null,
+        ngay_kiem_dinh_to: null
+    });
+    const [currentPage, setCurrentPage] = useState(1);
 
     useEffect(() => {
         if (fetchCalled.current) return;
@@ -56,8 +66,8 @@ export default function WaterMeterManagement({ className }: WaterMeterManagement
 
         const fetchData = async () => {
             try {
-                const res = await api.get(`${BASE_API_URL}/dongho`);
-                console.log("dataDongHo: ", res.data)
+                const res = await getAllDongHo();
+                // console.log("dataDongHo: ", res.data)
                 setRootData(res.data);
             } catch (error) {
                 console.error("Error fetching data:", error);
@@ -68,27 +78,6 @@ export default function WaterMeterManagement({ className }: WaterMeterManagement
 
         fetchData();
     }, []);
-
-
-    const [filterLoading, setFilterLoading] = useState(false);
-    const [sortConfig, setSortConfig] = useState<{ key: string, direction: 'asc' | 'desc' | 'default' } | null>(null);
-    const [limit, setLimit] = useState(5);
-    const [error, setError] = useState("");
-
-    const path = usePathname();
-
-    const [filterForm, setFilterForm] = useState<FilterForm>({
-        so_giay_chung_nhan: "",
-        serial_number: "",
-        type: "",
-        ccx: "",
-        nguoi_kiem_dinh: "",
-        ten_khach_hang: "",
-        status: "",
-        fromDate: null,
-        toDate: null
-    });
-    const [currentPage, setCurrentPage] = useState(1);
 
     const resetTotalPage = () => {
         setCurrentPage(1);
@@ -136,7 +125,7 @@ export default function WaterMeterManagement({ className }: WaterMeterManagement
         const debounce = setTimeout(async () => {
             try {
                 const res = await getDongHoByFilter(filterForm);
-                if (res.status === 200) {
+                if (res.status === 200 || res.status === 201) {
                     setRootData(res.data);
                 } else {
                     console.error(res.msg);
@@ -148,20 +137,20 @@ export default function WaterMeterManagement({ className }: WaterMeterManagement
             } finally {
                 setFilterLoading(false);
             }
-        }, 700);
+        }, 500);
 
         return () => clearTimeout(debounce);
     }, [filterForm]);
 
-    const handleFilterChange = (key: keyof FilterForm, value: any) => {
+    const handleFilterChange = (key: keyof DongHoFilterParameters, value: any) => {
         setFilterForm(prevForm => ({
             ...prevForm,
             [key]: value
         }));
     };
 
-    const handleDelete = (serial_number: string | null) => {
-        if (serial_number) {
+    const handleDelete = (id: string | null) => {
+        if (id) {
             Swal.fire({
                 title: "Xác nhận xóa?",
                 text: "Bạn sẽ không thể hoàn tác dữ liệu này!",
@@ -175,9 +164,9 @@ export default function WaterMeterManagement({ className }: WaterMeterManagement
                 if (result.isConfirmed) {
                     setFilterLoading(true);
                     try {
-                        const res = await deleteDongHo(serial_number);
-                        if (res.status === 200) {
-                            setRootData(prevData => prevData ? prevData.filter(item => item.serial_number !== serial_number) : []);
+                        const res = await deleteDongHo(id);
+                        if (res.status === 200 || res.status === 201) {
+                            setRootData(prevData => prevData ? prevData.filter(item => item.id !== id) : []);
                             Swal.fire({
                                 text: "Xóa thành công!",
                                 icon: "success"
@@ -206,8 +195,8 @@ export default function WaterMeterManagement({ className }: WaterMeterManagement
             nguoi_kiem_dinh: "",
             ten_khach_hang: "",
             status: "",
-            fromDate: null,
-            toDate: null
+            ngay_kiem_dinh_from: null,
+            ngay_kiem_dinh_to: null
         });
     }
 
@@ -220,9 +209,9 @@ export default function WaterMeterManagement({ className }: WaterMeterManagement
         if (data.du_lieu) {
             let duLieuStr = "";
             Object.entries(data.du_lieu).map(([key, value]) => {
-                if(value != null) {
+                if (value != null) {
                     const lastKey = value.lan_chay ? Object.keys(value.lan_chay).pop() : null; // Get the last key
-                    duLieuStr += (lastKey ? `${key}: Lần ${lastKey}`: key) + ", ";
+                    duLieuStr += (lastKey ? `${key}: Lần ${lastKey}` : key) + ", ";
                 }
             });
             return duLieuStr.substring(0, duLieuStr.length - 2);
@@ -475,12 +464,12 @@ export default function WaterMeterManagement({ className }: WaterMeterManagement
 
                                         <DatePicker
                                             className={`${c_vfml['date-picker']}`}
-                                            value={filterForm.fromDate ? dayjs(filterForm.fromDate) : null}
+                                            value={filterForm.ngay_kiem_dinh_from ? dayjs(filterForm.ngay_kiem_dinh_from) : null}
                                             format="DD-MM-YYYY"
 
-                                            onChange={(newValue: Dayjs | null) => handleFilterChange('fromDate', newValue ? newValue.toDate() : null)}
+                                            onChange={(newValue: Dayjs | null) => handleFilterChange('ngay_kiem_dinh_from', newValue ? newValue.toDate() : null)}
                                             slotProps={{ textField: { fullWidth: true } }}
-                                            maxDate={filterForm.toDate ? dayjs(filterForm.toDate).subtract(1, 'day') : dayjs().endOf('day').subtract(1, 'day')}
+                                            maxDate={filterForm.ngay_kiem_dinh_to ? dayjs(filterForm.ngay_kiem_dinh_to).subtract(1, 'day') : dayjs().endOf('day').subtract(1, 'day')}
                                         />
                                     </div>
 
@@ -488,12 +477,12 @@ export default function WaterMeterManagement({ className }: WaterMeterManagement
                                         <label>Đến:</label>
                                         <DatePicker
                                             className={`${c_vfml['date-picker']}`}
-                                            value={filterForm.toDate ? dayjs(filterForm.toDate) : undefined}
+                                            value={filterForm.ngay_kiem_dinh_to ? dayjs(filterForm.ngay_kiem_dinh_to) : undefined}
                                             format="DD-MM-YYYY"
-                                            minDate={filterForm.fromDate ? dayjs(filterForm.fromDate).add(1, 'day') : undefined}
+                                            minDate={filterForm.ngay_kiem_dinh_from ? dayjs(filterForm.ngay_kiem_dinh_from).add(1, 'day') : undefined}
 
                                             maxDate={dayjs().endOf('day')}
-                                            onChange={(newValue: Dayjs | null) => handleFilterChange('toDate', newValue ? newValue.toDate() : undefined)}
+                                            onChange={(newValue: Dayjs | null) => handleFilterChange('ngay_kiem_dinh_to', newValue ? newValue.toDate() : undefined)}
                                             slotProps={{ textField: { fullWidth: true } }}
                                         />
                                     </div>
@@ -501,7 +490,7 @@ export default function WaterMeterManagement({ className }: WaterMeterManagement
                             </div>
 
                             <div className={`col-12 m-0 my-2 d-flex align-items-center justify-content-between`}>
-                                <button type="button" className={`btn bg-main-blue text-white`} onClick={hanldeResetFilter}>
+                                <button aria-label="Xóa bộ lọc" type="button" className={`btn bg-main-blue text-white`} onClick={hanldeResetFilter}>
                                     Xóa bộ lọc
                                 </button>
                                 <Link
@@ -601,23 +590,26 @@ export default function WaterMeterManagement({ className }: WaterMeterManagement
                                                     {processDuLieu(item.du_lieu_kiem_dinh as { du_lieu?: DuLieuChayDongHo })}
                                                 </td>
                                                 <td>
-                                                    <div className={`dropdown ${c_vfml['action']}`}>
-                                                        <button className={`${c_vfml['action-button']}`} type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                                    <Link aria-label="Xem chi tiết" href={"/kiem-dinh/dong-ho-nuoc/chi-tiet/" + item.id} className={`btn w-100 text-blue`}>
+                                                        <FontAwesomeIcon icon={faEye}></FontAwesomeIcon>
+                                                    </Link>
+                                                    {/* <div className={`dropdown ${c_vfml['action']}`}>
+                                                        <button aria-label="Lựa chọn" className={`${c_vfml['action-button']}`} type="button" data-bs-toggle="dropdown" aria-expanded="false">
                                                             <FontAwesomeIcon icon={faEllipsisH}></FontAwesomeIcon>
                                                         </button>
                                                         <ul className={`dropdown-menu ${c_vfml['dropdown-menu']}`} style={{ zIndex: "777" }}>
                                                             <li>
-                                                                <Link href={path + "/chi-tiet/" + item.serial_number} className={`btn w-100`}>
+                                                                <Link aria-label="Xem chi tiết" href={"/kiem-dinh/dong-ho-nuoc/chi-tiet/" + item.serial_number} className={`btn w-100`}>
                                                                     Xem chi tiết
                                                                 </Link>
                                                             </li>
                                                             <li>
-                                                                <button type="button" onClick={() => handleDelete(item.serial_number)} className={`btn w-100`}>
+                                                                <button aria-label="Xóa" type="button" onClick={() => handleDelete(item.serial_number)} className={`btn w-100`}>
                                                                     Xóa
                                                                 </button>
                                                             </li>
                                                         </ul>
-                                                    </div>
+                                                    </div> */}
                                                 </td>
                                             </tr>
                                         ))}

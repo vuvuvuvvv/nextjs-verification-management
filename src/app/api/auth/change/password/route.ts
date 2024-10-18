@@ -15,7 +15,7 @@ export const resetPassword = async (credentials: ResetPasswordCredentials) => {
                 "msg": response.data.msg || "Mật khẩu của bạn đã được đổi!",
             }
         } else {
-            console.log("err res:", response);
+            // console.log("err res:", response);
             if (response.status = 404) {
                 logout();
             }

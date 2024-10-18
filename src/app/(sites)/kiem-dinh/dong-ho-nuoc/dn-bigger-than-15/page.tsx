@@ -1,20 +1,11 @@
 "use client"
 
-import WaterMeterManagement from "@/components/quan-ly/kiem-dinh/dong-ho-nuoc";
-import React, { useEffect, useRef, useState } from "react";
-const Loading = React.lazy(() => import("@/components/loading"));
+const WaterMeterManagement = dynamic(() => import("@/components/quan-ly/kiem-dinh/DongHoNuocMng"), { ssr: false});
+import Loading from "@/components/Loading";
+import dynamic from "next/dynamic";
 
-import { BASE_API_URL } from "@lib/system-constant";
-import api from "@/app/api/route";
-import { DongHo } from "@lib/types";
-
-interface DNBiggerThan32Props {
-    className?: string,
-}
-
-export default function DNBiggerThan32({ className }: DNBiggerThan32Props) {
-
-    return <div className="w-100 m-0 p-2">
-        <WaterMeterManagement></WaterMeterManagement>
+export default function DNBiggerThan32() {
+    return <div className="w-100 m-0 p-2 overflow-x-hidden">
+        <WaterMeterManagement isBiggerThan15={true}></WaterMeterManagement>
     </div>
 }

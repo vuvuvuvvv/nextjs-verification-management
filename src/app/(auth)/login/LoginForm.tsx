@@ -67,7 +67,7 @@ export default function LoginForm({ className }: FormProps) {
 
         try {
             const response = await login(credentials);
-            if (response.status == 200) {
+            if (response.status == 200 || response.status == 201) {
                 Swal.fire({
                     // title: "Auto close alert!",
                     icon: "success",
@@ -141,7 +141,7 @@ export default function LoginForm({ className }: FormProps) {
                     Quên mật khẩu?
                 </Link>
             </div>
-            <button type="submit" className="btn btn-primary py-2 w-100">Đăng nhập</button>
+            <button aria-label="Đăng nhập" type="submit" className="btn btn-primary py-2 w-100">Đăng nhập</button>
         </form>
     );
 }

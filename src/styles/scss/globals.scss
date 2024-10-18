@@ -6,8 +6,9 @@
     padding: 0;
     // font-family: "Google Sans", "Helvetica Neue", sans-serif;
     // user-select: none !important;
-    font-size: 15px;
+    font-size: 1rem;
     outline: none;
+    font-display: swap;
 }
 
 html,
@@ -19,6 +20,8 @@ body {
     min-height: 100dvh;
     background-color: $body_bg_color !important;
     position: relative;
+    padding-right: 0 !important;
+    width: 100%;
 }
 
 footer {
@@ -40,7 +43,7 @@ a,
 button {
     outline: none !important;
     box-shadow: none !important;
-    border: none !important;
+    border: none;
     text-decoration: none;
     user-select: none;
 
@@ -72,7 +75,7 @@ textarea {
     background-color: $light_blue !important;
 }
 
-.bg-main-grey {
+.bg-grey {
     background-color: $dark_grey !important;
 }
 
@@ -96,6 +99,10 @@ textarea {
     color: $blue !important;
 }
 
+.text-success {
+    color: $green !important;
+}
+
 .text-dark-blue {
     color: $dark_blue !important;
 }
@@ -116,11 +123,13 @@ textarea {
 
 .btn-success {
     background-color: $green !important;
-    border: none !important;
+    border-color: $green !important;
     transition: all 0.3s ease;
 
     &:hover {
+        border-color: $dark_green !important;
         background-color: $dark_green !important;
+        color: #fff !important;
     }
 }
 
@@ -137,4 +146,13 @@ textarea {
 
 .notistack-SnackbarContainer {
     bottom: 80px !important;
+}
+
+/* Custom CSS for x-axis gap */
+.gap-x-xxl-5 {
+    column-gap: 3rem; /* Adjust the value as needed */
+}
+
+.gap-y-xxl-5 {
+    row-gap: 3rem; /* Adjust the value as needed */
 }

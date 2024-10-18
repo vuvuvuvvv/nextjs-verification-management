@@ -1,10 +1,10 @@
 "use client"
 
 import { deletePDM, getPDMByMaTimDongHoPDM } from "@/app/api/pdm/route";
-import Loading from "@/components/loading";
+import Loading from "@/components/Loading";
 import { PDM } from "@lib/types";
 import { useEffect, useRef, useState } from "react";
-import { useUser } from "@/context/app-context";
+import { useUser } from "@/context/AppContext";
 import Swal from "sweetalert2";
 import { useRouter } from "next/navigation";
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
@@ -134,7 +134,7 @@ export default function Page({ params }: { params: { ma_tim_dong_ho_pdm: string 
                 setLoading(true);
                 try {
                     const res = await deletePDM(params.ma_tim_dong_ho_pdm);
-                    if (res.status === 200) {
+                    if (res.status === 200 || res.status === 201) {
                         Swal.fire({
                             text: "Xóa thành công!",
                             icon: "success",
@@ -445,13 +445,13 @@ export default function Page({ params }: { params: { ma_tim_dong_ho_pdm: string 
                                 </div>
                             </form>
                             <div className="w-100 mt-2 p-0 d-flex justify-content-end gap-3">
-                                <button type="button" onClick={() => setIsEditing(!isEditing)} className="btn text-white bg-warning">
+                                <button aria-label="Hủy" type="button" onClick={() => setIsEditing(!isEditing)} className="btn text-white bg-warning">
                                     Hủy
                                 </button>
-                                <button type="button" onClick={handleSubmit} className="btn text-white bg-main-green">
+                                <button aria-label="Cập nhật phê duyệt mẫu" type="button" onClick={handleSubmit} className="btn text-white bg-main-green">
                                     Cập nhật PDM
                                 </button>
-                                <button type="button" onClick={handleDelete} className="btn text-white bg-danger">
+                                <button aria-label="Xóa phê duyệt mẫu" type="button" onClick={handleDelete} className="btn text-white bg-danger">
                                     Xóa PDM
                                 </button>
                             </div>
@@ -550,7 +550,7 @@ export default function Page({ params }: { params: { ma_tim_dong_ho_pdm: string 
                             <div className="w-100 mt-2 px-3 d-flex justify-content-end gap-3">
 
                                 {!isUser && (
-                                    <button type="button" onClick={() => setIsEditing(!isEditing)} className="btn text-white bg-warning">
+                                    <button aria-label="Chỉnh sửa" type="button" onClick={() => setIsEditing(!isEditing)} className="btn text-white bg-warning">
                                         Chỉnh sửa
                                     </button>
                                 )}

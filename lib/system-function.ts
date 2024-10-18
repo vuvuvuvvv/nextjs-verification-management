@@ -1,8 +1,11 @@
-import { phuongTienDoOptions, TITLE_LUU_LUONG } from "./system-constant";
+import dayjs from "dayjs";
 import { DuLieuMotLanChay, TinhSaiSoValueTabs } from "./types";
 
 export const getSaiSoDongHo = (formValue: DuLieuMotLanChay) => {
     if (formValue) {
+
+        if (formValue.V2 == 0 && formValue.V1 == 0 && formValue.Vc2 == 0 && formValue.Vc1 == 0) return null;
+
         const VDHCT = formValue.V2 - formValue.V1;
         const VDHC = formValue.Vc2 - formValue.Vc1;
         if (VDHC !== 0) {
@@ -10,8 +13,12 @@ export const getSaiSoDongHo = (formValue: DuLieuMotLanChay) => {
             return Number((Math.round(error * 10000) / 10000).toFixed(3));
         }
     }
-    return 0;
+    return null;
 };
+
+export const getFullSoGiayCN = (soGiayCN: string) => {
+    return "FMS.KĐ." + (soGiayCN || "-----") + "." + dayjs().format("YY");
+}
 
 export const getQ2OrQtAndQ1OrQMin = (isDHDienTu: boolean, ccx: string | null, q: string | null, r: string | null) => {
     // Qt:Q2 && Qmin:Q1 
@@ -80,7 +87,11 @@ export const getVToiThieu = (q: string | number, d: string | number) => {
 
 export const getHieuSaiSo = (formValues: TinhSaiSoValueTabs) => {
     try {
-        const values = Object.values(formValues).map(getSaiSoDongHo);
+        const values = Object.values(formValues)
+            .map(getSaiSoDongHo)
+            .filter(value => value !== null);
+
+        if (values.length === 0) return null;
 
         const result = values.reduce((acc, curr, index) => {
             return index === 0 ? curr : acc - curr;
@@ -88,23 +99,9 @@ export const getHieuSaiSo = (formValues: TinhSaiSoValueTabs) => {
 
         return Number(result.toFixed(3));
     } catch {
-        return 0;
+        return null;
     }
 }
-
-// TODO: Check dat chuan
-// export const isDongHoDatTieuChuan = (q: { title: string; value: string }, hss: number | number) => {
-//     if([TITLE_LUU_LUONG.q3, TITLE_LUU_LUONG.q2].includes(q.title)) {
-//         return hss >= -2;
-//     } else if([TITLE_LUU_LUONG.qn, TITLE_LUU_LUONG.qt].includes(q.title)) {
-//         return hss <= 2;
-//     } else if (TITLE_LUU_LUONG.q1 === q.title) {
-//         return hss >= -5;
-//     } else if (TITLE_LUU_LUONG.qmin === q.title) {
-//         return hss <= 5;
-//     }
-//     return null;
-// }
 
 
 // TODO: Check 
@@ -124,4 +121,33 @@ export const getLastDayOfMonthInFuture = (isDHDienTu: boolean): Date => {
     const today = new Date();
     const futureDate = new Date(today.getFullYear() + years, today.getMonth() + 1, 0);
     return futureDate;
+}
+
+export const convertToUppercaseNonAccent = (str: string) => {
+    // Chuẩn hóa chuỗi ký tự tiếng Việt thành không dấu
+    const map = {
+        'á': 'a', 'à': 'a', 'ả': 'a', 'ã': 'a', 'ạ': 'a',
+        'ă': 'a', 'ắ': 'a', 'ằ': 'a', 'ẳ': 'a', 'ẵ': 'a', 'ặ': 'a',
+        'â': 'a', 'ấ': 'a', 'ầ': 'a', 'ẩ': 'a', 'ẫ': 'a', 'ậ': 'a',
+        'é': 'e', 'è': 'e', 'ẻ': 'e', 'ẽ': 'e', 'ẹ': 'e',
+        'ê': 'e', 'ế': 'e', 'ề': 'e', 'ể': 'e', 'ễ': 'e', 'ệ': 'e',
+        'í': 'i', 'ì': 'i', 'ỉ': 'i', 'ĩ': 'i', 'ị': 'i',
+        'ó': 'o', 'ò': 'o', 'ỏ': 'o', 'õ': 'o', 'ọ': 'o',
+        'ô': 'o', 'ố': 'o', 'ồ': 'o', 'ổ': 'o', 'ỗ': 'o', 'ộ': 'o',
+        'ơ': 'o', 'ớ': 'o', 'ờ': 'o', 'ở': 'o', 'ỡ': 'o', 'ợ': 'o',
+        'ú': 'u', 'ù': 'u', 'ủ': 'u', 'ũ': 'u', 'ụ': 'u',
+        'ư': 'u', 'ứ': 'u', 'ừ': 'u', 'ử': 'u', 'ữ': 'u', 'ự': 'u',
+        'ý': 'y', 'ỳ': 'y', 'ỷ': 'y', 'ỹ': 'y', 'ỵ': 'y',
+        'đ': 'd',
+    };
+
+    // Thay thế các ký tự có dấu bằng ký tự không dấu
+    const nonAccentStr = str
+        .toLowerCase()
+        .split('')
+        .map(char => map[char as keyof typeof map] || char)
+        .join('');
+
+    // Chuyển thành chữ in hoa và loại bỏ khoảng trắng
+    return nonAccentStr.toUpperCase().replace(/\s+/g, '');
 }

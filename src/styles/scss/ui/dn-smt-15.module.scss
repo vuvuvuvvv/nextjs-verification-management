@@ -1,0 +1,30 @@
+@import "@styles/scss/variables/global.variables.scss";
+
+.wraper-modal {
+    background-color: $grey;
+    width: 100%;
+    height: calc(100vh - $nav_height - $footer_height);
+    display: flex;
+    justify-content: center;
+
+    .modal {
+        margin-top: 60px;
+        width: 95%;
+        height: max-content;
+        max-height: calc(100vh - $nav_height - $footer_height - 60px - 60px);
+        max-width: 550px;
+        background-color: #fff;
+        border-radius: 8px;
+        box-shadow: $box_shadow;
+        padding: 16px 24px;
+        overflow-y: auto;
+        overflow-x: hidden;
+
+        .serial-group-input {
+            overflow-x: hidden;
+            overflow-y: auto;
+            height: max-content;
+            max-height: calc(100vh - $nav_height - $footer_height - 120px - 214px - 32px);
+        }
+    }
+}

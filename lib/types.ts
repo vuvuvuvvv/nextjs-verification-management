@@ -169,9 +169,10 @@ export type DuLieuChayDiemLuuLuong = {
  */
 export type DuLieuChayDongHo = Record<string, DuLieuChayDiemLuuLuong | null>;
 
-
 export interface DongHo {
-    serial_number: string | null;
+    id: string | null;
+    group_id: string | null;
+    ten_dong_ho: string | null;
     phuong_tien_do: string | null;
     seri_chi_thi: string | null;
     seri_sensor: string | null;
@@ -204,10 +205,33 @@ export interface DongHo {
 }
 
 export interface DongHoFilterParameters {
-    so_giay_chung_nhan?: string;
-    // serial_number?: string;
-    nguoi_kiem_dinh?: string;
-    ten_khach_hang?: string;
-    ngay_kiem_dinh_from?: string; // Assuming date is in string format, adjust if necessary
-    ngay_kiem_dinh_to?: string;   // Assuming date is in string format, adjust if necessary
+    is_bigger_than_15?: boolean;
+    so_giay_chung_nhan: string;
+    serial_number: string;
+    type: string;
+    ccx: string;
+    nguoi_kiem_dinh: string;
+    ten_khach_hang: string;
+    status: string | number;
+    ngay_kiem_dinh_from: Date | null;
+    ngay_kiem_dinh_to: Date | null;
+}
+
+export interface NhomDongHo {
+    group_id: string | null;
+    so_luong: number | null;
+    ten_dong_ho: string | null;
+    co_so_san_xuat: string | null;
+    ten_khach_hang: string | null;
+    co_so_su_dung: string | null;
+    nguoi_kiem_dinh: string | null;
+    ngay_thuc_hien: Date | null;
+}
+
+export interface NhomDongHoFilterParameters {
+    group_id: string;
+    ten_dong_ho: string;
+    ten_khach_hang: string;
+    ngay_kiem_dinh_from: Date | null;
+    ngay_kiem_dinh_to: Date | null;
 }

@@ -3,16 +3,27 @@
 // Import Layout css
 import layout from "@styles/scss/layouts/home-layout.module.scss";
 
-// Import UI
-import Navbar from "@/components/ui/navbar";
-import { AppProvider, useUser } from "@/context/app-context";
+import Loading from "@/components/Loading";
+
+// const Navbar = dynamic(() => import('@/components/ui/navbar'));
+
+const BackToTopButton = dynamic(() => import('@/components/ui/BackToTopButton'), {
+    ssr: false,
+});
+
+const AppProvider = dynamic(() => import("@/context/AppContext").then(mod => mod.AppProvider), {
+    ssr: false,
+    loading: () => <Loading />,
+});
 
 import { usePathname } from "next/navigation";
-import BackToTopButton from "@/components/ui/BackToTopButton";
+import dynamic from "next/dynamic";
+import Navbar from "@/components/Navbar";
 
 const routeTitles: { [key: string]: string } = {
     "/": "Trang chủ",
-    "/about": "Về chng tôi",
+    "/about": "Về chúng tôi",
+    "/kiem-dinh/pdm": "Phê duyệt mẫu",
     "/kiem-dinh/dong-ho-nuoc/dn-bigger-than-15": "Kiểm định đồng hồ nước - DN > 15 m³/h",
     "/kiem-dinh/dong-ho-nuoc/dn-smaller-than-15": "Kiểm định đồng hồ nước - DN < 15 m³/h",
     "/kiem-dinh/dong-ho-nuoc/dn-bigger-than-15/them-moi": "Thêm mới - DN > 15 m³/h",

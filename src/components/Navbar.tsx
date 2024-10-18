@@ -2,10 +2,14 @@
 // Import Layout css
 import layout from "@styles/scss/ui/navbar.module.scss";
 
-// Import Sidebar
-import Sidebar from "@/components/ui/sidebar";
+// import Sidebar from "@/components/ui/sidebar";
+const Sidebar = dynamic(() => import("@/components/Sidebar"), {
+    ssr: false,
+});
 
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+const FontAwesomeIcon = dynamic(() => import('@fortawesome/react-fontawesome').then(mod => mod.FontAwesomeIcon), {
+    ssr: false,
+});
 
 import {
     faKey,
@@ -17,9 +21,10 @@ import {
     from '@fortawesome/free-solid-svg-icons';
 import Link from "next/link";
 
-import { useUser } from "@/context/app-context";
+import { useUser } from "@/context/AppContext";
 
 import React from "react";
+import dynamic from "next/dynamic";
 
 interface NavbarProps {
     className?: string,
@@ -45,7 +50,7 @@ const Navbar: React.FC<NavbarProps> = ({ className, title = "Trang kiểm địn
                     </div>
                     <div className="col-3 d-flex align-items-center justify-content-end">
                         <div className={`dropdown ${layout["dD_account"]}`}>
-                            <button className={`${layout["dD_button"]} btn dropdown-toggle`} type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <button aria-label="Tài khoản" className={`${layout["dD_button"]} btn dropdown-toggle`} type="button" data-bs-toggle="dropdown" aria-expanded="false">
                                 <FontAwesomeIcon icon={faUser} fontSize={24}></FontAwesomeIcon>
                                 <span className={`${layout['p_name']} d-none d-sm-block`}>{user?.username}</span>
                             </button>
@@ -82,20 +87,20 @@ const Navbar: React.FC<NavbarProps> = ({ className, title = "Trang kiểm địn
                                 <hr className="my-2" />
 
                                 {isAdmin && (
-                                    <a href="/dashboard" className={`dropdown-item ${layout['dD_item']}`}>
+                                    <a aria-label="Trang quản trị" href="/dashboard" className={`dropdown-item ${layout['dD_item']}`}>
                                         <FontAwesomeIcon icon={faUsersCog}></FontAwesomeIcon>
-                                        Tới trang quản trị
+                                        Trang quản trị
                                     </a>
                                 )}
-                                <a href="/change/password" className={`dropdown-item ${layout['dD_item']}`}>
+                                <a aria-label="Đổi mật khẩu" href="/change/password" className={`dropdown-item ${layout['dD_item']}`}>
                                     <FontAwesomeIcon icon={faKey}></FontAwesomeIcon>
                                     Đổi mật khẩu
                                 </a>
-                                <a href="/change/email" className={`dropdown-item ${layout['dD_item']}`}>
+                                <a aria-label="Đổi Email" href="/change/email" className={`dropdown-item ${layout['dD_item']}`}>
                                     <FontAwesomeIcon icon={faMailBulk}></FontAwesomeIcon>
                                     Đổi Email
                                 </a>
-                                <button type="button" onClick={logoutUser} className={`dropdown-item ${layout['dD_item']}`}>
+                                <button aria-label="Đăng xuất" type="button" onClick={logoutUser} className={`dropdown-item ${layout['dD_item']}`}>
                                     <FontAwesomeIcon icon={faSignOut}></FontAwesomeIcon>
                                     Đăng xuất
                                 </button>
