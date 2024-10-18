@@ -1,40 +1,23 @@
 "use client"
 
-import { getDongHoById } from "@/app/api/dongho/route";
-const Loading = dynamic(() => import('@/components/loading'), { ssr: false });
-import { DongHo, DuLieuChayDongHo } from "@lib/types";
-import dayjs from "dayjs";
-import { Fragment, useEffect, useRef, useState } from "react";
+import { getFullSoGiayCN, getSaiSoDongHo } from "@lib/system-function";
 import dtp from "@styles/scss/ui/dn-bgt-15.detail.module.scss";
-import { getSaiSoDongHo } from "@lib/system-function";
+import dayjs from "dayjs";
 import dynamic from "next/dynamic";
+import { DongHo, DuLieuChayDongHo } from "@lib/types";
+import { Fragment, useEffect, useState } from "react";
 
-export default function Page({ params }: { params: { id: string } }) {
-    const [dongHoData, setDongHoData] = useState<DongHo>();
+const Loading = dynamic(() => import('@/components/Loading'), { ssr: false });
+interface DetailDongHoProps {
+    dongHo: DongHo;
+}
+
+export default function DetailDongHo({ dongHo }: DetailDongHoProps) {
+    const [dongHoData, setDongHoData] = useState<DongHo>(dongHo);
+
     const [duLieuKiemDinhCacLuuLuong, setDuLieuKiemDinhCacLuuLuong] = useState<DuLieuChayDongHo>();
     const [ketQua, setKetQua] = useState<string>("");
     const [hieuSaiSo, setFormHieuSaiSo] = useState<{ hss: number | null }[] | null>(null);
-    const [loading, setLoading] = useState<boolean>(true);
-    const fetchCalled = useRef(false);
-
-    useEffect(() => {
-        if (fetchCalled.current) return;
-        fetchCalled.current = true;
-
-        const fetchData = async () => {
-            try {
-                const res = await getDongHoById(params.id);
-                // console.log("res: ", res?.data);
-                setDongHoData(res?.data);
-            } catch (error) {
-                console.error("Error fetching data:", error);
-            } finally {
-                setLoading(false);
-            }
-        };
-
-        fetchData();
-    }, [params.id]);
 
     useEffect(() => {
         if (dongHoData) {
@@ -56,7 +39,7 @@ export default function Page({ params }: { params: { id: string } }) {
         }
     }, [dongHoData]);
 
-    if (loading) {
+    if (!dongHoData) {
         return <Loading></Loading>;
     }
 
@@ -80,7 +63,7 @@ export default function Page({ params }: { params: { id: string } }) {
                 </div> */}
                 <div className="row mb-3">
                     <div className="col-12">
-                        <p>Số: <b>{dongHoData.so_giay_chung_nhan || "Chưa có số giấy chứng nhận"}</b></p>
+                        <p>Số: <b>{dongHoData.so_giay_chung_nhan ? getFullSoGiayCN(dongHoData.so_giay_chung_nhan) : "Chưa có số giấy chứng nhận"}</b></p>
                     </div>
                     <div className="col-12">
                         <p>Tên đồng hồ: <b>{dongHoData.ten_dong_ho || "Chưa có tên đồng hồ"}</b></p>
@@ -176,6 +159,10 @@ export default function Page({ params }: { params: { id: string } }) {
                                                 if (value?.value) {
                                                     let indexHead = true;
                                                     let jsxStart, jsxEnd;
+                                                    const rowSpan = Object.entries(value.lan_chay).reduce((count, [keyLanChay, valueLanChay]) => {
+                                                        return getSaiSoDongHo(valueLanChay) != null ? count + 1 : count;
+                                                    }, 0);
+
                                                     return (
                                                         <Fragment key={key + index}>
                                                             {
@@ -184,31 +171,33 @@ export default function Page({ params }: { params: { id: string } }) {
                                                                     jsxEnd = <></>
                                                                     if (indexHead) {
                                                                         jsxStart = <>
-                                                                            <td rowSpan={Object.keys(value.lan_chay).length}>{key}</td>
-                                                                            <td rowSpan={Object.keys(value.lan_chay).length}>{value.value}</td>
+                                                                            <td rowSpan={rowSpan}>{key}</td>
+                                                                            <td rowSpan={rowSpan}>{value.value}</td>
                                                                         </>;
                                                                         const hss = hieuSaiSo ? hieuSaiSo.reverse()[index].hss : 0;
                                                                         jsxEnd = <>
-                                                                            <td rowSpan={Object.keys(value.lan_chay).length}>{hss}</td>
+                                                                            <td rowSpan={rowSpan}>{hss}</td>
                                                                         </>
                                                                         indexHead = false;
                                                                     }
 
-                                                                    return (
-                                                                        <tr key={keyLanChay + indexLanChay}>
-                                                                            {jsxStart}
-                                                                            <td>{valueLanChay.V1}</td>
-                                                                            <td>{valueLanChay.V2}</td>
-                                                                            <td>{(Number(valueLanChay.V2) - Number(valueLanChay.V1)).toFixed(4).replace(/\.?0+$/, '')}</td>
-                                                                            <td>{valueLanChay.Tdh}</td>
-                                                                            <td>{valueLanChay.Vc1}</td>
-                                                                            <td>{valueLanChay.Vc2}</td>
-                                                                            <td>{(Number(valueLanChay.Vc2) - Number(valueLanChay.Vc1)).toFixed(4).replace(/\.?0+$/, '')}</td>
-                                                                            <td>{valueLanChay.Tc}</td>
-                                                                            <td>{getSaiSoDongHo(valueLanChay)}</td>
-                                                                            {jsxEnd}
-                                                                        </tr>
-                                                                    );
+                                                                    if (getSaiSoDongHo(valueLanChay) != null) {
+                                                                        return (
+                                                                            <tr key={keyLanChay + indexLanChay}>
+                                                                                {jsxStart}
+                                                                                <td>{valueLanChay.V1}</td>
+                                                                                <td>{valueLanChay.V2}</td>
+                                                                                <td>{(Number(valueLanChay.V2) - Number(valueLanChay.V1)).toFixed(4).replace(/\.?0+$/, '')}</td>
+                                                                                <td>{valueLanChay.Tdh}</td>
+                                                                                <td>{valueLanChay.Vc1}</td>
+                                                                                <td>{valueLanChay.Vc2}</td>
+                                                                                <td>{(Number(valueLanChay.Vc2) - Number(valueLanChay.Vc1)).toFixed(4).replace(/\.?0+$/, '')}</td>
+                                                                                <td>{valueLanChay.Tc}</td>
+                                                                                <td>{getSaiSoDongHo(valueLanChay)}</td>
+                                                                                {jsxEnd}
+                                                                            </tr>
+                                                                        );
+                                                                    }
                                                                 })
                                                             }
                                                         </Fragment>

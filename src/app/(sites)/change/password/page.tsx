@@ -12,7 +12,7 @@ import Swal from 'sweetalert2';
 import { resetPassword } from '@/app/api/auth/change/password/route';
 import { logout } from '@/app/api/auth/logout/route';
 import Head from 'next/head';
-import { useUser } from "@/context/app-context";
+import { useUser } from "@/context/AppContext";
 
 interface FormProps {
     className?: string

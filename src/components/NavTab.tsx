@@ -1,6 +1,6 @@
 "use client"
 
-import { useKiemDinh } from "@/context/kiem-dinh";
+import { useKiemDinh } from "@/context/KiemDinh";
 import nt from "@styles/scss/components/nav-tab.module.scss"
 
 import { useState } from "react";

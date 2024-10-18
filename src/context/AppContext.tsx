@@ -6,7 +6,7 @@ import Cookies from 'js-cookie';
 import { logout } from '@/app/api/auth/logout/route';
 import Swal from 'sweetalert2';
 import { User } from '@lib/types';
-import Loading from '@/components/loading';
+import Loading from '@/components/Loading';
 
 // Define user type
 

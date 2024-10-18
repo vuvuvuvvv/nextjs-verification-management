@@ -24,7 +24,7 @@ import Offcanvas from 'react-bootstrap/Offcanvas';
 import sb from "@styles/scss/ui/sidebar.module.scss";
 import Link from 'next/link';
 import { SideLink } from '@lib/types';
-import Loading from '../loading';
+import Loading from './Loading';
 
 interface SidebarProps {
     // "?" can be undefind

@@ -1,3 +1,4 @@
+import dayjs from "dayjs";
 import { DuLieuMotLanChay, TinhSaiSoValueTabs } from "./types";
 
 export const getSaiSoDongHo = (formValue: DuLieuMotLanChay) => {
@@ -14,6 +15,10 @@ export const getSaiSoDongHo = (formValue: DuLieuMotLanChay) => {
     }
     return null;
 };
+
+export const getFullSoGiayCN = (soGiayCN: string) => {
+    return "FMS.KĐ." + (soGiayCN || "-----") + "." + dayjs().format("YY");
+}
 
 export const getQ2OrQtAndQ1OrQMin = (isDHDienTu: boolean, ccx: string | null, q: string | null, r: string | null) => {
     // Qt:Q2 && Qmin:Q1 
@@ -140,7 +145,7 @@ export const convertToUppercaseNonAccent = (str: string) => {
     const nonAccentStr = str
         .toLowerCase()
         .split('')
-        .map(char => map[char as keyof typeof map] || char) 
+        .map(char => map[char as keyof typeof map] || char)
         .join('');
 
     // Chuyển thành chữ in hoa và loại bỏ khoảng trắng

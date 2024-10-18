@@ -32,7 +32,7 @@ export default function DNBT30TinhSaiSoForm({ className, formValue, readOnly = f
         if (prevFormValuesRef.current != formValue) {
             setV1(formValue.V1.toString());
             setV2(formValue.V2.toString());
-            // TODO: Check xem bị cái gì mà không dùng Vc1 Vc2
+            // TODO: Check xem bị cái gì mà không dùng Vc1 Vc2: Bị lưu giá trị cũ
             setVc1(Vc1 || formValue.Vc1.toString());
             setVc2(Vc2 || formValue.Vc2.toString());
             setTdh(formValue.Tdh.toString());
@@ -55,7 +55,13 @@ export default function DNBT30TinhSaiSoForm({ className, formValue, readOnly = f
         const decimalPlaces = getDecimalPlaces() || 0;
 
         return (e: React.FormEvent<HTMLInputElement>) => {
-            const rawValue = e.currentTarget.value.replace(/[^0-9]/g, '');
+            let rawValue = e.currentTarget.value.replace(/[^0-9]/g, '');
+
+            // Remove leading zeros if rawValue length is greater than or equal to decimalPlaces + 2
+            if (rawValue.length >= decimalPlaces + 2) {
+                rawValue = rawValue.replace(/^0+/, '');
+            }
+
             let formattedValue = '';
 
             if (rawValue.length <= decimalPlaces) {

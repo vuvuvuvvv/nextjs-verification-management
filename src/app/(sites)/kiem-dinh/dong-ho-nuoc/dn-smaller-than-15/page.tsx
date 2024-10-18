@@ -1,5 +1,5 @@
-const ProcessManagement = dynamic(() => import("@/components/quan-ly/kiem-dinh/nhom-dong-ho-nuoc"), { ssr: false })
-const WaterMeterManagement = dynamic(() => import("@/components/quan-ly/kiem-dinh/dong-ho-nuoc"), { ssr: false })
+const ProcessManagement = dynamic(() => import("@/components/quan-ly/kiem-dinh/NhomDongHoNuocMng"), { ssr: false })
+const WaterMeterManagement = dynamic(() => import("@/components/quan-ly/kiem-dinh/DongHoNuocMng"), { ssr: false })
 
 import vrfWm from "@styles/scss/ui/vfm.module.scss"
 
@@ -7,7 +7,7 @@ import vrfWm from "@styles/scss/ui/vfm.module.scss"
 import { sampleReportData, sampleWaterMeterData } from "@lib/sample-data";
 import dynamic from "next/dynamic";
 import { ReportData } from "@lib/types";
-import NavTab from "@/components/nav-tab";
+import NavTab from "@/components/NavTab";
 
 interface DNSmallerThan32Props {
     className?: string,

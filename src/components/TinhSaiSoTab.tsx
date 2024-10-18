@@ -1,6 +1,6 @@
 "use client";
 
-import { useKiemDinh } from "@/context/kiem-dinh";
+import { useKiemDinh } from "@/context/KiemDinh";
 import { faAdd, faTimes, faUndo } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { getHieuSaiSo, getVToiThieu, isDongHoDatTieuChuan } from "@lib/system-function";

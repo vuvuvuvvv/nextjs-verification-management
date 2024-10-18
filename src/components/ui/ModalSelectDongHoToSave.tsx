@@ -3,7 +3,7 @@ import { Modal, Button, Form } from 'react-bootstrap';
 import { DongHo } from '@lib/types';
 import { faCheck, faTimes } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { useDongHoList } from '@/context/list-dong-ho';
+import { useDongHoList } from '@/context/ListDongHo';
 import Swal from 'sweetalert2';
 
 interface ModalSelectDongHoToSaveProps {
@@ -14,8 +14,9 @@ interface ModalSelectDongHoToSaveProps {
 
 export default function ModalSelectDongHoToSave({ dongHoList, show, handleClose }: ModalSelectDongHoToSaveProps) {
     const [selectedDongHo, setSelectedDongHo] = useState<DongHo[]>([]);
+    const [isShow, setIsShow] = useState<boolean | null>(null);
 
-    const { getDongHoChuaKiemDinh } = useDongHoList();
+    const { getDongHoChuaKiemDinh, saveListDongHo } = useDongHoList();
 
     const toggleSelectDongHo = (dongHo: DongHo) => {
         setSelectedDongHo(prevSelected => {
@@ -28,36 +29,25 @@ export default function ModalSelectDongHoToSave({ dongHoList, show, handleClose 
     };
 
     const handleSave = () => {
-        // onSave(selectedDongHo); // TODO: Save List DH
-        const dongHoChuaKiemDinh = getDongHoChuaKiemDinh(selectedDongHo);
-        if (dongHoChuaKiemDinh.length > 0) {
-            document.querySelector('.modal')?.setAttribute('aria-hidden', 'true');
-            // SweetAlert2
-            Swal.fire({
-                title: 'Chú ý!',
-                text: 'Có ' + dongHoChuaKiemDinh.length + ' đồng hồ chưa kiểm định. Có muốn tiếp tục lưu?',
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonColor: '#3085d6',
-                cancelButtonColor: '#d33',
-                cancelButtonText: 'Hủy',
-                confirmButtonText: 'Lưu',
-                reverseButtons: true
-            }).then((rs) => {
-                if (rs.isConfirmed) {
-                    // TODO: Save List DH
-                    // console.log(selectedDongHo);
-                    handleClose();
-                }
-                document.querySelector('.modal')?.setAttribute('aria-hidden', 'false');
-            });
-        }
-        // Close the modal after saving
+        setIsShow(true);
+        Swal.fire({
+            title: 'Đang lưu đồng hồ',
+            html: 'Đang chuẩn bị...',
+            allowOutsideClick: false,
+            didOpen: () => {
+                setIsShow(false);
+                Swal.showLoading();
+                saveListDongHo(selectedDongHo);
+            }
+        });
     };
 
     const selectAllDongHo = () => {
-        // console.log(dongHoList);
-        setSelectedDongHo(dongHoList);
+        const selectableDongHo = dongHoList.filter(dongHo  => {
+            const duLieuKiemDinh = JSON.parse(dongHo.du_lieu_kiem_dinh || '{}');
+            return duLieuKiemDinh.ket_qua && dongHo.so_tem && dongHo.so_giay_chung_nhan;
+        });
+        setSelectedDongHo(selectableDongHo);
     };
 
     const deselectAllDongHo = () => {
@@ -65,7 +55,7 @@ export default function ModalSelectDongHoToSave({ dongHoList, show, handleClose 
     };
 
     return (
-        <Modal show={show} className='pe-0' onHide={handleClose} centered scrollable>
+        <Modal show={isShow != null ? isShow : show} className='pe-0' onHide={handleClose} centered scrollable>
             <Modal.Header closeButton>
                 <Modal.Title>Chọn đồng hồ</Modal.Title>
             </Modal.Header>
@@ -76,7 +66,7 @@ export default function ModalSelectDongHoToSave({ dongHoList, show, handleClose 
                 }}>
                     {dongHoList.map((dongHo, index) => {
                         const duLieuKiemDinh = JSON.parse(dongHo.du_lieu_kiem_dinh || '{}');
-
+                        const isSelectable = duLieuKiemDinh.ket_qua === false || (duLieuKiemDinh.ket_qua && dongHo.so_tem && dongHo.so_giay_chung_nhan);
                         return (
                             <li
                                 key={index}
@@ -86,19 +76,41 @@ export default function ModalSelectDongHoToSave({ dongHoList, show, handleClose 
                                     padding: '10px',
                                     borderRadius: '5px',
                                     marginBottom: '5px',
-                                    cursor: 'pointer',
-                                    height: '52px'
+                                    cursor: isSelectable ? 'pointer' : 'unset',
+                                    minHeight: '52px'
                                 }}
-                                onClick={() => toggleSelectDongHo(dongHo)}
+                                onClick={() => isSelectable && toggleSelectDongHo(dongHo)}
                             >
                                 <label className='w-100 d-flex align-items-center gap-3'>
                                     <Form.Check
                                         type="checkbox"
-                                        label={"ĐH" + (index + 1) + ": "
-                                            // + dongHo.ten_dong_ho
-                                            + " - " + (duLieuKiemDinh.ket_qua != null ? (duLieuKiemDinh.ket_qua ? "Đạt" : "Không đạt") : "Chưa kiểm định")}
+                                        label={
+                                            <>
+                                                <span style={{ color: 'black' }}>{"ĐH" + (index + 1) + ": "}</span>
+                                                <span style={{
+                                                    color: duLieuKiemDinh.ket_qua != null
+                                                        ? (duLieuKiemDinh.ket_qua
+                                                            ? (dongHo.so_tem && dongHo.so_giay_chung_nhan ? 'green' : 'orange') // Đạt nhưng thiếu điều kiện
+                                                            : 'red') // Không đạt
+                                                        : 'orange' // Chưa kiểm định
+                                                }}>
+                                                    {" - " + (duLieuKiemDinh.ket_qua != null ?
+                                                        (duLieuKiemDinh.ket_qua ?
+                                                            "Đạt - " + (dongHo.so_tem && dongHo.so_giay_chung_nhan
+                                                                ? "Có thể lưu"
+                                                                : "Không có " + (!dongHo.so_tem && !dongHo.so_giay_chung_nhan ?
+                                                                    "Số tem và Số giấy chứng nhận"
+                                                                    : (!dongHo.so_tem
+                                                                        ? "Số tem"
+                                                                        : "Số giấy chứng nhận")))
+                                                            : "Không đạt")
+                                                        : "Chưa kiểm định")}
+                                                </span>
+                                            </>
+                                        }
                                         checked={selectedDongHo.includes(dongHo)}
-                                        onChange={() => toggleSelectDongHo(dongHo)}
+                                        onChange={() => isSelectable && toggleSelectDongHo(dongHo)}
+                                        disabled={!isSelectable}
                                     />
                                 </label>
                             </li>

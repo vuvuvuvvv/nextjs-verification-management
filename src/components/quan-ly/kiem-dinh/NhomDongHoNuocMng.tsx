@@ -14,14 +14,14 @@ import { faChevronDown, faChevronUp, faEllipsisH, faEye, faTrash } from "@fortaw
 import React from "react";
 
 import Select, { GroupBase } from 'react-select';
-import Pagination from "@/components/pagination";
+import Pagination from "@/components/Pagination";
 import { ReportData } from "@lib/types";
 
 import { usePathname } from "next/navigation";
 import Link from "next/link";
 import { limitOptions, processStatusOptions } from "@lib/system-constant";
 
-const Loading = React.lazy(() => import("@/components/loading"));
+const Loading = React.lazy(() => import("@/components/Loading"));
 
 
 interface ProcessManagementProps {
@@ -43,6 +43,8 @@ export default function ProcessManagement({ data, className }: ProcessManagement
     const [sortConfig, setSortConfig] = useState<{ key: string, direction: 'asc' | 'desc' | 'default' } | null>(null);
     const [selectedStatus, setSelectedStatus] = useState([]);
     const [limit, setLimit] = useState(5);
+
+    
 
     const path = usePathname();
 
@@ -424,7 +426,7 @@ export default function ProcessManagement({ data, className }: ProcessManagement
                                                 <td>{item.updatedAt}</td>
                                                 <td>
 
-                                                    <Link aria-label="Xem chi tiết" href={path + "/chi-tiet/" + item.id} className={`btn w-100`}>
+                                                    <Link aria-label="Xem chi tiết" href={"/kiem-dinh/dong-ho-nuoc/chi-tiet/" + item.id} className={`btn w-100`}>
                                                         <FontAwesomeIcon icon={faEye}></FontAwesomeIcon>
                                                     </Link>
                                                     {/* <div className={`dropdown ${c_vfml['action']}`}>
@@ -433,7 +435,7 @@ export default function ProcessManagement({ data, className }: ProcessManagement
                                                         </button>
                                                         <ul className="dropdown-menu">
                                                             <li>
-                                                                <Link aria-label="Xem chi tiết" href={path + "/chi-tiet/" + item.id} className={`btn w-100`}>
+                                                                <Link aria-label="Xem chi tiết" href={"/kiem-dinh/dong-ho-nuoc/chi-tiet/" + item.id} className={`btn w-100`}>
                                                                     Xem chi tiết
                                                                 </Link>
                                                             </li>

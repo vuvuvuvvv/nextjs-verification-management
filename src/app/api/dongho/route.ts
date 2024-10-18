@@ -32,10 +32,55 @@ export const getAllDongHo = async () => {
 export const getDongHoByFilter = async (parameters?: DongHoFilterParameters) => {
     try {
         const url = new URL(API_DONGHO_URL);
+        url.searchParams.append('is_bigger_than_15', parameters?.is_bigger_than_15 ? '1' : '0');
 
-        // if (parameters?.serial_number) {
-        //     url.searchParams.append('serial_number', parameters.serial_number.toString());
-        // }
+        if (parameters?.so_giay_chung_nhan) {
+            url.searchParams.append('so_giay_chung_nhan', parameters.so_giay_chung_nhan.toString());
+        }
+
+        if (parameters?.ten_khach_hang) {
+            url.searchParams.append('ten_khach_hang', parameters.ten_khach_hang.toString());
+        }
+
+        if (parameters?.nguoi_kiem_dinh) {
+            url.searchParams.append('nguoi_kiem_dinh', parameters.nguoi_kiem_dinh.toString());
+        }
+
+        if (parameters?.ngay_kiem_dinh_from) {
+            url.searchParams.append('ngay_kiem_dinh_from', parameters.ngay_kiem_dinh_from.toString());
+        }
+
+        if (parameters?.ngay_kiem_dinh_to) {
+            url.searchParams.append('ngay_kiem_dinh_to', parameters.ngay_kiem_dinh_to.toString());
+        }
+
+        const response = await api.get(url.toString(), { withCredentials: true });
+
+        return {
+            "status": response.status,
+            "data": response.data,
+            "msg": response.data.msg || "Done!"
+        };
+
+    } catch (error: any) {
+        if (error.response?.data?.msg) {
+            return {
+                "status": error.response.status,
+                "msg": error.response.data.msg || 'Error fetching DongHo data!'
+            };
+        } else {
+            return {
+                "status": error.response?.status || 500,
+                "msg": 'An error occurred. Please try again!'
+            };
+        }
+    }
+};
+
+export const getNhomDongHoByFilter = async (parameters?: DongHoFilterParameters) => {
+    try {
+        const url = new URL(API_DONGHO_URL);
+        url.searchParams.append('is_bigger_than_15', parameters?.is_bigger_than_15 ? '1' : '0');
 
         if (parameters?.so_giay_chung_nhan) {
             url.searchParams.append('so_giay_chung_nhan', parameters.so_giay_chung_nhan.toString());
@@ -83,7 +128,7 @@ export const getDongHoByFilter = async (parameters?: DongHoFilterParameters) => 
 export const getDongHoById = async (serial_number: string) => {
     try {
         const url = `${API_DONGHO_URL}/id/${serial_number.toString()}`;
-        
+
         const response = await api.get(url.toString(), { withCredentials: true });
 
         if (response.status === 200 || response.status === 201) {
@@ -119,7 +164,7 @@ export const getDongHoById = async (serial_number: string) => {
 export const getDongHoByTenkhachhang = async (tenkhachhang: string) => {
     try {
         const url = `${API_DONGHO_URL}/tenkhachhang/${tenkhachhang.toString()}`;
-        
+
         const response = await api.get(url.toString(), { withCredentials: true });
 
         return {

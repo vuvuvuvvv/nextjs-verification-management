@@ -2,29 +2,30 @@
 
 import vrfWm from "@styles/scss/ui/vfm.module.scss"
 import dynamic from "next/dynamic";
-import { useKiemDinh } from "@/context/kiem-dinh";
-import { useDongHo } from "@/context/dong-ho";
-import { useUser } from "@/context/app-context";
+import { useKiemDinh } from "@/context/KiemDinh";
+import { useDongHo } from "@/context/DongHo";
+import { useUser } from "@/context/AppContext";
 import Select, { GroupBase } from 'react-select';
 import Link from "next/link";
 import Swal from "sweetalert2";
 import { useRouter } from "next/navigation";
 import dayjs, { Dayjs } from "dayjs";
-import { useEffect, useState } from "react";
-import { getLastDayOfMonthInFuture, getQ2OrQtAndQ1OrQMin, isDongHoDatTieuChuan } from "@lib/system-function";
+import { useEffect, useRef, useMemo, useState } from "react";
+import { convertToUppercaseNonAccent, getLastDayOfMonthInFuture, getQ2OrQtAndQ1OrQMin, isDongHoDatTieuChuan } from "@lib/system-function";
 import { ccxOptions, phuongTienDoOptions, TITLE_LUU_LUONG, typeOptions } from "@lib/system-constant";
 import { createDongHo } from "@/app/api/dongho/route";
-import { faFileAlt } from "@fortawesome/free-solid-svg-icons";
+import { faFileAlt, faTasks } from "@fortawesome/free-solid-svg-icons";
 
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { viVN } from "@mui/x-date-pickers/locales";
+import { getPDMByMaTimDongHoPDM } from "@/app/api/pdm/route";
 
 const FontAwesomeIcon = dynamic(() => import('@fortawesome/react-fontawesome').then(mod => mod.FontAwesomeIcon), { ssr: false });
 const LocalizationProvider = dynamic(() => import('@mui/x-date-pickers/LocalizationProvider').then(mod => mod.LocalizationProvider), { ssr: false });
 const DatePicker = dynamic(() => import('@mui/x-date-pickers/DatePicker').then(mod => mod.DatePicker), { ssr: false });
-const NavTab = dynamic(() => import('@/components/nav-tab'), { ssr: false });
-const TinhSaiSoTab = dynamic(() => import('@/components/tinh-sai-so-tab'), { ssr: false });
-const TinhSaiSoForm = dynamic(() => import('@/components/tinh-sai-so-form'), { ssr: false });
+const NavTab = dynamic(() => import('@/components/NavTab'), { ssr: false });
+const TinhSaiSoTab = dynamic(() => import('@/components/TinhSaiSoTab'), { ssr: false });
+const TinhSaiSoForm = dynamic(() => import('@/components/TinhSaiSoForm'), { ssr: false });
 
 
 interface FormDongHoNuocDNLonHon15Props {
@@ -53,7 +54,7 @@ export default function FormDongHoNuocDNLonHon15({ className }: FormDongHoNuocDN
     const [r, setR] = useState<string>("");
     const [qn, setQN] = useState<string>("");
     const [kFactor, setKFactor] = useState<string>("");
-    const [so_qd_pdm, setSoQDPDM] = useState<string>("");
+    const [soQDPDM, setSoQDPDM] = useState<string>("");
     const [tenKhachHang, setTenKhachhang] = useState<string>("");
     const [coSoSuDung, setCoSoSuDung] = useState<string>("");
     const [phuongPhapThucHien, setPhuongPhapThucHien] = useState<string>("ĐNVN 17:2017");
@@ -77,10 +78,66 @@ export default function FormDongHoNuocDNLonHon15({ className }: FormDongHoNuocDN
     const [showFormTienTrinh, setShowFormTienTrinh] = useState(false);
     const [canSave, setCanSave] = useState(false);
     const [error, setError] = useState("");
+    const [errorPDM, setErrorPDM] = useState("");
 
     const [errorFields, setErrorFields] = useState<string[]>([]);
+    const [checking, setChecking] = useState(false);
 
     const router = useRouter();
+
+    const filterPDM = useMemo(() => ({
+        tenDongHo: tenDongHo,
+        dn: dn,
+        ccx: ccx,
+        kieuSensor: kieuSensor,
+        kieuChiThi: kieuChiThi,
+        qn: qn,
+        q3: q3,
+        r: r
+    }), [tenDongHo, dn, ccx, kieuSensor, kieuChiThi, qn, q3, r]);
+
+    const soQDPDMRef = useRef(soQDPDM);
+
+    // Func: Set err
+    useEffect(() => {
+        if(soQDPDMRef.current != soQDPDM) {
+            setErrorPDM("");
+            soQDPDMRef.current = soQDPDM
+        }
+    }, [soQDPDM]);
+
+    // TODO: PDM
+    const filterPDMRef = useRef(filterPDM);
+
+    useEffect(() => {
+        if (filterPDMRef.current !== filterPDM) {
+            if (filterPDM.tenDongHo && filterPDM.dn && filterPDM.ccx && (filterPDM.kieuSensor || filterPDM.kieuChiThi) && ((filterPDM.q3 && filterPDM.r) || filterPDM.qn)) {
+                const ma_tim_dong_ho_pdm = convertToUppercaseNonAccent(filterPDM.tenDongHo + filterPDM.dn + filterPDM.ccx + filterPDM.kieuSensor + filterPDM.kieuChiThi + filterPDM.q3 + filterPDM.r + filterPDM.qn);
+
+                const handler = setTimeout(async () => {
+                    const res = await getPDMByMaTimDongHoPDM(ma_tim_dong_ho_pdm);
+                    if (res.status == 200 || res.status == 201) {
+                        const pdm = res.data;
+                        const getDate = new Date(pdm.ngay_qd_pdm)
+                        setSoQDPDM(pdm.so_qd_pdm + (getDate.getFullYear() ? "-" + getDate.getFullYear() : ""));
+                    } else if (res.status == 404) {
+                        setErrorPDM("Không có số quyết định PDM phù hợp vói các thông số đồng hồ trên.")
+                        setSoQDPDM("");
+                    } else {
+                        setErrorPDM("Có lỗi xảy ra khi lấy số quyết định PDM!")
+                        setSoQDPDM("");
+                    }
+                }, 700);
+
+                return () => {
+                    clearTimeout(handler);
+                };
+
+            }
+            filterPDMRef.current = filterPDM;
+        }
+    }, [filterPDM]);
+
 
     useEffect(() => {
         if (error) {
@@ -157,7 +214,7 @@ export default function FormDongHoNuocDNLonHon15({ className }: FormDongHoNuocDN
         { value: r, setter: setR, id: "r" },
         { value: qn, setter: setQN, id: "qn" },
         // { value: kFactor, setter: setKFactor, id: "kFactor" },
-        { value: so_qd_pdm, setter: setSoQDPDM, id: "so_qd_pdm" },
+        { value: soQDPDM, setter: setSoQDPDM, id: "so_qd_pdm" },
         { value: tenKhachHang, setter: setTenKhachhang, id: "ten_khach_hang" },
         { value: coSoSuDung, setter: setCoSoSuDung, id: "co_so_su_dung" },
         { value: phuongPhapThucHien, setter: setPhuongPhapThucHien, id: "phuong_phap_thuc_hien" },
@@ -190,7 +247,7 @@ export default function FormDongHoNuocDNLonHon15({ className }: FormDongHoNuocDN
                 r: r,
                 qn: checkQ3 ? "" : qn,
                 k_factor: kFactor,
-                so_qd_pdm: so_qd_pdm,
+                so_qd_pdm: soQDPDM,
                 ten_khach_hang: tenKhachHang,
                 co_so_su_dung: coSoSuDung,
                 phuong_phap_thuc_hien: phuongPhapThucHien,
@@ -235,12 +292,12 @@ export default function FormDongHoNuocDNLonHon15({ className }: FormDongHoNuocDN
     useEffect(() => {
         setErrorFields(validateFields());
     }, [
-        tenDongHo, phuongTienDo, kieuThietBi, seriChiThi, seriSensor, kieuChiThi, kieuSensor, soTem, coSoSanXuat, namSanXuat, dn, d, ccx, q3, r, qn, so_qd_pdm, tenKhachHang, coSoSuDung, phuongPhapThucHien, viTri, nhietDo, doAm, isDHDienTu
+        tenDongHo, phuongTienDo, kieuThietBi, seriChiThi, seriSensor, kieuChiThi, kieuSensor, soTem, coSoSanXuat, namSanXuat, dn, d, ccx, q3, r, qn, soQDPDM, tenKhachHang, coSoSuDung, phuongPhapThucHien, viTri, nhietDo, doAm, isDHDienTu
     ]);
 
     useEffect(() => {
         setCanSave(soTem && soGiayChungNhan ? true : false);
-        setHieuLucBienBan(soTem && soGiayChungNhan ? getLastDayOfMonthInFuture(isDHDienTu) : null);
+        setHieuLucBienBan(soTem && soGiayChungNhan ? getLastDayOfMonthInFuture((ccx && (ccx === "1" || ccx === "2")) || isDHDienTu) : null);
     }, [soTem, soGiayChungNhan]);
 
     const handleSaveDongHo = async () => {
@@ -294,6 +351,9 @@ export default function FormDongHoNuocDNLonHon15({ className }: FormDongHoNuocDN
             // TODO: Tạo button check?
             setKetQua(isDongHoDatTieuChuan(isDHDienTu, formHieuSaiSo));
         }
+        if (checking) {
+            setChecking(false);
+        }
     }, [formHieuSaiSo])
 
     // Check Đồng hồ điện tử
@@ -313,7 +373,7 @@ export default function FormDongHoNuocDNLonHon15({ className }: FormDongHoNuocDN
     };
 
     useEffect(() => {
-        setDHDienTu(phuongTienDo !== "" && ["1", "2"].includes(phuongTienDoOptions.find(option => option.label == phuongTienDo)?.value ?? ""));
+        setDHDienTu((ccx && (ccx === "1" || ccx === "2")) || phuongTienDo !== "" && ["1", "2"].includes(phuongTienDoOptions.find(option => option.label == phuongTienDo)?.value ?? ""));
     }, [ccx, phuongTienDo]);
 
     useEffect(() => {
@@ -712,16 +772,16 @@ export default function FormDongHoNuocDNLonHon15({ className }: FormDongHoNuocDN
                                 <div className="mb-3 col-12 col-md-6 col-xxl-4">
                                     <label htmlFor="so_qd_pdm" className="form-label">- Ký hiệu PDM/Số quyết định PDM:</label>
                                     <input
-
                                         type="text"
                                         className="form-control"
                                         id="so_qd_pdm"
                                         placeholder="Ký hiệu PDM/Số quyết định PDM"
-                                        value={so_qd_pdm}
+                                        value={soQDPDM}
                                         onChange={(e) => setSoQDPDM(e.target.value)}
                                     />
+                                    {errorPDM && <small className="text-danger">{errorPDM}</small>}
                                 </div>
-                                <div className={`mb-3 col-12 col-md-6 col-xxl-4 d-flex align-items-end`}>
+                                <div className={`mb-3 col-12 d-flex justify-content-xxl-end`}>
                                     <Link
                                         href={"/kiem-dinh/pdm//them-moi"}
                                         className="btn btn-success px-3 py-2 text-white"
@@ -908,15 +968,16 @@ export default function FormDongHoNuocDNLonHon15({ className }: FormDongHoNuocDN
                                     <div className="col-12"><span className="me-2">•</span>Tiến trình chạy lưu lượng không được bỏ trống</div>
                                 )}
                             </div>
-                            <div className={`w-100 px-3 m-0 d-flex align-items-center justify-content-end ${(ketQua != null) ? "fade d-none" : "show"}`}>
-                                <button aria-label="Kiểm tra" className="btn btn-success px-3 py-2 text-white" onClick={
+                            <div className={`w-100 px-3 m-0 d-flex align-items-center justify-content-end ${(ketQua == null) || (checking) ? "fade d-none" : "show"}`}>
+                                <button aria-label="Kiểm tra" className={`btn btn-success px-3 py-2 text-white ${vrfWm['btn-check']}`} onClick={
                                     () => {
                                         // TODO:
                                         // handleCheck();
+                                        setChecking(true);
                                     }
-                                }><FontAwesomeIcon className="me-2" icon="fas fa-tasks" />Kiểm tra</button>
+                                }><FontAwesomeIcon className="me-2" icon={faTasks} />Kiểm tra</button>
                             </div>
-                            <div className={`w-100 px-3 p-xl-4 row alert ${ketQua ? "alert-success" : "alert-danger"} m-0 ${(ketQua != null) ? "show" : "fade d-none"}`}>
+                            <div className={`w-100 px-3 p-xl-4 row alert ${ketQua ? "alert-success" : "alert-danger"} m-0 ${(ketQua != null) && (checking) ? "show" : "fade d-none"}`}>
                                 <h5 className="p-0">Kết quả kiểm tra kỹ thuật:</h5>
                                 <p className="p-0 m-0">- Khả năng hoạt động của hệ thống: <b className="text-uppercase">{ketQua ? "Đạt" : "Không đạt"}</b></p>
                                 <div className={`w-100 m-0 mt-3 p-0 ${ketQua ? "" : "d-none"}`}>
@@ -964,15 +1025,16 @@ export default function FormDongHoNuocDNLonHon15({ className }: FormDongHoNuocDN
                                     </button>
                                 </div> */}
                                 </div>
+                                <div className="w-100 m-0 px-0 d-flex gap-2 justify-content-end">
+                                    {/* TODO: ${canSave ? "btn-success" : "btn-secondary"}  */}
+                                    <button aria-label="Lưu Đồng hồ" className={`btn py-2 px-3 btn-success`}
+                                        disabled={!canSave && (ketQua != null && ketQua)}
+                                        onClick={handleSaveDongHo}>
+                                        Lưu Đồng hồ
+                                    </button>
+                                </div>
                             </div>
-                        </div>
-                        <div className="w-100 m-0 p-2 d-flex gap-2 justify-content-between">
-                            {/* <button className="btn py-2 px-3 btn-danger" onClick={handleCheck}>
-                            Kiểm tra
-                        </button> */}
-                            <button aria-label="Lưu Đồng hồ" className={`btn py-2 px-3 ${canSave ? "btn-success" : "btn-secondary"}`} disabled={!canSave} onClick={handleSaveDongHo}>
-                                Lưu Đồng hồ
-                            </button>
+                            
                         </div>
                     </div>
                 </div>

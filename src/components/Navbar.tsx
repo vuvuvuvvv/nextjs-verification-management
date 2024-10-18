@@ -3,7 +3,7 @@
 import layout from "@styles/scss/ui/navbar.module.scss";
 
 // import Sidebar from "@/components/ui/sidebar";
-const Sidebar = dynamic(() => import("@/components/ui/sidebar"), {
+const Sidebar = dynamic(() => import("@/components/Sidebar"), {
     ssr: false,
 });
 
@@ -21,7 +21,7 @@ import {
     from '@fortawesome/free-solid-svg-icons';
 import Link from "next/link";
 
-import { useUser } from "@/context/app-context";
+import { useUser } from "@/context/AppContext";
 
 import React from "react";
 import dynamic from "next/dynamic";

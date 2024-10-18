@@ -3,11 +3,11 @@
 import dynamic from "next/dynamic";
 import { Suspense, useEffect, useState } from "react";
 import uiDNSm from "@/styles/scss/ui/dn-smt-15.module.scss";
-import Loading from "@/components/loading";
+import Loading from "@/components/Loading";
 // import { getDongHoBySerinumber } from "@/app/api/dongho/route";
 
-const DongHoListProvider = dynamic(() => import("@/context/list-dong-ho").then(mod => mod.DongHoListProvider), { ssr: false, loading: () => <Loading /> });
-const FormDongHoNuocDNNhoHon15 = dynamic(() => import("@/components/nhieu-dong-ho-nuoc-form"), { ssr: false });
+const DongHoListProvider = dynamic(() => import("@/context/ListDongHo").then(mod => mod.DongHoListProvider), { ssr: false, loading: () => <Loading /> });
+const FormDongHoNuocDNNhoHon15 = dynamic(() => import("@/components/NhomDongHoNuocForm"), { ssr: false });
 
 interface NewProcessDNSmallerThan15Props {
     className?: string,

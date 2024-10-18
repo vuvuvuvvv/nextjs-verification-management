@@ -5,7 +5,7 @@ import api from "@/app/api/route";
 import { logout } from "@/app/api/auth/logout/route";
 import UserManagement from "./UserManagement";
 import { User } from "@lib/types";
-import Loading from "@/components/loading";
+import Loading from "@/components/Loading";
 
 export default function UserManagementPage() {
     const [data, setData] = useState<User[]>([]);
