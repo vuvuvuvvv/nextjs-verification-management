@@ -1,6 +1,7 @@
+import { BASE_API_URL } from '@lib/system-constant';
 import axios from 'axios';
 
-const API_AUTH_URL = `${process.env.NEXT_PUBLIC_API_URL}/auth`;
+const API_AUTH_URL = `${BASE_API_URL}/auth`;
 
 export const requestPasswordResetToken = async (email: string) => {
     try {
@@ -8,9 +9,9 @@ export const requestPasswordResetToken = async (email: string) => {
             "email": email
         });
 
-        console.log(response);
+        // console.log(response);
 
-        if (response.status === 200) {
+        if (response.status === 200 || response.status === 201) {
             return {
                 "status": 200,
                 "msg": 'Gửi mail thành công! Hãy kiểm tra hòm thư của bạn!'

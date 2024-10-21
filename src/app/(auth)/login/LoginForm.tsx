@@ -1,7 +1,7 @@
 "use client"
 
 import { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 
 import layout from "@styles/scss/layouts/auth-layout.module.scss";
 
@@ -23,6 +23,10 @@ export default function LoginForm({ className }: FormProps) {
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
     const [remember, setRemember] = useState(false);
+    
+    const searchParams = useSearchParams();
+    const redirectUrl = searchParams.get('redirect') || '/';
+
 
     const [error, setError] = useState("");
     const router = useRouter();
@@ -63,7 +67,7 @@ export default function LoginForm({ className }: FormProps) {
 
         try {
             const response = await login(credentials);
-            if (response.status == 200) {
+            if (response.status == 200 || response.status == 201) {
                 Swal.fire({
                     // title: "Auto close alert!",
                     icon: "success",
@@ -74,7 +78,7 @@ export default function LoginForm({ className }: FormProps) {
                           animate__faster
                         `
                     },
-                    html: "Đăng nhập thành công! Đang chuyển hướng về trang chủ.",
+                    html: "Đăng nhập thành công! Đang chuyển hướng...",
                     timer: 1500,
                     allowOutsideClick: false,
                     allowEscapeKey: false,
@@ -83,11 +87,12 @@ export default function LoginForm({ className }: FormProps) {
                     },
                 }).then((result) => {
                     if (result.dismiss === Swal.DismissReason.timer) {
-                        router.push('/');
+                        Swal.showLoading();
+                        router.push(redirectUrl);
                     }
                 });
             } else if (response.status == 401) {
-                setError("Tài khoản hoặc mật khẩu không chính xác!");
+                setError("Thông tin đăng nhập không chính xác!");
             } else {
                 setError(response.msg);
             }
@@ -99,12 +104,12 @@ export default function LoginForm({ className }: FormProps) {
     return (
         <form className={(className) ? className : ""} onSubmit={handleSubmit}>
             <div className="mb-3">
-                <label htmlFor="username" className="form-label">Tên đăng nhập:</label>
+                <label htmlFor="username" className="form-label">Tên tài khoản:</label>
                 <input
                     type="text"
                     className="form-control py-2"
                     id="username"
-                    placeholder='Tên đăng nhập'
+                    placeholder='Email hoặc tên đăng nhập'
                     spellCheck={false}
                     value={username}
                     onChange={(e) => setUsername(e.target.value)}
@@ -136,7 +141,7 @@ export default function LoginForm({ className }: FormProps) {
                     Quên mật khẩu?
                 </Link>
             </div>
-            <button type="submit" className="btn btn-primary py-2 w-100">Đăng nhập</button>
+            <button aria-label="Đăng nhập" type="submit" className="btn btn-primary py-2 w-100">Đăng nhập</button>
         </form>
     );
 }

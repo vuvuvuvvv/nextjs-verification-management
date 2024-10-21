@@ -1,8 +1,9 @@
 import api from '@/app/api/route';
 import { logout } from '../../logout/route';
 import { ResetPasswordCredentials } from '@lib/types';
+import { BASE_API_URL } from '@lib/system-constant';
 
-const API_AUTH_URL = `${process.env.NEXT_PUBLIC_API_URL}/auth`;
+const API_AUTH_URL = `${BASE_API_URL}/auth`;
 
 export const resetPassword = async (credentials: ResetPasswordCredentials) => {
 
@@ -14,7 +15,7 @@ export const resetPassword = async (credentials: ResetPasswordCredentials) => {
                 "msg": response.data.msg || "Mật khẩu của bạn đã được đổi!",
             }
         } else {
-            console.log("err res:", response);
+            // console.log("err res:", response);
             if (response.status = 404) {
                 logout();
             }

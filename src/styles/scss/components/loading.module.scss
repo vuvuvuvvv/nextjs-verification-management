@@ -6,32 +6,32 @@
     height: 0;
     width: 100%;
     height: 100%;
-    background-color: $bg_cover;
-    z-index: 9999 !important;
+    background-color: $bg_loading;
+    z-index: 999 !important;
     display: flex;
     justify-content: center;
     align-items: center;
+}
 
-    .box_loading {
-        text-align: center;
+.box_loading {
+    text-align: center;
 
-        img {
-            width: 100px;
+    img {
+        width: 100px;
+    }
+
+    .icon {
+        font-size: 30px;
+        color: $dark_blue;
+        animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+        0% {
+            transform: rotate(0deg);
         }
-
-        .icon {
-            font-size: 30px;
-            color: $blue;
-            animation: spin 1s linear infinite;
-        }
-
-        @keyframes spin {
-            0% {
-                transform: rotate(0deg);
-            }
-            100% {
-                transform: rotate(360deg);
-            }
+        100% {
+            transform: rotate(360deg);
         }
     }
 }

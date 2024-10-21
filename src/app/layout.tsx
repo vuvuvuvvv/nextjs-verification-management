@@ -2,20 +2,15 @@
 import { Inter } from "next/font/google";
 const inter = Inter({ subsets: ["latin"] });
 
-// Import global css
 import "@styles/scss/globals.scss";
-import 'animate.css';
+// import 'animate.css';
 
-// Import Bootstrap v5.3.3
 import 'bootstrap/dist/css/bootstrap.min.css';
-// import 'bootstrap/dist/js/bootstrap.min.js';
 
-//Import Fontawesome for global
 import '@lib/fontawesome';
 import '@fortawesome/fontawesome-svg-core/styles.css';
 import { config } from '@fortawesome/fontawesome-svg-core';
 config.autoAddCss = false;
-
 
 export default function RootLayout({
     children,
@@ -26,6 +21,12 @@ export default function RootLayout({
     return (
         <html lang="en">
             <head>
+                <meta charSet="UTF-8" />
+                <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+                <meta name="description" content="Phần mềm quản lý biên bản kiểm định của DHT Company. Quản lý kiểm định đồng hồ nước hiệu quả." />
+                <meta name="keywords" content="DHT, FMS, quản lý biên bản, quản lý pdm, quản lý phê duyệt mẫu, đồng hồ nước" />
+                <meta name="author" content="DHT Company" />
+                <title>Quản lý Biên bản Kiểm định - DHT Company</title>
                 <script src="/js/bootstrap.bundle.min.js"></script>
             </head>
             <body className={`${inter.className}`}>
@@ -34,6 +35,6 @@ export default function RootLayout({
                     Copyright @ 2024 by DHT Company
                 </footer>
             </body>
-        </html >
+        </html>
     );
 }

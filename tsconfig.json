@@ -21,7 +21,7 @@
       "@/*": ["./src/*"],
       "@lib/*": ["./lib/*"],
       "@components/*": ["./src/components/*"],
-      "@ui/*": ["./src/ui/*"],
+      "@ui/*": ["./src/components/ui/*"],
       "@styles/*": ["./src/styles/*"]
     }
   },

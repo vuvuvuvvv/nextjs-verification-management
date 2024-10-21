@@ -72,7 +72,7 @@ export default function ResetPassword({ params }: { params: { token: string } })
                     Authorization: `Bearer ${params.token}` // Include the token in the Authorization header
                 }
             });
-            if (response?.status == 200) {
+            if (response?.status == 200 || response?.status == 201) {
                 Swal.fire({
                     title: "Thành công",
                     text: "Đặt lại mật khẩu thành công. Vui lòng đăng nhập lại.",
@@ -101,7 +101,7 @@ export default function ResetPassword({ params }: { params: { token: string } })
                 setError(response?.data?.msg);
             }
         } catch (err) {
-            console.log(err);
+            // console.log(err);
             setError("Có lỗi đã xảy ra. Hãy thử lại!");
         }
     }
@@ -156,7 +156,7 @@ export default function ResetPassword({ params }: { params: { token: string } })
                     </div>
                 )
             }
-            <button type="submit" className="btn btn-primary w-100">Đổi mật khẩu</button>
+            <button aria-label="Đổi mật khẩu" type="submit" className="btn btn-primary w-100">Đổi mật khẩu</button>
         </form>
         <div className="mt-3 d-flex align-items-center justify-content-end">
             <Link href="/login" className='btn m-0 p-0 '>

@@ -9,7 +9,7 @@ import { resetEmail } from '@/app/api/auth/change/email/route';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faEnvelope, faLock } from '@fortawesome/free-solid-svg-icons';
 import Swal from 'sweetalert2';
-import { useUser } from '@/context/user-context';
+import { useUser } from '@/context/AppContext';
 import Head from 'next/head';
 
 interface FormProps {
@@ -60,7 +60,7 @@ export default function ChangeEmail({ className }: FormProps) {
                 password: password
             }
             const response = await resetEmail(credentials)
-            if (response?.status == 200) {
+            if (response?.status == 200 || response?.status == 201) {
                 updateUser(response.user);
                 Swal.fire({
                     title: "Thành công",
@@ -90,7 +90,7 @@ export default function ChangeEmail({ className }: FormProps) {
                 setError(response?.msg);
             }
         } catch (err) {
-            console.log(err);
+            // console.log(err);
             setError("Có lỗi đã xảy ra. Hãy thử lại!");
         }
     };
@@ -127,7 +127,7 @@ export default function ChangeEmail({ className }: FormProps) {
                     />
                     <FontAwesomeIcon className={`${reset['placeholder-icon']}`} icon={faLock}></FontAwesomeIcon>
                 </div>
-                <button type="submit" className="btn btn-primary w-100">Đổi Email</button>
+                <button aria-label="Đổi Email" type="submit" className="btn btn-primary w-100">Đổi Email</button>
             </form>
         </>
     )

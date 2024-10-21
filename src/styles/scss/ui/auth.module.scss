@@ -1,7 +1,7 @@
 @import "@styles/scss/variables/global.variables.scss";
 
 .break-form {
-    color: $grey;
+    color: $dark_grey;
     position: relative;
     padding: 10px;
     margin: 0;
@@ -13,7 +13,7 @@
         position: absolute;
         width: calc(30% - 20px);
         height: calc(1px / 2);
-        background-color: $grey;
+        background-color: $dark_grey;
         top: 50%;
         transform: translateY(-50%);
     }

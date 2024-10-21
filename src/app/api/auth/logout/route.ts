@@ -1,7 +1,8 @@
 import api from '@/app/api/route';
+import { BASE_API_URL } from '@lib/system-constant';
 import Cookies from 'js-cookie';
 
-const API_AUTH_URL = `${process.env.NEXT_PUBLIC_API_URL}/auth`;
+const API_AUTH_URL = `${BASE_API_URL}/auth`;
 
 export const logout = async () => {
     try {
@@ -12,7 +13,7 @@ export const logout = async () => {
             Cookies.remove(cookie); // Remove each cookie
         }
 
-        if (response.status === 200) {
+        if (response.status === 200 || response.status === 201) {
             return {
                 "status": 200,
                 "msg": 'Đăng xuất thành công!'

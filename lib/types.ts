@@ -1,3 +1,5 @@
+import { IconDefinition } from "@fortawesome/fontawesome-svg-core";
+
 // lib/types.ts
 export interface User {
     id: number;
@@ -5,6 +7,14 @@ export interface User {
     fullname: string;
     email: string;
     role: string;
+    status: string;
+}
+
+export interface SideLink {
+    title: string;
+    icon: IconDefinition;
+    href?: string;
+    children?: SideLink[];
 }
 
 export interface ResetEmailCredentials {
@@ -29,7 +39,36 @@ export interface RegisterCredentials {
     email: string;
 }
 
-export interface ReportDataType {
+
+export interface PDM {
+    ma_tim_dong_ho_pdm: string | null,
+    ten_dong_ho: string | null,
+    noi_san_xuat: string | null,
+    dn: string | null,
+    ccx: string | null,
+    kieu_sensor: string | null,
+    transmitter: string | null,
+    qn: string | null,
+    q3: string | null,
+    r: string | null,
+    don_vi_pdm: string | null,
+    dia_chi: string | null,
+    so_qd_pdm: string | null,
+    ngay_qd_pdm: Date | null,
+    ngay_het_han: Date | null,
+    anh_pdm: string | null,
+}
+
+
+export interface PDMFilterParameters {
+    ma_tim_dong_ho_pdm: string | null,
+    so_qd_pdm: string | null,
+    ngay_qd_pdm_from: Date | null,
+    ngay_qd_pdm_to: Date | null,
+    tinh_trang: string | null,
+}
+
+export interface ReportData {
     "id": number,
     "createdAt": string,
     "updatedAt": string,
@@ -39,11 +78,11 @@ export interface ReportDataType {
     "status": string,
 }
 
-export interface WaterMeterDataType {
+export interface WaterMeterData {
     "id": number,
-    "serialNumber": string,
+    "serial_number": string,
     "type": string,
-    "accuracyClass": string,
+    "ccx": string,
     "createdAt": string,
     "updatedAt": string,
     "createdBy": string,
@@ -51,7 +90,7 @@ export interface WaterMeterDataType {
     "status": string,
 }
 
-export interface PDMDataType {
+export interface PDMData {
     "id": number,
     "ma_tim_dong_ho_pdm": string,
     "ten_dong_ho": string,
@@ -68,5 +107,132 @@ export interface PDMDataType {
     "so_qd_pdm": string,
     "ngay_qd_pdm": string,
     "ngay_het_han": string,
-    "tinh_trang": string,
+    "anh_pdm": string,
+}
+
+export type LuuLuong = {
+    title: string;
+    value: string | number | null;
+}
+
+export type TinhSaiSoValueTabs = [
+    DuLieuMotLanChay,
+    DuLieuMotLanChay,
+    DuLieuMotLanChay
+]
+
+// Các thông số cho một lần đo 
+export type DuLieuMotLanChay = {
+    V1: number;
+    V2: number;
+    Tdh: number;
+    Vc1: number;
+    Vc2: number;
+    Tc: number;
+};
+
+// {
+//     1: { V1: 0, V2: 0, Vc1: 0, Vc2: 0, Tdh: 0, Tc: 0 },
+//     2: { V1: 0, V2: 0, Vc1: 0, Vc2: 0, Tdh: 0, Tc: 0 },
+//     3: { V1: 0, V2: 0, Vc1: 0, Vc2: 0, Tdh: 0, Tc: 0 }
+// }
+export type DuLieuCacLanChay = Record<number, DuLieuMotLanChay>
+
+// Tại các điểm Q1 2 3 || n t min có thể có nhiều lần đo
+/*
+ * Ex: q3 {
+ *  value: xxx;
+ *  lan_chay: {
+ *      1: {
+ *          ...
+ *      },
+ *      2: {
+ *          ....
+ *      },
+ *      ...
+ *  }
+ * }
+*/
+export type DuLieuChayDiemLuuLuong = {
+    value: number | null;
+    lan_chay: Record<number, DuLieuMotLanChay>;
+};
+
+// Tùy theo loại đồng hồ chia ra chạy q 123 hoặc n t min:
+/**
+ * Ex: dh1 {
+ *  "q3": {
+ *      ...
+ *  },
+ *  ...
+ * }
+ */
+export type DuLieuChayDongHo = Record<string, DuLieuChayDiemLuuLuong | null>;
+
+export interface DongHo {
+    id: string | null;
+    group_id: string | null;
+    ten_dong_ho: string | null;
+    phuong_tien_do: string | null;
+    seri_chi_thi: string | null;
+    seri_sensor: string | null;
+    kieu_chi_thi: string | null;
+    kieu_sensor: string | null;
+    kieu_thiet_bi: string | null;
+    co_so_san_xuat: string | null;
+    so_tem: string | null;
+    nam_san_xuat: Date | null;
+    dn: string | null;
+    d: string | null;
+    ccx: string | null;
+    q3: string | null;
+    r: string | null;
+    qn: string | null;
+    k_factor: string | null;
+    so_qd_pdm: string | null;
+    ten_khach_hang: string | null;
+    co_so_su_dung: string | null;
+    phuong_phap_thuc_hien: string | null;
+    chuan_thiet_bi_su_dung: string | null;
+    nguoi_kiem_dinh: string | null;
+    ngay_thuc_hien: Date | null;
+    vi_tri: string | null;
+    nhiet_do: string | null;
+    do_am: string | null;
+    du_lieu_kiem_dinh: string | null;
+    hieu_luc_bien_ban: Date | null;
+    so_giay_chung_nhan: string | null;
+}
+
+export interface DongHoFilterParameters {
+    is_bigger_than_15?: boolean;
+    so_giay_chung_nhan: string;
+    serial_number: string;
+    type: string;
+    ccx: string;
+    nguoi_kiem_dinh: string;
+    ten_khach_hang: string;
+    status: string | number;
+    ngay_kiem_dinh_from: Date | null;
+    ngay_kiem_dinh_to: Date | null;
+}
+
+export interface NhomDongHo {
+    group_id: string | null;
+    so_luong: number | null;
+    ten_dong_ho: string | null;
+    co_so_san_xuat: string | null;
+    ten_khach_hang: string | null;
+    co_so_su_dung: string | null;
+    nguoi_kiem_dinh: string | null;
+    ngay_thuc_hien: Date | null;
+}
+
+export interface NhomDongHoFilterParameters {
+    // group_id: string;
+    ten_dong_ho: string;
+    ten_khach_hang: string;
+    nguoi_kiem_dinh: string;
+    ngay_kiem_dinh_from: Date | null;
+    ngay_kiem_dinh_to: Date | null;
 }

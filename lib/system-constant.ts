@@ -1,10 +1,20 @@
-export const statusOptions = [
+export const processStatusOptions = [
     { value: '1', label: 'Q1' },
     { value: '2', label: 'Q2' },
     { value: '3', label: 'Q3' }
 ];
 
-export const measureInstrumentNameOptions = [
+export const statusOptions = [
+    { value: '0', label: 'Không hoạt động' },
+    { value: '1', label: 'Hoạt động' },
+];
+
+export const pdmStatusOptions = [
+    { value: '0', label: 'Hết hạn' },
+    { value: '1', label: 'Còn hiệu lực' },
+];
+
+export const phuongTienDoOptions = [
     { value: "1", label: "Đồng hồ đo nước lạnh có cơ cấu điện tử" },
     { value: "2", label: "Đồng hồ đo nước lạnh cơ khí" },
     { value: "3", label: "Đồng hồ đo nước" }
@@ -21,7 +31,7 @@ export const typeOptions = [
     { value: "Khác", label: "Khác" }
 ]
 
-export const accuracyClassOptions = [
+export const ccxOptions = [
     // { value: "0.5", label: "0.5" },
     { value: "1", label: "1" },
     // { value: "1.5", label: "1.5" },
@@ -32,7 +42,7 @@ export const accuracyClassOptions = [
     { value: "D", label: "D" }
 ]
 
-export const entryOptions = [
+export const limitOptions = [
     { value: 5, label: 5 },
     { value: 10, label: 10 },
     { value: 15, label: 15 },
@@ -40,3 +50,14 @@ export const entryOptions = [
     { value: 25, label: 25 },
     { value: 50, label: 50 },
 ]
+
+export const TITLE_LUU_LUONG = {
+    q3: "Q3",
+    q2: "Q2",
+    q1: "Q1",
+    qn: "Qn",
+    qt: "Qt",
+    qmin: "Qmin"
+}
+
+export const BASE_API_URL = process.env.NEXT_PUBLIC_API_URL;
