@@ -1,14 +1,14 @@
 "use client"
 
-import { getDongHoById } from "@/app/api/dongho/route";
+import { getNhomDongHoByGroupId } from "@/app/api/dongho/route";
 const Loading = dynamic(() => import('@/components/Loading'), { ssr: false });
 import { DongHo } from "@lib/types";
 import {  useEffect, useRef, useState } from "react";
 import dynamic from "next/dynamic";
-import DetailDongHo from "@/components/DetailDongHo";
+import DetailNhomDongHo from "@/components/DetailNhomDongHo";
 
-export default function DongHoDetailPage({ params }: { params: { id: string } }) {
-    const [dongHoData, setDongHoData] = useState<DongHo>();
+export default function NhomDongHoDetailPage({ params }: { params: { group_id: string } }) {
+    const [nhomDongHo, setNhomDongHoData] = useState<DongHo[]>();
     const [loading, setLoading] = useState<boolean>(true);
     const fetchCalled = useRef(false);
 
@@ -18,8 +18,8 @@ export default function DongHoDetailPage({ params }: { params: { id: string } })
 
         const fetchData = async () => {
             try {
-                const res = await getDongHoById(params.id);
-                setDongHoData(res?.data);
+                const res = await getNhomDongHoByGroupId(params.group_id);
+                setNhomDongHoData(res?.data);
             } catch (error) {
                 console.error("Error fetching data:", error);
             } finally {
@@ -28,11 +28,11 @@ export default function DongHoDetailPage({ params }: { params: { id: string } })
         };
 
         fetchData();
-    }, [params.id]);
+    }, [params.group_id]);
 
-    if (loading || !dongHoData) {
+    if (loading || !nhomDongHo) {
         return <Loading></Loading>;
     }
 
-    return <DetailDongHo dongHo={dongHoData}></DetailDongHo>
+    return <DetailNhomDongHo nhomDongHo={nhomDongHo}></DetailNhomDongHo>
 }

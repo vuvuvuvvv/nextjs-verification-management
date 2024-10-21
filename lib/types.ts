@@ -229,9 +229,10 @@ export interface NhomDongHo {
 }
 
 export interface NhomDongHoFilterParameters {
-    group_id: string;
+    // group_id: string;
     ten_dong_ho: string;
     ten_khach_hang: string;
+    nguoi_kiem_dinh: string;
     ngay_kiem_dinh_from: Date | null;
     ngay_kiem_dinh_to: Date | null;
 }

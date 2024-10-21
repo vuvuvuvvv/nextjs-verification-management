@@ -1,5 +1,5 @@
 import { BASE_API_URL } from '@lib/system-constant';
-import { DongHo, DongHoFilterParameters } from '@lib/types';
+import { DongHo, DongHoFilterParameters, NhomDongHo, NhomDongHoFilterParameters } from '@lib/types';
 import api from '../route';
 
 const API_DONGHO_URL = `${BASE_API_URL}/dongho`;
@@ -77,13 +77,12 @@ export const getDongHoByFilter = async (parameters?: DongHoFilterParameters) => 
     }
 };
 
-export const getNhomDongHoByFilter = async (parameters?: DongHoFilterParameters) => {
+export const getNhomDongHoByFilter = async (parameters?: NhomDongHoFilterParameters | null) => {
     try {
-        const url = new URL(API_DONGHO_URL);
-        url.searchParams.append('is_bigger_than_15', parameters?.is_bigger_than_15 ? '1' : '0');
+        const url = new URL(API_DONGHO_URL + "/group");
 
-        if (parameters?.so_giay_chung_nhan) {
-            url.searchParams.append('so_giay_chung_nhan', parameters.so_giay_chung_nhan.toString());
+        if (parameters?.ten_dong_ho) {
+            url.searchParams.append('ten_dong_ho', parameters.ten_dong_ho.toString());
         }
 
         if (parameters?.ten_khach_hang) {
@@ -128,6 +127,42 @@ export const getNhomDongHoByFilter = async (parameters?: DongHoFilterParameters)
 export const getDongHoById = async (serial_number: string) => {
     try {
         const url = `${API_DONGHO_URL}/id/${serial_number.toString()}`;
+
+        const response = await api.get(url.toString(), { withCredentials: true });
+
+        if (response.status === 200 || response.status === 201) {
+            return {
+                "status": response.status,
+                "data": response.data,
+                "msg": response.data.msg || "Done!"
+            };
+        }
+
+    } catch (error: any) {
+        if (error.response) {
+            if (error.response.status === 404) {
+                return {
+                    "status": 404,
+                    "msg": 'Serial number not found!'
+                };
+            }
+            if (error.response.data?.msg) {
+                return {
+                    "status": error.response.status,
+                    "msg": error.response.data.msg || 'Error fetching DongHo data!'
+                };
+            }
+        }
+        return {
+            "status": error.response?.status || 500,
+            "msg": 'An error occurred. Please try again!'
+        };
+    }
+};
+
+export const getNhomDongHoByGroupId = async (group_id: string) => {
+    try {
+        const url = `${API_DONGHO_URL}/group_id/${group_id.toString()}`;
 
         const response = await api.get(url.toString(), { withCredentials: true });
 
@@ -226,6 +261,30 @@ export const createDongHo = async (dongho: DongHo) => {
 export const deleteDongHo = async (serial_number: string) => {
     try {
         const response = await api.delete(`${API_DONGHO_URL}/${serial_number}`, { withCredentials: true });
+
+        return {
+            "status": response.status,
+            "msg": response.data.msg || "DongHo deleted successfully!"
+        };
+
+    } catch (error: any) {
+        if (error.response?.data?.msg) {
+            return {
+                "status": error.response.status,
+                "msg": error.response.data.msg || 'Error deleting DongHo!'
+            };
+        } else {
+            return {
+                "status": error.response?.status || 500,
+                "msg": 'Đã có lỗi xảy ra. Hãy thử lại sau!'
+            };
+        }
+    }
+};
+
+export const deleteNhomDongHo = async (group_id: string) => {
+    try {
+        const response = await api.delete(`${API_DONGHO_URL}/group/${group_id}`, { withCredentials: true });
 
         return {
             "status": response.status,

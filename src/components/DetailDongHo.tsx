@@ -47,6 +47,7 @@ export default function DetailDongHo({ dongHo }: DetailDongHoProps) {
         <title>{dongHoData?.ten_dong_ho}</title>
         {dongHoData ? (
             <div className="container bg-white px-4 px-md-5 py-4">
+                <h4 className="fs-5 text-center text-uppercase">Chi tiết đồng hồ</h4>
                 {/* <div className="row mb-3">
                     <div className="col-6">
                         <p className="text-center fs-5">
@@ -63,7 +64,10 @@ export default function DetailDongHo({ dongHo }: DetailDongHoProps) {
                 </div> */}
                 <div className="row mb-3">
                     <div className="col-12">
-                        <p>Số: <b>{dongHoData.so_giay_chung_nhan ? getFullSoGiayCN(dongHoData.so_giay_chung_nhan) : "Chưa có số giấy chứng nhận"}</b></p>
+                        <p>Số giấy chứng nhận: <b>{dongHoData.so_giay_chung_nhan ? getFullSoGiayCN(dongHoData.so_giay_chung_nhan) : "Chưa có số giấy chứng nhận"}</b></p>
+                    </div>
+                    <div className="col-12">
+                        <p>Số tem: <b>{dongHoData.so_tem ? dongHoData.so_tem : "Chưa có số tem"}</b></p>
                     </div>
                     <div className="col-12">
                         <p>Tên đồng hồ: <b>{dongHoData.ten_dong_ho || "Chưa có tên đồng hồ"}</b></p>

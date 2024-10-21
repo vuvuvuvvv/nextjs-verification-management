@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState, useCallback, Suspense, useRef } from "react";
+import { useEffect, useState, useCallback, useRef } from "react";
 import c_vfml from "@styles/scss/components/verification-management-layout.module.scss";
 
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
@@ -10,7 +10,7 @@ import dayjs, { Dayjs } from "dayjs";
 import { viVN } from "@mui/x-date-pickers/locales";
 
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faChevronDown, faChevronUp, faEye, faTrash, faEllipsisH } from "@fortawesome/free-solid-svg-icons";
+import { faChevronDown, faChevronUp, faEye } from "@fortawesome/free-solid-svg-icons";
 import React from "react";
 
 import Select, { GroupBase } from 'react-select';
@@ -20,10 +20,9 @@ import { DongHo, DongHoFilterParameters, DuLieuChayDongHo } from "@lib/types";
 import { usePathname } from "next/navigation";
 import Link from "next/link";
 
-import { statusOptions, typeOptions, ccxOptions, limitOptions, BASE_API_URL } from "@lib/system-constant";
+import {limitOptions } from "@lib/system-constant";
 import Swal from "sweetalert2";
 import { deleteDongHo, getAllDongHo, getDongHoByFilter } from "@/app/api/dongho/route";
-import api from "@/app/api/route";
 
 const Loading = React.lazy(() => import("@/components/Loading"));
 
@@ -35,11 +34,9 @@ interface WaterMeterManagementProps {
 
 export default function WaterMeterManagement({ className, isBiggerThan15 = false }: WaterMeterManagementProps) {
     const [rootData, setRootData] = useState<DongHo[]>([]);
-
-    const [loading, setLoading] = useState<boolean>(true);
     const fetchCalled = useRef(false);
 
-    const [filterLoading, setFilterLoading] = useState(false);
+    const [filterLoading, setFilterLoading] = useState(true);
     const [sortConfig, setSortConfig] = useState<{ key: string, direction: 'asc' | 'desc' | 'default' } | null>(null);
     const [limit, setLimit] = useState(5);
     const [error, setError] = useState("");
@@ -72,7 +69,7 @@ export default function WaterMeterManagement({ className, isBiggerThan15 = false
             } catch (error) {
                 console.error("Error fetching data:", error);
             } finally {
-                setLoading(false);
+                setFilterLoading(false);
             }
         };
 
@@ -220,11 +217,6 @@ export default function WaterMeterManagement({ className, isBiggerThan15 = false
     };
 
     const paginatedData = rootData ? rootData.slice((currentPage - 1) * limit, currentPage * limit) : [];
-
-
-    if (loading) {
-        return <Loading></Loading>;
-    }
 
     return (
         <LocalizationProvider dateAdapter={AdapterDayjs} localeText={viVN.components.MuiLocalizationProvider.defaultProps.localeText}>
@@ -581,7 +573,11 @@ export default function WaterMeterManagement({ className, isBiggerThan15 = false
                                     </thead>
                                     <tbody>
                                         {paginatedData.map((item, index) => (
-                                            <tr key={index}>
+                                            <tr
+                                                key={index}
+                                                onClick={() => window.open(`/kiem-dinh/dong-ho-nuoc/chi-tiet/${item.id}`, '_blank')}
+                                                style={{ cursor: 'pointer' }} 
+                                            >
                                                 <td>{item.so_giay_chung_nhan}</td>
                                                 <td>{item.ten_khach_hang}</td>
                                                 <td>{item.nguoi_kiem_dinh}</td>
@@ -590,7 +586,7 @@ export default function WaterMeterManagement({ className, isBiggerThan15 = false
                                                     {processDuLieu(item.du_lieu_kiem_dinh as { du_lieu?: DuLieuChayDongHo })}
                                                 </td>
                                                 <td>
-                                                    <Link aria-label="Xem chi tiết" href={"/kiem-dinh/dong-ho-nuoc/chi-tiet/" + item.id} className={`btn w-100 text-blue`}>
+                                                    <Link target="_blank" aria-label="Xem chi tiết" href={"/kiem-dinh/dong-ho-nuoc/chi-tiet/" + item.id} className={`btn w-100 text-blue`}>
                                                         <FontAwesomeIcon icon={faEye}></FontAwesomeIcon>
                                                     </Link>
                                                     {/* <div className={`dropdown ${c_vfml['action']}`}>
