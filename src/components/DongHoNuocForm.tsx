@@ -185,7 +185,7 @@ export default function FormDongHoNuocDNLonHon15({ className }: FormDongHoNuocDN
         q3: "Q3",
         r: "Tỷ số Q3/Q1 (R)",
         qn: "Qn",
-        kFactor: "Hệ số K-factor",
+        kFactor: "Hệ số K",
         so_qd_pdm: "Ký hiệu PDM/Số quyết định PDM",
         ten_khach_hang: "Tên khách hàng",
         co_so_su_dung: "Cơ sở sử dụng",
@@ -758,13 +758,13 @@ export default function FormDongHoNuocDNLonHon15({ className }: FormDongHoNuocDN
 
 
                                 <div className="mb-3 col-12 col-md-6 col-xxl-4">
-                                    <label htmlFor="kFactor" className="form-label">- Hệ số K-factor :</label>
+                                    <label htmlFor="kFactor" className="form-label">- Hệ số K:</label>
                                     <input
 
                                         type="text"
                                         className="form-control"
                                         id="kFactor"
-                                        placeholder="K-factor"
+                                        placeholder="Hệ số K"
                                         value={kFactor}
                                         onChange={handleNumberChange(setKFactor)}
                                     />
@@ -938,7 +938,7 @@ export default function FormDongHoNuocDNLonHon15({ className }: FormDongHoNuocDN
                                         d={d ? d : ""} q={{
                                             title: isDHDienTu ? TITLE_LUU_LUONG.q3 : TITLE_LUU_LUONG.qn,
                                             value: q3 ? q3 : (qn ? qn : "")
-                                        }} className="" tabIndex={1} form={TinhSaiSoForm as any} />
+                                        }} className="" tabIndex={1} Form={TinhSaiSoForm as any} />
                                 },
                                 {
                                     title: <>Q<sub>{isDHDienTu ? "2" : "t"}</sub></>,
@@ -947,7 +947,7 @@ export default function FormDongHoNuocDNLonHon15({ className }: FormDongHoNuocDN
                                         d={d ? d : ""} q={{
                                             title: (isDHDienTu) ? TITLE_LUU_LUONG.q2 : TITLE_LUU_LUONG.qt,
                                             value: (q2Ort) ? q2Ort.toString() : ""
-                                        }} tabIndex={2} form={TinhSaiSoForm as any} />
+                                        }} tabIndex={2} Form={TinhSaiSoForm as any} />
                                 },
                                 {
                                     title: <>Q<sub>{isDHDienTu ? "1" : "min"}</sub></>,
@@ -956,7 +956,7 @@ export default function FormDongHoNuocDNLonHon15({ className }: FormDongHoNuocDN
                                         d={d ? d : ""} q={{
                                             title: (isDHDienTu) ? TITLE_LUU_LUONG.q1 : TITLE_LUU_LUONG.qmin,
                                             value: (q1Ormin) ? q1Ormin.toString() : ""
-                                        }} tabIndex={3} form={TinhSaiSoForm as any} />
+                                        }} tabIndex={3} Form={TinhSaiSoForm as any} />
                                 },
                             ]
                         } />

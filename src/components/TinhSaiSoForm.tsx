@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import ecf from "@styles/scss/components/tinh-sai-so-form.module.scss";
 import { getSaiSoDongHo } from "@lib/system-function";
+import { useDongHoList } from "@/context/ListDongHo";
 
 interface CaculatorFormProps {
     className?: string;
@@ -15,9 +16,10 @@ interface CaculatorFormProps {
     readOnly?: boolean,
     onFormChange: (field: string, value: number) => void;
     d?: string;
+    isDisable?: boolean
 }
 
-export default function DNBT30TinhSaiSoForm({ className, formValue, readOnly = false, onFormChange, d }: CaculatorFormProps) {
+export default function DNBT30TinhSaiSoForm({ className, formValue, readOnly = false, onFormChange, d, isDisable }: CaculatorFormProps) {
     const [V1, setV1] = useState<string>(formValue.V1.toString() || "0");
     const [V2, setV2] = useState<string>(formValue.V2.toString() || "0");
     const [Vc1, setVc1] = useState<string>(formValue.Vc1 ? formValue.Vc1.toString() : "0");
@@ -25,16 +27,27 @@ export default function DNBT30TinhSaiSoForm({ className, formValue, readOnly = f
     const [Tdh, setTdh] = useState<string>("0");
     const [Tc, setTc] = useState<string>("0");
     const [saiSo, setSaiSo] = useState<string>("0%");
+    const { dongHoSelected } = useDongHoList();
 
+    const dongHoSelectedRef = useRef(dongHoSelected);
     const prevFormValuesRef = useRef(formValue);
 
     useEffect(() => {
         if (prevFormValuesRef.current != formValue) {
+            if (dongHoSelectedRef.current != dongHoSelected) {
+                dongHoSelectedRef.current = dongHoSelected;
+                setVc1(formValue.Vc1.toString());
+                setVc2(formValue.Vc2.toString());
+            } else {
+                setVc1(Vc1);
+                setVc2(Vc2);
+            }
+
             setV1(formValue.V1.toString());
             setV2(formValue.V2.toString());
             // TODO: Check xem bị cái gì mà không dùng Vc1 Vc2: Bị lưu giá trị cũ
-            setVc1(Vc1 || formValue.Vc1.toString());
-            setVc2(Vc2 || formValue.Vc2.toString());
+            // setVc1(Vc1 || formValue.Vc1.toString());
+            // setVc2(Vc2 || formValue.Vc2.toString());
             setTdh(formValue.Tdh.toString());
             setTc(formValue.Tc.toString());
             // console.log(formValue)
@@ -148,6 +161,7 @@ export default function DNBT30TinhSaiSoForm({ className, formValue, readOnly = f
                             id="firstNum"
                             value={V1}
                             onChange={handleNumericInput(setV1, "V1")}
+                            disabled={isDisable}
                             autoComplete="off"
                         />
                     </div>
@@ -161,6 +175,7 @@ export default function DNBT30TinhSaiSoForm({ className, formValue, readOnly = f
                             id="lastNum"
                             value={V2}
                             onChange={handleNumericInput(setV2, "V2")}
+                            disabled={isDisable}
                             autoComplete="off"
                         />
                     </div>
@@ -174,6 +189,7 @@ export default function DNBT30TinhSaiSoForm({ className, formValue, readOnly = f
                             id="tdh"
                             value={Tdh}
                             onChange={handleNumberChange(setTdh, "Tdh")}
+                            disabled={isDisable}
                             autoComplete="off"
                         />
                     </div>
@@ -190,6 +206,7 @@ export default function DNBT30TinhSaiSoForm({ className, formValue, readOnly = f
                             id="firstNum"
                             value={Vc1}
                             onChange={handleNumberChange(setVc1, "Vc1")}
+                            disabled={isDisable}
                             autoComplete="off"
                         />
                     </div>
@@ -202,6 +219,7 @@ export default function DNBT30TinhSaiSoForm({ className, formValue, readOnly = f
                             id="lastNum"
                             value={Vc2}
                             onChange={handleNumberChange(setVc2, "Vc2")}
+                            disabled={isDisable}
                             autoComplete="off"
                         />
                     </div>
@@ -215,6 +233,7 @@ export default function DNBT30TinhSaiSoForm({ className, formValue, readOnly = f
                             id="tc"
                             value={Tc}
                             onChange={handleNumberChange(setTc, "Tc")}
+                            disabled={isDisable}
                             autoComplete="off"
                         />
                     </div>
@@ -226,7 +245,7 @@ export default function DNBT30TinhSaiSoForm({ className, formValue, readOnly = f
                         <input type="text" className="form-control p-3" id={ecf["errNum"]} value={saiSo} disabled readOnly />
                     </div>
                 </div>
-                <div className={`${ecf["box-button"]} ${readOnly ? "d-none" : ""}`}>
+                <div className={`${ecf["box-button"]} ${readOnly || isDisable ? "d-none" : ""}`}>
                     <button aria-label="Lưu kết quả" type="button" className={`w-100 btn py-2 d-none btn-success ${ecf["btn-save"]}`} disabled={saiSo === "0%"}>
                         Lưu kết quả
                     </button>

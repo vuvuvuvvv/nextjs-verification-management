@@ -16,6 +16,7 @@ interface DongHoListContextType {
     getDongHoChuaKiemDinh: (dongHoList: DongHo[]) => DongHo[];
     getDongHoDaKiemDinh: (dongHoList: DongHo[]) => DongHo[];
     saveListDongHo: (listDongHo: DongHo[]) => Promise<void>;
+    savedDongHoList: DongHo[];
 }
 
 const DongHoListContext = createContext<DongHoListContextType | undefined>(undefined);
@@ -155,25 +156,6 @@ export const DongHoListProvider = ({ children, amount = 1 }: { children: ReactNo
         setDongHoList(prevList => prevList.filter((_, i) => i !== index));
     };
 
-    const saveLocalStorageListDongHo = () => {
-        localStorage.setItem("listDongHo", JSON.stringify(dongHoList));
-        // console.log("Local Storage size: " + getLocalStorageSize());
-    }
-
-    function getLocalStorageSize(): string {
-        let totalSize: number = 0;
-        
-        for (const key in localStorage) {
-            if (localStorage.hasOwnProperty(key)) {
-                const value: string = localStorage.getItem(key) || '';
-                const size: number = ((value.length + key.length) * 2); // Mỗi ký tự chiếm 2 byte
-                totalSize += size;
-            }
-        }
-        
-        return (totalSize / 1024).toFixed(2) + " KB"; // Trả về kích thước tính bằng KB
-    }
-
     const saveListDongHo = async (listDongHo: DongHo[]) => {
         let successMessages: string[] = [];
         let errorMessages: string[] = [];
@@ -208,7 +190,10 @@ export const DongHoListProvider = ({ children, amount = 1 }: { children: ReactNo
     }
 
     const getDongHoChuaKiemDinh = (dongHoList: DongHo[]) => {
-        return dongHoList.filter(dongHo => {
+        // Kết hợp cả hai danh sách
+        const combinedList = [...dongHoList, ...savedDongHoList];
+    
+        return combinedList.filter(dongHo => {
             try {
                 const duLieuKiemDinh = JSON.parse(dongHo?.du_lieu_kiem_dinh || "{}");
                 return duLieuKiemDinh.ket_qua === null;
@@ -241,7 +226,8 @@ export const DongHoListProvider = ({ children, amount = 1 }: { children: ReactNo
             deleteDongHoInList,
             getDongHoChuaKiemDinh,
             getDongHoDaKiemDinh,
-            saveListDongHo
+            saveListDongHo,
+            savedDongHoList
         }}>
             {children}
         </DongHoListContext.Provider>

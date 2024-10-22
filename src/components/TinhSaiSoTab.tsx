@@ -18,8 +18,9 @@ interface TinhSaiSoTabProps {
         title: string;
         value: string;
     }
-    form: ({ className, d }: FormProps) => JSX.Element;
+    Form: ({ className, d }: FormProps) => JSX.Element;
     onFormHSSChange: (value: number | null) => void;
+    isDisable?: boolean
 }
 
 interface TabFormState {
@@ -32,9 +33,10 @@ interface FormProps {
     readOnly?: boolean,
     onFormChange: (field: string, value: number) => void;
     d?: string;
+    isDisable?: boolean
 }
 
-export default function TinhSaiSoTab({ className, tabIndex, d, q, form, onFormHSSChange }: TinhSaiSoTabProps) {
+export default function TinhSaiSoTab({ className, tabIndex, d, q, Form, onFormHSSChange, isDisable }: TinhSaiSoTabProps) {
     const { duLieuKiemDinhCacLuuLuong, getDuLieuChayCuaLuuLuong, themLanChayCuaLuuLuong, updateLuuLuong, xoaLanChayCuaLuuLuong, resetLanChay } = useKiemDinh();
 
     if (!tabIndex || tabIndex <= 0) {
@@ -152,7 +154,6 @@ export default function TinhSaiSoTab({ className, tabIndex, d, q, form, onFormHS
         setFormValues(resetLanChay(q));
     }
 
-    const Form = form;
     //
     const renderTabTinhSaiSo = () => {
         return Object.entries(formValues).map(([key, formVal], index) => {
@@ -177,6 +178,7 @@ export default function TinhSaiSoTab({ className, tabIndex, d, q, form, onFormHS
                             ></div>
                         )}
                         <Form
+                            isDisable={isDisable}
                             className={`w-100 ${!selectedTabForm[Number(key) * tabIndex] ? "d-none" : ""}`}
                             formValue={formVal}
                             onFormChange={(field: string, value: number) => handleFormChange(Number(key), field as keyof DuLieuMotLanChay, value)}
@@ -227,7 +229,7 @@ export default function TinhSaiSoTab({ className, tabIndex, d, q, form, onFormHS
             </div>
             <div className="w-100 d-flex px-1 align-items-center justify-content-between">
                 <h5 className="m-0">Lần thực hiện:</h5>
-                <div className={`justify-content-between gap-2`}>
+                <div className={`justify-content-between gap-2 ${isDisable ? "d-none" : ""}`}>
 
                     <button aria-label="Reset lần chạy" className="btn px-3 py-2 me-2 btn-secondary" onClick={() => handleReset()}>
                         <FontAwesomeIcon icon={faUndo} className="me-2"></FontAwesomeIcon>Reset
