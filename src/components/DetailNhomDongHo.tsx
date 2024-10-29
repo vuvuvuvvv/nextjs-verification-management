@@ -190,8 +190,8 @@ export default function DetailNhomDongHo({ nhomDongHo }: DetailNhomDongHoProps) 
                     return <div className="py-3 px-2 mb-3">
                         <h5 className="fs-5 text-center text-uppercase text-decoration-underline fw-bold">Đồng hồ số {index + 1}:</h5>
                         <div className="row mb-3">
-                            {dongHo.so_giay_chung_nhan && <div className="col-12 col-md-6">
-                                <p>Số giấy chứng nhận: <b>{getFullSoGiayCN(dongHo.so_giay_chung_nhan)}</b></p>
+                            {(dongHo.so_giay_chung_nhan && dongHo.ngay_thuc_hien) && <div className="col-12 col-md-6">
+                                <p>Số giấy chứng nhận: <b>{getFullSoGiayCN(dongHo.so_giay_chung_nhan, dongHo.ngay_thuc_hien)}</b></p>
                             </div>}
                             {dongHo.seri_chi_thi && <div className="col-12 col-md-6">
                                 <p>Số tem: <b>{dongHo.so_tem}</b></p>

@@ -16,8 +16,8 @@ export const getSaiSoDongHo = (formValue: DuLieuMotLanChay) => {
     return null;
 };
 
-export const getFullSoGiayCN = (soGiayCN: string) => {
-    return "FMS.KĐ." + (soGiayCN || "-----") + "." + dayjs().format("YY");
+export const getFullSoGiayCN = (soGiayCN: string, ngayThucHien: Date) => {
+    return "FMS.KĐ." + (soGiayCN || "-----") + "." + dayjs(ngayThucHien).format("YY");
 }
 
 export const getQ2OrQtAndQ1OrQMin = (isDHDienTu: boolean, ccx: string | null, q: string | null, r: string | null) => {
