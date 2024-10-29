@@ -267,7 +267,7 @@ export default function FormDongHoNuocDNNhoHon15({ className }: FormDongHoNuocDN
         { value: r, setter: setR, id: "r" },
         { value: qn, setter: setQN, id: "qn" },
         // { value: kFactor, setter: setKFactor, id: "kFactor" },
-        { value: soQDPDM, setter: setSoQDPDM, id: "so_qd_pdm" },
+        // { value: soQDPDM, setter: setSoQDPDM, id: "so_qd_pdm" },
         { value: tenKhachHang, setter: setTenKhachhang, id: "ten_khach_hang" },
         { value: coSoSuDung, setter: setCoSoSuDung, id: "co_so_su_dung" },
         { value: phuongPhapThucHien, setter: setPhuongPhapThucHien, id: "phuong_phap_thuc_hien" },

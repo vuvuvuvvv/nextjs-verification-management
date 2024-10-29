@@ -22,15 +22,14 @@ export default function DetailDongHo({ dongHo }: DetailDongHoProps) {
     useEffect(() => {
         if (dongHoData) {
             const duLieuKiemDinh = dongHoData.du_lieu_kiem_dinh as { du_lieu?: DuLieuChayDongHo };
-            if (duLieuKiemDinh?.du_lieu) { // Optional chaining
+            if (duLieuKiemDinh?.du_lieu) {
                 const dlKiemDinh = duLieuKiemDinh.du_lieu;
                 setDuLieuKiemDinhCacLuuLuong(dlKiemDinh);
             }
             const duLieuHSS = dongHoData.du_lieu_kiem_dinh as { hieu_sai_so?: { hss: number | null }[] };
-            if (duLieuHSS?.hieu_sai_so) { // Optional chaining
-                const dlHSS = duLieuHSS.hieu_sai_so;
-                // Reverse array HSS
-                setFormHieuSaiSo(dlHSS.reverse());
+            if (duLieuHSS?.hieu_sai_so) {
+                const reversedHSS = [...duLieuHSS.hieu_sai_so].reverse(); // Tạo bản sao và đảo ngược
+                setFormHieuSaiSo(reversedHSS);
             }
             const duLieuKetQua = dongHoData.du_lieu_kiem_dinh as { ket_qua?: boolean } | null;
             if (duLieuKetQua != null) {
@@ -178,7 +177,7 @@ export default function DetailDongHo({ dongHo }: DetailDongHoProps) {
                                                                             <td rowSpan={rowSpan}>{key}</td>
                                                                             <td rowSpan={rowSpan}>{value.value}</td>
                                                                         </>;
-                                                                        const hss = hieuSaiSo ? hieuSaiSo.reverse()[index].hss : 0;
+                                                                        const hss = hieuSaiSo ? hieuSaiSo[index].hss : 0;
                                                                         jsxEnd = <>
                                                                             <td rowSpan={rowSpan}>{hss}</td>
                                                                         </>

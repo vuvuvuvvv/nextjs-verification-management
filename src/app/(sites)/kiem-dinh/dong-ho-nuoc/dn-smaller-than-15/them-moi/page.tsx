@@ -4,6 +4,7 @@ import dynamic from "next/dynamic";
 import { Suspense, useEffect, useState } from "react";
 import uiDNSm from "@/styles/scss/ui/dn-smt-15.module.scss";
 import Loading from "@/components/Loading";
+import { useDongHoList } from "@/context/ListDongHo";
 // import { getDongHoBySerinumber } from "@/app/api/dongho/route";
 
 const DongHoListProvider = dynamic(() => import("@/context/ListDongHo").then(mod => mod.DongHoListProvider), { ssr: false });
@@ -14,7 +15,8 @@ interface NewProcessDNSmallerThan15Props {
 }
 
 export default function NewProcessDNSmallerThan15({ className }: NewProcessDNSmallerThan15Props) {
-    const [amount, setAmount] = useState<number | null>(null);
+    const {setAmount} = useDongHoList();
+    const [qnt, setQnt] = useState<number | null>(null);
     const [isModalOpen, setModalOpen] = useState(true);
     const [error, setError] = useState<string | null>(null);
 
@@ -22,7 +24,7 @@ export default function NewProcessDNSmallerThan15({ className }: NewProcessDNSma
         let value = e.target.value.replace(/,/g, '.');
         if (/^\d*\.?\d*$/.test(value)) {
             if (Number(value) > 100) {
-                setAmount(100);
+                setQnt(100);
                 setError("Tối đa 100.");
                 setTimeout(() => {
                     setError(null);
@@ -35,8 +37,8 @@ export default function NewProcessDNSmallerThan15({ className }: NewProcessDNSma
     };
 
     useEffect(() => {
-        
-    }, [amount]);
+
+    }, [qnt]);
 
     const handleKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
         if (e.key === 'Enter') {
@@ -45,6 +47,7 @@ export default function NewProcessDNSmallerThan15({ className }: NewProcessDNSma
     };
 
     const handleConfirm = () => {
+        setAmount(qnt || 1)
         setModalOpen(false);
     };
 
@@ -57,10 +60,10 @@ export default function NewProcessDNSmallerThan15({ className }: NewProcessDNSma
                         <input
                             type="text"
                             className="form-control mb-2"
-                            id="amount"
+                            id="qnt"
                             placeholder="Số lượng đồng hồ"
-                            value={amount || ""}
-                            onChange={handleNumberChange(setAmount)}
+                            value={qnt || ""}
+                            onChange={handleNumberChange(setQnt)}
                             onKeyPress={handleKeyPress}
                             autoComplete="off"
                             pattern="\d*"
@@ -78,8 +81,6 @@ export default function NewProcessDNSmallerThan15({ className }: NewProcessDNSma
     }
 
     return (
-        <DongHoListProvider amount={amount || 1}>
-            <FormDongHoNuocDNNhoHon15 />
-        </DongHoListProvider>
+        <FormDongHoNuocDNNhoHon15 />
     );
 }
