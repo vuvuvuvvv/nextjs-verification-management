@@ -9,6 +9,7 @@ import { Fragment, useEffect, useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faFileExcel } from "@fortawesome/free-solid-svg-icons";
 import { downloadBB, downloadGCN } from "@/app/api/download/route";
+import Swal from "sweetalert2";
 
 const Loading = dynamic(() => import('@/components/Loading'), { ssr: false });
 interface DetailDongHoProps {
@@ -19,7 +20,7 @@ export default function DetailDongHo({ dongHo }: DetailDongHoProps) {
     const [dongHoData, setDongHoData] = useState<DongHo>(dongHo);
 
     const [duLieuKiemDinhCacLuuLuong, setDuLieuKiemDinhCacLuuLuong] = useState<DuLieuChayDongHo>();
-    const [ketQua, setKetQua] = useState<string>("");
+    const [ketQua, setKetQua] = useState<boolean | null>(null);
     const [hieuSaiSo, setFormHieuSaiSo] = useState<{ hss: number | null }[] | null>(null);
 
     const [message, setMessage] = useState<string | null>(null);
@@ -37,26 +38,50 @@ export default function DetailDongHo({ dongHo }: DetailDongHoProps) {
                 setFormHieuSaiSo(reversedHSS);
             }
             const duLieuKetQua = dongHoData.du_lieu_kiem_dinh as { ket_qua?: boolean } | null;
-            if (duLieuKetQua != null) {
-                setKetQua(duLieuKetQua ? "Đạt" : "Không đạt");
+            if (duLieuKetQua?.ket_qua != null) {
+                setKetQua(duLieuKetQua.ket_qua);
             }
         }
     }, [dongHoData]);
 
     useEffect(() => {
-        console.log("Message: ", message);
+        if (message) {
+            Swal.fire({
+                icon: "info",
+                title: "CHÚ Ý",
+                text: message,
+                showClass: {
+                    popup: `
+                    animate__animated
+                    animate__fadeInUp
+                    animate__faster
+                  `
+                },
+                hideClass: {
+                    popup: `
+                    animate__animated
+                    animate__fadeOutDown
+                    animate__faster
+                  `
+                },
+                confirmButtonColor: "#0980de",
+                confirmButtonText: "OK"
+            }).then(() => {
+                setMessage("");
+            });
+        }
     }, [message]);
 
     const handleDownloadBB = async () => {
         if (dongHo.id) {
-            const result = await downloadBB(dongHo.id);
+            const result = await downloadBB(dongHo);
             setMessage(result.msg);
         }
     }
 
     const handleDownloadGCN = async () => {
         if (dongHo.id) {
-            const result = await downloadGCN(dongHo.id);
+            const result = await downloadGCN(dongHo);
             setMessage(result.msg);
         }
     }
@@ -68,18 +93,19 @@ export default function DetailDongHo({ dongHo }: DetailDongHoProps) {
     return <div className="w-100 m-0 p-2">
         <title>{dongHoData?.ten_dong_ho}</title>
         {dongHoData ? (
-            <div className="w-100 m-0 p-0">
-                <div className="container my-3 p-0 d-flex align-items-center gap-2">
-                    <h6 className="m-0">Tải xuống:</h6>
-                    <button className="btn bg-main-green text-white" onClick={handleDownloadBB}>
-                        <FontAwesomeIcon icon={faFileExcel} className="me-2"></FontAwesomeIcon> Biên bản kiểm định
-                    </button>
-                    <button className="btn bg-main-green text-white" onClick={handleDownloadGCN}>
-                        <FontAwesomeIcon icon={faFileExcel} className="me-2"></FontAwesomeIcon> Giấy chứng nhận kiểm định
-                    </button>
-                </div>
-                <div className="container bg-white px-4 px-md-5 py-4">
-                    <h4 className="fs-5 text-center text-uppercase">Chi tiết đồng hồ</h4>
+            <div className="w-100 m-0 my-3 p-0">
+                <div className="container bg-white px-4 px-md-5 py-3">
+
+                    <div className={`w-100 mb-4 p-0 d-flex align-items-center justify-content-end gap-2 ${ketQua ? '' : 'd-none'}`}>
+                        <h6 className="m-0">Tải xuống:</h6>
+                        <button className="btn bg-main-green text-white" onClick={handleDownloadBB}>
+                            <FontAwesomeIcon icon={faFileExcel} className="me-2"></FontAwesomeIcon> Biên bản kiểm định
+                        </button>
+                        <button className="btn bg-main-green text-white" onClick={handleDownloadGCN}>
+                            <FontAwesomeIcon icon={faFileExcel} className="me-2"></FontAwesomeIcon> Giấy chứng nhận kiểm định
+                        </button>
+                    </div>
+                    <h4 className="fs-4 text-center text-uppercase">Chi tiết đồng hồ</h4>
                     <div className="row mb-3">
                         <div className="col-12">
                             <p>Số giấy chứng nhận: <b>{dongHoData.so_giay_chung_nhan && dongHoData.ngay_thuc_hien ? getFullSoGiayCN(dongHoData.so_giay_chung_nhan, dongHoData.ngay_thuc_hien) : "Chưa có số giấy chứng nhận"}</b></p>
@@ -137,7 +163,7 @@ export default function DetailDongHo({ dongHo }: DetailDongHoProps) {
                     </div>
                     <div className="row mb-3">
                         <p className="fs-5 text-center text-uppercase">Kết quả kiểm tra</p>
-                        <p>1. Khả năng hoạt động: <b>{ketQua}</b></p>
+                        <p>1. Khả năng hoạt động: <b>{ketQua ? "Đạt" : "Không đạt"}</b></p>
                         <p>2. Kết quả kiểm tra đo lường: </p>
                         <div className={`${dtp.wrapper} w-100`}>
                             <table>
