@@ -18,6 +18,7 @@ interface DongHoListContextType {
     getDongHoDaKiemDinh: (dongHoList: DongHo[]) => DongHo[];
     saveListDongHo: (listDongHo: DongHo[]) => Promise<void>;
     savedDongHoList: DongHo[];
+    setSavedDongHoList: React.Dispatch<React.SetStateAction<DongHo[]>>;
 }
 
 const DongHoListContext = createContext<DongHoListContextType | undefined>(undefined);
@@ -286,7 +287,8 @@ export const DongHoListProvider = ({ children }: { children: ReactNode }) => {
             getDongHoChuaKiemDinh,
             getDongHoDaKiemDinh,
             saveListDongHo,
-            savedDongHoList
+            savedDongHoList,
+            setSavedDongHoList
         }}>
             {children}
         </DongHoListContext.Provider>

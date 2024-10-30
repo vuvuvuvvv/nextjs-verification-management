@@ -106,7 +106,7 @@ export default function DetailDongHo({ dongHo }: DetailDongHoProps) {
                         </button>
                     </div>
                     <h4 className="fs-4 text-center text-uppercase">Chi tiết đồng hồ</h4>
-                    <div className="row mb-3">
+                    <div className="row">
                         <div className="col-12">
                             <p>Số giấy chứng nhận: <b>{dongHoData.so_giay_chung_nhan && dongHoData.ngay_thuc_hien ? getFullSoGiayCN(dongHoData.so_giay_chung_nhan, dongHoData.ngay_thuc_hien) : "Chưa có số giấy chứng nhận"}</b></p>
                         </div>

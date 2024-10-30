@@ -69,8 +69,11 @@ export default function DetailNhomDongHo({ nhomDongHo }: DetailNhomDongHoProps) 
 
     const [nhomDuLieuKiemDinh, setNhomDuLieuKiemDinh] = useState<DuLieuKiemDinh[] | null>(null);
 
+    useEffect(() => {
+        console.log(nhomDuLieuKiemDinh);
+    }, [nhomDuLieuKiemDinh])
+
     const [message, setMessage] = useState<string | null>(null);
-    const [messages, setMessages] = useState<string[] | null>(null);
 
     useEffect(() => {
         if (message) {
@@ -389,7 +392,7 @@ export default function DetailNhomDongHo({ nhomDongHo }: DetailNhomDongHoProps) 
                                                     {nhomDuLieuKiemDinh[index].du_lieu && (
                                                         <>
                                                             {
-                                                                Object.entries(nhomDuLieuKiemDinh[index].du_lieu).map(([key, value], index) => {
+                                                                Object.entries(nhomDuLieuKiemDinh[index].du_lieu).map(([key, value], indexDL) => {
                                                                     if (value?.value) {
                                                                         let indexHead = true;
                                                                         let jsxStart, jsxEnd;
@@ -398,7 +401,7 @@ export default function DetailNhomDongHo({ nhomDongHo }: DetailNhomDongHoProps) 
                                                                         }, 0);
 
                                                                         return (
-                                                                            <Fragment key={key + index}>
+                                                                            <Fragment key={key + indexDL}>
                                                                                 {
                                                                                     Object.entries(value.lan_chay).map(([keyLanChay, valueLanChay], indexLanChay) => {
                                                                                         jsxStart = <></>

@@ -35,7 +35,7 @@ export default function ModalSelectDongHoToSave({ dongHoList, show, handleClose 
             html: 'Đang chuẩn bị...',
             allowOutsideClick: false,
             didOpen: () => {
-                setIsShow(false);
+                setIsShow(null);
                 Swal.showLoading();
                 saveListDongHo(selectedDongHo);
             }

@@ -18,7 +18,6 @@ export async function downloadBB(dongHo: DongHo): Promise<DownloadResponse> {
         });
 
         if (response.status === 200) {
-            console.log(response)
             const blob = new Blob([response.data], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" });
             const url = window.URL.createObjectURL(blob);
             const link = document.createElement("a");

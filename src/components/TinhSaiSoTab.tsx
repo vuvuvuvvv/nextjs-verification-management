@@ -37,7 +37,15 @@ interface FormProps {
 }
 
 export default function TinhSaiSoTab({ className, tabIndex, d, q, Form, onFormHSSChange, isDisable }: TinhSaiSoTabProps) {
-    const { duLieuKiemDinhCacLuuLuong, getDuLieuChayCuaLuuLuong, themLanChayCuaLuuLuong, updateLuuLuong, xoaLanChayCuaLuuLuong, resetLanChay } = useKiemDinh();
+    const {
+        duLieuKiemDinhCacLuuLuong,
+        getDuLieuChayCuaLuuLuong,
+        themLanChayCuaLuuLuong,
+        updateLuuLuong,
+        xoaLanChayCuaLuuLuong,
+        resetLanChay,
+        lanChayMoi
+    } = useKiemDinh();
 
     if (!tabIndex || tabIndex <= 0) {
         return <></>;
@@ -66,24 +74,35 @@ export default function TinhSaiSoTab({ className, tabIndex, d, q, Form, onFormHS
     // Hook: Cập nhật lại số lượng form + tab sau khi update số lần
     const [formValues, setFormValues] = useState<DuLieuCacLanChay>(getDuLieuChayCuaLuuLuong(q));
     const prevFormValuesRef = useRef<DuLieuCacLanChay>(formValues);
+    const qRef = useRef<{ title: string; value: string; }>(q);
 
     useEffect(() => {
-        if (prevFormValuesRef.current != getDuLieuChayCuaLuuLuong(q)) {
-            setFormValues(getDuLieuChayCuaLuuLuong(q));
-            prevFormValuesRef.current = getDuLieuChayCuaLuuLuong(q);
+        if (qRef.current != q) {
+            updateLuuLuong(q, getDuLieuChayCuaLuuLuong(q) || lanChayMoi);
+            qRef.current = q
         }
-    }, [duLieuKiemDinhCacLuuLuong]);
+    }, [q]);
+
+    // useEffect(() => {
+    //     if (prevFormValuesRef.current != getDuLieuChayCuaLuuLuong(q)) {
+    //         // setFormValues(getDuLieuChayCuaLuuLuong(q));
+    //         prevFormValuesRef.current = getDuLieuChayCuaLuuLuong(q);
+    //     }
+    // }, [duLieuKiemDinhCacLuuLuong]);
 
     useEffect(() => {
-        setSelectedTabForm({
-            ...Object.keys(initialTabFormState).reduce((prevTabState, key) => {
-                prevTabState[Number(key)] = false;
-                return prevTabState;
-            }, {} as TabFormState),
-            [(selectedTabForm[activeTab] ? activeTab : parseInt(Object.keys(selectedTabForm)[0]))]: true
-        });
-        onFormHSSChange(getHieuSaiSo(formValues as TinhSaiSoValueTabs));
-        updateLuuLuong(q, formValues);
+        if (prevFormValuesRef.current != formValues) {
+            setSelectedTabForm({
+                ...Object.keys(initialTabFormState).reduce((prevTabState, key) => {
+                    prevTabState[Number(key)] = false;
+                    return prevTabState;
+                }, {} as TabFormState),
+                [(selectedTabForm[activeTab] ? activeTab : parseInt(Object.keys(selectedTabForm)[0]))]: true
+            });
+            onFormHSSChange(getHieuSaiSo(formValues as TinhSaiSoValueTabs));
+            updateLuuLuong(q, formValues);
+            prevFormValuesRef.current = formValues;
+        }
     }, [formValues]);
 
     // Func: toggel tab select
@@ -129,16 +148,21 @@ export default function TinhSaiSoTab({ className, tabIndex, d, q, Form, onFormHS
             confirmButtonText: "Xóa"
         }).then((result) => {
             if (result.isConfirmed) {
-                setFormValues(xoaLanChayCuaLuuLuong(q, key));
+                updateFormValuesAndSelectedTabForm(xoaLanChayCuaLuuLuong(q, key));
             }
         });
     }
 
     const handleAdd = () => {
-        const newFormValues = themLanChayCuaLuuLuong(q);
-        setFormValues(newFormValues);
+        updateFormValuesAndSelectedTabForm(themLanChayCuaLuuLuong(q));
+    };
 
-        // Ensure the new tab is selected
+    const handleReset = () => {
+        updateFormValuesAndSelectedTabForm(resetLanChay(q));
+    }
+
+    const updateFormValuesAndSelectedTabForm = (newFormValues:DuLieuCacLanChay) => {
+        setFormValues(newFormValues);
         const newTabIndex = Object.keys(newFormValues).length * tabIndex;
         setSelectedTabForm({
             ...Object.keys(selectedTabForm).reduce((prevTabState, key) => {
@@ -148,16 +172,11 @@ export default function TinhSaiSoTab({ className, tabIndex, d, q, Form, onFormHS
             [newTabIndex]: true,
         });
         setActiveTab(newTabIndex);
-    };
-
-    const handleReset = () => {
-        setFormValues(resetLanChay(q));
     }
 
     //
     const renderTabTinhSaiSo = () => {
         return Object.entries(formValues).map(([key, formVal], index) => {
-
             return (
                 <div
                     key={index * tabIndex}
