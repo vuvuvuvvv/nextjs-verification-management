@@ -142,6 +142,14 @@ export default function FormDongHoNuocDNNhoHon15({ className }: FormDongHoNuocDN
     const [isDHSaved, setDHSaved] = useState<boolean | null>(null)
     const [isExistsDHSaved, setExitsDHSaved] = useState<boolean>(false)
 
+    const [isFirstTabLL, setFirsttabLL] = useState<boolean>(false)
+
+    useEffect(() => {
+        if(isFirstTabLL) {
+            setFirsttabLL(false);
+        }
+    },[isFirstTabLL])
+
     // Func: Set saved
     useEffect(() => {
         if (savedDongHoList.length > 0) {
@@ -573,15 +581,12 @@ export default function FormDongHoNuocDNNhoHon15({ className }: FormDongHoNuocDN
             setErrorSerialChiThi("");
             setErrorSerialSensor("");
             setErrorSoTem("");
+            setFirsttabLL(true);
 
             const duLieuKiemDinhJSON = dongHoSelected.du_lieu_kiem_dinh; // Define the type
 
             if (duLieuKiemDinhJSON) {
                 const duLieuKiemDinh = JSON.parse(duLieuKiemDinhJSON);
-                //TODO: Update formvalues
-                console.log("ket qua: ", duLieuKiemDinh.ket_qua)
-                console.log("du lieu: ", duLieuKiemDinh.du_lieu)
-                console.log("ket qua: ", duLieuKiemDinh.ket_qua)
                 setDuLieuKiemDinhCacLuuLuong(duLieuKiemDinh.du_lieu || initialDuLieuKiemDinhCacLuuLuong);
 
                 setFormHieuSaiSo(duLieuKiemDinh.hieu_sai_so || initialFormHieuSaiSo);
@@ -604,7 +609,6 @@ export default function FormDongHoNuocDNNhoHon15({ className }: FormDongHoNuocDN
         const checkQ3 = ((ccx && (ccx == "1" || ccx == "2")) || isDHDienTu);
         const currentDongHo = getCurrentDongHo();
         if (currentDongHo != dongHoSelected) {
-            console.log("hii: ", currentDongHo);
             updateListDongHo(selectedDongHoIndex, currentDongHo);
         }
     }
@@ -676,7 +680,7 @@ export default function FormDongHoNuocDNNhoHon15({ className }: FormDongHoNuocDN
                     });
                 }
             });
-        } else if (dongHoDaKiemDinhCount === 0) {
+        } else if (dongHoDaKiemDinhCount === 0 || (dongHoChuaKiemDinh.length == dongHoList.length - savedDongHoList.length)) {
             // No dongHo are verified
             Swal.fire({
                 title: 'Chú ý!',
@@ -1332,7 +1336,7 @@ export default function FormDongHoNuocDNNhoHon15({ className }: FormDongHoNuocDN
 
                                     <div className={`w-100 ${showFormTienTrinh ? "" : "d-none"}`}>
                                         <h5 className="p-0">Đo lường:</h5>
-                                        <NavTab buttonControl={true} tabContent={[
+                                        <NavTab buttonControl={true} gotoFirstTab={isFirstTabLL} tabContent={[
                                             {
                                                 title: <>Q<sub>{isDHDienTu ? "3" : "n"}</sub></>,
                                                 content: <TinhSaiSoTab onFormHSSChange={(value: number | null) => handleFormHSSChange(0, value)}

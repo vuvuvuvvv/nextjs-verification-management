@@ -118,8 +118,8 @@ export const KiemDinhProvider = ({ children }: { children: ReactNode }) => {
         if (q.title) {
             let key = q.title;
             let data = duLieuKiemDinhCacLuuLuong[key]?.lan_chay;
-
             if (data) {
+                let latest_data = data[Number(Object.keys(data)[Object.entries(data).length - 1])].V2
                 setDuLieuKiemDinhCacLuuLuong(prevState => {
                     const existingData = prevState[key] || { value: 0, lan_chay: lanChayMoi };
                     updatedData = {
@@ -128,11 +128,10 @@ export const KiemDinhProvider = ({ children }: { children: ReactNode }) => {
                             ...existingData,
                             lan_chay: {
                                 ...data,
-                                [Number(Object.keys(data)[Object.entries(data).length - 1]) + 1]: { V1: 0, V2: 0, Vc1: 0, Vc2: 0, Tdh: 0, Tc: 0 }
+                                [Number(Object.keys(data)[Object.entries(data).length - 1]) + 1]: { V1: latest_data || 0, V2: 0, Vc1: 0, Vc2: 0, Tdh: 0, Tc: 0 }
                             }
                         }
                     }
-                    console.log("ud:", updatedData);
                     return updatedData;
                 });
             }

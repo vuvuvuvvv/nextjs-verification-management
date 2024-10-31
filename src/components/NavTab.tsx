@@ -3,7 +3,7 @@
 import { useKiemDinh } from "@/context/KiemDinh";
 import nt from "@styles/scss/components/nav-tab.module.scss"
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 interface NavTabProps {
     className?: string,
@@ -14,14 +14,21 @@ interface NavTabProps {
         content: React.ReactNode,
     }[],
     buttonControl?: boolean,
+    gotoFirstTab?:boolean,
 }
 
 interface TabState {
     [key: number | string]: boolean;
 };
-export default function NavTab({ className, classNameGroupTab, classNameContent, tabContent, buttonControl = false }: NavTabProps) {
+export default function NavTab({ className, classNameGroupTab, classNameContent, tabContent, buttonControl = false, gotoFirstTab = false }: NavTabProps) {
 
     const {getDuLieuKiemDinhJSON} = useKiemDinh();
+
+    useEffect(() => {
+        if(gotoFirstTab) {
+            setSelectedTab({ [1]: true });
+        }
+    },[gotoFirstTab])
 
     // Collapse tab
     const [selectedTab, setSelectedTab] = useState<TabState>({ [1]: true });

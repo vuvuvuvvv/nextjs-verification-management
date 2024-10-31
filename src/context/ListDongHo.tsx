@@ -24,7 +24,7 @@ interface DongHoListContextType {
 const DongHoListContext = createContext<DongHoListContextType | undefined>(undefined);
 
 export const DongHoListProvider = ({ children }: { children: ReactNode }) => {
-    
+
     const [amount, setAmount] = useState<number>(1)
 
     const [dongHoList, setDongHoList] = useState<DongHo[]>(() => {
@@ -134,12 +134,13 @@ export const DongHoListProvider = ({ children }: { children: ReactNode }) => {
             }));
         })
     }, [amount])
+
     const [dongHoSelected, setDongHoSelected] = useState<DongHo | null>(dongHoList[0] || null);
     const [savedDongHoList, setSavedDongHoList] = useState<DongHo[]>([]);
 
-    useEffect(() => {
-        console.log("Saved: ", savedDongHoList);
-    }, [savedDongHoList]);
+    // useEffect(() => {
+    //     console.log("Saved: ", savedDongHoList);
+    // }, [savedDongHoList]);
 
     const getGeneralInfo = (dongHo: DongHo) => {
         return {
@@ -172,9 +173,9 @@ export const DongHoListProvider = ({ children }: { children: ReactNode }) => {
     }
     const [generalInfoDongHo, setGeneralInfoDongHo] = useState(getGeneralInfo(dongHoList[0]));
 
-    useEffect(() => {
-        console.log("DHL: ", dongHoList);
-    }, [dongHoList]);
+    // useEffect(() => {
+    //     console.log("DHL: ", dongHoList);
+    // }, [dongHoList]);
 
     const updateListDongHo = (index: number, updatedDongHo: DongHo) => {
         setDongHoList(prevList => {
@@ -248,8 +249,16 @@ export const DongHoListProvider = ({ children }: { children: ReactNode }) => {
         });
     }
 
+    const isDHSaved = (dongHoSelected: DongHo) => {
+        for (const dongHo of savedDongHoList) {
+            if (dongHo.seri_sensor == dongHoSelected.seri_sensor && dongHo.seri_chi_thi == dongHoSelected.seri_chi_thi) {
+                return true;
+            }
+        }
+        return false;
+    };
+
     const getDongHoChuaKiemDinh = (dongHoList: DongHo[]) => {
-        // Kết hợp cả hai danh sách
         const combinedList = [...dongHoList, ...savedDongHoList];
 
         return combinedList.filter(dongHo => {
@@ -263,12 +272,16 @@ export const DongHoListProvider = ({ children }: { children: ReactNode }) => {
     }
 
     const getDongHoDaKiemDinh = (dongHoList: DongHo[]) => {
-        return dongHoList.filter(dongHo => {
-            try {
-                const duLieuKiemDinh = JSON.parse(dongHo?.du_lieu_kiem_dinh || "{}");
-                return duLieuKiemDinh.ket_qua !== null;
-            } catch {
-                return true; // Consider as incomplete if parsing fails
+        const combinedList = [...dongHoList];
+
+        return combinedList.filter(dongHo => {
+            if (!isDHSaved(dongHo)) {
+                try {
+                    const duLieuKiemDinh = JSON.parse(dongHo?.du_lieu_kiem_dinh || "{}");
+                    return duLieuKiemDinh.ket_qua !== null;
+                } catch {
+                    return true; // Consider as incomplete if parsing fails
+                }
             }
         });
     }

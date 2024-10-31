@@ -69,9 +69,9 @@ export default function DetailNhomDongHo({ nhomDongHo }: DetailNhomDongHoProps) 
 
     const [nhomDuLieuKiemDinh, setNhomDuLieuKiemDinh] = useState<DuLieuKiemDinh[] | null>(null);
 
-    useEffect(() => {
-        console.log(nhomDuLieuKiemDinh);
-    }, [nhomDuLieuKiemDinh])
+    // useEffect(() => {
+    //     console.log(nhomDuLieuKiemDinh);
+    // }, [nhomDuLieuKiemDinh])
 
     const [message, setMessage] = useState<string | null>(null);
 
