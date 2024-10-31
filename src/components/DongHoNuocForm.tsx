@@ -105,8 +105,6 @@ export default function FormDongHoNuocDNLonHon15({ className }: FormDongHoNuocDN
             soQDPDMRef.current = soQDPDM
         }
     }, [soQDPDM]);
-
-    // TODO: PDM
     const filterPDMRef = useRef(filterPDM);
 
     useEffect(() => {
@@ -121,7 +119,8 @@ export default function FormDongHoNuocDNLonHon15({ className }: FormDongHoNuocDN
                         const getDate = new Date(pdm.ngay_qd_pdm)
                         setSoQDPDM(pdm.so_qd_pdm + (getDate.getFullYear() ? "-" + getDate.getFullYear() : ""));
                     } else if (res.status == 404) {
-                        setErrorPDM("Không có số quyết định PDM phù hợp vói các thông số đồng hồ trên.")
+                        // setErrorPDM("Không có số quyết định PDM phù hợp vói các thông số đồng hồ trên.")
+                        setErrorPDM("")
                         setSoQDPDM("");
                     } else {
                         setErrorPDM("Có lỗi xảy ra khi lấy số quyết định PDM!")
@@ -348,7 +347,6 @@ export default function FormDongHoNuocDNLonHon15({ className }: FormDongHoNuocDN
 
     useEffect(() => {
         if (q3 || qn) {
-            // TODO: Tạo button check?
             setKetQua(isDongHoDatTieuChuan(isDHDienTu, formHieuSaiSo));
         }
         if (checking) {
@@ -971,8 +969,6 @@ export default function FormDongHoNuocDNLonHon15({ className }: FormDongHoNuocDN
                             <div className={`w-100 px-3 m-0 d-flex align-items-center justify-content-end ${(ketQua == null) || (checking) ? "fade d-none" : "show"}`}>
                                 <button aria-label="Kiểm tra" className={`btn btn-success px-3 py-2 text-white ${vrfWm['btn-check']}`} onClick={
                                     () => {
-                                        // TODO:
-                                        // handleCheck();
                                         setChecking(true);
                                     }
                                 }><FontAwesomeIcon className="me-2" icon={faTasks} />Kiểm tra</button>
@@ -1026,7 +1022,6 @@ export default function FormDongHoNuocDNLonHon15({ className }: FormDongHoNuocDN
                                 </div> */}
                                 </div>
                                 <div className="w-100 m-0 px-0 d-flex gap-2 justify-content-end">
-                                    {/* TODO: ${canSave ? "btn-success" : "btn-secondary"}  */}
                                     <button aria-label="Lưu Đồng hồ" className={`btn py-2 px-3 btn-success`}
                                         disabled={!canSave && (ketQua != null && ketQua)}
                                         onClick={handleSaveDongHo}>

@@ -183,7 +183,6 @@ export default function FormDongHoNuocDNNhoHon15({ className }: FormDongHoNuocDN
         }
     }, [soQDPDM]);
 
-    // TODO: PDM
     const filterPDMRef = useRef(filterPDM);
 
     useEffect(() => {
@@ -278,6 +277,7 @@ export default function FormDongHoNuocDNNhoHon15({ className }: FormDongHoNuocDN
         { value: tenDongHo, setter: setTenDongHo, id: "ten_dong_ho" },
         { value: phuongTienDo, setter: setPhuongTienDo, id: "phuong_tien_do" },
         { value: kieuThietBi, setter: setKieuThietBi, id: "kieu_thiet_bi" },
+
         // TODO: Seri
         // { value: seriChiThi, setter: setSeriChiThi, id: "seri_chi_thi" },
         // { value: seriSensor, setter: setSeriSensor, id: "seri_sensor" },
@@ -516,7 +516,6 @@ export default function FormDongHoNuocDNNhoHon15({ className }: FormDongHoNuocDN
     // Func: Hieu sai so
     useEffect(() => {
         if (q3 || qn) {
-            // TODO: Tạo button check?
             setKetQua(isDongHoDatTieuChuan(isDHDienTu, formHieuSaiSo));
         }
         if (checking) {
@@ -572,7 +571,6 @@ export default function FormDongHoNuocDNNhoHon15({ className }: FormDongHoNuocDN
         }
     }
 
-    // TODO: Gán value (Chuyển đồng hồ bị giữ giá trị => Gán giá trị nếu có else tạo mới )
     // Gán giá trị khi
     useEffect(() => {
         if (dongHoSelected) {
@@ -1448,7 +1446,6 @@ export default function FormDongHoNuocDNNhoHon15({ className }: FormDongHoNuocDN
                                                     </div> */}
                                                 </div>
                                                 <div className={`w-100 m-0 px-0 d-flex gap-2 justify-content-end ${isDHSaved != null && isDHSaved ? "d-none" : ""}`}>
-                                                    {/* TODO: ${canSave ? "btn-success" : "btn-secondary"}  */}
                                                     <button aria-label="Lưu Đồng hồ" className={`btn py-2 px-3 btn-success`}
                                                         disabled={(!canSave && (ketQua != null && ketQua)) || isCheckingInfo || !(!errorGCN && !errorSerialChiThi && !errorSerialSensor && !errorSoTem)}
                                                         onClick={handleSaveDongHo}
@@ -1460,11 +1457,7 @@ export default function FormDongHoNuocDNNhoHon15({ className }: FormDongHoNuocDN
 
                                         </div>
                                     </div>
-                                    {/* TODO: Save DH */}
                                     <div className={`w-100 m-0 p-2 d-flex gap-2 justify-content-between ${isDHSaved != null && isDHSaved ? "" : "d-none"}`}>
-                                        {/* <button aria-label="Lưu Đồng hồ" className={`btn py-2 px-3 ${canSave ? "btn-success" : "btn-secondary"}`} disabled={!canSave} onClick={handleSaveDongHo}>
-                                            Lưu Đồng hồ
-                                        </button> */}
                                         <button aria-label="Đồng hồ đã lưu" className={`btn py-2 px-3 btn-secondary`} disabled={isDHSaved != null && isDHSaved}>
                                             Đồng hồ đã lưu
                                         </button>

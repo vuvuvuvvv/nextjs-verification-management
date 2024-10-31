@@ -472,7 +472,6 @@ export default function AddNewPDM({ className }: AddNewPDMProps) {
                                     />
                                 </div>
 
-                                {/* TODO: Check PDM  */}
                                 <div className="mb-3 col-12 col-md-6">
                                     <label htmlFor="soQDPDM" className="form-label">Ký hiệu PDM/Số quyết định PDM:</label>
                                     <input
