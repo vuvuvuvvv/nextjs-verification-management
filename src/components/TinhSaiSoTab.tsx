@@ -83,12 +83,12 @@ export default function TinhSaiSoTab({ className, tabIndex, d, q, Form, onFormHS
         }
     }, [q]);
 
-    // useEffect(() => {
-    //     if (prevFormValuesRef.current != getDuLieuChayCuaLuuLuong(q)) {
-    //         // setFormValues(getDuLieuChayCuaLuuLuong(q));
-    //         prevFormValuesRef.current = getDuLieuChayCuaLuuLuong(q);
-    //     }
-    // }, [duLieuKiemDinhCacLuuLuong]);
+    useEffect(() => {
+        if (prevFormValuesRef.current != getDuLieuChayCuaLuuLuong(q)) {
+            setFormValues(getDuLieuChayCuaLuuLuong(q));
+            // prevFormValuesRef.current = getDuLieuChayCuaLuuLuong(q);
+        }
+    }, [duLieuKiemDinhCacLuuLuong]);
 
     useEffect(() => {
         if (prevFormValuesRef.current != formValues) {
@@ -161,7 +161,7 @@ export default function TinhSaiSoTab({ className, tabIndex, d, q, Form, onFormHS
         updateFormValuesAndSelectedTabForm(resetLanChay(q));
     }
 
-    const updateFormValuesAndSelectedTabForm = (newFormValues:DuLieuCacLanChay) => {
+    const updateFormValuesAndSelectedTabForm = (newFormValues: DuLieuCacLanChay) => {
         setFormValues(newFormValues);
         const newTabIndex = Object.keys(newFormValues).length * tabIndex;
         setSelectedTabForm({

@@ -58,7 +58,6 @@ export const KiemDinhProvider = ({ children }: { children: ReactNode }) => {
     //     console.log("dlkdcll: ", duLieuKiemDinhCacLuuLuong);
     // }, [duLieuKiemDinhCacLuuLuong]);
 
-
     const setDuLieuKiemDinhChoMotLuuLuong = (tenLuuLuong: string, data: DuLieuChayDiemLuuLuong | null) => {
         if (previousDuLieuRef.current[tenLuuLuong] !== data) {
             setDuLieuKiemDinhCacLuuLuong(prevState => ({

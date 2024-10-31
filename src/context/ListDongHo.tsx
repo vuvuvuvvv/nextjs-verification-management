@@ -172,9 +172,9 @@ export const DongHoListProvider = ({ children }: { children: ReactNode }) => {
     }
     const [generalInfoDongHo, setGeneralInfoDongHo] = useState(getGeneralInfo(dongHoList[0]));
 
-    // useEffect(() => {
-    //     console.log("DHL: ", dongHoList);
-    // }, [dongHoList]);
+    useEffect(() => {
+        console.log("DHL: ", dongHoList);
+    }, [dongHoList]);
 
     const updateListDongHo = (index: number, updatedDongHo: DongHo) => {
         setDongHoList(prevList => {

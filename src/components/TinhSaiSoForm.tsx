@@ -96,7 +96,7 @@ export default function DNBT30TinhSaiSoForm({ className, formValue, readOnly = f
 
             const timeout = setTimeout(() => {
                 onFormChange(field, numericValue);
-            }, 500);
+            }, 0);
             setNumericInputTimeout(timeout);
         };
     };
