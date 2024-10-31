@@ -25,6 +25,7 @@ import sb from "@styles/scss/ui/sidebar.module.scss";
 import Link from 'next/link';
 import { SideLink } from '@lib/types';
 import Loading from './Loading';
+import { ACCESS_LINKS } from '@lib/system-constant';
 
 interface SidebarProps {
     // "?" can be undefind
@@ -38,9 +39,9 @@ interface CollapseState {
 
 const siteSideLinks: SideLink[] = [
     {
-        title: "Trang chủ",
+        title: ACCESS_LINKS.HOME.title,
         icon: faHome,
-        href: "/"
+        href: ACCESS_LINKS.HOME.src
     },
     {
         title: "Kiểm định",
@@ -50,11 +51,11 @@ const siteSideLinks: SideLink[] = [
                 title: "Đồng hồ",
                 icon: faClock,
                 children: [
-                    { title: "DN > 15 m³/h", href: "/kiem-dinh/dong-ho-nuoc/dn-bigger-than-15", icon: faTint },
-                    { title: "DN < 15 m³/h", href: "/kiem-dinh/dong-ho-nuoc/dn-smaller-than-15", icon: faTint },
+                    { title: ACCESS_LINKS.DHN_BT15.title, href: ACCESS_LINKS.DHN_BT15.src, icon: faTint },
+                    { title: ACCESS_LINKS.DHN_ST15.title, href: ACCESS_LINKS.DHN_ST15.src, icon: faTint },
                 ]
             },
-            { title: "Phê duyệt mẫu", href: "/kiem-dinh/pdm", icon: faFileAlt },
+            { title: ACCESS_LINKS.PDM.title, href: ACCESS_LINKS.PDM.src, icon: faFileAlt },
         ]
     },
     {

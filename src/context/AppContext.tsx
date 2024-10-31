@@ -7,6 +7,7 @@ import { logout } from '@/app/api/auth/logout/route';
 import Swal from 'sweetalert2';
 import { User } from '@lib/types';
 import Loading from '@/components/Loading';
+import { ACCESS_LINKS } from '@lib/system-constant';
 
 // Define user type
 
@@ -57,7 +58,7 @@ export const AppProvider : React.FC<{ children: React.ReactNode }> = ({ children
     const logoutUser = async () => {
         const res = await logout();
         if (res?.status == 200 || res?.status == 201) {
-            window.location.href = '/login';
+            window.location.href = ACCESS_LINKS.AUTH_LOGIN.src;
         } else if (res?.status == 401) {
             Swal.fire({
                 icon: "error",
@@ -80,7 +81,7 @@ export const AppProvider : React.FC<{ children: React.ReactNode }> = ({ children
                 confirmButtonColor: "#0980de",
                 confirmButtonText: "OK"
             }).then(() => {
-                window.location.href = '/login';
+                window.location.href = ACCESS_LINKS.AUTH_LOGIN.src;
             });
         }
     };

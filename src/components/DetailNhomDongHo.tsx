@@ -7,7 +7,7 @@ import dynamic from "next/dynamic";
 import { DongHo, DuLieuChayDongHo } from "@lib/types";
 import { Fragment, useEffect, useRef, useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faFileExcel } from "@fortawesome/free-solid-svg-icons";
+import { faDownload, faFileExcel } from "@fortawesome/free-solid-svg-icons";
 import Swal from "sweetalert2";
 import { downloadBB, downloadGCN } from "@/app/api/download/route";
 
@@ -249,16 +249,16 @@ export default function DetailNhomDongHo({ nhomDongHo }: DetailNhomDongHoProps) 
                     handleClose={handleCloseModal}
                     handleSelectedDongHo={setSelectedDongHo}
                 ></ModalSelectDongHoToDownload>
-                <div className={`container my-3 p-0 d-flex align-items-center gap-2`}>
-                    <h6 className="m-0">Chọn tải xuống:</h6>
-                    <button className="btn bg-main-green text-white" onClick={handleMultDownloadBB}>
-                        <FontAwesomeIcon icon={faFileExcel} className="me-2"></FontAwesomeIcon> Biên bản kiểm định
+                <div className={`container my-3 p-0 d-flex align-items-center`}>
+                    <span style={{ cursor: "unset" }} className="m-0 btn border-0 py-2 bg-main-blue text-white rounded-end-0">Chọn tải:</span>
+                    <button aria-label="Tải biên bản kiểm định" className="btn bg-main-green rounded-0 border-0 py-2 text-white" onClick={handleMultDownloadBB}>
+                        <FontAwesomeIcon icon={faFileExcel} className="me-1"></FontAwesomeIcon> BB kiểm định
                     </button>
-                    <button className="btn bg-main-green text-white" onClick={handleMultDownloadGCN}>
-                        <FontAwesomeIcon icon={faFileExcel} className="me-2"></FontAwesomeIcon> Giấy chứng nhận kiểm định
+                    <button aria-label="Tải giấy chứng nhận kiểm định" className="btn bg-main-green rounded-start-0 py-2 border-top-0 border-bottom-0 border-end-0 border-white text-white" onClick={handleMultDownloadGCN}>
+                        <FontAwesomeIcon icon={faFileExcel} className="me-1"></FontAwesomeIcon> GCN kiểm định
                     </button>
                 </div>
-                <div className="container bg-white px-4 px-md-5 py-4">
+                <div className="container bg-white px-3 px-md-4 py-4">
                     <h4 className="text-center text-uppercase">Chi tiết nhóm đồng hồ</h4>
                     <p className="fs-5 text-uppercase fw-bold text-decoration-underline">I. Thông tin chung:</p>
                     <div className="row mb-3">
@@ -312,21 +312,21 @@ export default function DetailNhomDongHo({ nhomDongHo }: DetailNhomDongHoProps) 
 
                         return <div key={index} className="py-3 px-2 mb-3">
 
-                            <div className="w-100 mb-3 d-flex align-items-center gap-3 justify-content-between">
-                                <h5 className="fs-5 text-center text-uppercase text-decoration-underline fw-bold">Đồng hồ số {index + 1}:</h5>
+                            <div className="w-100 mb-3 d-flex row mx-0 align-items-center justify-content-between">
+                                <h4 className="col-12 col-md-4 mb-md-0 p-0 text-center text-md-start text-uppercase text-decoration-underline fw-bold">Đồng hồ số {index + 1}:</h4>
 
-                                <div className="d-flex align-items-center gap-3 justify-content-end">
-                                    <h6 className="m-0">Tải xuống:</h6>
-                                    <button className="btn bg-main-green text-white" onClick={() => handleDownloadBB(dongHo)}>
-                                        <FontAwesomeIcon icon={faFileExcel} className="me-2"></FontAwesomeIcon> Biên bản kiểm định
+                                <div className="col-12 px-0 col-md-8 d-flex align-items-center justify-content-center justify-content-md-end">
+                                    <span style={{ cursor: "unset" }} className="btn border-0 bg-lighter-grey rounded-start rounded-end-0"><FontAwesomeIcon icon={faDownload}></FontAwesomeIcon></span>
+                                    <button aria-label="Tải biên bản kiểm định" className="btn bg-main-green rounded-0 text-white" onClick={() => handleDownloadBB(dongHo)}>
+                                        <FontAwesomeIcon icon={faFileExcel} className="me-1"></FontAwesomeIcon> Biên bản
                                     </button>
-                                    <button className="btn bg-main-green text-white" onClick={() => handleDownloadGCN(dongHo)}>
-                                        <FontAwesomeIcon icon={faFileExcel} className="me-2"></FontAwesomeIcon> Giấy chứng nhận kiểm định
+                                    <button aria-label="Tải giấy chứng nhận kiểm định" className="btn bg-main-green text-white border-start rounded-start-0 rounded-end" onClick={() => handleDownloadGCN(dongHo)}>
+                                        <FontAwesomeIcon icon={faFileExcel} className="me-1"></FontAwesomeIcon> Giấy chứng nhận
                                     </button>
                                 </div>
                             </div>
 
-                            <div className="row px-3 px-md-4 mb-3">
+                            <div className="row px-3 mb-3">
                                 {(dongHo.so_giay_chung_nhan && dongHo.ngay_thuc_hien) && <div className="col-12 col-md-6">
                                     <p>Số giấy chứng nhận: <b>{getFullSoGiayCN(dongHo.so_giay_chung_nhan, dongHo.ngay_thuc_hien)}</b></p>
                                 </div>}
@@ -350,7 +350,7 @@ export default function DetailNhomDongHo({ nhomDongHo }: DetailNhomDongHoProps) 
 
                                 <div className="row mb-3">
                                     <p className="fs-5 text-uppercase text-decoration-underline">Kết quả kiểm tra:</p>
-                                    <div className="w-100 px-3 px-md-4">
+                                    <div className="w-100 px-3">
                                         <p>1. Khả năng hoạt động: <b>{nhomDuLieuKiemDinh[index].ket_qua}</b></p>
                                         <p>3. Hiệu lực biên bản: {dayjs(dongHo.hieu_luc_bien_ban).format("DD/MM/YYYY") || "Không có hiệu lực"} </p>
                                         <p>2. Kết quả kiểm tra đo lường: </p>

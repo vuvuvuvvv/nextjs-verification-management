@@ -13,7 +13,7 @@ import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { viVN } from "@mui/x-date-pickers/locales";
 import dayjs, { Dayjs } from "dayjs";
 import Select, { GroupBase } from 'react-select';
-import { ccxOptions } from "@lib/system-constant";
+import { ACCESS_LINKS, ccxOptions } from "@lib/system-constant";
 import vrfWm from "@styles/scss/ui/vfm.module.scss";
 import Link from "next/link";
 
@@ -99,7 +99,7 @@ export default function Page({ params }: { params: { ma_tim_dong_ho_pdm: string 
         //             text: "PDM updated successfully!",
         //             confirmButtonText: "OK"
         //         }).then(() => {
-        //             router.push("/kiem-dinh/pdm");
+        //             router.push(ACCESS_LINKS.PDM.src);
         //         });
         //     } else {
         //         Swal.fire({
@@ -141,7 +141,7 @@ export default function Page({ params }: { params: { ma_tim_dong_ho_pdm: string 
                             confirmButtonColor: "#3085d6",
                             confirmButtonText: "Có",
                         }).then(() => {
-                            router.push("/kiem-dinh/pdm")
+                            router.push(ACCESS_LINKS.PDM.src)
                         });
                     } else {
                         setError("Có lỗi đã xảy ra!");
@@ -448,12 +448,12 @@ export default function Page({ params }: { params: { ma_tim_dong_ho_pdm: string 
                                 <button aria-label="Hủy" type="button" onClick={() => setIsEditing(!isEditing)} className="btn text-white bg-warning">
                                     Hủy
                                 </button>
-                                <button aria-label="Cập nhật phê duyệt mẫu" type="button" onClick={handleSubmit} className="btn text-white bg-main-green">
+                                {/* <button aria-label="Cập nhật phê duyệt mẫu" type="button" onClick={handleSubmit} className="btn text-white bg-main-green">
                                     Cập nhật PDM
-                                </button>
-                                <button aria-label="Xóa phê duyệt mẫu" type="button" onClick={handleDelete} className="btn text-white bg-danger">
+                                </button> */}
+                                {/* <button aria-label="Xóa phê duyệt mẫu" type="button" onClick={handleDelete} className="btn text-white bg-danger">
                                     Xóa PDM
-                                </button>
+                                </button> */}
                             </div>
                         </div>
                     ) : (
@@ -554,7 +554,7 @@ export default function Page({ params }: { params: { ma_tim_dong_ho_pdm: string 
                                         Chỉnh sửa
                                     </button>
                                 )}
-                                <Link href={"/kiem-dinh/pdm"} className="btn btn-primary">
+                                <Link href={ACCESS_LINKS.PDM.src} className="btn btn-primary">
                                     Quay lại
                                 </Link>
                             </div>

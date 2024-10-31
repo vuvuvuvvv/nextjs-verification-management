@@ -12,7 +12,7 @@ import { useRouter } from "next/navigation";
 import dayjs, { Dayjs } from "dayjs";
 import { useEffect, useRef, useMemo, useState } from "react";
 import { convertToUppercaseNonAccent, getLastDayOfMonthInFuture, getQ2OrQtAndQ1OrQMin, isDongHoDatTieuChuan } from "@lib/system-function";
-import { ccxOptions, phuongTienDoOptions, TITLE_LUU_LUONG, typeOptions } from "@lib/system-constant";
+import { ACCESS_LINKS, ccxOptions, phuongTienDoOptions, TITLE_LUU_LUONG, typeOptions } from "@lib/system-constant";
 import { createDongHo } from "@/app/api/dongho/route";
 import { faFileAlt, faTasks } from "@fortawesome/free-solid-svg-icons";
 
@@ -324,7 +324,7 @@ export default function FormDongHoNuocDNLonHon15({ className }: FormDongHoNuocDN
                     }).then((result) => {
                         if (result.dismiss === Swal.DismissReason.timer) {
                             Swal.showLoading();
-                            router.push("/kiem-dinh/dong-ho-nuoc/dn-bigger-than-15");
+                            router.push(ACCESS_LINKS.DHN_BT15.src);
                         }
                     });
                 } else {
@@ -781,7 +781,7 @@ export default function FormDongHoNuocDNLonHon15({ className }: FormDongHoNuocDN
                                 </div>
                                 <div className={`mb-3 col-12 d-flex justify-content-xxl-end`}>
                                     <Link
-                                        href={"/kiem-dinh/pdm//them-moi"}
+                                        href={ACCESS_LINKS.PDM_ADD.src}
                                         className="btn btn-success px-3 py-2 text-white"
                                     >
                                         Thêm mới PDM

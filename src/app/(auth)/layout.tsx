@@ -1,13 +1,15 @@
 "use client"
 
+import { ACCESS_LINKS } from '@lib/system-constant';
 import layout from '@styles/scss/layouts/auth-layout.module.scss'
 import { usePathname } from "next/navigation";
 
 const routeTitles: { [key: string]: string } = {
-    "/login": "Đăng nhập",
-    "/register": "Đăng ký",
-    "/forgot-password": "Quên mật khẩu",
-    "/auth-error/error-token": "Lỗi mã xác thực"
+    ...Object.fromEntries(
+        Object.entries(ACCESS_LINKS).map(([key, val]) => {
+            return [`${val.src}`, val.title]; 
+        })
+    )
 };
 
 export default function AuthLayout({ children }: { children: React.ReactNode }) {

@@ -14,7 +14,7 @@ import { viVN } from "@mui/x-date-pickers/locales";
 
 import dayjs, { Dayjs } from "dayjs";
 
-import { ccxOptions, phuongTienDoOptions, typeOptions } from "@lib/system-constant";
+import { ACCESS_LINKS, ccxOptions, phuongTienDoOptions, typeOptions } from "@lib/system-constant";
 
 import Select, { GroupBase } from 'react-select';
 import { PDM } from "@lib/types";
@@ -177,7 +177,7 @@ export default function AddNewPDM({ className }: AddNewPDMProps) {
                 }).then((result) => {
                     if (result.dismiss === Swal.DismissReason.timer) {
                         Swal.showLoading();
-                        router.push("/kiem-dinh/pdm");
+                        router.push(ACCESS_LINKS.PDM.src);
                     }
                 });
             } else {
@@ -211,7 +211,7 @@ export default function AddNewPDM({ className }: AddNewPDMProps) {
                     reverseButtons: true,
                 }).then((result) => {
                     if (result.isDismissed) {
-                        window.open('/kiem-dinh/pdm/chi-tiet/' + response.data.ma_tim_dong_ho_pdm, '_blank');
+                        window.open(ACCESS_LINKS.PDM_DETAIL.src + '/' + response.data.ma_tim_dong_ho_pdm, '_blank');
                     }
                     setError("");
                 });

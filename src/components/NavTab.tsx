@@ -52,7 +52,7 @@ export default function NavTab({ className, classNameGroupTab, classNameContent,
                 <div className={`${nt['group-tab']} ${classNameGroupTab ? classNameGroupTab : ""}`}>
                     {tabContent.map((val, index) => {
                         return (
-                            <button aria-label={`Tab ${index + 1}`} type="button" style={{ minWidth: "80px" }} key={index + 1} className={`${nt['nav-link']} ${selectedTab[index + 1] ? nt['active'] : ''} fs-5 px-4`} onClick={() => toggleTab(index + 1)}>
+                            <button aria-label={`Tab ${index + 1}`} type="button" style={{ minWidth: "80px" }} key={index + 1} className={`${nt['nav-link']} ${selectedTab[index + 1] ? nt['active'] : ''} fs-6 px-4`} onClick={() => toggleTab(index + 1)}>
                                 {val.title}
                             </button>
                         )

@@ -19,17 +19,14 @@ const AppProvider = dynamic(() => import("@/context/AppContext").then(mod => mod
 import { usePathname } from "next/navigation";
 import dynamic from "next/dynamic";
 import Navbar from "@/components/Navbar";
+import { ACCESS_LINKS } from "@lib/system-constant";
 
 const routeTitles: { [key: string]: string } = {
-    "/": "Trang chủ",
-    "/about": "Về chúng tôi",
-    "/kiem-dinh/pdm": "Phê duyệt mẫu",
-    "/kiem-dinh/dong-ho-nuoc/dn-bigger-than-15": "Kiểm định đồng hồ nước - DN > 15 m³/h",
-    "/kiem-dinh/dong-ho-nuoc/dn-smaller-than-15": "Kiểm định đồng hồ nước - DN < 15 m³/h",
-    "/kiem-dinh/dong-ho-nuoc/dn-bigger-than-15/them-moi": "Thêm mới - DN > 15 m³/h",
-    "/kiem-dinh/dong-ho-nuoc/dn-smaller-than-15/them-moi": "Thêm nhóm - DN < 15 m³/h",
-    "/change/password": "Đổi mật khẩu",
-    "/change/email": "Đổi email"
+    ...Object.fromEntries(
+        Object.entries(ACCESS_LINKS).map(([key, val]) => {
+            return [`${val.src}`, val.title]; 
+        })
+    )
 };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode; }>) {

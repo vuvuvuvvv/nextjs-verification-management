@@ -20,7 +20,7 @@ import { DongHo, DongHoFilterParameters, DuLieuChayDongHo } from "@lib/types";
 import { usePathname } from "next/navigation";
 import Link from "next/link";
 
-import {limitOptions } from "@lib/system-constant";
+import {ACCESS_LINKS, limitOptions } from "@lib/system-constant";
 import Swal from "sweetalert2";
 import { deleteDongHo, getAllDongHo, getDongHoByFilter } from "@/app/api/dongho/route";
 
@@ -575,7 +575,7 @@ export default function WaterMeterManagement({ className, isBiggerThan15 = false
                                         {paginatedData.map((item, index) => (
                                             <tr
                                                 key={index}
-                                                onClick={() => window.open(`/kiem-dinh/dong-ho-nuoc/chi-tiet/${item.id}`, '_blank')}
+                                                onClick={() => window.open(`${ACCESS_LINKS.DHN_DETAIL.src}/${item.id}`, '_blank')}
                                                 style={{ cursor: 'pointer' }} 
                                             >
                                                 <td>{item.so_giay_chung_nhan}</td>
@@ -586,7 +586,7 @@ export default function WaterMeterManagement({ className, isBiggerThan15 = false
                                                     {processDuLieu(item.du_lieu_kiem_dinh as { du_lieu?: DuLieuChayDongHo })}
                                                 </td>
                                                 <td>
-                                                    <Link target="_blank" aria-label="Xem chi tiết" href={"/kiem-dinh/dong-ho-nuoc/chi-tiet/" + item.id} className={`btn w-100 text-blue`}>
+                                                    <Link target="_blank" aria-label="Xem chi tiết" href={ACCESS_LINKS.DHN_DETAIL.src + "/" + item.id} className={`btn w-100 text-blue`}>
                                                         <FontAwesomeIcon icon={faEye}></FontAwesomeIcon>
                                                     </Link>
                                                     {/* <div className={`dropdown ${c_vfml['action']}`}>
@@ -595,7 +595,7 @@ export default function WaterMeterManagement({ className, isBiggerThan15 = false
                                                         </button>
                                                         <ul className={`dropdown-menu ${c_vfml['dropdown-menu']}`} style={{ zIndex: "777" }}>
                                                             <li>
-                                                                <Link aria-label="Xem chi tiết" href={"/kiem-dinh/dong-ho-nuoc/chi-tiet/" + item.serial_number} className={`btn w-100`}>
+                                                                <Link aria-label="Xem chi tiết" href={ACCESS_LINKS.DHN_DETAIL.src + "/"+ item.serial_number} className={`btn w-100`}>
                                                                     Xem chi tiết
                                                                 </Link>
                                                             </li>

@@ -25,7 +25,7 @@ import dayjs, { Dayjs } from "dayjs";
 import { useEffect, useMemo, useRef, useState } from "react";
 
 import { convertToUppercaseNonAccent, getLastDayOfMonthInFuture, getQ2OrQtAndQ1OrQMin, isDongHoDatTieuChuan } from "@lib/system-function";
-import { ccxOptions, phuongTienDoOptions, TITLE_LUU_LUONG, typeOptions } from "@lib/system-constant";
+import { ACCESS_LINKS, ccxOptions, phuongTienDoOptions, TITLE_LUU_LUONG, typeOptions } from "@lib/system-constant";
 
 import { createDongHo, getDongHoExistsByInfo } from "@/app/api/dongho/route";
 import { faArrowLeft, faArrowRight, faCheckSquare, faCogs, faSave, faTasks } from "@fortawesome/free-solid-svg-icons";
@@ -1076,7 +1076,7 @@ export default function FormDongHoNuocDNNhoHon15({ className }: FormDongHoNuocDN
                                 </div>
                                 <div className={`mb-3 col-12 d-flex justify-content-xxl-end`}>
                                     <Link
-                                        href={"/kiem-dinh/pdm//them-moi"}
+                                        href={ACCESS_LINKS.PDM_ADD.src}
                                         className="btn btn-success px-3 py-2 text-white"
                                     >
                                         Thêm mới PDM
