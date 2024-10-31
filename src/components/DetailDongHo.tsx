@@ -7,7 +7,7 @@ import dynamic from "next/dynamic";
 import { DongHo, DuLieuChayDongHo } from "@lib/types";
 import { Fragment, useEffect, useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faFileExcel } from "@fortawesome/free-solid-svg-icons";
+import { faDownload, faFileExcel } from "@fortawesome/free-solid-svg-icons";
 import { downloadBB, downloadGCN } from "@/app/api/download/route";
 import Swal from "sweetalert2";
 
@@ -94,19 +94,19 @@ export default function DetailDongHo({ dongHo }: DetailDongHoProps) {
         <title>{dongHoData?.ten_dong_ho}</title>
         {dongHoData ? (
             <div className="w-100 m-0 my-3 p-0">
-                <div className="container bg-white px-4 px-md-5 py-3">
+                <div className="container bg-white px-3 px-md-5 py-3">
 
-                    <div className={`w-100 mb-4 p-0 d-flex align-items-center justify-content-end gap-2 ${ketQua ? '' : 'd-none'}`}>
-                        <h6 className="m-0">Tải xuống:</h6>
-                        <button className="btn bg-main-green text-white" onClick={handleDownloadBB}>
-                            <FontAwesomeIcon icon={faFileExcel} className="me-2"></FontAwesomeIcon> Biên bản kiểm định
+                    <div className={`w-100 mb-4 mx-0 d-flex align-items-center justify-content-center justify-content-md-end p-0 ${ketQua ? '' : 'd-none'}`}>
+                        <span style={{ cursor: "unset" }} className="btn border-0 bg-lighter-grey rounded-start rounded-end-0"><FontAwesomeIcon icon={faDownload}></FontAwesomeIcon></span>
+                        <button aria-label="Tải biên bản kiểm định" className="btn bg-main-green rounded-0 border-0 text-white" onClick={handleDownloadBB}>
+                            <FontAwesomeIcon icon={faFileExcel} className="me-1"></FontAwesomeIcon> Biên bản
                         </button>
-                        <button className="btn bg-main-green text-white" onClick={handleDownloadGCN}>
-                            <FontAwesomeIcon icon={faFileExcel} className="me-2"></FontAwesomeIcon> Giấy chứng nhận kiểm định
+                        <button aria-label="Tải giấy chứng nhận kiểm định" className="btn border-start rounded-start-0 rounded-end border-top-0 border-bottom-0 bg-main-green text-white" onClick={handleDownloadGCN}>
+                            <FontAwesomeIcon icon={faFileExcel} className="me-1"></FontAwesomeIcon> Giấy chứng nhận
                         </button>
                     </div>
                     <h4 className="fs-4 text-center text-uppercase">Chi tiết đồng hồ</h4>
-                    <div className="row mb-3">
+                    <div className="row">
                         <div className="col-12">
                             <p>Số giấy chứng nhận: <b>{dongHoData.so_giay_chung_nhan && dongHoData.ngay_thuc_hien ? getFullSoGiayCN(dongHoData.so_giay_chung_nhan, dongHoData.ngay_thuc_hien) : "Chưa có số giấy chứng nhận"}</b></p>
                         </div>

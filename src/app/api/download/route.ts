@@ -18,7 +18,6 @@ export async function downloadBB(dongHo: DongHo): Promise<DownloadResponse> {
         });
 
         if (response.status === 200) {
-            console.log(response)
             const blob = new Blob([response.data], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" });
             const url = window.URL.createObjectURL(blob);
             const link = document.createElement("a");
@@ -70,7 +69,7 @@ export async function downloadGCN(dongHo: DongHo): Promise<DownloadResponse> {
             throw new Error("Unexpected response");
         }
     } catch (error: any) {
-        console.log("Error: ", error);
+        // console.log("Error: ", error);
         if (axios.isAxiosError(error)) {
             if (error.response?.status === 404) {
                 return { msg: "Id không hợp lệ!" };

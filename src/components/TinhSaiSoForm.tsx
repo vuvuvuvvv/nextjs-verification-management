@@ -45,12 +45,8 @@ export default function DNBT30TinhSaiSoForm({ className, formValue, readOnly = f
 
             setV1(formValue.V1.toString());
             setV2(formValue.V2.toString());
-            // TODO: Check xem bị cái gì mà không dùng Vc1 Vc2: Bị lưu giá trị cũ
-            // setVc1(Vc1 || formValue.Vc1.toString());
-            // setVc2(Vc2 || formValue.Vc2.toString());
             setTdh(formValue.Tdh.toString());
             setTc(formValue.Tc.toString());
-            // console.log(formValue)
 
             prevFormValuesRef.current = formValue;
         }
@@ -96,7 +92,7 @@ export default function DNBT30TinhSaiSoForm({ className, formValue, readOnly = f
 
             const timeout = setTimeout(() => {
                 onFormChange(field, numericValue);
-            }, 500);
+            }, 0);
             setNumericInputTimeout(timeout);
         };
     };

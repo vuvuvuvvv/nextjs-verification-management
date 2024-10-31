@@ -10,13 +10,14 @@ interface ModalSelectDongHoToSaveProps {
     dongHoList: DongHo[];
     show: boolean;
     handleClose: () => void;
+    setExitsDHSaved: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
-export default function ModalSelectDongHoToSave({ dongHoList, show, handleClose }: ModalSelectDongHoToSaveProps) {
+export default function ModalSelectDongHoToSave({ dongHoList, show, handleClose, setExitsDHSaved }: ModalSelectDongHoToSaveProps) {
     const [selectedDongHo, setSelectedDongHo] = useState<DongHo[]>([]);
     const [isShow, setIsShow] = useState<boolean | null>(null);
 
-    const { getDongHoChuaKiemDinh, saveListDongHo } = useDongHoList();
+    const { getDongHoChuaKiemDinh, saveListDongHo, savedDongHoList } = useDongHoList();
 
     const toggleSelectDongHo = (dongHo: DongHo) => {
         setSelectedDongHo(prevSelected => {
@@ -35,19 +36,33 @@ export default function ModalSelectDongHoToSave({ dongHoList, show, handleClose 
             html: 'Đang chuẩn bị...',
             allowOutsideClick: false,
             didOpen: () => {
-                setIsShow(false);
+                setIsShow(null);
+                handleClose();
                 Swal.showLoading();
                 saveListDongHo(selectedDongHo);
+                setSelectedDongHo([])
+                setExitsDHSaved(true);
             }
         });
     };
 
     const selectAllDongHo = () => {
-        const selectableDongHo = dongHoList.filter(dongHo  => {
-            const duLieuKiemDinh = JSON.parse(dongHo.du_lieu_kiem_dinh || '{}');
-            return duLieuKiemDinh.ket_qua && dongHo.so_tem && dongHo.so_giay_chung_nhan;
+        const selectableDongHo = dongHoList.filter(dongHo => {
+            if (!isDHSaved(dongHo)) {
+                const duLieuKiemDinh = JSON.parse(dongHo.du_lieu_kiem_dinh || '{}');
+                return duLieuKiemDinh.ket_qua && dongHo.so_tem && dongHo.so_giay_chung_nhan;
+            }
         });
         setSelectedDongHo(selectableDongHo);
+    };
+
+    const isDHSaved = (dongHoSelected: DongHo) => {
+        for (const dongHo of savedDongHoList) {
+            if (dongHo.seri_sensor == dongHoSelected.seri_sensor && dongHo.seri_chi_thi == dongHoSelected.seri_chi_thi) {
+                return true;
+            }
+        }
+        return false;
     };
 
     const deselectAllDongHo = () => {
@@ -66,13 +81,13 @@ export default function ModalSelectDongHoToSave({ dongHoList, show, handleClose 
                 }}>
                     {dongHoList.map((dongHo, index) => {
                         const duLieuKiemDinh = JSON.parse(dongHo.du_lieu_kiem_dinh || '{}');
-                        const isSelectable = duLieuKiemDinh.ket_qua === false || (duLieuKiemDinh.ket_qua && dongHo.so_tem && dongHo.so_giay_chung_nhan);
+                        const isSelectable = (duLieuKiemDinh.ket_qua === false || (duLieuKiemDinh.ket_qua && dongHo.so_tem && dongHo.so_giay_chung_nhan)) && !isDHSaved(dongHo);
                         return (
                             <li
                                 key={index}
                                 className='w-100 d-flex align-items-center'
                                 style={{
-                                    backgroundColor: selectedDongHo.includes(dongHo) ? '#e9ecef' : '#f8f9fa', // Change background if checked
+                                    backgroundColor: selectedDongHo.includes(dongHo) && !isDHSaved(dongHo) ? '#e9ecef' : '#f8f9fa', // Change background if checked
                                     padding: '10px',
                                     borderRadius: '5px',
                                     marginBottom: '5px',
@@ -94,7 +109,7 @@ export default function ModalSelectDongHoToSave({ dongHoList, show, handleClose 
                                                             : 'red') // Không đạt
                                                         : 'orange' // Chưa kiểm định
                                                 }}>
-                                                    {" - " + (duLieuKiemDinh.ket_qua != null ?
+                                                    {" - " + (!isDHSaved(dongHo) ? (duLieuKiemDinh.ket_qua != null ?
                                                         (duLieuKiemDinh.ket_qua ?
                                                             "Đạt - " + (dongHo.so_tem && dongHo.so_giay_chung_nhan
                                                                 ? "Có thể lưu"
@@ -104,7 +119,7 @@ export default function ModalSelectDongHoToSave({ dongHoList, show, handleClose 
                                                                         ? "Số tem"
                                                                         : "Số giấy chứng nhận")))
                                                             : "Không đạt")
-                                                        : "Chưa kiểm định")}
+                                                        : "Chưa kiểm định") : "Đã lưu")}
                                                 </span>
                                             </>
                                         }
