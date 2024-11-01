@@ -20,7 +20,7 @@ import { PDMData, PDMFilterParameters } from "@lib/types";
 import { usePathname } from "next/navigation";
 import Link from "next/link";
 
-import { pdmStatusOptions, limitOptions } from "@lib/system-constant";
+import { pdmStatusOptions, limitOptions, ACCESS_LINKS } from "@lib/system-constant";
 import api from "@/app/api/route";
 import { deletePDM, getPDMByFilter } from "@/app/api/pdm/route";
 import Swal from "sweetalert2";
@@ -462,7 +462,7 @@ export default function PDMManagement({ data, className }: PDMManagementProps) {
                                 </button>
                                 <Link
                                     aria-label="Thêm mới"
-                                    href={path + "/them-moi"}
+                                    href={ACCESS_LINKS.PDM_ADD.src}
                                     className="btn bg-main-green text-white"
                                 >
                                     Thêm mới
@@ -563,7 +563,9 @@ export default function PDMManagement({ data, className }: PDMManagementProps) {
                                     </thead>
                                     <tbody>
                                         {paginatedData.map((item, index) => (
-                                            <tr key={index}>
+                                            <tr key={index}
+                                                onClick={() => window.open(`${ACCESS_LINKS.PDM_DETAIL.src}/${item.ma_tim_dong_ho_pdm}`, '_blank')}
+                                                style={{ cursor: 'pointer' }} >
                                                 {/* <td>{item.id}</td> */}
                                                 <td>{item.ma_tim_dong_ho_pdm}</td>
                                                 <td>{item.ten_dong_ho}</td>
@@ -574,7 +576,10 @@ export default function PDMManagement({ data, className }: PDMManagementProps) {
                                                     {new Date(item.ngay_het_han) > new Date() ? 'Còn hiệu lực' : 'Hết hạn'}
                                                 </td>
                                                 <td>
-                                                    <div className={`dropdown ${c_vfml['action']}`}>
+                                                    <Link target="_blank" aria-label="Xem chi tiết" href={ACCESS_LINKS.PDM_DETAIL.src + "/" + item.ma_tim_dong_ho_pdm} className={`btn border-0 shadow-0 w-100 text-blue`}>
+                                                        <FontAwesomeIcon icon={faEye}></FontAwesomeIcon>
+                                                    </Link>
+                                                    {/* <div className={`dropdown ${c_vfml['action']}`}>
                                                         <button aria-label="Lựa chọn" className={`${c_vfml['action-button']}`} type="button" data-bs-toggle="dropdown" aria-expanded="false">
                                                             <FontAwesomeIcon icon={faEllipsisH}></FontAwesomeIcon>
                                                         </button>
@@ -592,7 +597,7 @@ export default function PDMManagement({ data, className }: PDMManagementProps) {
                                                                 </button>
                                                             </li>
                                                         </ul>
-                                                    </div>
+                                                    </div> */}
 
                                                 </td>
                                             </tr>

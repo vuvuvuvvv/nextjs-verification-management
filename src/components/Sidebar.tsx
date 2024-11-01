@@ -213,7 +213,8 @@ export default function Sidebar({
                                                         <span className={`${sb['nl-child-icon']}`}>
                                                             <FontAwesomeIcon icon={child.icon} fontSize={14} />
                                                         </span>
-                                                        <span className={`${sb["nl-title"]}`}>{child.title}
+                                                        <span className={`${sb["nl-title"]}`}
+                                                            style={{ fontSize: "14px" }}>{child.title}
                                                             <FontAwesomeIcon className='ms-3 d-none d-xl-flex' icon={(!collapseState[index + "-" + childIndex]) ? faCaretDown : faCaretRight} />
                                                             <FontAwesomeIcon className='ms-3 d-xl-none' icon={faCaretDown} />
                                                         </span>
@@ -229,7 +230,7 @@ export default function Sidebar({
                                                 </div>
                                             ) : (
                                                 <Link href={child.href || "#"} className={`btn ${sb['clp-link']}`} key={index + "-" + childIndex} onClick={toggleOpen}>
-                                                    <FontAwesomeIcon icon={child.icon} className={`me-3`} />{child.title}
+                                                    <FontAwesomeIcon icon={child.icon} className={`me-3 ms-1`} />{child.title}
                                                 </Link>
                                             )
                                         ))}
