@@ -11,19 +11,19 @@ export const getAllDongHo = async () => {
         return {
             "status": response.status,
             "data": response.data,
-            "msg": response.data.msg || "Done!"
+            "msg": "Thành công!"
         };
 
     } catch (error: any) {
         if (error.response?.data?.msg) {
             return {
                 "status": error.response.status,
-                "msg": error.response.data.msg || 'Error fetching DongHo data!'
+                "msg": 'Có lỗi xảy ra khi lấy dữ liệu đồng hồ!'
             };
         } else {
             return {
                 "status": error.response?.status || 500,
-                "msg": 'An error occurred. Please try again!'
+                "msg": 'Có lỗi xảy ra khi lấy dữ liệu đồng hồ!'
             };
         }
     }
@@ -59,19 +59,19 @@ export const getDongHoByFilter = async (parameters?: DongHoFilterParameters) => 
         return {
             "status": response.status,
             "data": response.data,
-            "msg": response.data.msg || "Done!"
+            "msg": "Thành công!"
         };
 
     } catch (error: any) {
         if (error.response?.data?.msg) {
             return {
                 "status": error.response.status,
-                "msg": error.response.data.msg || 'Error fetching DongHo data!'
+                "msg": 'Có lỗi xảy ra khi lấy dữ liệu đồng hồ!'
             };
         } else {
             return {
                 "status": error.response?.status || 500,
-                "msg": 'An error occurred. Please try again!'
+                "msg": 'Có lỗi xảy ra khi lấy dữ liệu đồng hồ!'
             };
         }
     }
@@ -106,27 +106,27 @@ export const getNhomDongHoByFilter = async (parameters?: NhomDongHoFilterParamet
         return {
             "status": response.status,
             "data": response.data,
-            "msg": response.data.msg || "Done!"
+            "msg": "Thành công!"
         };
 
     } catch (error: any) {
         if (error.response?.data?.msg) {
             return {
                 "status": error.response.status,
-                "msg": error.response.data.msg || 'Error fetching DongHo data!'
+                "msg": 'Có lỗi xảy ra khi lấy dữ liệu đồng hồ!'
             };
         } else {
             return {
                 "status": error.response?.status || 500,
-                "msg": 'An error occurred. Please try again!'
+                "msg": 'Có lỗi xảy ra khi lấy dữ liệu đồng hồ!'
             };
         }
     }
 };
 
-export const getDongHoById = async (serial_number: string) => {
+export const getDongHoById = async (id: string) => {
     try {
-        const url = `${API_DONGHO_URL}/id/${serial_number.toString()}`;
+        const url = `${API_DONGHO_URL}/id/${id.toString()}`;
 
         const response = await api.get(url.toString(), { withCredentials: true });
 
@@ -134,7 +134,7 @@ export const getDongHoById = async (serial_number: string) => {
             return {
                 "status": response.status,
                 "data": response.data,
-                "msg": response.data.msg || "Done!"
+                "msg": "Thành công!"
             };
         }
 
@@ -143,19 +143,55 @@ export const getDongHoById = async (serial_number: string) => {
             if (error.response.status === 404) {
                 return {
                     "status": 404,
-                    "msg": 'Serial number not found!'
+                    "msg": 'Id không hợp lệ!'
                 };
             }
             if (error.response.data?.msg) {
                 return {
                     "status": error.response.status,
-                    "msg": error.response.data.msg || 'Error fetching DongHo data!'
+                    "msg": 'Có lỗi xảy ra khi lấy dữ liệu đồng hồ!'
                 };
             }
         }
         return {
             "status": error.response?.status || 500,
-            "msg": 'An error occurred. Please try again!'
+            "msg": 'Có lỗi xảy ra khi lấy dữ liệu đồng hồ!'
+        };
+    }
+};
+
+export const getDongHoExistsByInfo = async (info: string) => {
+    try {
+        const url = `${API_DONGHO_URL}/dong-ho-info/${info.toString()}`;
+
+        const response = await api.get(url.toString(), { withCredentials: true });
+
+        if (response.status === 200 || response.status === 201) {
+            return {
+                "status": response.status,
+                "data": response.data,
+                "msg": "Đã có đồng hồ tồn tại thông tin trên!"
+            };
+        }
+
+    } catch (error: any) {
+        if (error.response) {
+            if (error.response.status === 404) {
+                return {
+                    "status": 404,
+                    "msg": 'Thông tin không tồn tại!'
+                };
+            }
+            if (error.response.data?.msg) {
+                return {
+                    "status": error.response.status,
+                    "msg": 'Có lỗi xảy ra khi lấy dữ liệu đồng hồ!'
+                };
+            }
+        }
+        return {
+            "status": error.response?.status || 500,
+            "msg": 'Có lỗi xảy ra khi lấy dữ liệu đồng hồ!'
         };
     }
 };
@@ -170,7 +206,7 @@ export const getNhomDongHoByGroupId = async (group_id: string) => {
             return {
                 "status": response.status,
                 "data": response.data,
-                "msg": response.data.msg || "Done!"
+                "msg": "Thành công!"
             };
         }
 
@@ -179,19 +215,19 @@ export const getNhomDongHoByGroupId = async (group_id: string) => {
             if (error.response.status === 404) {
                 return {
                     "status": 404,
-                    "msg": 'Serial number not found!'
+                    "msg": 'Id không hợp lệ!'
                 };
             }
             if (error.response.data?.msg) {
                 return {
                     "status": error.response.status,
-                    "msg": error.response.data.msg || 'Error fetching DongHo data!'
+                    "msg": 'Có lỗi xảy ra khi lấy dữ liệu đồng hồ!'
                 };
             }
         }
         return {
             "status": error.response?.status || 500,
-            "msg": 'An error occurred. Please try again!'
+            "msg": 'Có lỗi xảy ra khi lấy dữ liệu đồng hồ!'
         };
     }
 };

@@ -10,6 +10,7 @@ import Swal from 'sweetalert2';
 import { requestPasswordResetToken } from '@/app/api/auth/request-password-reset-token/route';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faEnvelope, faSpinner } from '@fortawesome/free-solid-svg-icons';
+import { ACCESS_LINKS } from '@lib/system-constant';
 
 export default function ForgotPassword() {
     const [email, setEmail] = useState('');
@@ -76,7 +77,7 @@ export default function ForgotPassword() {
                     confirmButtonColor: "#0980de",
                     confirmButtonText: "OK"
                 }).then(() => {
-                    router.push('/login');
+                    router.push(ACCESS_LINKS.AUTH_LOGIN.src);
                 });
 
             } else {
@@ -123,7 +124,7 @@ export default function ForgotPassword() {
         </form>
         <div className="mt-3 d-flex align-items-center justify-content-end">
             <Link
-                href="/login"
+                href={ACCESS_LINKS.AUTH_LOGIN.src}
                 className='btn m-0 p-0'
                 onClick={(e) => {
                     if (loading || success) {

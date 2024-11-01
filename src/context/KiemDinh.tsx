@@ -1,6 +1,6 @@
 import { TITLE_LUU_LUONG } from '@lib/system-constant';
 import { DuLieuChayDongHo, DuLieuChayDiemLuuLuong, DuLieuMotLanChay, DuLieuCacLanChay } from '@lib/types';
-import React, { createContext, useState, useContext, ReactNode, useRef } from 'react';
+import React, { createContext, useState, useContext, ReactNode, useRef, useEffect } from 'react';
 
 interface KiemDinhContextType {
     duLieuKiemDinhCacLuuLuong: DuLieuChayDongHo;
@@ -27,7 +27,7 @@ interface KiemDinhContextType {
 const KiemDinhContext = createContext<KiemDinhContextType | undefined>(undefined);
 
 export const KiemDinhProvider = ({ children }: { children: ReactNode }) => {
-    const lanChayMoi = {
+    const lanChayMoi: DuLieuCacLanChay = {
         1: { V1: 0, V2: 0, Vc1: 0, Vc2: 0, Tdh: 0, Tc: 0 },
         // 2: { V1: 0, V2: 0, Vc1: 0, Vc2: 0, Tdh: 0, Tc: 0 },
         // 3: { V1: 0, V2: 0, Vc1: 0, Vc2: 0, Tdh: 0, Tc: 0 }
@@ -58,7 +58,6 @@ export const KiemDinhProvider = ({ children }: { children: ReactNode }) => {
     //     console.log("dlkdcll: ", duLieuKiemDinhCacLuuLuong);
     // }, [duLieuKiemDinhCacLuuLuong]);
 
-
     const setDuLieuKiemDinhChoMotLuuLuong = (tenLuuLuong: string, data: DuLieuChayDiemLuuLuong | null) => {
         if (previousDuLieuRef.current[tenLuuLuong] !== data) {
             setDuLieuKiemDinhCacLuuLuong(prevState => ({
@@ -78,7 +77,7 @@ export const KiemDinhProvider = ({ children }: { children: ReactNode }) => {
         if (q.title) {
             let key = q.title;
             const isDHDienTu = keyOfLuuLuongDHDienTu.includes(q.title);
-    
+
             setDuLieuKiemDinhCacLuuLuong(prevState => {
                 const newState = {
                     ...prevState,
@@ -90,7 +89,7 @@ export const KiemDinhProvider = ({ children }: { children: ReactNode }) => {
                     [!isDHDienTu ? TITLE_LUU_LUONG.q2 : TITLE_LUU_LUONG.qt]: null,
                     [!isDHDienTu ? TITLE_LUU_LUONG.q1 : TITLE_LUU_LUONG.qmin]: null,
                 };
-    
+
                 // Check if the new state is different from the previous state
                 if (JSON.stringify(prevState) !== JSON.stringify(newState)) {
                     previousDuLieuRef.current = newState;
@@ -119,8 +118,8 @@ export const KiemDinhProvider = ({ children }: { children: ReactNode }) => {
         if (q.title) {
             let key = q.title;
             let data = duLieuKiemDinhCacLuuLuong[key]?.lan_chay;
-
             if (data) {
+                let latest_data = data[Number(Object.keys(data)[Object.entries(data).length - 1])].V2
                 setDuLieuKiemDinhCacLuuLuong(prevState => {
                     const existingData = prevState[key] || { value: 0, lan_chay: lanChayMoi };
                     updatedData = {
@@ -129,7 +128,7 @@ export const KiemDinhProvider = ({ children }: { children: ReactNode }) => {
                             ...existingData,
                             lan_chay: {
                                 ...data,
-                                [Number(Object.keys(data)[Object.entries(data).length - 1]) + 1]: { V1: 0, V2: 0, Vc1: 0, Vc2: 0, Tdh: 0, Tc: 0 }
+                                [Number(Object.keys(data)[Object.entries(data).length - 1]) + 1]: { V1: latest_data || 0, V2: 0, Vc1: 0, Vc2: 0, Tdh: 0, Tc: 0 }
                             }
                         }
                     }

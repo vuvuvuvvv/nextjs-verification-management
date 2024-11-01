@@ -18,8 +18,9 @@ interface TinhSaiSoTabProps {
         title: string;
         value: string;
     }
-    form: ({ className, d }: FormProps) => JSX.Element;
+    Form: ({ className, d }: FormProps) => JSX.Element;
     onFormHSSChange: (value: number | null) => void;
+    isDisable?: boolean
 }
 
 interface TabFormState {
@@ -32,10 +33,19 @@ interface FormProps {
     readOnly?: boolean,
     onFormChange: (field: string, value: number) => void;
     d?: string;
+    isDisable?: boolean
 }
 
-export default function TinhSaiSoTab({ className, tabIndex, d, q, form, onFormHSSChange }: TinhSaiSoTabProps) {
-    const { duLieuKiemDinhCacLuuLuong, getDuLieuChayCuaLuuLuong, themLanChayCuaLuuLuong, updateLuuLuong, xoaLanChayCuaLuuLuong, resetLanChay } = useKiemDinh();
+export default function TinhSaiSoTab({ className, tabIndex, d, q, Form, onFormHSSChange, isDisable }: TinhSaiSoTabProps) {
+    const {
+        duLieuKiemDinhCacLuuLuong,
+        getDuLieuChayCuaLuuLuong,
+        themLanChayCuaLuuLuong,
+        updateLuuLuong,
+        xoaLanChayCuaLuuLuong,
+        resetLanChay,
+        lanChayMoi
+    } = useKiemDinh();
 
     if (!tabIndex || tabIndex <= 0) {
         return <></>;
@@ -64,24 +74,35 @@ export default function TinhSaiSoTab({ className, tabIndex, d, q, form, onFormHS
     // Hook: Cập nhật lại số lượng form + tab sau khi update số lần
     const [formValues, setFormValues] = useState<DuLieuCacLanChay>(getDuLieuChayCuaLuuLuong(q));
     const prevFormValuesRef = useRef<DuLieuCacLanChay>(formValues);
+    const qRef = useRef<{ title: string; value: string; }>(q);
+
+    useEffect(() => {
+        if (qRef.current != q) {
+            updateLuuLuong(q, getDuLieuChayCuaLuuLuong(q) || lanChayMoi);
+            qRef.current = q
+        }
+    }, [q]);
 
     useEffect(() => {
         if (prevFormValuesRef.current != getDuLieuChayCuaLuuLuong(q)) {
             setFormValues(getDuLieuChayCuaLuuLuong(q));
-            prevFormValuesRef.current = getDuLieuChayCuaLuuLuong(q);
+            // prevFormValuesRef.current = getDuLieuChayCuaLuuLuong(q);
         }
     }, [duLieuKiemDinhCacLuuLuong]);
 
     useEffect(() => {
-        setSelectedTabForm({
-            ...Object.keys(initialTabFormState).reduce((prevTabState, key) => {
-                prevTabState[Number(key)] = false;
-                return prevTabState;
-            }, {} as TabFormState),
-            [(selectedTabForm[activeTab] ? activeTab : parseInt(Object.keys(selectedTabForm)[0]))]: true
-        });
-        onFormHSSChange(getHieuSaiSo(formValues as TinhSaiSoValueTabs));
-        updateLuuLuong(q, formValues);
+        if (prevFormValuesRef.current != formValues) {
+            setSelectedTabForm({
+                ...Object.keys(initialTabFormState).reduce((prevTabState, key) => {
+                    prevTabState[Number(key)] = false;
+                    return prevTabState;
+                }, {} as TabFormState),
+                [(selectedTabForm[activeTab] ? activeTab : parseInt(Object.keys(selectedTabForm)[0]))]: true
+            });
+            onFormHSSChange(getHieuSaiSo(formValues as TinhSaiSoValueTabs));
+            updateLuuLuong(q, formValues);
+            prevFormValuesRef.current = formValues;
+        }
     }, [formValues]);
 
     // Func: toggel tab select
@@ -127,16 +148,21 @@ export default function TinhSaiSoTab({ className, tabIndex, d, q, form, onFormHS
             confirmButtonText: "Xóa"
         }).then((result) => {
             if (result.isConfirmed) {
-                setFormValues(xoaLanChayCuaLuuLuong(q, key));
+                updateFormValuesAndSelectedTabForm(xoaLanChayCuaLuuLuong(q, key));
             }
         });
     }
 
     const handleAdd = () => {
-        const newFormValues = themLanChayCuaLuuLuong(q);
-        setFormValues(newFormValues);
+        updateFormValuesAndSelectedTabForm(themLanChayCuaLuuLuong(q));
+    };
 
-        // Ensure the new tab is selected
+    const handleReset = () => {
+        updateFormValuesAndSelectedTabForm(resetLanChay(q));
+    }
+
+    const updateFormValuesAndSelectedTabForm = (newFormValues: DuLieuCacLanChay) => {
+        setFormValues(newFormValues);
         const newTabIndex = Object.keys(newFormValues).length * tabIndex;
         setSelectedTabForm({
             ...Object.keys(selectedTabForm).reduce((prevTabState, key) => {
@@ -146,17 +172,11 @@ export default function TinhSaiSoTab({ className, tabIndex, d, q, form, onFormHS
             [newTabIndex]: true,
         });
         setActiveTab(newTabIndex);
-    };
-
-    const handleReset = () => {
-        setFormValues(resetLanChay(q));
     }
 
-    const Form = form;
     //
     const renderTabTinhSaiSo = () => {
         return Object.entries(formValues).map(([key, formVal], index) => {
-
             return (
                 <div
                     key={index * tabIndex}
@@ -177,6 +197,7 @@ export default function TinhSaiSoTab({ className, tabIndex, d, q, form, onFormHS
                             ></div>
                         )}
                         <Form
+                            isDisable={isDisable}
                             className={`w-100 ${!selectedTabForm[Number(key) * tabIndex] ? "d-none" : ""}`}
                             formValue={formVal}
                             onFormChange={(field: string, value: number) => handleFormChange(Number(key), field as keyof DuLieuMotLanChay, value)}
@@ -227,7 +248,7 @@ export default function TinhSaiSoTab({ className, tabIndex, d, q, form, onFormHS
             </div>
             <div className="w-100 d-flex px-1 align-items-center justify-content-between">
                 <h5 className="m-0">Lần thực hiện:</h5>
-                <div className={`justify-content-between gap-2`}>
+                <div className={`justify-content-between gap-2 ${isDisable ? "d-none" : ""}`}>
 
                     <button aria-label="Reset lần chạy" className="btn px-3 py-2 me-2 btn-secondary" onClick={() => handleReset()}>
                         <FontAwesomeIcon icon={faUndo} className="me-2"></FontAwesomeIcon>Reset

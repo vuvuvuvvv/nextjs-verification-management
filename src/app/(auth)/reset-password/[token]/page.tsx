@@ -10,6 +10,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faEnvelope, faLock } from '@fortawesome/free-solid-svg-icons';
 
 import axios from 'axios';
+import { ACCESS_LINKS } from '@lib/system-constant';
 
 export default function ResetPassword({ params }: { params: { token: string } }) {
     const [newPassword, setNewPassword] = useState('');
@@ -49,7 +50,7 @@ export default function ResetPassword({ params }: { params: { token: string } })
                 confirmButtonText: "OK"
             }).then(() => {
                 setError("");
-                router.push('/forgot-password');
+                router.push(ACCESS_LINKS.AUTH_FORGOT_PW.src);
             });
         }
     }, [error]);
@@ -94,7 +95,7 @@ export default function ResetPassword({ params }: { params: { token: string } })
                     confirmButtonColor: "#0980de",
                     confirmButtonText: "OK"
                 }).then(() => {
-                    router.push('/login');
+                    router.push(ACCESS_LINKS.AUTH_LOGIN.src);
                 });
 
             } else {
@@ -159,7 +160,7 @@ export default function ResetPassword({ params }: { params: { token: string } })
             <button aria-label="Đổi mật khẩu" type="submit" className="btn btn-primary w-100">Đổi mật khẩu</button>
         </form>
         <div className="mt-3 d-flex align-items-center justify-content-end">
-            <Link href="/login" className='btn m-0 p-0 '>
+            <Link href={ACCESS_LINKS.AUTH_LOGIN.src} className='btn m-0 p-0 '>
                 Quay lại đăng nhập
             </Link>
         </div>

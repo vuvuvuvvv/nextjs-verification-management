@@ -585,7 +585,9 @@ export default function PDMManagement({ data, className }: PDMManagementProps) {
                                                                 </Link>
                                                             </li>
                                                             <li>
-                                                                <button aria-label="Xóa" type="button" onClick={() => handleDelete(item.ma_tim_dong_ho_pdm)} className={`btn w-100`}>
+                                                                <button aria-label="Xóa" type="button"
+                                                                    // onClick={() => handleDelete(item.ma_tim_dong_ho_pdm)} 
+                                                                    className={`btn w-100`}>
                                                                     Xóa
                                                                 </button>
                                                             </li>

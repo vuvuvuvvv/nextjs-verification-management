@@ -4,6 +4,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faGoogle } from '@fortawesome/free-brands-svg-icons';
 import { Metadata } from 'next'
 import Link from 'next/link';
+import { ACCESS_LINKS } from '@lib/system-constant';
 export const metadata: Metadata = {
     title: "Đăng ký",
 }
@@ -18,7 +19,7 @@ export default function Register() {
             </div>
             <RegisterForm className='w-100'></RegisterForm>
             <div className="mt-3 d-flex align-items-center justify-content-center gap-1"><span>Đã có tài khoản?</span>
-                <Link href="/login" className='btn m-0 p-0 '>
+                <Link href={ACCESS_LINKS.AUTH_LOGIN.src} className='btn m-0 p-0 '>
                     Đăng nhập
                 </Link>
             </div>

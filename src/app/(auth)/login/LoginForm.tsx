@@ -13,6 +13,7 @@ import { faLock, faUser } from '@fortawesome/free-solid-svg-icons';
 import { login } from '@/app/api/auth/login/route';
 import Swal from 'sweetalert2';
 import { LoginCredentials } from '@lib/types';
+import { ACCESS_LINKS } from '@lib/system-constant';
 
 interface FormProps {
     className?: string
@@ -137,7 +138,7 @@ export default function LoginForm({ className }: FormProps) {
                         Nhớ tài khoản
                     </label>
                 </div>
-                <Link href="/forgot-password" className='btn m-0 p-0'>
+                <Link href={ACCESS_LINKS.AUTH_FORGOT_PW.src} className='btn m-0 p-0'>
                     Quên mật khẩu?
                 </Link>
             </div>

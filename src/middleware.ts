@@ -3,6 +3,7 @@ import type { NextRequest } from 'next/server';
 
 import { logout } from './app/api/auth/logout/route';
 import { jwtVerify } from 'jose';
+import { ACCESS_LINKS } from '@lib/system-constant';
 
 const ADMIN_ROLE = 'ADMIN';
 const CUSTOM_404_PATH = '/404'; // Đường dẫn cho trang 404 tùy chỉnh
@@ -11,13 +12,21 @@ const CUSTOM_AUTH_ERROR_TOKEN_PATH = '/auth-error/error-token'; // Đường d�
 
 const ADMIN_PATHS = ['/dashboard'];
 const AUTH_PATHS = [
-    '/login',
-    '/register',
-    '/forgot-password'
+    ACCESS_LINKS.AUTH_FORGOT_PW.src,
+    ACCESS_LINKS.AUTH_LOGIN.src,
+    ACCESS_LINKS.AUTH_REGISTER.src,
 ];
 const PROTECTED_PATHS = [
-    '/change',
-    '/verification/watermeter'
+    ACCESS_LINKS.CHANGE_EMAIL.src,
+    ACCESS_LINKS.CHANGE_PW.src,
+    ACCESS_LINKS.DHN_BT15.src,
+    ACCESS_LINKS.DHN_BT15_ADD.src,
+    ACCESS_LINKS.DHN_DETAIL.src,
+    ACCESS_LINKS.DHN_ST15.src,
+    ACCESS_LINKS.DHN_ST15_ADD.src,
+    ACCESS_LINKS.PDM.src,
+    ACCESS_LINKS.PDM_ADD.src,
+    ACCESS_LINKS.PDM_DETAIL.src
 ];
 
 const ERROR_PATHS = [CUSTOM_404_PATH, CUSTOM_500_PATH];
@@ -26,8 +35,7 @@ const VALID_PATHS = [
     ...AUTH_PATHS,
     ...PROTECTED_PATHS,
     ...ERROR_PATHS,
-    "/about",
-    "/"
+    ACCESS_LINKS.HOME.src
 ];
 
 
@@ -37,8 +45,8 @@ export async function middleware(req: NextRequest) {
     const userCookie = req.cookies.get('user')?.value;
     const { pathname, searchParams } = new URL(req.url);
 
-    if (pathname.startsWith('/reset-password')) {
-        const token = pathname.split('/reset-password/')[1];
+    if (pathname.startsWith(ACCESS_LINKS.AUTH_RESET_PW.src)) {
+        const token = pathname.split(ACCESS_LINKS.AUTH_RESET_PW.src + "/")[1];
         if (token) {
             try {
                 const { payload } = await jwtVerify(token, new TextEncoder().encode(process.env.NEXT_PUBLIC_JWT_SECRET));
@@ -55,7 +63,7 @@ export async function middleware(req: NextRequest) {
     }
 
     // Redirect to login if user is not logged in
-    const redirectUrl = new URL('/login', req.url);
+    const redirectUrl = new URL(ACCESS_LINKS.AUTH_LOGIN.src, req.url);
     redirectUrl.searchParams.set('redirect', pathname + searchParams.toString());
 
     if (!tokenCookie && !refreshTokenCookie && !userCookie) {
@@ -87,7 +95,7 @@ export async function middleware(req: NextRequest) {
         }
 
         if (AUTH_PATHS.includes(pathname)) {
-            return NextResponse.redirect(new URL('/', req.url));
+            return NextResponse.redirect(new URL(ACCESS_LINKS.HOME.src, req.url));
         }
 
         if (!VALID_PATHS.some(path => pathname.includes(path) || pathname.startsWith(path))) {

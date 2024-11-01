@@ -1,5 +1,5 @@
 import dayjs from "dayjs";
-import { DuLieuMotLanChay, TinhSaiSoValueTabs } from "./types";
+import { DongHo, DuLieuMotLanChay, TinhSaiSoValueTabs } from "./types";
 
 export const getSaiSoDongHo = (formValue: DuLieuMotLanChay) => {
     if (formValue) {
@@ -16,8 +16,8 @@ export const getSaiSoDongHo = (formValue: DuLieuMotLanChay) => {
     return null;
 };
 
-export const getFullSoGiayCN = (soGiayCN: string) => {
-    return "FMS.KĐ." + (soGiayCN || "-----") + "." + dayjs().format("YY");
+export const getFullSoGiayCN = (soGiayCN: string, ngayThucHien: Date) => {
+    return "FMS.KĐ." + (soGiayCN || "-----") + "." + dayjs(ngayThucHien).format("YY");
 }
 
 export const getQ2OrQtAndQ1OrQMin = (isDHDienTu: boolean, ccx: string | null, q: string | null, r: string | null) => {
@@ -150,4 +150,8 @@ export const convertToUppercaseNonAccent = (str: string) => {
 
     // Chuyển thành chữ in hoa và loại bỏ khoảng trắng
     return nonAccentStr.toUpperCase().replace(/\s+/g, '');
+}
+
+export const getFullNameFileDownload = (dongho: DongHo) => {
+    return (dongho.ten_dong_ho || "") + (dongho.dn || "") + (dongho.ccx || "") + (dongho.q3 || "") + (dongho.r || "") + (dongho.qn || "") + (dongho.seri_sensor || "") + (dongho.seri_chi_thi || "") + (dongho.kieu_sensor || "") + (dongho.kieu_chi_thi || "")
 }

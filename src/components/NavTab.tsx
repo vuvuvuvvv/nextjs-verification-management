@@ -3,7 +3,7 @@
 import { useKiemDinh } from "@/context/KiemDinh";
 import nt from "@styles/scss/components/nav-tab.module.scss"
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 interface NavTabProps {
     className?: string,
@@ -14,14 +14,21 @@ interface NavTabProps {
         content: React.ReactNode,
     }[],
     buttonControl?: boolean,
+    gotoFirstTab?:boolean,
 }
 
 interface TabState {
     [key: number | string]: boolean;
 };
-export default function NavTab({ className, classNameGroupTab, classNameContent, tabContent, buttonControl = false }: NavTabProps) {
+export default function NavTab({ className, classNameGroupTab, classNameContent, tabContent, buttonControl = false, gotoFirstTab = false }: NavTabProps) {
 
     const {getDuLieuKiemDinhJSON} = useKiemDinh();
+
+    useEffect(() => {
+        if(gotoFirstTab) {
+            setSelectedTab({ [1]: true });
+        }
+    },[gotoFirstTab])
 
     // Collapse tab
     const [selectedTab, setSelectedTab] = useState<TabState>({ [1]: true });
@@ -45,7 +52,7 @@ export default function NavTab({ className, classNameGroupTab, classNameContent,
                 <div className={`${nt['group-tab']} ${classNameGroupTab ? classNameGroupTab : ""}`}>
                     {tabContent.map((val, index) => {
                         return (
-                            <button aria-label={`Tab ${index + 1}`} type="button" style={{ minWidth: "80px" }} key={index + 1} className={`${nt['nav-link']} ${selectedTab[index + 1] ? nt['active'] : ''} fs-5 px-4`} onClick={() => toggleTab(index + 1)}>
+                            <button aria-label={`Tab ${index + 1}`} type="button" style={{ minWidth: "80px" }} key={index + 1} className={`${nt['nav-link']} ${selectedTab[index + 1] ? nt['active'] : ''} fs-6 px-4`} onClick={() => toggleTab(index + 1)}>
                                 {val.title}
                             </button>
                         )

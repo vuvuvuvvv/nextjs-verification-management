@@ -25,6 +25,7 @@ import { useUser } from "@/context/AppContext";
 
 import React from "react";
 import dynamic from "next/dynamic";
+import { ACCESS_LINKS } from "@lib/system-constant";
 
 interface NavbarProps {
     className?: string,
@@ -92,11 +93,11 @@ const Navbar: React.FC<NavbarProps> = ({ className, title = "Trang kiểm địn
                                         Trang quản trị
                                     </a>
                                 )}
-                                <a aria-label="Đổi mật khẩu" href="/change/password" className={`dropdown-item ${layout['dD_item']}`}>
+                                <a aria-label="Đổi mật khẩu" href={ACCESS_LINKS.CHANGE_PW.src} className={`dropdown-item ${layout['dD_item']}`}>
                                     <FontAwesomeIcon icon={faKey}></FontAwesomeIcon>
                                     Đổi mật khẩu
                                 </a>
-                                <a aria-label="Đổi Email" href="/change/email" className={`dropdown-item ${layout['dD_item']}`}>
+                                <a aria-label="Đổi Email" href={ACCESS_LINKS.CHANGE_EMAIL.src} className={`dropdown-item ${layout['dD_item']}`}>
                                     <FontAwesomeIcon icon={faMailBulk}></FontAwesomeIcon>
                                     Đổi Email
                                 </a>
