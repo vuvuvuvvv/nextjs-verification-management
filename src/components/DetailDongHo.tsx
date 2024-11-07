@@ -1,15 +1,16 @@
 "use client"
 
 import { getFullSoGiayCN, getSaiSoDongHo } from "@lib/system-function";
-import dtp from "@styles/scss/ui/dn-bgt-15.detail.module.scss";
+import dtp from "@styles/scss/ui/q-bgt-15.detail.module.scss";
 import dayjs from "dayjs";
 import dynamic from "next/dynamic";
-import { DongHo, DuLieuChayDongHo } from "@lib/types";
+import { DongHo, DuLieuChayDiemLuuLuong, DuLieuChayDongHo } from "@lib/types";
 import { Fragment, useEffect, useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faDownload, faFileExcel } from "@fortawesome/free-solid-svg-icons";
 import { downloadBB, downloadGCN } from "@/app/api/download/route";
 import Swal from "sweetalert2";
+import { TITLE_LUU_LUONG } from "@lib/system-constant";
 
 const Loading = dynamic(() => import('@/components/Loading'), { ssr: false });
 interface DetailDongHoProps {
@@ -17,7 +18,7 @@ interface DetailDongHoProps {
 }
 
 export default function DetailDongHo({ dongHo }: DetailDongHoProps) {
-    const [dongHoData, setDongHoData] = useState<DongHo>(dongHo);
+    const [listKeys, setListKeys] = useState<string[] | null>();
 
     const [duLieuKiemDinhCacLuuLuong, setDuLieuKiemDinhCacLuuLuong] = useState<DuLieuChayDongHo>();
     const [ketQua, setKetQua] = useState<boolean | null>(null);
@@ -26,23 +27,89 @@ export default function DetailDongHo({ dongHo }: DetailDongHoProps) {
     const [message, setMessage] = useState<string | null>(null);
 
     useEffect(() => {
-        if (dongHoData) {
-            const duLieuKiemDinh = dongHoData.du_lieu_kiem_dinh as { du_lieu?: DuLieuChayDongHo };
+        if (dongHo) {
+            setListKeys(dongHo.q3 ? ["Q3", "Q2", "Q1"] : dongHo.qn ? ['Qn', "Qt", "Qmin"] : null);
+
+            const duLieuKiemDinh = dongHo.du_lieu_kiem_dinh as { du_lieu?: DuLieuChayDongHo };
             if (duLieuKiemDinh?.du_lieu) {
                 const dlKiemDinh = duLieuKiemDinh.du_lieu;
                 setDuLieuKiemDinhCacLuuLuong(dlKiemDinh);
             }
-            const duLieuHSS = dongHoData.du_lieu_kiem_dinh as { hieu_sai_so?: { hss: number | null }[] };
+            const duLieuHSS = dongHo.du_lieu_kiem_dinh as { hieu_sai_so?: { hss: number | null }[] };
             if (duLieuHSS?.hieu_sai_so) {
-                const reversedHSS = [...duLieuHSS.hieu_sai_so].reverse(); // Tạo bản sao và đảo ngược
-                setFormHieuSaiSo(reversedHSS);
+                setFormHieuSaiSo(duLieuHSS.hieu_sai_so);
             }
-            const duLieuKetQua = dongHoData.du_lieu_kiem_dinh as { ket_qua?: boolean } | null;
+            const duLieuKetQua = dongHo.du_lieu_kiem_dinh as { ket_qua?: boolean } | null;
             if (duLieuKetQua?.ket_qua != null) {
                 setKetQua(duLieuKetQua.ket_qua);
             }
         }
-    }, [dongHoData]);
+    }, [dongHo]);
+
+    const renderDulieuLuuLuong = () => {
+        if (listKeys && duLieuKiemDinhCacLuuLuong) {
+            return listKeys.map((key, index) => {
+                const value = duLieuKiemDinhCacLuuLuong[key] as DuLieuChayDiemLuuLuong;
+                if (value?.value) {
+                    let indexHead = true;
+                    let jsxStart, jsxEnd;
+                    const rowSpan = Object.entries(value.lan_chay).reduce((count, [keyLanChay, valueLanChay]) => {
+                        return getSaiSoDongHo(valueLanChay) != null ? count + 1 : count;
+                    }, 0);
+
+                    return (
+                        <Fragment key={key + index}>
+                            {
+                                Object.entries(value.lan_chay).map(([keyLanChay, valueLanChay], indexLanChay) => {
+                                    jsxStart = <></>
+                                    jsxEnd = <></>
+                                    if (indexHead) {
+                                        jsxStart = <>
+                                            <td rowSpan={rowSpan}>
+                                                {key === TITLE_LUU_LUONG.q1
+                                                    ? "QI" : key === TITLE_LUU_LUONG.q2
+                                                        ? "QII" : key === TITLE_LUU_LUONG.q3
+                                                            ? "QIII" : key}
+                                            </td>
+                                            <td rowSpan={rowSpan}>{value.value}</td>
+                                        </>;
+                                        const hss = hieuSaiSo ? hieuSaiSo[
+                                            [TITLE_LUU_LUONG.q1, TITLE_LUU_LUONG.qmin].includes(key)
+                                                ? 2 : [TITLE_LUU_LUONG.q2, TITLE_LUU_LUONG.qt].includes(key)
+                                                    ? 1 : [TITLE_LUU_LUONG.q3, TITLE_LUU_LUONG.qn].includes(key)
+                                                        ? 0 : index].hss : 0;
+                                        jsxEnd = <><td rowSpan={rowSpan}>{hss}</td></>
+                                        indexHead = false;
+                                    }
+
+                                    if (getSaiSoDongHo(valueLanChay) != null) {
+                                        return (
+                                            <tr key={keyLanChay + indexLanChay}>
+                                                {jsxStart}
+                                                <td>{valueLanChay.V1}</td>
+                                                <td>{valueLanChay.V2}</td>
+                                                <td>{(Number(valueLanChay.V2) - Number(valueLanChay.V1)).toFixed(4).replace(/\.?0+$/, '')}</td>
+                                                <td>{valueLanChay.Tdh}</td>
+                                                <td>{valueLanChay.Vc1}</td>
+                                                <td>{valueLanChay.Vc2}</td>
+                                                <td>{(Number(valueLanChay.Vc2) - Number(valueLanChay.Vc1)).toFixed(4).replace(/\.?0+$/, '')}</td>
+                                                <td>{valueLanChay.Tc}</td>
+                                                <td>{getSaiSoDongHo(valueLanChay)}</td>
+                                                {jsxEnd}
+                                            </tr>
+                                        );
+                                    } else {
+                                        return <></>
+                                    }
+                                })
+                            }
+                        </Fragment>
+                    );
+                }
+            })
+        }
+        return <></>
+    }
 
     useEffect(() => {
         if (message) {
@@ -86,13 +153,13 @@ export default function DetailDongHo({ dongHo }: DetailDongHoProps) {
         }
     }
 
-    if (!dongHoData) {
+    if (!dongHo) {
         return <Loading></Loading>;
     }
 
     return <div className="w-100 m-0 p-2">
-        <title>{dongHoData?.ten_dong_ho}</title>
-        {dongHoData ? (
+        <title>{dongHo?.ten_dong_ho}</title>
+        {dongHo ? (
             <div className="w-100 m-0 my-3 p-0">
                 <div className="container bg-white px-3 px-md-5 py-3">
 
@@ -108,22 +175,22 @@ export default function DetailDongHo({ dongHo }: DetailDongHoProps) {
                     <h4 className="fs-4 text-center text-uppercase">Chi tiết đồng hồ</h4>
                     <div className="row">
                         <div className="col-12">
-                            <p>Số giấy chứng nhận: <b>{dongHoData.so_giay_chung_nhan && dongHoData.ngay_thuc_hien ? getFullSoGiayCN(dongHoData.so_giay_chung_nhan, dongHoData.ngay_thuc_hien) : "Chưa có số giấy chứng nhận"}</b></p>
+                            <p>Số giấy chứng nhận: <b>{dongHo.so_giay_chung_nhan && dongHo.ngay_thuc_hien ? getFullSoGiayCN(dongHo.so_giay_chung_nhan, dongHo.ngay_thuc_hien) : "Chưa có số giấy chứng nhận"}</b></p>
                         </div>
                         <div className="col-12">
-                            <p>Số tem: <b>{dongHoData.so_tem ? dongHoData.so_tem : "Chưa có số tem"}</b></p>
+                            <p>Số tem: <b>{dongHo.so_tem ? dongHo.so_tem : "Chưa có số tem"}</b></p>
                         </div>
                         <div className="col-12">
-                            <p>Tên đồng hồ: <b>{dongHoData.ten_dong_ho || "Chưa có tên đồng hồ"}</b></p>
+                            <p>Tên đồng hồ: <b>{dongHo.ten_dong_ho || "Chưa có tên đồng hồ"}</b></p>
                         </div>
                         <div className="col-12">
-                            <p>Tên phương tiện đo: <b>{dongHoData.phuong_tien_do || "Chưa có tên phương tiện đo"}</b></p>
+                            <p>Tên phương tiện đo: <b>{dongHo.phuong_tien_do || "Chưa có tên phương tiện đo"}</b></p>
                         </div>
                         <div className="col-12">
-                            <p>Nơi sản xuất: <b>{dongHoData.co_so_san_xuat || "Chưa có nơi sản xuất"}</b></p>
+                            <p>Nơi sản xuất: <b>{dongHo.co_so_san_xuat || "Chưa có nơi sản xuất"}</b></p>
                         </div>
                         <div className="col-6">
-                            <p>Kiểu sản xuất: <b>{dongHoData.kieu_thiet_bi || "Chưa có kiểu sản xuất"}</b></p>
+                            <p>Kiểu sản xuất: <b>{dongHo.kieu_thiet_bi || "Chưa có kiểu sản xuất"}</b></p>
                         </div>
                     </div>
                     <div className="row mb-3">
@@ -132,33 +199,33 @@ export default function DetailDongHo({ dongHo }: DetailDongHoProps) {
                         </div>
                         <div className="col-12 col-md-8">
                             <ul className="list-unstyled m-0 p-0">
-                                <li>- Đường kính danh định: <b>DN ={dongHoData.dn || 0}</b> mm</li>
-                                <li>- Lưu lượng danh định: {dongHoData.q3 ? <b>Q3= {dongHoData.q3 || 0}</b> : <b>Qn= {dongHoData.qn || 0}</b>} m<sup>3</sup>/h</li>
-                                <li>- Cấp chính xác: <b>{dongHoData.ccx || "Chưa có cấp chính xác"}</b></li>
-                                {(dongHoData.kieu_sensor) && <li>- Model sensor: <b>{dongHoData.kieu_sensor}</b></li>}
-                                {(dongHoData.kieu_chi_thi) && <li>- Model chỉ thị: <b>{dongHoData.kieu_chi_thi}</b></li>}
-                                {(dongHoData.seri_sensor) && <li>- Serial sensor: <b>{dongHoData.seri_sensor}</b></li>}
-                                {(dongHoData.seri_chi_thi) && <li>- Serial chỉ thị: <b>{dongHoData.seri_chi_thi}</b></li>}
-                                <li>- Ký hiệu PDM / Số quyết định: <b>{dongHoData.so_qd_pdm || "Chưa có số quyết định"}</b></li>
+                                <li>- Đường kính danh định: <b>DN ={dongHo.dn || 0}</b> mm</li>
+                                <li>- Lưu lượng danh định: {dongHo.q3 ? <b>Q3= {dongHo.q3 || 0}</b> : <b>Qn= {dongHo.qn || 0}</b>} m<sup>3</sup>/h</li>
+                                <li>- Cấp chính xác: <b>{dongHo.ccx || "Chưa có cấp chính xác"}</b></li>
+                                {(dongHo.kieu_sensor) && <li>- Model sensor: <b>{dongHo.kieu_sensor}</b></li>}
+                                {(dongHo.kieu_chi_thi) && <li>- Model chỉ thị: <b>{dongHo.kieu_chi_thi}</b></li>}
+                                {(dongHo.seri_sensor) && <li>- Serial sensor: <b>{dongHo.seri_sensor}</b></li>}
+                                {(dongHo.seri_chi_thi) && <li>- Serial chỉ thị: <b>{dongHo.seri_chi_thi}</b></li>}
+                                <li>- Ký hiệu PDM / Số quyết định: <b>{dongHo.so_qd_pdm + "-" + dayjs(dongHo.ngay_thuc_hien).format('YYYY') || "Chưa có số quyết định"}</b></li>
                             </ul>
                         </div>
                     </div>
                     <div className="row mb-3">
-                        <p>Cơ sở sử dụng: <b>{dongHoData.co_so_su_dung || "Chưa có cơ sở sử dụng"}</b></p>
+                        <p>Cơ sở sử dụng: <b>{dongHo.co_so_su_dung || "Chưa có cơ sở sử dụng"}</b></p>
                     </div>
                     <div className="row mb-3">
-                        <p>Phương pháp thực hiện: <b>{dongHoData.phuong_phap_thuc_hien || "Chưa có phương pháp thực hiện"}</b></p>
-                        <p>Chuẩn được sử dụng: <b>{dongHoData.chuan_thiet_bi_su_dung || "Chưa có chuẩn thiết bị sử dụng"}</b></p>
+                        <p>Phương pháp thực hiện: <b>{dongHo.phuong_phap_thuc_hien || "Chưa có phương pháp thực hiện"}</b></p>
+                        <p>Chuẩn được sử dụng: <b>{dongHo.chuan_thiet_bi_su_dung || "Chưa có chuẩn thiết bị sử dụng"}</b></p>
                     </div>
                     <div className="row mb-3">
                         <div className="col-6">
-                            <p>Người thực hiện: <b className="text-uppercase">{dongHoData.nguoi_kiem_dinh || "Chưa có người thực hiện"}</b></p>
+                            <p>Người thực hiện: <b className="text-uppercase">{dongHo.nguoi_kiem_dinh || "Chưa có người thực hiện"}</b></p>
                         </div>
                         <div className="col-6">
-                            <p>Ngày thực hiện: <b>{dayjs(dongHoData.ngay_thuc_hien).format("DD/MM/YYYY")}</b></p>
+                            <p>Ngày thực hiện: <b>{dayjs(dongHo.ngay_thuc_hien).format("DD/MM/YYYY")}</b></p>
                         </div>
                         <div className="col-12">
-                            <p>Địa điểm thực hiện: <b>{dongHoData.vi_tri || "Chưa có địa điểm thực hiện"}</b></p>
+                            <p>Địa điểm thực hiện: <b>{dongHo.vi_tri || "Chưa có địa điểm thực hiện"}</b></p>
                         </div>
                     </div>
                     <div className="row mb-3">
@@ -200,59 +267,9 @@ export default function DetailDongHo({ dongHo }: DetailDongHoProps) {
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {duLieuKiemDinhCacLuuLuong && (
+                                    {duLieuKiemDinhCacLuuLuong && listKeys && (
                                         <>
-                                            {
-                                                Object.entries(duLieuKiemDinhCacLuuLuong).map(([key, value], index) => {
-                                                    if (value?.value) {
-                                                        let indexHead = true;
-                                                        let jsxStart, jsxEnd;
-                                                        const rowSpan = Object.entries(value.lan_chay).reduce((count, [keyLanChay, valueLanChay]) => {
-                                                            return getSaiSoDongHo(valueLanChay) != null ? count + 1 : count;
-                                                        }, 0);
-
-                                                        return (
-                                                            <Fragment key={key + index}>
-                                                                {
-                                                                    Object.entries(value.lan_chay).map(([keyLanChay, valueLanChay], indexLanChay) => {
-                                                                        jsxStart = <></>
-                                                                        jsxEnd = <></>
-                                                                        if (indexHead) {
-                                                                            jsxStart = <>
-                                                                                <td rowSpan={rowSpan}>{key}</td>
-                                                                                <td rowSpan={rowSpan}>{value.value}</td>
-                                                                            </>;
-                                                                            const hss = hieuSaiSo ? hieuSaiSo[index].hss : 0;
-                                                                            jsxEnd = <>
-                                                                                <td rowSpan={rowSpan}>{hss}</td>
-                                                                            </>
-                                                                            indexHead = false;
-                                                                        }
-
-                                                                        if (getSaiSoDongHo(valueLanChay) != null) {
-                                                                            return (
-                                                                                <tr key={keyLanChay + indexLanChay}>
-                                                                                    {jsxStart}
-                                                                                    <td>{valueLanChay.V1}</td>
-                                                                                    <td>{valueLanChay.V2}</td>
-                                                                                    <td>{(Number(valueLanChay.V2) - Number(valueLanChay.V1)).toFixed(4).replace(/\.?0+$/, '')}</td>
-                                                                                    <td>{valueLanChay.Tdh}</td>
-                                                                                    <td>{valueLanChay.Vc1}</td>
-                                                                                    <td>{valueLanChay.Vc2}</td>
-                                                                                    <td>{(Number(valueLanChay.Vc2) - Number(valueLanChay.Vc1)).toFixed(4).replace(/\.?0+$/, '')}</td>
-                                                                                    <td>{valueLanChay.Tc}</td>
-                                                                                    <td>{getSaiSoDongHo(valueLanChay)}</td>
-                                                                                    {jsxEnd}
-                                                                                </tr>
-                                                                            );
-                                                                        }
-                                                                    })
-                                                                }
-                                                            </Fragment>
-                                                        );
-                                                    }
-                                                })
-                                            }
+                                            {renderDulieuLuuLuong()}
                                         </>
                                     )}
                                 </tbody>

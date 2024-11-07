@@ -386,6 +386,10 @@ export default function AddNewPDM({ className }: AddNewPDMProps) {
                                                 margin: '0',
                                                 padding: '0'
                                             }),
+                                            menu: (provided) => ({
+                                                ...provided,
+                                                zIndex: 777
+                                            }),
                                             indicatorsContainer: (provided) => ({
                                                 ...provided,
                                                 height: '42px'
@@ -421,6 +425,10 @@ export default function AddNewPDM({ className }: AddNewPDMProps) {
                                                 ...provided,
                                                 margin: '0',
                                                 padding: '0'
+                                            }),
+                                            menu: (provided) => ({
+                                                ...provided,
+                                                zIndex: 777
                                             }),
                                             indicatorsContainer: (provided) => ({
                                                 ...provided,

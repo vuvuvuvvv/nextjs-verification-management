@@ -1,8 +1,8 @@
 "use client"
 
-import { deletePDM, getPDMByMaTimDongHoPDM } from "@/app/api/pdm/route";
+import { deletePDM, getPDMByMaTimDongHoPDM, updatePDM } from "@/app/api/pdm/route";
 import Loading from "@/components/Loading";
-import { PDM } from "@lib/types";
+import { PDM, PDMData } from "@lib/types";
 import { useEffect, useRef, useState } from "react";
 import { useUser } from "@/context/AppContext";
 import Swal from "sweetalert2";
@@ -16,16 +16,76 @@ import Select, { GroupBase } from 'react-select';
 import { ACCESS_LINKS, ccxOptions } from "@lib/system-constant";
 import vrfWm from "@styles/scss/ui/vfm.module.scss";
 import Link from "next/link";
+import { convertToUppercaseNonAccent } from "@lib/system-function";
 
 export default function Page({ params }: { params: { ma_tim_dong_ho_pdm: string } }) {
-    const [pdmData, setPDMData] = useState<PDM | null>(null);
+    const { isAdmin } = useUser();
+    const [pdmData, setPDMData] = useState<PDMData | null>(null);
+    const [oldPdmData, setOldPDMData] = useState<PDMData | null>(null);
+    const pdmDataPrev = useRef(pdmData);
     const [loading, setLoading] = useState<boolean>(true);
-    const { isUser } = useUser();
+    const [maTimDongHoPDM, setMaTimDongHoPDM] = useState<string>("");
     const router = useRouter();
     const [error, setError] = useState("");
     const [isEditing, setIsEditing] = useState(false);
+    const [canSave, setCanSave] = useState(false);
+    const [errorPDM, setErrorPDM] = useState("");
 
     const fetchCalled = useRef(false);
+
+    useEffect(() => {
+        if (pdmData && oldPdmData) {
+            setCanSave(JSON.stringify(pdmData) !== JSON.stringify(oldPdmData));
+        }
+
+        if (pdmData && oldPdmData && pdmDataPrev.current != pdmData) {
+
+            pdmDataPrev.current = pdmData;
+            const ma_tim_dong_ho_pdm_cu = convertToUppercaseNonAccent(
+                (oldPdmData.ten_dong_ho || "") +
+                (oldPdmData.dn || "") +
+                (oldPdmData.ccx || "") +
+                (oldPdmData.kieu_sensor || "") +
+                (oldPdmData.transmitter || "") +
+                (oldPdmData.q3 || "") +
+                (oldPdmData.r || "") +
+                (oldPdmData.qn || "")
+            );
+
+            const ma_tim_dong_ho_pdm = convertToUppercaseNonAccent(
+                (pdmData.ten_dong_ho || "") +
+                (pdmData.dn || "") +
+                (pdmData.ccx || "") +
+                (pdmData.kieu_sensor || "") +
+                (pdmData.transmitter || "") +
+                (pdmData.q3 || "") +
+                (pdmData.r || "") +
+                (pdmData.qn || "")
+            );
+
+            setMaTimDongHoPDM(ma_tim_dong_ho_pdm);
+            const handler = setTimeout(async () => {
+                if (ma_tim_dong_ho_pdm_cu != ma_tim_dong_ho_pdm) {
+                    const res = await getPDMByMaTimDongHoPDM(ma_tim_dong_ho_pdm);
+                    setCanSave(true);
+                    if (res.status == 200 || res.status == 201) {
+                        setErrorPDM("Phê duyệt mẫu đã tồn tại! Hãy thử lại")
+                        setCanSave(false);
+                    } else if (res.status == 404) {
+                        setErrorPDM("")
+                    } else {
+                        setErrorPDM("Có lỗi xảy ra khi lấy số quyết định PDM!")
+                    }
+
+                }
+            }, 700);
+
+            return () => {
+                clearTimeout(handler);
+            };
+        }
+    }, [pdmData]);
+
 
     useEffect(() => {
         if (error) {
@@ -63,6 +123,18 @@ export default function Page({ params }: { params: { ma_tim_dong_ho_pdm: string 
             try {
                 const res = await getPDMByMaTimDongHoPDM(params.ma_tim_dong_ho_pdm);
                 setPDMData(res.data);
+                setOldPDMData(res.data)
+                const ma_tim_dong_ho_pdm = convertToUppercaseNonAccent(
+                    (res.data.ten_dong_ho || "") +
+                    (res.data.dn || "") +
+                    (res.data.ccx || "") +
+                    (res.data.kieu_sensor || "") +
+                    (res.data.transmitter || "") +
+                    (res.data.q3 || "") +
+                    (res.data.r || "") +
+                    (res.data.qn || "")
+                );
+                setMaTimDongHoPDM(ma_tim_dong_ho_pdm);
             } catch (error) {
                 console.error("Error fetching data:", error);
                 setError("Có lỗi đã xảy ra!");
@@ -90,33 +162,33 @@ export default function Page({ params }: { params: { ma_tim_dong_ho_pdm: string 
     const handleSubmit = async () => {
         if (!pdmData) return;
 
-        // try {
-        //     const response = await updatePDM(pdmData);
-        //     if (response.status === 200) {
-        //         Swal.fire({
-        //             icon: "success",
-        //             title: "Success",
-        //             text: "PDM updated successfully!",
-        //             confirmButtonText: "OK"
-        //         }).then(() => {
-        //             router.push(ACCESS_LINKS.PDM.src);
-        //         });
-        //     } else {
-        //         Swal.fire({
-        //             icon: "error",
-        //             title: "Error",
-        //             text: response.msg,
-        //             confirmButtonText: "OK"
-        //         });
-        //     }
-        // } catch (err) {
-        //     Swal.fire({
-        //         icon: "error",
-        //         title: "Error",
-        //         text: "An error occurred. Please try again!",
-        //         confirmButtonText: "OK"
-        //     });
-        // }
+        try {
+            const response = await updatePDM(pdmData);
+            if (response.status === 200) {
+                Swal.fire({
+                    icon: "success",
+                    title: "Thành công!",
+                    text:  "Phê duyệt mẫu cập nhật thành công!",
+                    confirmButtonText: "OK"
+                }).then(() => {
+                    router.push(ACCESS_LINKS.PDM.src);
+                });
+            } else {
+                Swal.fire({
+                    icon: "error",
+                    title: "Lỗi!",
+                    text: response.msg,
+                    confirmButtonText: "OK"
+                });
+            }
+        } catch (err) {
+            Swal.fire({
+                icon: "error",
+                title: "Lỗi!",
+                text: 'Đã có lỗi xảy ra! Hãy thử lại sau.',
+                confirmButtonText: "OK"
+            });
+        }
     };
 
     const handleDelete = () => {
@@ -181,8 +253,6 @@ export default function Page({ params }: { params: { ma_tim_dong_ho_pdm: string 
                                                 name="ten_dong_ho"
                                                 value={pdmData.ten_dong_ho}
                                                 onChange={handleInputChange}
-                                                readOnly={isUser}
-                                                disabled={isUser}
                                             />
                                         </div>
                                     )}
@@ -196,8 +266,6 @@ export default function Page({ params }: { params: { ma_tim_dong_ho_pdm: string 
                                                 name="noi_san_xuat"
                                                 value={pdmData.noi_san_xuat}
                                                 onChange={handleInputChange}
-                                                readOnly={isUser}
-                                                disabled={isUser}
                                             />
                                         </div>
                                     )}
@@ -216,7 +284,6 @@ export default function Page({ params }: { params: { ma_tim_dong_ho_pdm: string 
                                                 isClearable
                                                 value={ccxOptions.find(option => option.value.toString() === pdmData?.ccx?.replace('.0', '')) || null}
                                                 onChange={(selectedOptions: any) => handleSelectChange("ccx", selectedOptions)}
-                                                isDisabled={isUser}
                                                 styles={{
                                                     control: (provided) => ({
                                                         ...provided,
@@ -238,6 +305,10 @@ export default function Page({ params }: { params: { ma_tim_dong_ho_pdm: string 
                                                     indicatorsContainer: (provided) => ({
                                                         ...provided,
                                                         height: '42px'
+                                                    }),
+                                                    menu: (provided) => ({
+                                                        ...provided,
+                                                        zIndex: 777
                                                     })
                                                 }}
                                             />
@@ -255,8 +326,6 @@ export default function Page({ params }: { params: { ma_tim_dong_ho_pdm: string 
                                                     placeholder="dn"
                                                     value={pdmData.dn.replace('.0', '')}
                                                     onChange={handleInputChange}
-                                                    readOnly={isUser}
-                                                    disabled={isUser}
                                                 />
                                                 <span className="input-group-text">mm</span>
                                             </div>
@@ -274,8 +343,6 @@ export default function Page({ params }: { params: { ma_tim_dong_ho_pdm: string 
                                                     placeholder="Q3"
                                                     value={pdmData.q3.replace('.0', '')}
                                                     onChange={handleInputChange}
-                                                    readOnly={isUser}
-                                                    disabled={isUser}
                                                 />
                                                 <span className="input-group-text">m<sup>3</sup>/h</span>
                                             </div>
@@ -293,8 +360,6 @@ export default function Page({ params }: { params: { ma_tim_dong_ho_pdm: string 
                                                     placeholder="Qn"
                                                     value={pdmData.qn.replace('.0', '')}
                                                     onChange={handleInputChange}
-                                                    readOnly={isUser}
-                                                    disabled={isUser}
                                                 />
                                                 <span className="input-group-text">m<sup>3</sup>/h</span>
                                             </div>
@@ -311,8 +376,6 @@ export default function Page({ params }: { params: { ma_tim_dong_ho_pdm: string 
                                                 placeholder="Tỷ số Q3/Q1 (R)"
                                                 value={pdmData.r.replace('.0', '')}
                                                 onChange={handleInputChange}
-                                                readOnly={isUser}
-                                                disabled={isUser}
                                             />
                                         </div>
                                     )}
@@ -327,8 +390,6 @@ export default function Page({ params }: { params: { ma_tim_dong_ho_pdm: string 
                                                 placeholder="Kiểu sensor"
                                                 value={pdmData.kieu_sensor}
                                                 onChange={handleInputChange}
-                                                readOnly={isUser}
-                                                disabled={isUser}
                                             />
                                         </div>
                                     )}
@@ -343,8 +404,6 @@ export default function Page({ params }: { params: { ma_tim_dong_ho_pdm: string 
                                                 placeholder="Kiểu chỉ thị"
                                                 value={pdmData.transmitter}
                                                 onChange={handleInputChange}
-                                                readOnly={isUser}
-                                                disabled={isUser}
                                             />
                                         </div>
                                     )}
@@ -362,8 +421,6 @@ export default function Page({ params }: { params: { ma_tim_dong_ho_pdm: string 
                                                 placeholder="Đơn vị"
                                                 value={pdmData.don_vi_pdm}
                                                 onChange={handleInputChange}
-                                                readOnly={isUser}
-                                                disabled={isUser}
                                             />
                                         </div>
                                     )}
@@ -378,8 +435,6 @@ export default function Page({ params }: { params: { ma_tim_dong_ho_pdm: string 
                                                 placeholder="Địa chỉ"
                                                 value={pdmData.dia_chi}
                                                 onChange={handleInputChange}
-                                                readOnly={isUser}
-                                                disabled={isUser}
                                             />
                                         </div>
                                     )}
@@ -394,8 +449,6 @@ export default function Page({ params }: { params: { ma_tim_dong_ho_pdm: string 
                                                 placeholder="Ký hiệu PDM/Số quyết định PDM"
                                                 value={pdmData.so_qd_pdm}
                                                 onChange={handleInputChange}
-                                                readOnly={isUser}
-                                                disabled={isUser}
                                             />
                                         </div>
                                     )}
@@ -409,7 +462,6 @@ export default function Page({ params }: { params: { ma_tim_dong_ho_pdm: string 
                                                 maxDate={dayjs(pdmData.ngay_het_han)}
                                                 onChange={(newValue: Dayjs | null) => handleDateChange("ngay_qd_pdm", newValue)}
                                                 slotProps={{ textField: { fullWidth: true } }}
-                                                disabled={isUser}
                                             />
                                         </div>
                                     )}
@@ -423,7 +475,6 @@ export default function Page({ params }: { params: { ma_tim_dong_ho_pdm: string 
                                                 minDate={dayjs(pdmData.ngay_qd_pdm).add(1, 'day')}
                                                 onChange={(newValue: Dayjs | null) => handleDateChange("ngay_het_han", newValue)}
                                                 slotProps={{ textField: { fullWidth: true } }}
-                                                disabled={isUser}
                                             />
                                         </div>
                                     )}
@@ -437,10 +488,11 @@ export default function Page({ params }: { params: { ma_tim_dong_ho_pdm: string 
                                             id="ma_tim_dong_ho_pdm"
                                             name="ma_tim_dong_ho_pdm"
                                             placeholder="Mã"
-                                            value={pdmData?.ma_tim_dong_ho_pdm || ""}
+                                            value={maTimDongHoPDM}
                                             readOnly={true}
                                             disabled
                                         />
+                                        {errorPDM && <small className="text-danger">{errorPDM}</small>}
                                     </div>
                                 </div>
                             </form>
@@ -448,12 +500,12 @@ export default function Page({ params }: { params: { ma_tim_dong_ho_pdm: string 
                                 <button aria-label="Hủy" type="button" onClick={() => setIsEditing(!isEditing)} className="btn text-white bg-warning">
                                     Hủy
                                 </button>
-                                {/* <button aria-label="Cập nhật phê duyệt mẫu" type="button" onClick={handleSubmit} className="btn text-white bg-main-green">
+                                <button aria-label="Cập nhật phê duyệt mẫu" disabled={!canSave} type="button" onClick={handleSubmit} className="btn text-white bg-main-green">
                                     Cập nhật PDM
-                                </button> */}
-                                {/* <button aria-label="Xóa phê duyệt mẫu" type="button" onClick={handleDelete} className="btn text-white bg-danger">
+                                </button>
+                                <button aria-label="Xóa phê duyệt mẫu" type="button" onClick={handleDelete} className="btn text-white bg-danger">
                                     Xóa PDM
-                                </button> */}
+                                </button>
                             </div>
                         </div>
                     ) : (
@@ -549,7 +601,7 @@ export default function Page({ params }: { params: { ma_tim_dong_ho_pdm: string 
                             </div>
                             <div className="w-100 mt-2 px-3 d-flex justify-content-end gap-3">
 
-                                {!isUser && (
+                                {isAdmin && (
                                     <button aria-label="Chỉnh sửa" type="button" onClick={() => setIsEditing(!isEditing)} className="btn text-white bg-warning">
                                         Chỉnh sửa
                                     </button>

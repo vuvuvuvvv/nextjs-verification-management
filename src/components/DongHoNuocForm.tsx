@@ -28,13 +28,13 @@ const TinhSaiSoTab = dynamic(() => import('@/components/TinhSaiSoTab'), { ssr: f
 const TinhSaiSoForm = dynamic(() => import('@/components/TinhSaiSoForm'), { ssr: false });
 
 
-interface FormDongHoNuocDNLonHon15Props {
+interface FormDongHoNuocQLonHon15Props {
     className?: string,
 }
 
-export default function FormDongHoNuocDNLonHon15({ className }: FormDongHoNuocDNLonHon15Props) {
+export default function FormDongHoNuocQLonHon15({ className }: FormDongHoNuocQLonHon15Props) {
 
-    const { user } = useUser();
+    const { user, isAdmin } = useUser();
     const [isCollapsed, setIsCollapsed] = useState<boolean>(false);
 
     const [tenDongHo, setTenDongHo] = useState<string>("");
@@ -47,7 +47,7 @@ export default function FormDongHoNuocDNLonHon15({ className }: FormDongHoNuocDN
     const [kieuThietBi, setKieuThietBi] = useState<string>("");
     const [soTem, setSoTem] = useState<string>("");
     const [coSoSanXuat, setCoSoSanXuat] = useState<string>("");
-    const [namSanXuat, setNamSanXuat] = useState<Date | null>(new Date());
+    const [namSanXuat, setNamSanXuat] = useState<Date | null>(null);
     const [dn, setDN] = useState<string>("");
     const [d, setD] = useState<string>("");
     const [q3, setQ3] = useState<string>("");
@@ -205,7 +205,7 @@ export default function FormDongHoNuocDNLonHon15({ className }: FormDongHoNuocDN
         // { value: kieuSensor, setter: setKieuSensor, id: "kieu_sensor" },
         // { value: soTem, setter: setSoTem, id: "so_tem" },
         { value: coSoSanXuat, setter: setCoSoSanXuat, id: "co_so_san_xuat" },
-        { value: namSanXuat, setter: setNamSanXuat, id: "nam_san_xuat" },
+        // { value: namSanXuat, setter: setNamSanXuat, id: "nam_san_xuat" },
         { value: dn, setter: setDN, id: "dn" },
         { value: d, setter: setD, id: "d" },
         { value: ccx, setter: setCCX, id: "ccx" },
@@ -291,7 +291,7 @@ export default function FormDongHoNuocDNLonHon15({ className }: FormDongHoNuocDN
     useEffect(() => {
         setErrorFields(validateFields());
     }, [
-        tenDongHo, phuongTienDo, kieuThietBi, seriChiThi, seriSensor, kieuChiThi, kieuSensor, soTem, coSoSanXuat, namSanXuat, dn, d, ccx, q3, r, qn, soQDPDM, tenKhachHang, coSoSuDung, phuongPhapThucHien, viTri, nhietDo, doAm, isDHDienTu
+        tenDongHo, phuongTienDo, kieuThietBi, seriChiThi, seriSensor, kieuChiThi, kieuSensor, soTem, coSoSanXuat, dn, d, ccx, q3, r, qn, soQDPDM, tenKhachHang, coSoSuDung, phuongPhapThucHien, viTri, nhietDo, doAm, isDHDienTu
     ]);
 
     useEffect(() => {
@@ -347,7 +347,7 @@ export default function FormDongHoNuocDNLonHon15({ className }: FormDongHoNuocDN
 
     useEffect(() => {
         if (q3 || qn) {
-            setKetQua(isDongHoDatTieuChuan(isDHDienTu, formHieuSaiSo));
+            setKetQua(isDongHoDatTieuChuan(formHieuSaiSo));
         }
         if (checking) {
             setChecking(false);
@@ -779,7 +779,7 @@ export default function FormDongHoNuocDNLonHon15({ className }: FormDongHoNuocDN
                                     />
                                     {errorPDM && <small className="text-danger">{errorPDM}</small>}
                                 </div>
-                                <div className={`mb-3 col-12 d-flex justify-content-xxl-end`}>
+                                <div className={`mb-3 col-12 d-flex justify-content-xxl-end ${isAdmin?"":"d-none"}`}>
                                     <Link
                                         href={ACCESS_LINKS.PDM_ADD.src}
                                         className="btn btn-success px-3 py-2 text-white"

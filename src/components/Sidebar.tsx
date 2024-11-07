@@ -13,7 +13,9 @@ import {
     faCaretLeft,
     faCaretRight,
     faFile,
-    faCertificate
+    faCertificate,
+    faPeopleArrows,
+    faFileExport
 }
     from '@fortawesome/free-solid-svg-icons';
 import { useState, useRef, useEffect, Suspense } from 'react';
@@ -26,6 +28,7 @@ import Link from 'next/link';
 import { SideLink } from '@lib/types';
 import Loading from './Loading';
 import { ACCESS_LINKS } from '@lib/system-constant';
+import { useUser } from '@/context/AppContext';
 
 interface SidebarProps {
     // "?" can be undefind
@@ -77,11 +80,6 @@ const siteSideLinks: SideLink[] = [
         ]
     },
     {
-        title: "Xuất báo cáo",
-        icon: faComment,
-        href: "#"
-    },
-    {
         title: "Quét mã QR",
         icon: faQrcode,
         href: "#"
@@ -105,19 +103,14 @@ const siteSideLinks: SideLink[] = [
 
 const adminSideLinks: SideLink[] = [
     {
-        title: "Dashboard",
-        icon: faHome,
-        href: "/dashboard"
+        title: ACCESS_LINKS.AD_XUAT_BAO_CAO.title,
+        icon: faFileExport,
+        href: ACCESS_LINKS.AD_XUAT_BAO_CAO.src
     },
     {
-        title: "Quản lý người dùng",
-        icon: faUserFriends,
-        href: "/dashboard/manage/user"
-    },
-    {
-        title: "Quay lại trang kiểm định",
-        icon: faQrcode,
-        href: "/"
+        title: ACCESS_LINKS.AD_PHAN_QUYEN.title,
+        icon: faPeopleArrows,
+        href: ACCESS_LINKS.AD_PHAN_QUYEN.src
     },
 ]
 
@@ -125,11 +118,12 @@ export default function Sidebar({
     className,
     title
 }: SidebarProps) {
+    const { isAdmin } = useUser();
     const [show, setShow] = useState(false);
     const sidebarRef = useRef<HTMLDivElement>(null);
     const [collapseState, setCollapseState] = useState<CollapseState>({});
     const pathname = usePathname();
-    const sideLinks = pathname.startsWith("/dashboard") ? adminSideLinks : siteSideLinks;
+    const sideLinks = isAdmin ? [...siteSideLinks, ...adminSideLinks] : siteSideLinks;
 
     const toggleOpen = () => {
         setShow(!show);
@@ -250,23 +244,6 @@ export default function Sidebar({
 
                 </ul>
             </div>
-
-            {/* <div className={`${sb["sb-footer"]}`}>
-                <div className={`${sb['profile']}`}>
-                    <img src="/images/logo.png" alt="profileImg" />
-                    <div className={sb["name_job"]}>
-                        <div className={sb["name"]}>Vuvuvuvvv</div>
-                        <div className={sb["job"]}>Admin</div>
-                    </div>
-                </div>
-                <Link
-                    href={"#"}
-                    className={`btn m-0 p-0`}
-                    id={`${sb['btn-logout']}`}
-                >
-                    <FontAwesomeIcon icon={faSignOutAlt} fontSize={20}></FontAwesomeIcon>
-                </Link>
-            </div> */}
         </div>
     </Suspense>
 }

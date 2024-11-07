@@ -19,7 +19,7 @@ interface CaculatorFormProps {
     isDisable?: boolean
 }
 
-export default function DNBT30TinhSaiSoForm({ className, formValue, readOnly = false, onFormChange, d, isDisable }: CaculatorFormProps) {
+export default function QBT30TinhSaiSoForm({ className, formValue, readOnly = false, onFormChange, d, isDisable }: CaculatorFormProps) {
     const [V1, setV1] = useState<string>(formValue.V1.toString() || "0");
     const [V2, setV2] = useState<string>(formValue.V2.toString() || "0");
     const [Vc1, setVc1] = useState<string>(formValue.Vc1 ? formValue.Vc1.toString() : "0");

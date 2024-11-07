@@ -29,6 +29,31 @@ export const getAllDongHo = async () => {
     }
 };
 
+export const getAllDongHoNamesExist = async () => {
+    try {
+        const response = await api.get(API_DONGHO_URL.toString() + "/get-all-names-exist");
+        // console.log("get dongho: ", response);
+        return {
+            "status": response.status,
+            "data": response.data,
+            "msg": "Thành công!"
+        };
+
+    } catch (error: any) {
+        if (error.response?.data?.msg) {
+            return {
+                "status": error.response.status,
+                "msg": 'Có lỗi xảy ra khi lấy dữ liệu đồng hồ!'
+            };
+        } else {
+            return {
+                "status": error.response?.status || 500,
+                "msg": 'Có lỗi xảy ra khi lấy dữ liệu đồng hồ!'
+            };
+        }
+    }
+};
+
 export const getDongHoByFilter = async (parameters?: DongHoFilterParameters) => {
     try {
         const url = new URL(API_DONGHO_URL);

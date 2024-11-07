@@ -61,7 +61,8 @@ export interface PDM {
 
 
 export interface PDMFilterParameters {
-    ma_tim_dong_ho_pdm: string | null,
+    // ma_tim_dong_ho_pdm: string | null,
+    ten_dong_ho: string | null,
     so_qd_pdm: string | null,
     ngay_qd_pdm_from: Date | null,
     ngay_qd_pdm_to: Date | null,
@@ -101,7 +102,7 @@ export interface PDMData {
     "transmitter": string,
     "qn": string,
     "q3": string,
-    "R": string,
+    "r": string,
     "don_vi_pdm": string,
     "dia_chi": string,
     "so_qd_pdm": string,

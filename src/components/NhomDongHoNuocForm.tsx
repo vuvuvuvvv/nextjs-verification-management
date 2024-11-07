@@ -36,13 +36,13 @@ import dynamic from "next/dynamic";
 import { getPDMByMaTimDongHoPDM } from "@/app/api/pdm/route";
 
 
-interface FormDongHoNuocDNNhoHon15Props {
+interface FormDongHoNuocQNhoHon15Props {
     className?: string
 }
 
 
-export default function FormDongHoNuocDNNhoHon15({ className }: FormDongHoNuocDNNhoHon15Props) {
-    const { user } = useUser();
+export default function FormDongHoNuocQNhoHon15({ className }: FormDongHoNuocQNhoHon15Props) {
+    const { user, isAdmin } = useUser();
     const [isCollapsed, setIsCollapsed] = useState<boolean>(false);
 
     const [tenDongHo, setTenDongHo] = useState<string>("");
@@ -56,7 +56,7 @@ export default function FormDongHoNuocDNNhoHon15({ className }: FormDongHoNuocDN
     const [kieuThietBi, setKieuThietBi] = useState<string>("");
     const [soTem, setSoTem] = useState<string>("");
     const [coSoSanXuat, setCoSoSanXuat] = useState<string>("");
-    const [namSanXuat, setNamSanXuat] = useState<Date | null>(new Date());
+    const [namSanXuat, setNamSanXuat] = useState<Date | null>(null);
     const [dn, setDN] = useState<string>("");
     const [d, setD] = useState<string>("");
     const [q3, setQ3] = useState<string>("");
@@ -286,7 +286,7 @@ export default function FormDongHoNuocDNNhoHon15({ className }: FormDongHoNuocDN
 
         // { value: soTem, setter: setSoTem, id: "so_tem" },
         { value: coSoSanXuat, setter: setCoSoSanXuat, id: "co_so_san_xuat" },
-        { value: namSanXuat, setter: setNamSanXuat, id: "nam_san_xuat" },
+        // { value: namSanXuat, setter: setNamSanXuat, id: "nam_san_xuat" },
         { value: dn, setter: setDN, id: "dn" },
         { value: d, setter: setD, id: "d" },
         { value: ccx, setter: setCCX, id: "ccx" },
@@ -304,7 +304,7 @@ export default function FormDongHoNuocDNNhoHon15({ className }: FormDongHoNuocDN
     ];
 
     useEffect(() => {
-        setKetQua(isDongHoDatTieuChuan(isDHDienTu, formHieuSaiSo));
+        setKetQua(isDongHoDatTieuChuan(formHieuSaiSo));
         setShowFormTienTrinh(errorFields.length === 0)
         if (errorFields.length != 0) {
             setKetQua(null)
@@ -349,7 +349,7 @@ export default function FormDongHoNuocDNNhoHon15({ className }: FormDongHoNuocDN
                 so_giay_chung_nhan: soGiayChungNhan,
             });
 
-            if (isDongHoDatTieuChuan(isDHDienTu, formHieuSaiSo) != null && (soTem && soGiayChungNhan)) {
+            if (isDongHoDatTieuChuan(formHieuSaiSo) != null && (soTem && soGiayChungNhan)) {
                 setCanSave(true);
             }
         } else {
@@ -376,7 +376,7 @@ export default function FormDongHoNuocDNNhoHon15({ className }: FormDongHoNuocDN
     useEffect(() => {
         setErrorFields(validateFields());
     }, [
-        tenDongHo, phuongTienDo, kieuThietBi, seriChiThi, seriSensor, kieuChiThi, kieuSensor, soTem, coSoSanXuat, namSanXuat, dn, d, ccx, q3, r, qn, soQDPDM, tenKhachHang, coSoSuDung, phuongPhapThucHien, viTri, nhietDo, doAm, isDHDienTu
+        tenDongHo, phuongTienDo, kieuThietBi, seriChiThi, seriSensor, kieuChiThi, kieuSensor, soTem, coSoSanXuat, dn, d, ccx, q3, r, qn, soQDPDM, tenKhachHang, coSoSuDung, phuongPhapThucHien, viTri, nhietDo, doAm, isDHDienTu
     ]);
 
     const infoStates = [
@@ -516,7 +516,7 @@ export default function FormDongHoNuocDNNhoHon15({ className }: FormDongHoNuocDN
     // Func: Hieu sai so
     useEffect(() => {
         if (q3 || qn) {
-            setKetQua(isDongHoDatTieuChuan(isDHDienTu, formHieuSaiSo));
+            setKetQua(isDongHoDatTieuChuan(formHieuSaiSo));
         }
         if (checking) {
             setChecking(false);
@@ -1074,7 +1074,7 @@ export default function FormDongHoNuocDNNhoHon15({ className }: FormDongHoNuocDN
                                     />
                                     {errorPDM && <small className="text-danger">{errorPDM}</small>}
                                 </div>
-                                <div className={`mb-3 col-12 d-flex justify-content-xxl-end`}>
+                                <div className={`mb-3 col-12 d-flex justify-content-xxl-end ${isAdmin?"":"d-none"}`}>
                                     <Link
                                         href={ACCESS_LINKS.PDM_ADD.src}
                                         className="btn btn-success px-3 py-2 text-white"

@@ -1,5 +1,6 @@
 import dayjs from "dayjs";
-import { DongHo, DuLieuMotLanChay, TinhSaiSoValueTabs } from "./types";
+import { DongHo, DuLieuMotLanChay, PDMData, TinhSaiSoValueTabs } from "./types";
+import { getAllDongHoNamesExist } from "@/app/api/dongho/route";
 
 export const getSaiSoDongHo = (formValue: DuLieuMotLanChay) => {
     if (formValue) {
@@ -105,13 +106,14 @@ export const getHieuSaiSo = (formValues: TinhSaiSoValueTabs) => {
 
 
 // TODO: Check 
-export const isDongHoDatTieuChuan = (isQ3: boolean, formHieuSaiSo: { hss: number | null }[]) => {
+export const isDongHoDatTieuChuan = (formHieuSaiSo: { hss: number | null }[]) => {
     const lan1 = formHieuSaiSo[0].hss;
     const lan2 = formHieuSaiSo[1].hss;
     const lan3 = formHieuSaiSo[2].hss;
 
     if (lan1 !== null && lan2 !== null && lan3 !== null) {
-        return (isQ3) ? (lan1 >= -2 && lan2 >= -2 && lan3 >= -5) : (lan1 <= 2 && lan2 <= 2 && lan3 <= 5)
+        // return (isQ3) ? (lan1 >= -2 && lan2 >= -2 && lan3 >= -5) : (lan1 <= 2 && lan2 <= 2 && lan3 <= 5)
+        return (lan1 >= -2 && lan2 >= -2 && lan3 >= -5 && lan1 <= 2 && lan2 <= 2 && lan3 <= 5)
     }
     return null;
 }
@@ -154,4 +156,15 @@ export const convertToUppercaseNonAccent = (str: string) => {
 
 export const getFullNameFileDownload = (dongho: DongHo) => {
     return (dongho.ten_dong_ho || "") + (dongho.dn || "") + (dongho.ccx || "") + (dongho.q3 || "") + (dongho.r || "") + (dongho.qn || "") + (dongho.seri_sensor || "") + (dongho.seri_chi_thi || "") + (dongho.kieu_sensor || "") + (dongho.kieu_chi_thi || "")
+}
+
+export const getListDongHoNamesExist = async () => {
+    const res = await getAllDongHoNamesExist();
+    if (res.status == 200 || res.status == 201) {
+        const listNames: string[] = [...res.data.map((pdm: PDMData) => pdm["ten_dong_ho"])]
+        const uniqueNames = listNames.filter((value, index, self) => self.indexOf(value) === index);
+        const sortedNames = uniqueNames.sort((a, b) => a.localeCompare(b));
+        return sortedNames;
+    }
+    return []
 }

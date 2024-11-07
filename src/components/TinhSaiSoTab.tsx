@@ -3,7 +3,7 @@
 import { useKiemDinh } from "@/context/KiemDinh";
 import { faAdd, faTimes, faUndo } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { getHieuSaiSo, getVToiThieu, isDongHoDatTieuChuan } from "@lib/system-function";
+import { getHieuSaiSo, getVToiThieu } from "@lib/system-function";
 import { DuLieuCacLanChay, DuLieuMotLanChay, TinhSaiSoValueTabs } from "@lib/types";
 import c_ect from "@styles/scss/components/tinh-sai-so-tab.module.scss";
 import { useEffect, useRef, useState } from "react";
