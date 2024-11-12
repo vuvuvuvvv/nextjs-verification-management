@@ -4,19 +4,21 @@ import vrfWm from "@styles/scss/ui/vfm.module.scss"
 
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { viVN } from "@mui/x-date-pickers/locales";
-const Loading = dynamic(() => import('./Loading'), { ssr: false });
 const FontAwesomeIcon = dynamic(() => import('@fortawesome/react-fontawesome').then(mod => mod.FontAwesomeIcon), { ssr: false });
 const LocalizationProvider = dynamic(() => import('@mui/x-date-pickers/LocalizationProvider').then(mod => mod.LocalizationProvider), { ssr: false });
 const DatePicker = dynamic(() => import('@mui/x-date-pickers/DatePicker').then(mod => mod.DatePicker), { ssr: false });
 const NavTab = dynamic(() => import('@/components/NavTab'), { ssr: false });
 const TinhSaiSoTab = dynamic(() => import('@/components/TinhSaiSoTab'), { ssr: false });
 const TinhSaiSoForm = dynamic(() => import('@/components/TinhSaiSoForm'), { ssr: false });
-const ModalSelectDongHoToSave = dynamic(() => import('@/components/ui/ModalSelectDongHoToSave'), { ssr: false });
+const Loading = dynamic(() => import("@/components/Loading"), { ssr: false });
+// const ModalSelectDongHoToSave = dynamic(() => import('@/components/ui/ModalSelectDongHoToSave'), { ssr: false });
 
 import { useKiemDinh } from "@/context/KiemDinh";
 import { useDongHo } from "@/context/DongHo";
 import { useUser } from "@/context/AppContext";
 
+
+import CreatableSelect from 'react-select/creatable';
 import Select, { GroupBase } from 'react-select';
 import Link from "next/link";
 import Swal from "sweetalert2";
@@ -25,15 +27,16 @@ import dayjs, { Dayjs } from "dayjs";
 import { useEffect, useMemo, useRef, useState } from "react";
 
 import { convertToUppercaseNonAccent, getLastDayOfMonthInFuture, getQ2OrQtAndQ1OrQMin, isDongHoDatTieuChuan } from "@lib/system-function";
-import { ACCESS_LINKS, ccxOptions, phuongTienDoOptions, TITLE_LUU_LUONG, typeOptions } from "@lib/system-constant";
+import { ACCESS_LINKS, BASE_API_URL, ccxOptions, phuongTienDoOptions, TITLE_LUU_LUONG, typeOptions } from "@lib/system-constant";
 
 import { createDongHo, getDongHoExistsByInfo } from "@/app/api/dongho/route";
-import { faArrowLeft, faArrowRight, faCheckSquare, faCogs, faSave, faTasks } from "@fortawesome/free-solid-svg-icons";
-import { DongHo } from "@lib/types";
+import { faArrowLeft, faArrowRight, faSave, faTasks } from "@fortawesome/free-solid-svg-icons";
+import { DongHo, PDMData } from "@lib/types";
 import { useDongHoList } from "@/context/ListDongHo";
 
 import dynamic from "next/dynamic";
 import { getPDMByMaTimDongHoPDM } from "@/app/api/pdm/route";
+import api from "@/app/api/route";
 
 
 interface FormDongHoNuocQNhoHon15Props {
@@ -43,9 +46,11 @@ interface FormDongHoNuocQNhoHon15Props {
 
 export default function FormDongHoNuocQNhoHon15({ className }: FormDongHoNuocQNhoHon15Props) {
     const { user, isAdmin } = useUser();
+    const [loading, setLoading] = useState<boolean>(true);
     const [isCollapsed, setIsCollapsed] = useState<boolean>(false);
 
     const [tenDongHo, setTenDongHo] = useState<string>("");
+    const [selectedTenDHOption, setSelectedTenDHOption] = useState('');
 
     const [phuongTienDo, setPhuongTienDo] = useState<string>("");
     const [seriChiThi, setSeriChiThi] = useState<string>("");
@@ -75,6 +80,7 @@ export default function FormDongHoNuocQNhoHon15({ className }: FormDongHoNuocQNh
     const [nhietDo, setNhietDo] = useState<string>('');
     const [soGiayChungNhan, setSoGiayChungNhan] = useState<string>('');
     const [doAm, setDoAm] = useState<string>('');
+    const [DHNameOptions, setDHNameOptions] = useState<{ value: string, label: string }[]>([]);
 
     const [isDHDienTu, setDHDienTu] = useState(false);
 
@@ -82,30 +88,6 @@ export default function FormDongHoNuocQNhoHon15({ className }: FormDongHoNuocQNh
     const [q1Ormin, setQ2OrQmin] = useState<number | null>(null);
 
     const [debouncedFields, setDebouncedFields] = useState<Partial<DongHo>>({});
-
-    // Debounce effect
-    useEffect(() => {
-        const handler = setTimeout(() => {
-            updateDongHoFieldsInList(selectedDongHoIndex, debouncedFields);
-        }, 300); // 500ms debounce delay
-
-        return () => {
-            clearTimeout(handler);
-        };
-    }, [debouncedFields]);
-
-    const handleChangeField = (field: keyof DongHo, value: string) => {
-        setDebouncedFields(prevFields => ({ ...prevFields, [field]: value }));
-    };
-
-    const {
-        getDuLieuKiemDinhJSON,
-        ketQua, formHieuSaiSo,
-        setDuLieuKiemDinhCacLuuLuong,
-        setFormHieuSaiSo, setKetQua,
-        initialFormHieuSaiSo,
-        initialDuLieuKiemDinhCacLuuLuong
-    } = useKiemDinh();
 
     const { dongHo, setDongHo } = useDongHo();
 
@@ -139,16 +121,107 @@ export default function FormDongHoNuocQNhoHon15({ className }: FormDongHoNuocQNh
 
     const router = useRouter();
 
-    const [isDHSaved, setDHSaved] = useState<boolean | null>(null)
-    const [isExistsDHSaved, setExitsDHSaved] = useState<boolean>(false)
+    const [isDHSaved, setDHSaved] = useState<boolean | null>(null);
+    const [isExistsDHSaved, setExitsDHSaved] = useState<boolean>(false);
 
-    const [isFirstTabLL, setFirsttabLL] = useState<boolean>(false)
+    const [isFirstTabLL, setFirsttabLL] = useState<boolean>(false);
+    const fetchCalled = useRef(false);
+    const [selectedCssxOption, setSelectedCssxOption] = useState('');
+    const [CSSXOptions, setCSSXOptions] = useState<{ value: string, label: string }[]>([]);
+
+    // Func: Set err
+    useEffect(() => {
+        if (error) {
+            Swal.fire({
+                icon: "error",
+                title: "Lỗi",
+                text: error,
+                showClass: {
+                    popup: `
+                    animate__animated
+                    animate__fadeInUp
+                    animate__faster
+                  `
+                },
+                hideClass: {
+                    popup: `
+                    animate__animated
+                    animate__fadeOutDown
+                    animate__faster
+                  `
+                },
+                confirmButtonColor: "#0980de",
+                confirmButtonText: "OK"
+            }).then(() => {
+                setError("");
+            });
+        }
+    }, [error]);
+
+    // Query dongho name
+    useEffect(() => {
+        if (fetchCalled.current) return;
+        fetchCalled.current = true;
+
+        const fetchData = async () => {
+            try {
+                const res = await api.get(`${BASE_API_URL}/pdm`);
+                const listNames: string[] = [...res.data.map((pdm: PDMData) => pdm["ten_dong_ho"])]
+                const uniqueNames = listNames.filter((value, index, self) => self.indexOf(value) === index);
+                const sortedNames = uniqueNames.sort((a, b) => a.localeCompare(b));
+                setDHNameOptions(sortedNames && sortedNames.length > 0 ? [
+                    ...sortedNames
+                        .filter(name => name && name.trim() !== "") 
+                        .map((name) => ({ value: name, label: name }))
+                ] : []);
+
+                const listCSSX: string[] = [...res.data.map((pdm: PDMData) => pdm["noi_san_xuat"])]
+                const uniqueCSSX = listCSSX.filter((value, index, self) => self.indexOf(value) === index);
+                const sortedCSSX = uniqueCSSX.sort((a, b) => a.localeCompare(b));
+                setCSSXOptions(sortedCSSX && sortedCSSX.length > 0 ? [
+                    ...sortedCSSX
+                        .filter(name => name && name.trim() !== "")
+                        .map((name) => ({ value: name, label: name }))
+                ] : []);
+            } catch (error) {
+                setError("Đã có lỗi xảy ra! Hãy thử lại sau.");
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchData();
+    }, []);
+
+    // Debounce effect
+    useEffect(() => {
+        const handler = setTimeout(() => {
+            updateDongHoFieldsInList(selectedDongHoIndex, debouncedFields);
+        }, 300); // 500ms debounce delay
+
+        return () => {
+            clearTimeout(handler);
+        };
+    }, [debouncedFields]);
+
+    const handleChangeField = (field: keyof DongHo, value: string) => {
+        setDebouncedFields(prevFields => ({ ...prevFields, [field]: value }));
+    };
+
+    const {
+        getDuLieuKiemDinhJSON,
+        ketQua, formHieuSaiSo,
+        setDuLieuKiemDinhCacLuuLuong,
+        setFormHieuSaiSo, setKetQua,
+        initialFormHieuSaiSo,
+        initialDuLieuKiemDinhCacLuuLuong
+    } = useKiemDinh();
 
     useEffect(() => {
-        if(isFirstTabLL) {
+        if (isFirstTabLL) {
             setFirsttabLL(false);
         }
-    },[isFirstTabLL])
+    }, [isFirstTabLL])
 
     // Func: Set saved
     useEffect(() => {
@@ -214,35 +287,6 @@ export default function FormDongHoNuocQNhoHon15({ className }: FormDongHoNuocQNh
             filterPDMRef.current = filterPDM;
         }
     }, [filterPDM]);
-
-    // Func: Set err
-    useEffect(() => {
-        if (error) {
-            Swal.fire({
-                icon: "error",
-                title: "Lỗi",
-                text: error,
-                showClass: {
-                    popup: `
-                    animate__animated
-                    animate__fadeInUp
-                    animate__faster
-                  `
-                },
-                hideClass: {
-                    popup: `
-                    animate__animated
-                    animate__fadeOutDown
-                    animate__faster
-                  `
-                },
-                confirmButtonColor: "#0980de",
-                confirmButtonText: "OK"
-            }).then(() => {
-                setError("");
-            });
-        }
-    }, [error]);
 
     // Func: Validate
     const fieldTitles = {
@@ -644,9 +688,9 @@ export default function FormDongHoNuocQNhoHon15({ className }: FormDongHoNuocQNh
         }
     };
 
-    const handleSaveDongHoWithOptions = () => {
-        handleShowModal();
-    }
+    // const handleSaveDongHoWithOptions = () => {
+    //     handleShowModal();
+    // }
 
     const handleSaveAllDongHo = () => {
         const dongHoChuaKiemDinh = getDongHoChuaKiemDinh(dongHoList);
@@ -717,37 +761,107 @@ export default function FormDongHoNuocQNhoHon15({ className }: FormDongHoNuocQNh
         }
     }
 
-    const handleShowModal = () => {
-        updateCurrentDongHo();
-        setShowModalSelectDongHoToSave(true)
-    };
-    const handleCloseModal = () => setShowModalSelectDongHoToSave(false);
+    const filteredCcxOptions = (q3: string | undefined, qn: string | undefined) => {
+        const options = ccxOptions as unknown as readonly GroupBase<never>[];
 
+        const q3Value = q3 ? parseFloat(q3) : undefined;
+        const qnValue = qn ? parseFloat(qn) : undefined;
+
+        if ((q3Value && q3Value > 15) || (qnValue && qnValue > 15)) {
+            if (ccx && ccx.includes("D")) {
+                setCCX(null);
+            }
+            return options.filter(option => option.label !== "D");
+        }
+        return options;
+    };
+
+    // const handleShowModal = () => {
+    //     updateCurrentDongHo();
+    //     setShowModalSelectDongHoToSave(true)
+    // };
+    // const handleCloseModal = () => setShowModalSelectDongHoToSave(false);
+
+    if (loading) {
+        return <Loading></Loading>;
+    }
 
     return (
         <LocalizationProvider dateAdapter={AdapterDayjs} localeText={viVN.components.MuiLocalizationProvider.defaultProps.localeText}>
-            <ModalSelectDongHoToSave
+            {/* <ModalSelectDongHoToSave
                 dongHoList={dongHoList}
                 show={showModalSelectDongHoToSave}
                 handleClose={handleCloseModal}
                 setExitsDHSaved={setExitsDHSaved}
-            />
+            /> */}
             <div className={`${className ? className : ""} ${vrfWm['wraper']} container-fluid p-0 px-2 py-3 w-100`}>
                 <div className={`row m-0 mb-3 p-3 w-100 bg-white shadow-sm rounded`}>
                     <div className="w-100 m-0 p-0 mb-3 position-relative">
                         <h3 className="text-uppercase fw-bolder text-center mt-3 mb-0">thông tin chung đồng hồ</h3>
                     </div>
                     <div className={`w-100 p-0 row m-0`}>
-                        <div className={`col-12 col-lg-8 col-xxl-6 m-0 mb-3 p-0 pe-lg-2 p-0 d-flex align-items-center justify-content-between ${vrfWm['seri-number-input']}`}>
+                        <div className={`col-12 p-0 mb-3 ${vrfWm['seri-number-input']}`}>
                             <label htmlFor="ten_dong_ho" className={`form-label m-0 fs-5 fw-bold d-block`} style={{ width: "150px" }}>Tên đồng hồ:</label>
-                            <input
-                                type="text"
+                            <CreatableSelect
+                                options={DHNameOptions as unknown as readonly GroupBase<never>[]}
+                                className="basic-multi-select col-12 col-md-6 px-3"
+                                placeholder="Tên đồng hồ"
+                                classNamePrefix="select"
+                                isClearable
                                 id="ten_dong_ho"
-                                className={`form-control`}
-                                placeholder="Nhập tên đồng hồ"
-                                value={tenDongHo}
-                                onChange={(e) => setTenDongHo(e.target.value)}
-                                disabled={isExistsDHSaved}
+                                value={selectedTenDHOption}
+                                isDisabled={isExistsDHSaved}
+                                isSearchable
+                                onChange={(selectedOptions: any) => {
+                                    if (selectedOptions) {
+                                        const values = selectedOptions.value;
+
+                                        setSelectedTenDHOption(selectedOptions);
+                                        setTenDongHo(values);
+                                    } else {
+                                        setSelectedTenDHOption('');
+                                        setTenDongHo("");
+                                    }
+                                }}
+                                styles={{
+                                    control: (provided) => ({
+                                        ...provided,
+                                        height: '42px',
+                                        minHeight: '42px',
+                                        borderColor: '#dee2e6 !important',
+                                        boxShadow: 'none !important',
+                                        backgroundColor: "white",
+                                    }),
+                                    valueContainer: (provided) => ({
+                                        ...provided,
+                                        height: '42px',
+                                        padding: '0 8px'
+                                    }),
+                                    input: (provided) => ({
+                                        ...provided,
+                                        margin: '0',
+                                        padding: '0'
+                                    }),
+                                    indicatorsContainer: (provided) => ({
+                                        ...provided,
+                                        height: '42px',
+                                        display: DHNameOptions.length == 0 ? "none" : "flex",
+                                    }),
+                                    menu: (provided) => ({
+                                        ...provided,
+                                        display: DHNameOptions.length == 0 ? "none" : "",
+                                        maxHeight: "250px",
+                                        zIndex: 777
+                                    }),
+                                    menuList: (provided) => ({
+                                        ...provided,
+                                        maxHeight: "250px",
+                                    }),
+                                    singleValue: (provided, state) => ({
+                                        ...provided,
+                                        color: state.isDisabled ? '#000' : provided.color,
+                                    })
+                                }}
                             />
                         </div>
                     </div>
@@ -755,7 +869,7 @@ export default function FormDongHoNuocQNhoHon15({ className }: FormDongHoNuocQNh
                         <form className="w-100">
                             <label className="w-100 fs-5 fw-bold">Thông tin thiết bị:</label>
                             <div className="row mx-0 w-100 mb-3">
-                                <div className="mb-3 col-12 col-xxl-6">
+                                <div className="mb-3 col-12 col-md-6">
                                     <label htmlFor="phuongTienDo" className="form-label">Tên phương tiện đo:</label>
                                     <Select
                                         name="phuongTienDo"
@@ -797,7 +911,7 @@ export default function FormDongHoNuocQNhoHon15({ className }: FormDongHoNuocQNh
                                             }),
                                             singleValue: (provided, state) => ({
                                                 ...provided,
-                                                color: state.isDisabled ? '#000' : provided.color, // Set color to black when disabled
+                                                color: state.isDisabled ? '#000' : provided.color,
                                             })
                                         }}
                                     />
@@ -845,7 +959,7 @@ export default function FormDongHoNuocQNhoHon15({ className }: FormDongHoNuocQNh
                                             }),
                                             singleValue: (provided, state) => ({
                                                 ...provided,
-                                                color: state.isDisabled ? '#000' : provided.color, // Set color to black when disabled
+                                                color: state.isDisabled ? '#000' : provided.color,
                                             })
                                         }}
                                     />
@@ -853,14 +967,66 @@ export default function FormDongHoNuocQNhoHon15({ className }: FormDongHoNuocQNh
 
                                 <div className="mb-3 col-12 col-md-6">
                                     <label htmlFor="coSoSanXuat" className="form-label">Cơ sở sản xuất:</label>
-                                    <input
-                                        type="text"
-                                        className="form-control"
-                                        id="coSoSanXuat"
+                                    <CreatableSelect
+                                        options={CSSXOptions as unknown as readonly GroupBase<never>[]}
+                                        className="basic-multi-select"
                                         placeholder="Cơ sở sản xuất"
-                                        value={coSoSanXuat}
-                                        onChange={(e) => setCoSoSanXuat(e.target.value)}
-                                        disabled={isExistsDHSaved}
+                                        classNamePrefix="select"
+                                        isClearable
+                                        isDisabled={isExistsDHSaved}
+                                        id="noi_san_xuat"
+                                        value={selectedCssxOption}
+                                        isSearchable
+                                        onChange={(selectedOptions: any) => {
+                                            if (selectedOptions) {
+                                                const values = selectedOptions.value;
+
+                                                setSelectedCssxOption(selectedOptions);
+                                                setCoSoSanXuat(values);
+                                            } else {
+                                                setSelectedCssxOption('');
+                                                setCoSoSanXuat("");
+                                            }
+                                        }}
+                                        styles={{
+                                            control: (provided) => ({
+                                                ...provided,
+                                                height: '42px',
+                                                minHeight: '42px',
+                                                borderColor: '#dee2e6 !important',
+                                                boxShadow: 'none !important',
+                                                backgroundColor: "white",
+                                            }),
+                                            valueContainer: (provided) => ({
+                                                ...provided,
+                                                height: '42px',
+                                                padding: '0 8px'
+                                            }),
+                                            input: (provided) => ({
+                                                ...provided,
+                                                margin: '0',
+                                                padding: '0'
+                                            }),
+                                            indicatorsContainer: (provided) => ({
+                                                ...provided,
+                                                height: '42px',
+                                                display: CSSXOptions.length == 0 ? "none" : "flex",
+                                            }),
+                                            menu: (provided) => ({
+                                                ...provided,
+                                                display: CSSXOptions.length == 0 ? "none" : "",
+                                                maxHeight: "250px",
+                                                zIndex: 777
+                                            }),
+                                            menuList: (provided) => ({
+                                                ...provided,
+                                                maxHeight: "250px",
+                                            }),
+                                            singleValue: (provided, state) => ({
+                                                ...provided,
+                                                color: state.isDisabled ? '#000' : provided.color,
+                                            })
+                                        }}
                                     />
                                 </div>
                                 <div className="mb-3 col-12 col-md-6">
@@ -921,7 +1087,7 @@ export default function FormDongHoNuocQNhoHon15({ className }: FormDongHoNuocQNh
                                     <label htmlFor="ccx" className="form-label">- Cấp chính xác:</label>
                                     <Select
                                         name="ccx"
-                                        options={ccxOptions as unknown as readonly GroupBase<never>[]}
+                                        options={filteredCcxOptions(q3, qn)}
                                         className="basic-multi-select"
                                         classNamePrefix="select"
                                         placeholder="-- Chọn cấp --"
@@ -958,7 +1124,7 @@ export default function FormDongHoNuocQNhoHon15({ className }: FormDongHoNuocQNh
                                             }),
                                             singleValue: (provided, state) => ({
                                                 ...provided,
-                                                color: state.isDisabled ? '#000' : provided.color, // Set color to black when disabled
+                                                color: state.isDisabled ? '#000' : provided.color,
                                             })
                                         }}
                                     />
@@ -1074,7 +1240,7 @@ export default function FormDongHoNuocQNhoHon15({ className }: FormDongHoNuocQNh
                                     />
                                     {errorPDM && <small className="text-danger">{errorPDM}</small>}
                                 </div>
-                                <div className={`mb-3 col-12 d-flex justify-content-xxl-end ${isAdmin?"":"d-none"}`}>
+                                <div className={`mb-3 col-12 d-flex justify-content-xxl-end ${isAdmin ? "" : "d-none"}`}>
                                     <Link
                                         href={ACCESS_LINKS.PDM_ADD.src}
                                         className="btn btn-success px-3 py-2 text-white"
@@ -1543,7 +1709,7 @@ export default function FormDongHoNuocQNhoHon15({ className }: FormDongHoNuocQNh
                     {/* End select nav  */}
 
                     <div className={`w-100 px-2 py-3 p-md-3 d-flex gap-2 align-items-center justify-content-end mb-4 `}>
-                        <button aria-label="Áp dụng số giấy chứng nhận cho toàn đồng hồ" className="btn py-2 bg-light-grey px-4 text-white d-none" style={{ color: "#489444", border: "2px solid #489444 !important" }} onClick={
+                        {/* <button aria-label="Áp dụng số giấy chứng nhận cho toàn đồng hồ" className="btn py-2 bg-light-grey px-4 text-white d-none" style={{ color: "#489444", border: "2px solid #489444 !important" }} onClick={
                             () => {
                                 // TODO: set GCN for all dongHo 
                             }
@@ -1552,7 +1718,7 @@ export default function FormDongHoNuocQNhoHon15({ className }: FormDongHoNuocQNh
                         </button>
                         <button aria-label="Lưu tùy chọn" className="btn py-2 px-4 bg-lighter-grey" style={{ color: "#137f0e" }} onClick={handleSaveDongHoWithOptions}>
                             <FontAwesomeIcon icon={faCheckSquare} className="me-2"></FontAwesomeIcon> Lưu tùy chọn
-                        </button>
+                        </button> */}
                         <button aria-label="Lưu toàn bộ" className="btn btn-success py-2 px-4" onClick={handleSaveAllDongHo}>
                             <FontAwesomeIcon icon={faSave} className="me-2"></FontAwesomeIcon> Lưu toàn bộ
                         </button>

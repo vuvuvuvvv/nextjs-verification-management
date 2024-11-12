@@ -5,7 +5,7 @@ import { PDMData } from "@lib/types";
 import { useState, useEffect, useRef } from "react";
 import api from "@/app/api/route";
 import { BASE_API_URL } from "@lib/system-constant";
-import Loading from "@/components/Loading";
+const Loading = dynamic(() => import("@/components/Loading"), { ssr: false });
 import Swal from "sweetalert2";
 
 const PDMManagement = dynamic(() => import("@/components/quan-ly/kiem-dinh/PDMMng"), { ssr: true });

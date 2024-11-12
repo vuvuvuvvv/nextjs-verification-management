@@ -54,6 +54,8 @@ export const TITLE_LUU_LUONG = {
     qmin: "Qmin"
 }
 
+export const DEFAULT_LOCATION = "Công ty Cổ phần Công nghệ và Thương mại FMS"
+
 export const BASE_API_URL = process.env.NEXT_PUBLIC_API_URL;
 
 // Acess links:

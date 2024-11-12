@@ -532,7 +532,6 @@ export default function FormDongHoNuocQLonHon15({ className }: FormDongHoNuocQLo
                         <div className={`col-12 col-lg-8 col-xxl-6 m-0 mb-3 p-0 pe-lg-2 p-0 d-flex align-items-center justify-content-between ${vrfWm['seri-number-input']}`}>
                             <label htmlFor="ten_dong_ho" className={`form-label m-0 fs-5 fw-bold d-block`} style={{ width: "150px" }}>Tên đồng hồ:</label>
                             <input
-
                                 type="text"
                                 id="ten_dong_ho"
                                 className={`form-control`}
@@ -546,7 +545,7 @@ export default function FormDongHoNuocQLonHon15({ className }: FormDongHoNuocQLo
                         <form className="w-100">
                             <label className="w-100 fs-5 fw-bold">Thông tin thiết bị:</label>
                             <div className="row mx-0 w-100 mb-3">
-                                <div className="mb-3 col-12 col-xxl-6">
+                                <div className="mb-3 col-12 col-md-6">
                                     <label htmlFor="phuong_tien_do" className="form-label">Tên phương tiện đo:</label>
                                     <Select
                                         name="phuong_tien_do"
@@ -587,7 +586,7 @@ export default function FormDongHoNuocQLonHon15({ className }: FormDongHoNuocQLo
                                             }),
                                             singleValue: (provided, state) => ({
                                                 ...provided,
-                                                color: state.isDisabled ? '#000' : provided.color, // Set color to black when disabled
+                                                color: state.isDisabled ? '#000' : provided.color,
                                             })
                                         }}
                                     />
@@ -634,7 +633,7 @@ export default function FormDongHoNuocQLonHon15({ className }: FormDongHoNuocQLo
                                             }),
                                             singleValue: (provided, state) => ({
                                                 ...provided,
-                                                color: state.isDisabled ? '#000' : provided.color, // Set color to black when disabled
+                                                color: state.isDisabled ? '#000' : provided.color,
                                             })
                                         }}
                                     />
@@ -745,7 +744,7 @@ export default function FormDongHoNuocQLonHon15({ className }: FormDongHoNuocQLo
                                             }),
                                             singleValue: (provided, state) => ({
                                                 ...provided,
-                                                color: state.isDisabled ? '#000' : provided.color, // Set color to black when disabled
+                                                color: state.isDisabled ? '#000' : provided.color,
                                             })
                                         }}
                                     />

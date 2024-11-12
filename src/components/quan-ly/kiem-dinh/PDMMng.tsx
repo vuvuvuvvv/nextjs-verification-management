@@ -75,7 +75,8 @@ export default function PDMManagement({ data, className, listDHNamesExist }: PDM
     useEffect(() => {
         if (listDHNamesExist && listDHNamesExist.length > 0) {
             setDHNameOptions([
-                ...listDHNamesExist.map((name) => ({ value: name, label: name }))  // Cải thiện cách tạo mảng
+                ...listDHNamesExist.filter(name => name && name.trim() !== "")
+                    .map((name) => ({ value: name, label: name }))
             ]);
         }
     }, [listDHNamesExist]);
@@ -265,7 +266,7 @@ export default function PDMManagement({ data, className, listDHNamesExist }: PDM
                                             }),
                                             singleValue: (provided, state) => ({
                                                 ...provided,
-                                                color: state.isDisabled ? '#000' : provided.color, // Set color to black when disabled
+                                                color: state.isDisabled ? '#000' : provided.color,
                                             })
                                         }}
                                     />
@@ -454,7 +455,7 @@ export default function PDMManagement({ data, className, listDHNamesExist }: PDM
                                 <table className={`table table-striped table-bordered table-hover ${c_vfml['process-table']}`}>
                                     <thead>
                                         <tr className={`${c_vfml['table-header']}`}>
-                                            <th onClick={() => sortData('id')}>
+                                            {/* <th onClick={() => sortData('id')}>
                                                 <div className={`${c_vfml['table-label']}`}>
                                                     <span>
                                                         Mã tìm đồng hồ PDM
@@ -466,11 +467,53 @@ export default function PDMManagement({ data, className, listDHNamesExist }: PDM
                                                         <FontAwesomeIcon icon={faChevronDown}></FontAwesomeIcon>
                                                     )}
                                                 </div>
-                                            </th>
+                                            </th> */}
                                             <th>
                                                 <div className={`${c_vfml['table-label']}`}>
                                                     <span>
                                                         Tên đồng hồ
+                                                    </span>
+                                                </div>
+                                            </th>
+                                            <th>
+                                                <div className={`${c_vfml['table-label']}`}>
+                                                    <span>
+                                                        DN
+                                                    </span>
+                                                </div>
+                                            </th>
+                                            <th>
+                                                <div className={`${c_vfml['table-label']}`}>
+                                                    <span>
+                                                        CCX
+                                                    </span>
+                                                </div>
+                                            </th>
+                                            <th>
+                                                <div className={`${c_vfml['table-label']}`}>
+                                                    <span>
+                                                        Kiểu Sensor
+                                                    </span>
+                                                </div>
+                                            </th>
+                                            <th>
+                                                <div className={`${c_vfml['table-label']}`}>
+                                                    <span>
+                                                        Transmitter
+                                                    </span>
+                                                </div>
+                                            </th>
+                                            <th>
+                                                <div className={`${c_vfml['table-label']}`}>
+                                                    <span>
+                                                        Q
+                                                    </span>
+                                                </div>
+                                            </th>
+                                            <th>
+                                                <div className={`${c_vfml['table-label']}`}>
+                                                    <span>
+                                                        R
                                                     </span>
                                                 </div>
                                             </th>
@@ -483,32 +526,6 @@ export default function PDMManagement({ data, className, listDHNamesExist }: PDM
                                                         <FontAwesomeIcon icon={faChevronUp}></FontAwesomeIcon>
                                                     )}
                                                     {sortConfig && sortConfig.key === 'createdBy' && sortConfig.direction === 'desc' && (
-                                                        <FontAwesomeIcon icon={faChevronDown}></FontAwesomeIcon>
-                                                    )}
-                                                </div>
-                                            </th>
-                                            <th onClick={() => sortData('ngay_qd_pdm')}>
-                                                <div className={`${c_vfml['table-label']}`}>
-                                                    <span>
-                                                        Ngày quyết định PDM
-                                                    </span>
-                                                    {sortConfig && sortConfig.key === 'ngay_qd_pdm' && sortConfig.direction === 'asc' && (
-                                                        <FontAwesomeIcon icon={faChevronUp}></FontAwesomeIcon>
-                                                    )}
-                                                    {sortConfig && sortConfig.key === 'ngay_qd_pdm' && sortConfig.direction === 'desc' && (
-                                                        <FontAwesomeIcon icon={faChevronDown}></FontAwesomeIcon>
-                                                    )}
-                                                </div>
-                                            </th>
-                                            <th onClick={() => sortData('ngay_het_han')}>
-                                                <div className={`${c_vfml['table-label']}`}>
-                                                    <span>
-                                                        Ngày hết hạn
-                                                    </span>
-                                                    {sortConfig && sortConfig.key === 'ngay_het_han' && sortConfig.direction === 'asc' && (
-                                                        <FontAwesomeIcon icon={faChevronUp}></FontAwesomeIcon>
-                                                    )}
-                                                    {sortConfig && sortConfig.key === 'ngay_het_han' && sortConfig.direction === 'desc' && (
                                                         <FontAwesomeIcon icon={faChevronDown}></FontAwesomeIcon>
                                                     )}
                                                 </div>
@@ -542,11 +559,14 @@ export default function PDMManagement({ data, className, listDHNamesExist }: PDM
                                                 onClick={() => window.open(`${ACCESS_LINKS.PDM_DETAIL.src}/${item.ma_tim_dong_ho_pdm}`, '_blank')}
                                                 style={{ cursor: 'pointer' }} >
                                                 {/* <td>{item.id}</td> */}
-                                                <td>{item.ma_tim_dong_ho_pdm}</td>
                                                 <td>{item.ten_dong_ho}</td>
+                                                <td>{item.dn}</td>
+                                                <td>{item.ccx}</td>
+                                                <td>{item.kieu_sensor}</td>
+                                                <td>{item.transmitter}</td>
+                                                <td>{item.q3 ? <>Q<sub>III</sub>= {item.q3}</> : <>Q<sub>n</sub>= {item.qn}</>}</td>
+                                                <td>{item.r}</td>
                                                 <td>{item.so_qd_pdm}-{dayjs(item.ngay_qd_pdm).format('YYYY')}</td>
-                                                <td>{dayjs(item.ngay_qd_pdm).format('DD-MM-YYYY')}</td>
-                                                <td>{dayjs(item.ngay_het_han).format('DD-MM-YYYY')}</td>
                                                 <td>
                                                     {new Date(item.ngay_het_han) > new Date() ? 'Còn hiệu lực' : 'Hết hạn'}
                                                 </td>
