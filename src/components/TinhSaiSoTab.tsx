@@ -31,7 +31,7 @@ interface FormProps {
     className?: string;
     formValue: DuLieuMotLanChay;
     readOnly?: boolean,
-    onFormChange: (field: string, value: number) => void;
+    onFormChange: (field: string, value: string) => void;
     d?: string;
     isDisable?: boolean
 }
@@ -121,7 +121,7 @@ export default function TinhSaiSoTab({ className, tabIndex, d, q, Form, onFormHS
     };
 
     // Form: change thì đổi hiệu sai số
-    const handleFormChange = (index: number, field: keyof DuLieuMotLanChay, value: number) => {
+    const handleFormChange = (index: number, field: keyof DuLieuMotLanChay, value: string) => {
         setFormValues(prevFormValues => {
             const newFormValues = { ...prevFormValues };
             newFormValues[index] = { ...newFormValues[index], [field]: value };
@@ -130,7 +130,7 @@ export default function TinhSaiSoTab({ className, tabIndex, d, q, Form, onFormHS
             if (field === "V2") {
                 const nextIndex = index + 1;
                 if (newFormValues[nextIndex]) {
-                    newFormValues[nextIndex] = { ...newFormValues[nextIndex], V1: value };
+                    newFormValues[nextIndex] = { ...newFormValues[nextIndex], V1: parseFloat(value) };
                 }
             }
             return newFormValues;
@@ -200,7 +200,7 @@ export default function TinhSaiSoTab({ className, tabIndex, d, q, Form, onFormHS
                             isDisable={isDisable}
                             className={`w-100 ${!selectedTabForm[Number(key) * tabIndex] ? "d-none" : ""}`}
                             formValue={formVal}
-                            onFormChange={(field: string, value: number) => handleFormChange(Number(key), field as keyof DuLieuMotLanChay, value)}
+                            onFormChange={(field: string, value: string) => handleFormChange(Number(key), field as keyof DuLieuMotLanChay, value)}
                             d={d}
                         />
                     </div>

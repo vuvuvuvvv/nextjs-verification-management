@@ -61,8 +61,8 @@ export const BASE_API_URL = process.env.NEXT_PUBLIC_API_URL;
 // Acess links:
 const KD_PDM = "/kiem-dinh/pdm"
 const KD_DHN = "/kiem-dinh/dong-ho-nuoc"
-const KD_DHN_BT15 = KD_DHN + "/q-bigger-than-15"
-const KD_DHN_ST15 = KD_DHN + "/q-smaller-than-15"
+// const KD_DHN = KD_DHN + "/q-bigger-than-15"
+// const KD_DHN = KD_DHN + "/q-smaller-than-15"
 export const ACCESS_LINKS = {
     HOME : {
         src: "/",
@@ -100,25 +100,17 @@ export const ACCESS_LINKS = {
         src: "/change/password",
         title: "Đổi mật khẩu"
     },
+    DHN : {
+        src: KD_DHN, 
+        title: "Đồng hồ nước"
+    },
+    DHN_ADD : {
+        src: KD_DHN + "/them-moi",
+        title: "Thêm mới đồng hồ nước"
+    },
     DHN_DETAIL : {
         src: KD_DHN + "/chi-tiet",
         title: ""
-    },
-    DHN_BT15 : {
-        src: KD_DHN_BT15,
-        title: "Q > 15 - Kiểm định"
-    },
-    DHN_BT15_ADD : {
-        src: KD_DHN_BT15 + "/them-moi",
-        title: "Q > 15 - Thêm mới"
-    },
-    DHN_ST15 : {
-        src: KD_DHN_ST15,
-        title: "Q < 15 - Kiểm định"
-    },
-    DHN_ST15_ADD : {
-        src: KD_DHN_ST15 + "/them-moi",
-        title: "Q < 15 - Thêm mới"
     },
     PDM : {
         src: KD_PDM,

@@ -5,10 +5,8 @@ import { Suspense, useEffect, useState } from "react";
 import uiQSm from "@/styles/scss/ui/q-smt-15.module.scss";
 import Loading from "@/components/Loading";
 import { useDongHoList } from "@/context/ListDongHo";
-// import { getDongHoBySerinumber } from "@/app/api/dongho/route";
 
-const DongHoListProvider = dynamic(() => import("@/context/ListDongHo").then(mod => mod.DongHoListProvider), { ssr: false });
-const FormDongHoNuocQNhoHon15 = dynamic(() => import("@/components/NhomDongHoNuocForm"), { ssr: false });
+const NhomDongHoNuocForm = dynamic(() => import("@/components/NhomDongHoNuocForm"), { ssr: false });
 
 interface NewProcessQSmallerThan15Props {
     className?: string,
@@ -81,6 +79,6 @@ export default function NewProcessQSmallerThan15({ className }: NewProcessQSmall
     }
 
     return (
-        <FormDongHoNuocQNhoHon15 />
+        <NhomDongHoNuocForm />
     );
 }

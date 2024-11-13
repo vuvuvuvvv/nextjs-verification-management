@@ -14,7 +14,7 @@ interface CaculatorFormProps {
         Tc: number;
     };
     readOnly?: boolean,
-    onFormChange: (field: string, value: number) => void;
+    onFormChange: (field: string, value: string) => void;
     d?: string;
     isDisable?: boolean
 }
@@ -47,6 +47,7 @@ export default function QBT30TinhSaiSoForm({ className, formValue, readOnly = fa
             setV2(formValue.V2.toString());
             setTdh(formValue.Tdh.toString());
             setTc(formValue.Tc.toString());
+            
 
             prevFormValuesRef.current = formValue;
         }
@@ -65,8 +66,8 @@ export default function QBT30TinhSaiSoForm({ className, formValue, readOnly = fa
 
         return (e: React.FormEvent<HTMLInputElement>) => {
             let rawValue = e.currentTarget.value.replace(/[^0-9]/g, '');
+            console.log("1: ", rawValue);
 
-            // Remove leading zeros if rawValue length is greater than or equal to decimalPlaces + 2
             if (rawValue.length >= decimalPlaces + 2) {
                 rawValue = rawValue.replace(/^0+/, '');
             }
@@ -80,6 +81,7 @@ export default function QBT30TinhSaiSoForm({ className, formValue, readOnly = fa
                 const decimalPart = rawValue.slice(rawValue.length - decimalPlaces);
                 formattedValue = `${integerPart}.${decimalPart}`;
             }
+            console.log(formattedValue);
 
             setter(formattedValue);
 
@@ -87,11 +89,8 @@ export default function QBT30TinhSaiSoForm({ className, formValue, readOnly = fa
                 clearTimeout(numericInputTimeout);
             }
 
-            // Capture the numeric value before setting the timeout
-            const numericValue = Number(formattedValue);
-
             const timeout = setTimeout(() => {
-                onFormChange(field, numericValue);
+                onFormChange(field, formattedValue);
             }, 0);
             setNumericInputTimeout(timeout);
         };
@@ -118,19 +117,19 @@ export default function QBT30TinhSaiSoForm({ className, formValue, readOnly = fa
                 if (numberChangeTimeout) {
                     clearTimeout(numberChangeTimeout);
                 }
-                const timeout = setTimeout(() => onFormChange(field, parseFloat(value)), 500);
+                const timeout = setTimeout(() => onFormChange(field, value), 0);
                 setNumberChangeTimeout(timeout);
             }
         };
     };
 
     const handleReset = () => {
-        onFormChange("V1", 0);
-        onFormChange("V2", 0);
-        onFormChange("Vc1", 0);
-        onFormChange("Vc2", 0);
-        onFormChange("Tdh", 0);
-        onFormChange("Tc", 0);
+        onFormChange("V1", "0");
+        onFormChange("V2", "0");
+        onFormChange("Vc1", "0");
+        onFormChange("Vc2", "0");
+        onFormChange("Tdh", "0");
+        onFormChange("Tc", "0");
         setV1("0");
         setV2("0");
         setVc1("0");

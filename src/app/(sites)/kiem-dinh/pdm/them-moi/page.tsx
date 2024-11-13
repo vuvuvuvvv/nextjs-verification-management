@@ -1,10 +1,6 @@
 "use client"
-
-import TinhSaiSoTab from "@/components/TinhSaiSoTab";
-import TinhSaiSoForm from "@/components/TinhSaiSoForm";
 import vrfWm from "@styles/scss/ui/vfm.module.scss"
-import loading from "@styles/scss/components/loading.module.scss"
-import { Suspense, useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 
 
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
@@ -19,46 +15,43 @@ import { ACCESS_LINKS, BASE_API_URL, ccxOptions, phuongTienDoOptions, typeOption
 import Select, { GroupBase } from 'react-select';
 import { PDM, PDMData } from "@lib/types";
 import Swal from "sweetalert2";
-import { createPDM, getPDMBySoQDPDM } from "@/app/api/pdm/route";
+import { createPDM, getPDMByMaTimDongHoPDM, getPDMBySoQDPDM } from "@/app/api/pdm/route";
 import { useRouter } from "next/navigation";
-import Loading from "@/components/Loading";
 import api from "@/app/api/route";
 import CreatableSelect from "react-select/creatable";
+import { convertToUppercaseNonAccent } from "@lib/system-function";
 
 
 interface AddNewPDMProps {
     className?: string,
 }
 
-interface TabState {
-    [key: number | string]: boolean;
-};
-
 export default function AddNewPDM({ className }: AddNewPDMProps) {
 
-    const [deviceName, setDeviceName] = useState<string>("");                               // Tên phương tiện đo
-    const [tenDongHo, setTenDongHo] = useState<string>("");                                 // Tên đồng hồ
-    const [kieuChiThi, setKieuChiThi] = useState<string>("");                               // Kiểu chỉ thị
-    const [kieuSensor, setKieuSensor] = useState<string>("");                               // Kiểu sensor
-    const [noiSanXuat, setNoiSanXuat] = useState<string>("");                           // Cơ sở sản xuất
-    const [address, setAddress] = useState<string>("");                                     
-    const [DN, setDN] = useState<string>("");                                               // Đường kính danh định
+    const [deviceName, setDeviceName] = useState<string>("");                          
+    const [tenDongHo, setTenDongHo] = useState<string>("");                             
+    const [kieuSensor, setKieuSensor] = useState<string>("");                            
+    const [noiSanXuat, setNoiSanXuat] = useState<string>("");                           
+    const [DN, setDN] = useState<string>("");                                      
+    const [CCX, setCCX] = useState<string | null>(null); 
+    const [q3, setQ3] = useState<string>("");                                 
+    const [R, setR] = useState<string>("");                                      
+    const [qn, setQN] = useState<string>("");                                          
+    const [donViPDM, setDonViPDM] = useState<string>("");                               
+    const [soQDPDM, setSoQDPDM] = useState<string>("");                                    
+    const [ngayQuyetDinh, setNgayQuyetDinh] = useState<Date | null>(null);                
+    const [ngayHetHan, setNgayHetHan] = useState<Date | null>(null);                      
+    const [errorSoQDPDM, setErrorSoQDPDM] = useState("");
+    const [errorMaTimDHPDM, setErrorMaTimDHPDM] = useState("");
 
-    const [CCX, setCCX] = useState<string | null>(null);                // Cấp chính xác
-    const [q3, setQ3] = useState<string>("");                                               // Q3
-    const [R, setR] = useState<string>("");                                         // Tỷ số Q3/Q1 (R)
-    const [qn, setQN] = useState<string>("");                                               // QN
+    const [address, setAddress] = useState<string>("");
+    const [kieuChiThi, setKieuChiThi] = useState<string>("");                           
 
-    const [donViPDM, setDonViPDM] = useState<string>("");                                     // QN
-    const [soQDPDM, setSoQDPDM] = useState<string>("");                                     // K hiệu PDM/Số quyết định PDM
-    const [ngayQuyetDinh, setNgayQuyetDinh] = useState<Date | null>(null);                  // Ngày thực hiện
-    const [ngayHetHan, setNgayHetHan] = useState<Date | null>(null);                        // Ngày thực hiện
-    const [maTimDongHoPDM, setMaTimDongHoPDM] = useState<string>("");                                               // QN
+    const [maTimDongHoPDM, setMaTimDongHoPDM] = useState<string>("");                                       
 
     const [isDHDienTu, setDHDienTu] = useState(false);
-    const [loading, setLoading] = useState(false);
     const [error, setError] = useState("");
-    const [errorSoQDPDM, setErrorSoQDPDM] = useState("");
+    const [canSave, setCanSave] = useState(false);
     const router = useRouter();
 
     const fetchDHNameCalled = useRef(false);
@@ -66,6 +59,40 @@ export default function AddNewPDM({ className }: AddNewPDMProps) {
     const [DHNameOptions, setDHNameOptions] = useState<{ value: string, label: string }[]>([]);
     const [selectedCssxOption, setSelectedCssxOption] = useState('');
     const [CSSXOptions, setCSSXOptions] = useState<{ value: string, label: string }[]>([]);
+
+    useEffect(() => {
+        const isFormValid = 
+            deviceName.trim() !== "" && 
+            tenDongHo.trim() !== "" &&
+            kieuSensor.trim() !== "" && 
+            noiSanXuat.trim() !== "" && 
+            DN.trim() !== "" && 
+            CCX !== null && 
+            ((q3.trim() !== "" && R.trim() !== "") || qn.trim() !== "") && 
+            donViPDM.trim() !== "" && 
+            soQDPDM.trim() !== "" && 
+            ngayQuyetDinh !== null && 
+            ngayHetHan !== null && 
+            errorSoQDPDM === "" && 
+            errorMaTimDHPDM === "";
+        setCanSave(isFormValid);
+    }, [
+        deviceName, 
+        tenDongHo, 
+        kieuSensor, 
+        noiSanXuat, 
+        DN, 
+        CCX, 
+        q3, 
+        R, 
+        qn, 
+        donViPDM, 
+        soQDPDM, 
+        ngayQuyetDinh, 
+        ngayHetHan, 
+        errorSoQDPDM, 
+        errorMaTimDHPDM
+    ]);
 
     // Query dongho name
     useEffect(() => {
@@ -143,31 +170,6 @@ export default function AddNewPDM({ className }: AddNewPDMProps) {
         ].map((value) => formatString(value || '')).join('');
         setMaTimDongHoPDM(newMaTimDongHoPDM);
     }, [tenDongHo, DN, CCX, kieuSensor, kieuChiThi, qn, q3, R]);
-
-    // useEffect(() => {
-    //     if (soQDPDM) {
-    //         // setLoading(true);
-    //         const debounce = setTimeout(async () => {
-    //             try {
-    //                 const res = await getPDMBySoQDPDM(soQDPDM);
-    //                 if (res.status == 200) {
-    //                     setErrorSoQDPDM("Số quyết định PDM đã tồn tại!")
-    //                 } else if (res.status == 404) {
-    //                     setErrorSoQDPDM("");
-    //                 } else {
-    //                     console.error(res);
-    //                     setError("Có lỗi đã xảy ra!");
-    //                 }
-    //             } catch (error) {
-    //                 console.error('Error fetching PDM data:', error);
-    //                 setError("Có lỗi đã xảy ra!");
-    //             } finally {
-    //                 // setLoading(false);
-    //             }
-    //         }, 1200);
-    //         return () => clearTimeout(debounce);
-    //     }
-    // }, [soQDPDM]);
 
     // truyền setter vào để lưu giá trị vào state
     const handleNumberChange = (setter: (value: string) => void) => (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -304,30 +306,6 @@ export default function AddNewPDM({ className }: AddNewPDMProps) {
                         pattern="\d*"
                     />
                 </div>
-                <div className="mb-3 col-12 col-md-6">
-                    <label htmlFor="kieuChiThi" className="form-label">- Kiểu chỉ thị:</label>
-                    <div className="input-group">
-                        <input
-                            type="text"
-                            className="form-control"
-                            id="kieuChiThi"
-                            placeholder="Kiểu chỉ thị"
-                            value={kieuChiThi}
-                            onChange={(e) => setKieuChiThi(e.target.value)}
-                        />
-                    </div>
-                </div>
-                <div className="mb-3 col-12 col-md-6">
-                    <label htmlFor="kieuSensor" className="form-label">-  Kiểu sensor:</label>
-                    <input
-                        type="text"
-                        className="form-control"
-                        id="kieuSensor"
-                        placeholder="Kiểu sensor"
-                        value={kieuSensor}
-                        onChange={(e) => setKieuSensor(e.target.value)}
-                    />
-                </div>
             </>
         }
 
@@ -347,24 +325,98 @@ export default function AddNewPDM({ className }: AddNewPDMProps) {
                     <span className="input-group-text">m<sup>3</sup>/h</span>
                 </div>
             </div>
-            <div className="mb-3 col-12 col-md-6">
-                <label htmlFor="kieuSensor" className="form-label">- Kiểu sensor:</label>
-                <input
-                    type="text"
-                    className="form-control"
-                    id="kieuSensor"
-                    placeholder="Kiểu sensor"
-                    value={kieuSensor}
-                    onChange={(e) => setKieuSensor(e.target.value)}
-                />
-            </div>
         </>
     }
+
+    const filterMaTimDHPDM = useMemo(() => ({
+        tenDongHo: tenDongHo,
+        dn: DN,
+        ccx: CCX,
+        kieuSensor: kieuSensor,
+        kieuChiThi: kieuChiThi,
+        qn: qn,
+        q3: q3,
+        r: R
+    }), [tenDongHo, DN, CCX, kieuSensor, kieuChiThi, qn, q3, R]);
+
+    const soQDPDMRef = useRef(soQDPDM);
+
+    // Func: Set err
+    useEffect(() => {
+        if (soQDPDMRef.current != soQDPDM) {
+            setErrorSoQDPDM("");
+            soQDPDMRef.current = soQDPDM
+        }
+    }, [soQDPDM]);
+
+    const filterMaTimDHPDMRef = useRef(filterMaTimDHPDM);
+
+    useEffect(() => {
+        if (filterMaTimDHPDMRef.current !== filterMaTimDHPDM) {
+            if (filterMaTimDHPDM.tenDongHo && filterMaTimDHPDM.dn && filterMaTimDHPDM.ccx && (filterMaTimDHPDM.kieuSensor || filterMaTimDHPDM.kieuChiThi) && ((filterMaTimDHPDM.q3 && filterMaTimDHPDM.r) || filterMaTimDHPDM.qn)) {
+                const ma_tim_dong_ho_pdm = convertToUppercaseNonAccent(filterMaTimDHPDM.tenDongHo + filterMaTimDHPDM.dn + filterMaTimDHPDM.ccx + filterMaTimDHPDM.kieuSensor + filterMaTimDHPDM.kieuChiThi + filterMaTimDHPDM.q3 + filterMaTimDHPDM.r + filterMaTimDHPDM.qn);
+
+                const handler = setTimeout(async () => {
+                    const res = await getPDMByMaTimDongHoPDM(ma_tim_dong_ho_pdm);
+
+                    if (res.status == 200 || res.status == 201) {
+                        setErrorMaTimDHPDM("Đã tồn tại mã tìm đồng hồ PDM!")
+                        setCanSave(false);
+                    } else if (res.status == 404) {
+                        setErrorMaTimDHPDM("")
+                    } else {
+                        setErrorMaTimDHPDM("Có lỗi xảy ra khi lấy mã tìm đồng hồ PDM!")
+                        setSoQDPDM("");
+                    }
+                }, 500);
+
+                return () => {
+                    clearTimeout(handler);
+                };
+
+            }
+            filterMaTimDHPDMRef.current = filterMaTimDHPDM;
+        }
+    }, [filterMaTimDHPDM]);
+
+    const filterPDM = useMemo(() => ({
+        soQDPDM: soQDPDM,
+        ngayQuyetDinh: ngayQuyetDinh
+    }), [soQDPDM, ngayQuyetDinh]);
+    const filterPDMRef = useRef(filterPDM);
+
+    useEffect(() => {
+        if (filterPDMRef.current !== filterPDM) {
+            if (filterPDM.soQDPDM && filterPDM.ngayQuyetDinh) {
+                const soQD = filterPDM.soQDPDM + "-" + dayjs(filterPDM.ngayQuyetDinh).format("YYYY");
+                const debounce = setTimeout(async () => {
+                    try {
+                        const res = await getPDMBySoQDPDM(soQD);
+                        if (res.status == 200) {
+                            setErrorSoQDPDM(`Số quyết định PDM: ${soQD} đã tồn tại!`)
+                            setCanSave(false)
+                        } else if (res.status == 404) {
+                            setErrorSoQDPDM("");
+                        } else {
+                            console.error(res);
+                            setError("Có lỗi đã xảy ra!");
+                        }
+                    } catch (error) {
+                        console.error('Error fetching PDM data:', error);
+                        setError("Có lỗi đã xảy ra!");
+                    } finally {
+                    }
+                }, 1200);
+                return () => clearTimeout(debounce);
+
+            }
+            filterPDMRef.current = filterPDM;
+        }
+    }, [filterPDM]);
 
     return (
         <LocalizationProvider dateAdapter={AdapterDayjs} localeText={viVN.components.MuiLocalizationProvider.defaultProps.localeText}>
             <div className={`${className ? className : ""} ${vrfWm['wraper']} container p-0 px-2 py-3 w-100`}>
-                {loading && <Loading />}
                 <div className={`row m-0 mb-3 p-3 w-100 bg-white shadow-sm`}>
                     <div className="w-100 m-0 p-0 mb-3 position-relative">
                         <h3 className="text-uppercase fw-bolder text-center mt-3 mb-0">thêm mới phê duyệt mẫu</h3>
@@ -599,6 +651,30 @@ export default function AddNewPDM({ className }: AddNewPDMProps) {
                                     </div>
                                 </div>
                                 {renderCCXFields()}
+                                <div className="mb-3 col-12 col-md-6">
+                                    <label htmlFor="kieuSensor" className="form-label">-  Kiểu sensor:</label>
+                                    <input
+                                        type="text"
+                                        className="form-control"
+                                        id="kieuSensor"
+                                        placeholder="Kiểu sensor"
+                                        value={kieuSensor}
+                                        onChange={(e) => setKieuSensor(e.target.value)}
+                                    />
+                                </div>
+                                <div className="mb-3 col-12 col-md-6">
+                                    <label htmlFor="kieuChiThi" className="form-label">- Kiểu chỉ thị (Transmitter):</label>
+                                    <div className="input-group">
+                                        <input
+                                            type="text"
+                                            className="form-control"
+                                            id="kieuChiThi"
+                                            placeholder="Kiểu chỉ thị"
+                                            value={kieuChiThi}
+                                            onChange={(e) => setKieuChiThi(e.target.value)}
+                                        />
+                                    </div>
+                                </div>
                             </div>
                             <label className="w-100 fs-5 fw-bold">Chi tiết:</label>
                             <div className="row mx-0 w-100 mb-3">
@@ -636,12 +712,6 @@ export default function AddNewPDM({ className }: AddNewPDMProps) {
                                         value={soQDPDM}
                                         onChange={(e) => setSoQDPDM(e.target.value)}
                                     />
-
-                                    {errorSoQDPDM && (
-                                        <div className="w-100 my-2">
-                                            <small className="text-danger">{errorSoQDPDM}</small>
-                                        </div>
-                                    )}
                                 </div>
                                 <div className="mb-3 col-12 col-md-6">
                                     <label htmlFor="ngayQuyetDinh" className="form-label">Ngày quyết định:</label>
@@ -654,6 +724,11 @@ export default function AddNewPDM({ className }: AddNewPDMProps) {
                                         slotProps={{ textField: { fullWidth: true } }}
                                     />
                                 </div>
+                                {errorSoQDPDM && (
+                                    <div className="w-100 mb-3">
+                                        <small className="text-danger">{errorSoQDPDM}</small>
+                                    </div>
+                                )}
                                 <div className="mb-3 col-12 col-md-6">
                                     <label htmlFor="ngayHetHan" className="form-label">Ngày hết hạn:</label>
                                     <DatePicker
@@ -679,12 +754,18 @@ export default function AddNewPDM({ className }: AddNewPDMProps) {
                                         readOnly={true}
                                         disabled
                                     />
+
+                                    {errorMaTimDHPDM && (
+                                        <div className="w-100 my-2">
+                                            <small className="text-danger">{errorMaTimDHPDM}</small>
+                                        </div>
+                                    )}
                                 </div>
                             </div>
                         </form>
                     </div>
                     <div className={`w-100 mt-2 p-0 d-flex justify-content-end`}>
-                        <button aria-label="Thêm mới phê duyệt mẫu" type="button" onClick={handleSubmit} className="btn text-white bg-main-green">
+                        <button aria-label="Thêm mới phê duyệt mẫu" disabled={!canSave} type="button" onClick={handleSubmit} className="btn text-white bg-main-green">
                             Thêm mới PDM
                         </button>
                     </div>

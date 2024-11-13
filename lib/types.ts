@@ -180,7 +180,6 @@ export interface DongHo {
     kieu_chi_thi: string | null;
     kieu_sensor: string | null;
     kieu_thiet_bi: string | null;
-    co_so_san_xuat: string | null;
     so_tem: string | null;
     nam_san_xuat: Date | null;
     dn: string | null;
@@ -197,6 +196,8 @@ export interface DongHo {
     chuan_thiet_bi_su_dung: string | null;
     nguoi_kiem_dinh: string | null;
     ngay_thuc_hien: Date | null;
+    co_so_san_xuat: string | null;
+    noi_su_dung: string | null;
     vi_tri: string | null;
     nhiet_do: string | null;
     do_am: string | null;

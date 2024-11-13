@@ -57,7 +57,7 @@ export const getAllDongHoNamesExist = async () => {
 export const getDongHoByFilter = async (parameters?: DongHoFilterParameters) => {
     try {
         const url = new URL(API_DONGHO_URL);
-        url.searchParams.append('is_bigger_than_15', parameters?.is_bigger_than_15 ? '1' : '0');
+        // url.searchParams.append('is_bigger_than_15', parameters?.is_bigger_than_15 ? '1' : '0');
 
         if (parameters?.so_giay_chung_nhan) {
             url.searchParams.append('so_giay_chung_nhan', parameters.so_giay_chung_nhan.toString());

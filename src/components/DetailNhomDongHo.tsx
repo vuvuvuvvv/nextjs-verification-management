@@ -41,6 +41,7 @@ interface GeneralInfo {
     chuan_thiet_bi_su_dung: string | null;
     nguoi_kiem_dinh: string | null;
     ngay_thuc_hien: Date | null;
+    noi_su_dung: string | null;
     vi_tri: string | null;
     nhiet_do: string | null;
     do_am: string | null;
@@ -197,6 +198,7 @@ export default function DetailNhomDongHo({ nhomDongHo }: DetailNhomDongHoProps) 
                 chuan_thiet_bi_su_dung: dongHo.chuan_thiet_bi_su_dung,
                 nguoi_kiem_dinh: dongHo.nguoi_kiem_dinh,
                 ngay_thuc_hien: dongHo.ngay_thuc_hien,
+                noi_su_dung: dongHo.noi_su_dung,
                 vi_tri: dongHo.vi_tri,
                 nhiet_do: dongHo.nhiet_do,
                 do_am: dongHo.do_am,
@@ -366,7 +368,7 @@ export default function DetailNhomDongHo({ nhomDongHo }: DetailNhomDongHoProps) 
                             <p>Ngày thực hiện: <b>{dayjs(generalInfo.ngay_thuc_hien).format("DD/MM/YYYY")}</b></p>
                         </div>
                         <div className="col-12">
-                            <p>Địa điểm thực hiện: <b>{generalInfo.vi_tri || "Chưa có địa điểm thực hiện"}</b></p>
+                            <p>Địa điểm thực hiện: <b>{generalInfo.noi_su_dung || "Chưa có địa điểm thực hiện"}</b></p>
                         </div>
                     </div>
 

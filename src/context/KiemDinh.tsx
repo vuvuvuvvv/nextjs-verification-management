@@ -83,7 +83,9 @@ export const KiemDinhProvider = ({ children }: { children: ReactNode }) => {
                     ...prevState,
                     [key]: {
                         value: value,
-                        lan_chay: duLieuChay
+                        lan_chay: {
+                            ...duLieuChay
+                        }
                     },
                     [!isDHDienTu ? TITLE_LUU_LUONG.q3 : TITLE_LUU_LUONG.qn]: null,
                     [!isDHDienTu ? TITLE_LUU_LUONG.q2 : TITLE_LUU_LUONG.qt]: null,

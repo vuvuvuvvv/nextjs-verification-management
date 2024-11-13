@@ -27,7 +27,7 @@ import dayjs, { Dayjs } from "dayjs";
 import { useEffect, useMemo, useRef, useState } from "react";
 
 import { convertToUppercaseNonAccent, getLastDayOfMonthInFuture, getQ2OrQtAndQ1OrQMin, isDongHoDatTieuChuan } from "@lib/system-function";
-import { ACCESS_LINKS, BASE_API_URL, ccxOptions, phuongTienDoOptions, TITLE_LUU_LUONG, typeOptions } from "@lib/system-constant";
+import { ACCESS_LINKS, BASE_API_URL, ccxOptions, DEFAULT_LOCATION, phuongTienDoOptions, TITLE_LUU_LUONG, typeOptions } from "@lib/system-constant";
 
 import { createDongHo, getDongHoExistsByInfo } from "@/app/api/dongho/route";
 import { faArrowLeft, faArrowRight, faSave, faTasks } from "@fortawesome/free-solid-svg-icons";
@@ -39,12 +39,12 @@ import { getPDMByMaTimDongHoPDM } from "@/app/api/pdm/route";
 import api from "@/app/api/route";
 
 
-interface FormDongHoNuocQNhoHon15Props {
+interface NhomDongHoNuocFormProps {
     className?: string
 }
 
 
-export default function FormDongHoNuocQNhoHon15({ className }: FormDongHoNuocQNhoHon15Props) {
+export default function NhomDongHoNuocForm({ className }: NhomDongHoNuocFormProps) {
     const { user, isAdmin } = useUser();
     const [loading, setLoading] = useState<boolean>(true);
     const [isCollapsed, setIsCollapsed] = useState<boolean>(false);
@@ -70,12 +70,13 @@ export default function FormDongHoNuocQNhoHon15({ className }: FormDongHoNuocQNh
     const [kFactor, setKFactor] = useState<string>("");
     const [soQDPDM, setSoQDPDM] = useState<string>("");
     const [tenKhachHang, setTenKhachhang] = useState<string>("");
-    const [coSoSuDung, setCoSoSuDung] = useState<string>("");
-    const [phuongPhapThucHien, setPhuongPhapThucHien] = useState<string>("ĐNVN 17:2017");
+    const [phuongPhapThucHien, setPhuongPhapThucHien] = useState<string>("FMS - PP - 02");
     const [chuanThietBiSuDung, setChuanThietBiSuDung] = useState<string>("Đồng hồ chuẩn đo nước và Bình chuẩn");
     const [nguoiKiemDinh, setNguoiKiemDinh] = useState<string>(user?.fullname || "");
     const [ngayThucHien, setNgayThucHien] = useState<Date | null>(new Date());
     const [hieuLucBienBan, setHieuLucBienBan] = useState<Date | null>(new Date());
+    const [coSoSuDung, setCoSoSuDung] = useState<string>("");
+    const [noiSuDung, setNoiSuDung] = useState<string>("");
     const [viTri, setViTri] = useState<string>("");
     const [nhietDo, setNhietDo] = useState<string>('');
     const [soGiayChungNhan, setSoGiayChungNhan] = useState<string>('');
@@ -171,7 +172,7 @@ export default function FormDongHoNuocQNhoHon15({ className }: FormDongHoNuocQNh
                 const sortedNames = uniqueNames.sort((a, b) => a.localeCompare(b));
                 setDHNameOptions(sortedNames && sortedNames.length > 0 ? [
                     ...sortedNames
-                        .filter(name => name && name.trim() !== "") 
+                        .filter(name => name && name.trim() !== "")
                         .map((name) => ({ value: name, label: name }))
                 ] : []);
 
@@ -269,9 +270,11 @@ export default function FormDongHoNuocQNhoHon15({ className }: FormDongHoNuocQNh
                         const pdm = res.data;
                         const getDate = new Date(pdm.ngay_qd_pdm)
                         setSoQDPDM(pdm.so_qd_pdm + (getDate.getFullYear() ? "-" + getDate.getFullYear() : ""));
+                        setPhuongPhapThucHien("ĐNVN 17:2017")
                     } else if (res.status == 404) {
-                        // setErrorPDM("Không có số quyết định PDM phù hợp vói các thông số đồng hồ trên.")
-                        setErrorPDM("")
+                        setErrorPDM("Không có số quyết định PDM phù hợp vói các thông số đồng hồ trên.")
+                        setPhuongPhapThucHien("FMS - PP - 02")
+                        // setErrorPDM("")
                         setSoQDPDM("");
                     } else {
                         setErrorPDM("Có lỗi xảy ra khi lấy số quyết định PDM!")
@@ -309,9 +312,10 @@ export default function FormDongHoNuocQNhoHon15({ className }: FormDongHoNuocQNh
         kFactor: "Hệ số K",
         so_qd_pdm: "Ký hiệu PDM/Số quyết định PDM",
         ten_khach_hang: "Tên khách hàng",
-        co_so_su_dung: "Cơ sở sử dụng",
+        co_so_su_dung: "Đơn vị sử dụng",
         phuong_phap_thuc_hien: "Phương pháp thực hiện",
-        vi_tri: "Địa điểm thực hiện",
+        noi_su_dung: "Nơi sử dụng",
+        vi_tri: "Địa chỉ nơi sử dụng",
         nhiet_do: "Nhiệt độ",
         do_am: "Độ ẩm",
         ket_qua: "Tiến trình chạy lưu lượng"
@@ -338,11 +342,12 @@ export default function FormDongHoNuocQNhoHon15({ className }: FormDongHoNuocQNh
         { value: r, setter: setR, id: "r" },
         { value: qn, setter: setQN, id: "qn" },
         // { value: kFactor, setter: setKFactor, id: "kFactor" },
-        // { value: soQDPDM, setter: setSoQDPDM, id: "so_qd_pdm" },
+        { value: soQDPDM, setter: setSoQDPDM, id: "so_qd_pdm" },
         { value: tenKhachHang, setter: setTenKhachhang, id: "ten_khach_hang" },
-        { value: coSoSuDung, setter: setCoSoSuDung, id: "co_so_su_dung" },
+        // { value: coSoSuDung, setter: setCoSoSuDung, id: "co_so_su_dung" },
         { value: phuongPhapThucHien, setter: setPhuongPhapThucHien, id: "phuong_phap_thuc_hien" },
-        { value: viTri, setter: setViTri, id: "vi_tri" },
+        { value: noiSuDung, setter: setNoiSuDung, id: "noi_su_dung" },
+        // { value: viTri, setter: setViTri, id: "vi_tri" },
         { value: nhietDo, setter: setNhietDo, id: "nhiet_do" },
         { value: doAm, setter: setDoAm, id: "do_am" },
     ];
@@ -385,7 +390,8 @@ export default function FormDongHoNuocQNhoHon15({ className }: FormDongHoNuocQNh
                 chuan_thiet_bi_su_dung: chuanThietBiSuDung,
                 nguoi_kiem_dinh: nguoiKiemDinh,
                 ngay_thuc_hien: ngayThucHien,
-                vi_tri: viTri,
+                noi_su_dung: noiSuDung || DEFAULT_LOCATION,
+                vi_tri: viTri || "",
                 nhiet_do: nhietDo,
                 do_am: doAm,
                 du_lieu_kiem_dinh: getDuLieuKiemDinhJSON(), // Assuming this is not part of the form
@@ -499,6 +505,7 @@ export default function FormDongHoNuocQNhoHon15({ className }: FormDongHoNuocQNh
             chuan_thiet_bi_su_dung: chuanThietBiSuDung || "",
             nguoi_kiem_dinh: nguoiKiemDinh || "",
             ngay_thuc_hien: ngayThucHien,
+            noi_su_dung: noiSuDung || DEFAULT_LOCATION,
             vi_tri: viTri || "",
             nhiet_do: nhietDo || "",
             do_am: doAm || "",
@@ -1065,7 +1072,7 @@ export default function FormDongHoNuocQNhoHon15({ className }: FormDongHoNuocQNh
                                             value={dn}
                                             onChange={handleNumberChange(setDN)}
                                             disabled={isExistsDHSaved}
-                                            pattern="\d*"
+
                                         />
                                         <span className="input-group-text">mm</span>
                                     </div>
@@ -1080,7 +1087,7 @@ export default function FormDongHoNuocQNhoHon15({ className }: FormDongHoNuocQNh
                                         value={d}
                                         onChange={handleNumberChange(setD)}
                                         disabled={isExistsDHSaved}
-                                        pattern="\d*"
+
                                     />
                                 </div>
                                 <div className="mb-3 col-12 col-md-6 col-xxl-4">
@@ -1141,7 +1148,7 @@ export default function FormDongHoNuocQNhoHon15({ className }: FormDongHoNuocQNh
                                                 placeholder="Q3"
                                                 value={q3}
                                                 onChange={handleNumberChange(setQ3)}
-                                                pattern="\d*"
+
                                                 disabled={isExistsDHSaved}
                                             />
                                             <span className="input-group-text">m<sup>3</sup>/h</span>
@@ -1156,7 +1163,6 @@ export default function FormDongHoNuocQNhoHon15({ className }: FormDongHoNuocQNh
                                             placeholder="Tỷ số Q3/Q1 (R)"
                                             value={r}
                                             onChange={handleNumberChange(setR)}
-                                            pattern="\d*"
                                             disabled={isExistsDHSaved}
                                         />
                                     </div>
@@ -1172,7 +1178,6 @@ export default function FormDongHoNuocQNhoHon15({ className }: FormDongHoNuocQNh
                                                 placeholder="Qn"
                                                 value={qn}
                                                 onChange={handleNumberChange(setQN)}
-                                                pattern="\d*"
                                                 disabled={isExistsDHSaved}
                                             />
                                             <span className="input-group-text">m<sup>3</sup>/h</span>
@@ -1180,40 +1185,40 @@ export default function FormDongHoNuocQNhoHon15({ className }: FormDongHoNuocQNh
                                     </div>
                                 </>}
 
+                                <div className="mb-3 col-12 col-md-6 col-xxl-4">
+                                    <label htmlFor="kieu_sensor" className="form-label">Kiểu sensor:</label>
+                                    <input
+                                        type="text"
+                                        className="form-control"
+                                        id="kieu_sensor"
+                                        disabled={isExistsDHSaved}
+                                        placeholder="Serial sensor"
+                                        value={kieuSensor}
+                                        onChange={(e) => {
+                                            setKieuSensor(e.target.value);
+                                            handleChangeField('kieu_sensor', e.target.value)
+                                        }}
+                                    />
+                                </div>
                                 {((ccx && (ccx == "1" || ccx == "2")) || isDHDienTu) && <>
                                     <div className="mb-3 col-12 col-md-6 col-xxl-4">
-                                        <label htmlFor="kieu_sensor" className="form-label">Kiểu sensor:</label>
-                                        <input
-                                            type="text"
-                                            className="form-control"
-                                            id="kieu_sensor"
-                                            disabled={isExistsDHSaved}
-                                            placeholder="Serial sensor"
-                                            value={kieuSensor}
-                                            onChange={(e) => {
-                                                setKieuSensor(e.target.value);
-                                                handleChangeField('kieu_sensor', e.target.value)
-                                            }}
-                                        />
+                                        <label htmlFor="kieu_chi_thi" className="form-label">Kiểu chỉ thị:</label>
+                                        <div className="input-group">
+                                            <input
+                                                type="text"
+                                                className="form-control"
+                                                id="kieu_chi_thi"
+                                                placeholder="Kiểu chỉ thị"
+                                                disabled={isExistsDHSaved}
+                                                value={kieuChiThi}
+                                                onChange={(e) => {
+                                                    setKieuChiThi(e.target.value);
+                                                    handleChangeField('kieu_chi_thi', e.target.value)
+                                                }}
+                                            />
+                                        </div>
                                     </div>
                                 </>}
-                                <div className="mb-3 col-12 col-md-6 col-xxl-4">
-                                    <label htmlFor="kieu_chi_thi" className="form-label">Kiểu chỉ thị:</label>
-                                    <div className="input-group">
-                                        <input
-                                            type="text"
-                                            className="form-control"
-                                            id="kieu_chi_thi"
-                                            placeholder="Kiểu chỉ thị"
-                                            disabled={isExistsDHSaved}
-                                            value={kieuChiThi}
-                                            onChange={(e) => {
-                                                setKieuChiThi(e.target.value);
-                                                handleChangeField('kieu_chi_thi', e.target.value)
-                                            }}
-                                        />
-                                    </div>
-                                </div>
 
                                 <div className="mb-3 col-12 col-md-6 col-xxl-4">
                                     <label htmlFor="kFactor" className="form-label">- Hệ số K:</label>
@@ -1240,7 +1245,7 @@ export default function FormDongHoNuocQNhoHon15({ className }: FormDongHoNuocQNh
                                     />
                                     {errorPDM && <small className="text-danger">{errorPDM}</small>}
                                 </div>
-                                <div className={`mb-3 col-12 d-flex justify-content-xxl-end ${isAdmin ? "" : "d-none"}`}>
+                                <div className={`mb-3 col-12 d-flex ${isAdmin ? "" : "d-none"}`}>
                                     <Link
                                         href={ACCESS_LINKS.PDM_ADD.src}
                                         className="btn btn-success px-3 py-2 text-white"
@@ -1264,18 +1269,42 @@ export default function FormDongHoNuocQNhoHon15({ className }: FormDongHoNuocQNh
                                     />
                                 </div>
                                 <div className="mb-3 col-12 col-xxl-6">
-                                    <label htmlFor="coSoSuDung" className="form-label">Cơ sở sử dụng:</label>
+                                    <label htmlFor="coSoSuDung" className="form-label">Đơn vị sử dụng:</label>
                                     <input
                                         type="text"
                                         className="form-control"
                                         id="coSoSuDung"
-                                        placeholder="Cơ sở sử dụng"
+                                        placeholder="Đơn vị"
                                         disabled={isExistsDHSaved}
                                         value={coSoSuDung}
                                         onChange={(e) => setCoSoSuDung(e.target.value)}
                                     />
                                 </div>
                                 <div className="mb-3 col-12 col-xl-6">
+                                    <label htmlFor="noi_su_dung" className="form-label">Nơi sử dụng:</label>
+                                    <input
+                                        type="text"
+                                        className="form-control"
+                                        id="noi_su_dung"
+                                        placeholder={DEFAULT_LOCATION}
+                                        disabled={isExistsDHSaved}
+                                        value={noiSuDung}
+                                        onChange={(e) => setNoiSuDung(e.target.value)}
+                                    />
+                                </div>
+                                <div className="mb-3 col-12 col-xl-6">
+                                    <label htmlFor="viTri" className="form-label">Địa chỉ nơi sử dụng:</label>
+                                    <input
+                                        type="text"
+                                        className="form-control"
+                                        id="viTri"
+                                        placeholder="Địa chỉ"
+                                        disabled={isExistsDHSaved}
+                                        value={viTri}
+                                        onChange={(e) => setViTri(e.target.value)}
+                                    />
+                                </div>
+                                <div className="mb-3 col-12 col-md-6 col-xxl-4">
                                     <label htmlFor="chuanThietBiSuDung" className="form-label">Chuẩn, thiết bị chính được sử dụng:</label>
                                     <input
                                         type="text"
@@ -1285,18 +1314,6 @@ export default function FormDongHoNuocQNhoHon15({ className }: FormDongHoNuocQNh
                                         disabled={isExistsDHSaved}
                                         value={chuanThietBiSuDung}
                                         onChange={(e) => setChuanThietBiSuDung(e.target.value)}
-                                    />
-                                </div>
-                                <div className="mb-3 col-12 col-xl-6">
-                                    <label htmlFor="viTri" className="form-label">Địa điểm thực hiện:</label>
-                                    <input
-                                        type="text"
-                                        className="form-control"
-                                        id="viTri"
-                                        placeholder="Địa điểm thực hiện"
-                                        disabled={isExistsDHSaved}
-                                        value={viTri}
-                                        onChange={(e) => setViTri(e.target.value)}
                                     />
                                 </div>
                                 <div className="mb-3 col-12 col-md-6 col-xxl-4">
@@ -1378,7 +1395,7 @@ export default function FormDongHoNuocQNhoHon15({ className }: FormDongHoNuocQNh
                 </div>
                 <div className={`m-0 mb-3 bg-white rounded shadow-sm w-100 position-relative`}>
                     {/* Select Nav  */}
-                    <div className={`w-100 p-3 bg-main-blue d-flex align-items-center sticky-top justify-content-center`} style={{ top: "60px" }}>
+                    <div className={`w-100 p-3 shadow-sm bg-main-blue d-flex align-items-center sticky-top justify-content-center`} style={{ top: "60px" }}>
                         <span className="fs-5 fw-bold mb-0 text-white me-2">Đồng hồ:</span>
                         <button aria-label="Đồng hồ trước" className="btn bg-white m-0 p-0 px-2 d-flex align-items-center justify-content-center" style={{ height: "42px", width: "42px" }} onClick={() => {
                             handlePrevDongHo()

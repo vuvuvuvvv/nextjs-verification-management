@@ -189,23 +189,25 @@ export default function DetailDongHo({ dongHo }: DetailDongHoProps) {
                         <div className="col-12">
                             <p>Nơi sản xuất: <b>{dongHo.co_so_san_xuat || "Chưa có nơi sản xuất"}</b></p>
                         </div>
-                        <div className="col-6">
-                            <p>Kiểu sản xuất: <b>{dongHo.kieu_thiet_bi || "Chưa có kiểu sản xuất"}</b></p>
+                        <div className="col-12 mb-3">
+                            <p className="m-0">Kiểu sản xuất:</p>
+                            <div className="w-100 row m-0 px-3">
+                                <div className="col-12 col-md-6 m-0 p-0">{(dongHo.kieu_sensor) && <>Kiểu sensor: <b>{dongHo.kieu_sensor}</b></>}</div>
+                                <div className="col-12 col-md-6 m-0 p-0">{(dongHo.seri_sensor) && <>Serial sensor: <b>{dongHo.seri_sensor}</b></>}</div>
+                                <div className="col-12 col-md-6 m-0 p-0">{(dongHo.kieu_chi_thi) && <>Kiểu chỉ thị: <b>{dongHo.kieu_chi_thi}</b></>}</div>
+                                <div className="col-12 col-md-6 m-0 p-0">{(dongHo.seri_chi_thi) && <>Serial chỉ thị: <b>{dongHo.seri_chi_thi}</b></>}</div>
+                            </div>
                         </div>
                     </div>
                     <div className="row mb-3">
                         <div className="col-12 col-md-4">
-                            <p>Đặc trưng kỹ thuật đo lường:</p>
+                            <span>Đặc trưng kỹ thuật đo lường:</span>
                         </div>
-                        <div className="col-12 col-md-8">
+                        <div className="col-12 col-md-8 px-4 px-md-0">
                             <ul className="list-unstyled m-0 p-0">
                                 <li>- Đường kính danh định: <b>DN ={dongHo.dn || 0}</b> mm</li>
                                 <li>- Lưu lượng danh định: {dongHo.q3 ? <b>Q3= {dongHo.q3 || 0}</b> : <b>Qn= {dongHo.qn || 0}</b>} m<sup>3</sup>/h</li>
                                 <li>- Cấp chính xác: <b>{dongHo.ccx || "Chưa có cấp chính xác"}</b></li>
-                                {(dongHo.kieu_sensor) && <li>- Model sensor: <b>{dongHo.kieu_sensor}</b></li>}
-                                {(dongHo.kieu_chi_thi) && <li>- Model chỉ thị: <b>{dongHo.kieu_chi_thi}</b></li>}
-                                {(dongHo.seri_sensor) && <li>- Serial sensor: <b>{dongHo.seri_sensor}</b></li>}
-                                {(dongHo.seri_chi_thi) && <li>- Serial chỉ thị: <b>{dongHo.seri_chi_thi}</b></li>}
                                 <li>- Ký hiệu PDM / Số quyết định: <b>{dongHo.so_qd_pdm + "-" + dayjs(dongHo.ngay_thuc_hien).format('YYYY') || "Chưa có số quyết định"}</b></li>
                             </ul>
                         </div>
@@ -225,13 +227,30 @@ export default function DetailDongHo({ dongHo }: DetailDongHoProps) {
                             <p>Ngày thực hiện: <b>{dayjs(dongHo.ngay_thuc_hien).format("DD/MM/YYYY")}</b></p>
                         </div>
                         <div className="col-12">
-                            <p>Địa điểm thực hiện: <b>{dongHo.vi_tri || "Chưa có địa điểm thực hiện"}</b></p>
+                            <p>Địa điểm thực hiện: <b>{dongHo.noi_su_dung || "Chưa có địa điểm thực hiện"}</b></p>
                         </div>
                     </div>
-                    <div className="row mb-3">
-                        <p className="fs-5 text-center text-uppercase">Kết quả kiểm tra</p>
-                        <p>1. Khả năng hoạt động: <b>{ketQua ? "Đạt" : "Không đạt"}</b></p>
-                        <p>2. Kết quả kiểm tra đo lường: </p>
+                    <div className="w-100 mb-3">
+                        <p className="fs-5 fw-bold text-center text-uppercase m-0">Kết quả kiểm tra</p>
+                        <div className="w-100 m-0 p-0 row mb-3">
+                            <div className="col-12 col-md-5 col-lg-4">
+                                <span>1. Kết quả kiểm tra bên ngoài:</span>
+                            </div>
+                            <div className="col-12 col-md-7 col-lg-8 px-4 px-md-0">
+                                <ul className="list-unstyled m-0 p-0">
+                                    <li>- Nhãn hiệu: <b>Đạt</b></li>
+                                    <li>- Phụ kiện: <b>Đạt</b></li>
+                                    <li>- Bộ phận chỉ thị: <b>Đạt</b></li>
+                                </ul>
+                            </div>
+                        </div>
+                        <p className="m-0">2. Kết quả kiểm tra kỹ thuật:</p>
+                        <div className="w-100 mb-3 px-4 px-md-5">
+                            <ul className="list-unstyled m-0 p-0">
+                                <li>- Kiểm tra khả năng hoạt động của hệ thống: <b>{ketQua ? "Đạt" : "Không đạt"}</b></li>
+                            </ul>
+                        </div>
+                        <p>3. Kết quả kiểm tra đo lường: </p>
                         <div className={`${dtp.wrapper} w-100`}>
                             <table>
                                 <thead>

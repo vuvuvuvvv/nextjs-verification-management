@@ -99,8 +99,6 @@ export default function NhomDongHoNuocManagement({ className }: NhomDongHoNuocMa
         }
     }, [error]);
 
-    const path = usePathname();
-
     const [filterForm, setFilterForm] = useState<NhomDongHoFilterParameters>({
         ten_dong_ho: "",
         ten_khach_hang: "",
@@ -410,7 +408,7 @@ export default function NhomDongHoNuocManagement({ className }: NhomDongHoNuocMa
                                     Xóa bộ lọc
                                 </button>
                                 <Link
-                                    href={path.includes(ACCESS_LINKS.DHN_BT15.src) ? ACCESS_LINKS.DHN_BT15_ADD.src : ACCESS_LINKS.DHN_ST15_ADD.src}
+                                    href={ACCESS_LINKS.DHN_ADD.src}
                                     className="btn bg-main-green text-white"
                                 >
                                     Thêm mới
@@ -494,19 +492,6 @@ export default function NhomDongHoNuocManagement({ className }: NhomDongHoNuocMa
                                                     )}
                                                 </div>
                                             </th>
-                                            {/* <th onClick={() => sortData('status')}>
-                                    <div className={`${c_vfml['table-label']}`}>
-                                        <span>
-                                            Trạng thái
-                                        </span>
-                                        {sortConfig && sortConfig.key === 'status' && sortConfig.direction === 'asc' && (
-                                            <FontAwesomeIcon icon={faChevronUp}></FontAwesomeIcon>
-                                        )}
-                                        {sortConfig && sortConfig.key === 'status' && sortConfig.direction === 'desc' && (
-                                            <FontAwesomeIcon icon={faChevronDown}></FontAwesomeIcon>
-                                        )}
-                                    </div>
-                                </th> */}
                                             <th></th>
                                         </tr>
                                     </thead>
@@ -527,23 +512,6 @@ export default function NhomDongHoNuocManagement({ className }: NhomDongHoNuocMa
                                                     <Link target="_blank" aria-label="Xem chi tiết" href={ACCESS_LINKS.DHN_DETAIL.src + "/nhom/" + item.group_id} className={`btn w-100 text-blue`}>
                                                         <FontAwesomeIcon icon={faEye}></FontAwesomeIcon>
                                                     </Link>
-                                                    {/* <div className={`dropdown ${c_vfml['action']}`}>
-                                                        <button aria-label="Lựa chọn" className={`${c_vfml['action-button']}`} type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                                            <FontAwesomeIcon icon={faEllipsisH}></FontAwesomeIcon>
-                                                        </button>
-                                                        <ul className={`dropdown-menu ${c_vfml['dropdown-menu']}`} style={{ zIndex: "777" }}>
-                                                            <li>
-                                                                <Link aria-label="Xem chi tiết" href={ACCESS_LINKS.DHN_DETAIL.src + item.serial_number} className={`btn w-100`}>
-                                                                    Xem chi tiết
-                                                                </Link>
-                                                            </li>
-                                                            <li>
-                                                                <button aria-label="Xóa" type="button" onClick={() => handleDelete(item.serial_number)} className={`btn w-100`}>
-                                                                    Xóa
-                                                                </button>
-                                                            </li>
-                                                        </ul>
-                                                    </div> */}
                                                 </td>
                                             </tr>
                                         ))}

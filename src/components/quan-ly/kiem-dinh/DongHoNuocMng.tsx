@@ -71,7 +71,6 @@ export default function WaterMeterManagement({ className, isBiggerThan15 = false
     }, [error]);
 
     const path = usePathname();
-    console.log("path: ", path);
 
     const [filterForm, setFilterForm] = useState<DongHoFilterParameters>({
         is_bigger_than_15: isBiggerThan15,
@@ -391,7 +390,7 @@ export default function WaterMeterManagement({ className, isBiggerThan15 = false
                                     Xóa bộ lọc
                                 </button>
                                 <Link
-                                    href={path.includes(ACCESS_LINKS.DHN_BT15.src) ? ACCESS_LINKS.DHN_BT15_ADD.src : ACCESS_LINKS.DHN_ST15_ADD.src}
+                                    href={ACCESS_LINKS.DHN_ADD.src}
                                     className="btn bg-main-green text-white"
                                 >
                                     Thêm mới

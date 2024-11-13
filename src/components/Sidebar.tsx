@@ -50,14 +50,7 @@ const siteSideLinks: SideLink[] = [
         title: "Kiểm định",
         icon: faEdit,
         children: [
-            {
-                title: "Đồng hồ",
-                icon: faClock,
-                children: [
-                    { title: ACCESS_LINKS.DHN_BT15.title, href: ACCESS_LINKS.DHN_BT15.src, icon: faTint },
-                    { title: ACCESS_LINKS.DHN_ST15.title, href: ACCESS_LINKS.DHN_ST15.src, icon: faTint },
-                ]
-            },
+            { title: ACCESS_LINKS.DHN.title, href: ACCESS_LINKS.DHN.src, icon: faClock },
             { title: ACCESS_LINKS.PDM.title, href: ACCESS_LINKS.PDM.src, icon: faFileAlt },
         ]
     },

@@ -63,6 +63,7 @@ export const getPDMBySoQDPDM = async (so_qd_pdm: string) => {
 
         const response = await api.get(url.toString(), { withCredentials: true });
 
+        console.log(response)
         return {
             "status": response.status,
             "data": response.data,
