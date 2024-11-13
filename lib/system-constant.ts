@@ -55,6 +55,8 @@ export const TITLE_LUU_LUONG = {
 }
 
 export const DEFAULT_LOCATION = "Công ty Cổ phần Công nghệ và Thương mại FMS"
+export const INDEXED_DB_NAME = "FMS_VFM_DB"
+export const INDEXED_DB_DH_OBJ_NAME = "DongHo"
 
 export const BASE_API_URL = process.env.NEXT_PUBLIC_API_URL;
 

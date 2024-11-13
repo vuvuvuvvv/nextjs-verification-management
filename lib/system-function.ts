@@ -1,6 +1,7 @@
 import dayjs from "dayjs";
 import { DongHo, DuLieuMotLanChay, PDMData, TinhSaiSoValueTabs } from "./types";
 import { getAllDongHoNamesExist } from "@/app/api/dongho/route";
+import { INDEXED_DB_DH_OBJ_NAME, INDEXED_DB_NAME } from "./system-constant";
 
 export const getSaiSoDongHo = (formValue: DuLieuMotLanChay) => {
     if (formValue) {
@@ -167,4 +168,73 @@ export const getListDongHoNamesExist = async () => {
         return sortedNames;
     }
     return []
+}
+
+export function openDB() {
+    return new Promise((resolve, reject) => {
+        if (typeof window === "undefined") return;
+
+        const request = indexedDB.open(INDEXED_DB_NAME, 1);
+        request.onupgradeneeded = (event) => {
+            const db = (event.target as IDBOpenDBRequest).result;
+            if (!db.objectStoreNames.contains(INDEXED_DB_DH_OBJ_NAME)) {
+                db.createObjectStore(INDEXED_DB_DH_OBJ_NAME, { keyPath: 'id' });
+            }
+        };
+        request.onsuccess = (event) => {
+            const target = event.target as IDBOpenDBRequest;
+            resolve(target.result);
+        };
+
+        request.onerror = (event) => {
+            const target = event.target as IDBOpenDBRequest;
+            reject(target.error);
+        };
+    });
+}
+
+export async function saveDongHoDataExistsToIndexedDB(username: string, data: DongHo[], savedData?: DongHo[]) {
+    const db = await openDB() as IDBDatabase;
+    return new Promise<void>((resolve, reject) => {
+        const transaction = db.transaction(INDEXED_DB_DH_OBJ_NAME, "readwrite");
+        const store = transaction.objectStore(INDEXED_DB_DH_OBJ_NAME);
+
+        const dataToStore = { id: username, dongHoList: data, saveDongHoList: savedData || [] };
+
+        const request = store.put(dataToStore);
+
+        request.onsuccess = () => {
+            resolve();
+        };
+        request.onerror = (event) => {
+            const error = (event.target as IDBRequest).error;
+            reject(error);
+        };
+    });
+}
+
+export async function getDongHoDataExistsFromIndexedDB(username: string) {
+    const db = await openDB() as IDBDatabase;
+    return new Promise((resolve, reject) => {
+        const transaction = db.transaction(INDEXED_DB_DH_OBJ_NAME, "readonly");
+        const store = transaction.objectStore(INDEXED_DB_DH_OBJ_NAME);
+        const request = store.get(username);
+
+        request.onsuccess = (event: Event) => {
+            const target = event.target as IDBRequest;
+            if (target.result) {
+                resolve(target.result.dongHoList);
+            } else {
+                resolve(null);
+            }
+        };
+
+        request.onerror = (event) => {
+            const target = event.target as IDBRequest;
+            if (target && target.error) {
+                console.error("Lỗi khi kiểm tra dữ liệu:", target.error);
+                reject(target.error);
+            }
+        };
+    });
 }
