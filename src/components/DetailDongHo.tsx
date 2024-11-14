@@ -208,7 +208,7 @@ export default function DetailDongHo({ dongHo }: DetailDongHoProps) {
                                 <li>- Đường kính danh định: <b>DN ={dongHo.dn || 0}</b> mm</li>
                                 <li>- Lưu lượng danh định: {dongHo.q3 ? <b>Q3= {dongHo.q3 || 0}</b> : <b>Qn= {dongHo.qn || 0}</b>} m<sup>3</sup>/h</li>
                                 <li>- Cấp chính xác: <b>{dongHo.ccx || "Chưa có cấp chính xác"}</b></li>
-                                <li>- Ký hiệu PDM / Số quyết định: <b>{dongHo.so_qd_pdm + "-" + dayjs(dongHo.ngay_thuc_hien).format('YYYY') || "Chưa có số quyết định"}</b></li>
+                                <li>- Ký hiệu PDM / Số quyết định: <b>{dongHo.so_qd_pdm || "Chưa có số quyết định"}</b></li>
                             </ul>
                         </div>
                     </div>

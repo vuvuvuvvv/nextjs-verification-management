@@ -1002,7 +1002,7 @@
 //                                         </div>
 
 //                                         <div className={`col-12 col-md-10 col-xl-8 col-xxl-6 m-0 mb-3 p-0 ps-lg-4 d-flex align-items-center justify-content-between ${(soTem && soGiayChungNhan) ? "" : "d-none"} ${vrfWm['seri-number-input']}`}>
-//                                             <label htmlFor="hieuLucBienBan" style={{ width: "180px" }} className="form-label m-0 fs-6 fw-bold d-block">Hiệu lực biên bản:</label>
+//                                             <label htmlFor="hieuLucBienBan" style={{ width: "180px" }} className="form-label m-0 fs-6 fw-bold d-block">Hiệu lực đến:</label>
 //                                             <DatePicker
 //                                                 className={`bg-white ${vrfWm['date-picker']}`}
 //                                                 value={dayjs(hieuLucBienBan)}

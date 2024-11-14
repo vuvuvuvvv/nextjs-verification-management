@@ -15,7 +15,7 @@ export const phuongTienDoOptions = [
 ]
 
 export const typeOptions = [
-    { value: "Điện từ", label: "Điện từ" },
+    { value: "Điện tử", label: "Điện tử" },
     { value: "Cơ - Điện từ", label: "Cơ - Điện từ" },
     { value: "Đơn tia", label: "Đơn tia" },
     { value: "Đa tia", label: "Đa tia" },

@@ -67,12 +67,15 @@ export const getQ2OrQtAndQ1OrQMin = (isDHDienTu: boolean, ccx: string | null, q:
     };
 };
 
-export const getVToiThieu = (q: string | number, d: string | number) => {
+export const getVToiThieu = (q: string | number, d: string | number, isDHDienTu: boolean | null = null) => {
     // q: m3/h 
     // d: mm
     if (q && d) {
 
-        const qNum = parseFloat(typeof q === 'string' ? q : q.toString());
+        let qNum = parseFloat(typeof q === 'string' ? q : q.toString());
+        if (isDHDienTu != null && isDHDienTu) {
+            qNum *= 0.3
+        }
         const dNum = parseFloat(typeof d === 'string' ? d : d.toString());
 
         if (isNaN(qNum) || isNaN(dNum)) {
@@ -156,7 +159,11 @@ export const convertToUppercaseNonAccent = (str: string) => {
 }
 
 export const getFullNameFileDownload = (dongho: DongHo) => {
-    return (dongho.ten_dong_ho || "") + (dongho.dn || "") + (dongho.ccx || "") + (dongho.q3 || "") + (dongho.r || "") + (dongho.qn || "") + (dongho.seri_sensor || "") + (dongho.seri_chi_thi || "") + (dongho.kieu_sensor || "") + (dongho.kieu_chi_thi || "")
+    return (dongho.so_giay_chung_nhan || "") +
+        (dongho.ten_khach_hang ? "_" + dongho.ten_khach_hang : "") +
+        (dongho.ten_dong_ho ? "_" + dongho.ten_dong_ho : "") +
+        (dongho.dn ? "_" + dongho.dn : "") +
+        (dongho.ngay_thuc_hien ? "_" + dayjs(dongho.ngay_thuc_hien).format('DD-MM-YYYY') : "")
 }
 
 export const getListDongHoNamesExist = async () => {

@@ -349,7 +349,7 @@ export default function DetailNhomDongHo({ nhomDongHo }: DetailNhomDongHoProps) 
                                 <li>- Đường kính danh định: <b>DN ={generalInfo.dn || 0}</b> mm</li>
                                 <li>- Lưu lượng danh định: {generalInfo.q3 ? <b>Q3= {generalInfo.q3 || 0}</b> : <b>Qn= {generalInfo.qn || 0}</b>} m<sup>3</sup>/h</li>
                                 <li>- Cấp chính xác: <b>{generalInfo.ccx || "Chưa có cấp chính xác"}</b></li>
-                                <li>- Ký hiệu PDM / Số quyết định: <b>{generalInfo.so_qd_pdm + "-" + dayjs(generalInfo.ngay_thuc_hien).format('YYYY') || "Chưa có số quyết định"}</b></li>
+                                <li>- Ký hiệu PDM / Số quyết định: <b>{generalInfo.so_qd_pdm || "Chưa có số quyết định"}</b></li>
                             </ul>
                         </div>
                     </div>
@@ -417,7 +417,7 @@ export default function DetailNhomDongHo({ nhomDongHo }: DetailNhomDongHoProps) 
                                     <p className="fs-5 text-uppercase text-decoration-underline">Kết quả kiểm tra:</p>
                                     <div className="w-100 px-3">
                                         <p>1. Khả năng hoạt động: <b>{nhomDuLieuKiemDinh[index].ket_qua}</b></p>
-                                        <p>3. Hiệu lực biên bản: {dayjs(dongHo.hieu_luc_bien_ban).format("DD/MM/YYYY") || "Không có hiệu lực"} </p>
+                                        <p>3. Hiệu lực đến: {dayjs(dongHo.hieu_luc_bien_ban).format("DD/MM/YYYY") || "Không có hiệu lực"} </p>
                                         <p>2. Kết quả kiểm tra đo lường: </p>
                                         <div className={`${dtp.wrapper} w-100`}>
                                             <table>
