@@ -403,7 +403,7 @@ export default function WaterMeterManagement({ className, isBiggerThan15 = false
                         <div className={`m-0 p-0 w-100 w-100 position-relative ${c_vfml['wrap-process-table']}`}>
                             {filterLoading && <Loading />}
                             {paginatedData.length > 0 ? (
-                                <table className={`table table-hover ${c_vfml['process-table']}`}>
+                                <table className={`table table-striped table-bordered table-hover ${c_vfml['process-table']}`}>
                                     <thead>
                                         <tr className={`${c_vfml['table-header']}`}>
                                             <th>

@@ -67,15 +67,11 @@ export const getQ2OrQtAndQ1OrQMin = (isDHDienTu: boolean, ccx: string | null, q:
     };
 };
 
-export const getVToiThieu = (q: string | number, d: string | number, isDHDienTu: boolean | null = null) => {
+export const getVToiThieu = (q: string | number, d: string | number) => {
     // q: m3/h 
     // d: mm
     if (q && d) {
-
         let qNum = parseFloat(typeof q === 'string' ? q : q.toString());
-        if (isDHDienTu != null && isDHDienTu) {
-            qNum *= 0.3
-        }
         const dNum = parseFloat(typeof d === 'string' ? d : d.toString());
 
         if (isNaN(qNum) || isNaN(dNum)) {

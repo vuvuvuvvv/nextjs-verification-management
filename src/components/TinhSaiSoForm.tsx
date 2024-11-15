@@ -24,8 +24,8 @@ export default function QBT30TinhSaiSoForm({ className, formValue, readOnly = fa
     const [V2, setV2] = useState<string>(formValue.V2.toString() || "0");
     const [Vc1, setVc1] = useState<string>(formValue.Vc1 ? formValue.Vc1.toString() : "0");
     const [Vc2, setVc2] = useState<string>(formValue.Vc2 ? formValue.Vc2.toString() : "0");
-    const [Tdh, setTdh] = useState<string>("0");
-    const [Tc, setTc] = useState<string>("0");
+    const [Tdh, setTdh] = useState<string>(formValue.Tdh ? formValue.Tdh.toString() : "0");
+    const [Tc, setTc] = useState<string>(formValue.Tc ? formValue.Tc.toString() : "0");
     const [saiSo, setSaiSo] = useState<string>("0%");
     const { dongHoSelected } = useDongHoList();
 
@@ -66,7 +66,6 @@ export default function QBT30TinhSaiSoForm({ className, formValue, readOnly = fa
 
         return (e: React.FormEvent<HTMLInputElement>) => {
             let rawValue = e.currentTarget.value.replace(/[^0-9]/g, '');
-            console.log("1: ", rawValue);
 
             if (rawValue.length >= decimalPlaces + 2) {
                 rawValue = rawValue.replace(/^0+/, '');
@@ -75,7 +74,7 @@ export default function QBT30TinhSaiSoForm({ className, formValue, readOnly = fa
             let formattedValue = '';
 
             if (rawValue.length <= decimalPlaces) {
-                formattedValue = `0.${rawValue.padEnd(decimalPlaces, '0')}`;
+                formattedValue = `0.${rawValue.padStart(decimalPlaces, '0')}`; 
             } else {
                 const integerPart = rawValue.slice(0, rawValue.length - decimalPlaces);
                 const decimalPart = rawValue.slice(rawValue.length - decimalPlaces);

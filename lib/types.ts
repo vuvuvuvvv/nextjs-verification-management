@@ -195,8 +195,10 @@ export interface DongHo {
     phuong_phap_thuc_hien: string | null;
     chuan_thiet_bi_su_dung: string | null;
     nguoi_kiem_dinh: string | null;
+    nguoi_soat_lai: string | null;
     ngay_thuc_hien: Date | null;
     co_so_san_xuat: string | null;
+    noi_thuc_hien: string | null;
     noi_su_dung: string | null;
     vi_tri: string | null;
     nhiet_do: string | null;

@@ -233,7 +233,7 @@ export default function DetailDongHo({ dongHo }: DetailDongHoProps) {
                     <div className="w-100 mb-3">
                         <p className="fs-5 fw-bold text-center text-uppercase m-0">Kết quả kiểm tra</p>
                         <div className="w-100 m-0 p-0 row mb-3">
-                            <div className="col-12 col-md-5 col-lg-4">
+                            <div className="col-12 col-md-5 col-lg-4 m-0 p-0">
                                 <span>1. Kết quả kiểm tra bên ngoài:</span>
                             </div>
                             <div className="col-12 col-md-7 col-lg-8 px-4 px-md-0">

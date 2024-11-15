@@ -1,6 +1,6 @@
 import { createDongHo } from '@/app/api/dongho/route';
 import { DEFAULT_LOCATION, TITLE_LUU_LUONG } from '@lib/system-constant';
-import { DongHo } from '@lib/types';
+import { DongHo, DuLieuMotLanChay } from '@lib/types';
 
 import React, { createContext, useState, useContext, ReactNode, useEffect, useRef } from 'react';
 import Swal from 'sweetalert2';
@@ -59,7 +59,7 @@ export const DongHoListProvider = ({ children }: { children: ReactNode }) => {
 
     const [amount, setAmount] = useState<number>(1)
 
-    const initDongHoList =  Array.from({ length: amount }, (_, i) => ({
+    const initDongHoList = Array.from({ length: amount }, (_, i) => ({
         id: null,
         group_id: "",
         ten_dong_ho: "",
@@ -82,6 +82,8 @@ export const DongHoListProvider = ({ children }: { children: ReactNode }) => {
         so_qd_pdm: "",
         ten_khach_hang: "",
         co_so_su_dung: "",
+        noi_thuc_hien: "",
+        nguoi_soat_lai: "",
         phuong_phap_thuc_hien: "ĐNVN 17:2017",
         chuan_thiet_bi_su_dung: "Đồng hồ chuẩn đo nước và Bình chuẩn",
         nguoi_kiem_dinh: "",
@@ -138,9 +140,11 @@ export const DongHoListProvider = ({ children }: { children: ReactNode }) => {
                 so_qd_pdm: "",
                 ten_khach_hang: "",
                 co_so_su_dung: "",
+                noi_thuc_hien: "",
                 phuong_phap_thuc_hien: "ĐNVN 17:2017",
                 chuan_thiet_bi_su_dung: "Đồng hồ chuẩn đo nước và Bình chuẩn",
                 nguoi_kiem_dinh: "",
+                nguoi_soat_lai: "",
                 ngay_thuc_hien: new Date(),
                 noi_su_dung: DEFAULT_LOCATION,
                 vi_tri: "",
