@@ -47,7 +47,7 @@ export default function QBT30TinhSaiSoForm({ className, formValue, readOnly = fa
             setV2(formValue.V2.toString());
             setTdh(formValue.Tdh.toString());
             setTc(formValue.Tc.toString());
-            
+
 
             prevFormValuesRef.current = formValue;
         }
@@ -74,7 +74,7 @@ export default function QBT30TinhSaiSoForm({ className, formValue, readOnly = fa
             let formattedValue = '';
 
             if (rawValue.length <= decimalPlaces) {
-                formattedValue = `0.${rawValue.padStart(decimalPlaces, '0')}`; 
+                formattedValue = `0.${rawValue.padStart(decimalPlaces, '0')}`;
             } else {
                 const integerPart = rawValue.slice(0, rawValue.length - decimalPlaces);
                 const decimalPart = rawValue.slice(rawValue.length - decimalPlaces);
@@ -153,7 +153,7 @@ export default function QBT30TinhSaiSoForm({ className, formValue, readOnly = fa
                             type="text"
                             className="form-control"
                             id="firstNum"
-                            value={V1}
+                            value={V1 || "0"}
                             onChange={handleNumericInput(setV1, "V1")}
                             disabled={isDisable}
                             autoComplete="off"
@@ -167,7 +167,7 @@ export default function QBT30TinhSaiSoForm({ className, formValue, readOnly = fa
                             type="text"
                             className="form-control"
                             id="lastNum"
-                            value={V2}
+                            value={V2 || "0"}
                             onChange={handleNumericInput(setV2, "V2")}
                             disabled={isDisable}
                             autoComplete="off"
@@ -181,7 +181,7 @@ export default function QBT30TinhSaiSoForm({ className, formValue, readOnly = fa
                             type="text"
                             className="form-control"
                             id="tdh"
-                            value={Tdh}
+                            value={Tdh || "0"}
                             onChange={handleNumberChange(setTdh, "Tdh")}
                             disabled={isDisable}
                             autoComplete="off"
@@ -198,7 +198,7 @@ export default function QBT30TinhSaiSoForm({ className, formValue, readOnly = fa
                             type="text"
                             className="form-control"
                             id="firstNum"
-                            value={Vc1}
+                            value={Vc1 || "0"}
                             onChange={handleNumberChange(setVc1, "Vc1")}
                             disabled={isDisable}
                             autoComplete="off"

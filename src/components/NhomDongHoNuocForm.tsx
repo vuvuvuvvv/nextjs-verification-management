@@ -651,9 +651,13 @@ export default function NhomDongHoNuocForm({ className }: NhomDongHoNuocFormProp
 
             if (duLieuKiemDinhJSON) {
                 const duLieuKiemDinh = JSON.parse(duLieuKiemDinhJSON);
+                console.log(duLieuKiemDinh.du_lieu)
                 setDuLieuKiemDinhCacLuuLuong(duLieuKiemDinh.du_lieu || initialDuLieuKiemDinhCacLuuLuong);
 
                 setFormHieuSaiSo(duLieuKiemDinh.hieu_sai_so || initialFormHieuSaiSo);
+
+
+                
                 setSeriChiThi(dongHoSelected.seri_chi_thi || "");
                 setSeriSensor(dongHoSelected.seri_sensor || "");
                 setKFactor(dongHoSelected.k_factor || "");

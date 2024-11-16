@@ -220,7 +220,7 @@ export default function TinhSaiSoTab({ className, tabIndex, d, q, Form, onFormHS
                 );
             });
         } else {
-            console.log("Error formValues: ", formValues);
+            console.error("Error formValues!");
         }
     };
 
@@ -238,7 +238,7 @@ export default function TinhSaiSoTab({ className, tabIndex, d, q, Form, onFormHS
                                     type="text"
                                     className={`form-control text-start`}
                                     disabled
-                                    value={q.value}
+                                    value={q.value || ""}
                                 />
                                 <span className="input-group-text">m<sup>3</sup>/h</span>
                             </div>

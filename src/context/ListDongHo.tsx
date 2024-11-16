@@ -6,6 +6,7 @@ import React, { createContext, useState, useContext, ReactNode, useEffect, useRe
 import Swal from 'sweetalert2';
 import { useUser } from './AppContext';
 import { getDongHoDataExistsFromIndexedDB, saveDongHoDataExistsToIndexedDB } from '@lib/system-function';
+import { useKiemDinh } from './KiemDinh';
 
 interface DongHoListContextType {
     dongHoList: DongHo[];
@@ -28,6 +29,8 @@ const DongHoListContext = createContext<DongHoListContextType | undefined>(undef
 
 export const DongHoListProvider = ({ children }: { children: ReactNode }) => {
     const { user } = useUser();
+    const { vChuanDongBoCacLL } = useKiemDinh();
+    const vChuanDongBoCacLLPrev = useRef(vChuanDongBoCacLL);
     const [oldDongHoData, setOldDongHoData] = useState<DongHo[]>([]);
     const [isInitialization, setInitialization] = useState(true);
 
@@ -171,6 +174,28 @@ export const DongHoListProvider = ({ children }: { children: ReactNode }) => {
             }));
         })
     }, [amount])
+
+    // useEffect(() => {
+    //     if (vChuanDongBoCacLLPrev.current != vChuanDongBoCacLL) {
+    //         setDongHoList((prevState) => {
+    //             const newState = [
+    //                 ...prevState.map((dongHo, index) => {
+    //                     if (dongHo && dongHo.du_lieu_kiem_dinh) {
+    //                         const duLieuKiemDinh = JSON.parse(dongHo.du_lieu_kiem_dinh);
+    //                         console.log(duLieuKiemDinh.du_lieu);
+    //                     }
+    //                     return null
+    //                 })
+    //             ]
+
+    //             return [
+    //                 ...prevState
+    //             ]
+    //         });
+
+    //         vChuanDongBoCacLLPrev.current = vChuanDongBoCacLL
+    //     }
+    // }, [vChuanDongBoCacLL]);
 
     const [dongHoSelected, setDongHoSelected] = useState<DongHo | null>(dongHoList[0] || null);
     const [savedDongHoList, setSavedDongHoList] = useState<DongHo[]>([]);

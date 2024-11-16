@@ -240,3 +240,6 @@ export interface NhomDongHoFilterParameters {
     ngay_kiem_dinh_from: Date | null;
     ngay_kiem_dinh_to: Date | null;
 }
+
+type VChuanDongBo = Record<number, { Vc1: number, Vc2: number } | null>;
+export type VChuanDongBoCacLL = Record<string, VChuanDongBo | null>
