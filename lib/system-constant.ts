@@ -1,9 +1,3 @@
-export const processStatusOptions = [
-    { value: '1', label: 'Q1' },
-    { value: '2', label: 'Q2' },
-    { value: '3', label: 'Q3' }
-];
-
 export const statusOptions = [
     { value: '0', label: 'Không hoạt động' },
     { value: '1', label: 'Hoạt động' },
@@ -21,7 +15,7 @@ export const phuongTienDoOptions = [
 ]
 
 export const typeOptions = [
-    { value: "Điện từ", label: "Điện từ" },
+    { value: "Điện tử", label: "Điện tử" },
     { value: "Cơ - Điện từ", label: "Cơ - Điện từ" },
     { value: "Đơn tia", label: "Đơn tia" },
     { value: "Đa tia", label: "Đa tia" },
@@ -60,17 +54,29 @@ export const TITLE_LUU_LUONG = {
     qmin: "Qmin"
 }
 
+export const DEFAULT_LOCATION = "Công ty Cổ phần Công nghệ và Thương mại FMS"
+export const INDEXED_DB_NAME = "FMS_VFM_DB"
+export const INDEXED_DB_DH_OBJ_NAME = "DongHo"
+
 export const BASE_API_URL = process.env.NEXT_PUBLIC_API_URL;
 
 // Acess links:
 const KD_PDM = "/kiem-dinh/pdm"
 const KD_DHN = "/kiem-dinh/dong-ho-nuoc"
-const KD_DHN_BT15 = KD_DHN + "/dn-bigger-than-15"
-const KD_DHN_ST15 = KD_DHN + "/dn-smaller-than-15"
+// const KD_DHN = KD_DHN + "/q-bigger-than-15"
+// const KD_DHN = KD_DHN + "/q-smaller-than-15"
 export const ACCESS_LINKS = {
     HOME : {
         src: "/",
         title: "Trang chủ"
+    },
+    AD_XUAT_BAO_CAO : {
+        src: "/xuat-bao-cao",
+        title: "Xuất báo cáo"
+    },
+    AD_PHAN_QUYEN : {
+        src: "/phan-quyen",
+        title: "Phân quyền"
     },
     AUTH_FORGOT_PW : {
         src: "/forgot-password",
@@ -96,25 +102,17 @@ export const ACCESS_LINKS = {
         src: "/change/password",
         title: "Đổi mật khẩu"
     },
+    DHN : {
+        src: KD_DHN, 
+        title: "Đồng hồ nước"
+    },
+    DHN_ADD : {
+        src: KD_DHN + "/them-moi",
+        title: "Thêm mới đồng hồ nước"
+    },
     DHN_DETAIL : {
         src: KD_DHN + "/chi-tiet",
         title: ""
-    },
-    DHN_BT15 : {
-        src: KD_DHN_BT15,
-        title: "DN > 15 - Kiểm định"
-    },
-    DHN_BT15_ADD : {
-        src: KD_DHN_BT15 + "/them-moi",
-        title: "DN > 15 - Thêm mới"
-    },
-    DHN_ST15 : {
-        src: KD_DHN_ST15,
-        title: "DN < 15 - Kiểm định"
-    },
-    DHN_ST15_ADD : {
-        src: KD_DHN_ST15 + "/them-moi",
-        title: "DN < 15 - Thêm mới"
     },
     PDM : {
         src: KD_PDM,

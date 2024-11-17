@@ -8,12 +8,12 @@ import vrfWm from "@styles/scss/ui/vfm.module.scss"
 
 import NavTab from "@/components/NavTab";
 
-interface DNSmallerThan32Props {
+interface DongHoNuocPageProps {
     className?: string
 }
 
 
-export default function DNSmallerThan32({ className }: DNSmallerThan32Props) {
+export default function DongHoNuocPage({ className }: DongHoNuocPageProps) {
 
     const tabContent = [
         {

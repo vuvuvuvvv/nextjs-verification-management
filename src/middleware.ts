@@ -6,9 +6,10 @@ import { jwtVerify } from 'jose';
 import { ACCESS_LINKS } from '@lib/system-constant';
 
 const ADMIN_ROLE = 'ADMIN';
-const CUSTOM_404_PATH = '/404'; // Đường dẫn cho trang 404 tùy chỉnh
-const CUSTOM_500_PATH = '/500'; // Đường dẫn cho trang 500 tùy chỉnh
-const CUSTOM_AUTH_ERROR_TOKEN_PATH = '/auth-error/error-token'; // Đường dẫn cho trang 500 tùy chỉnh
+const CUSTOM_404_PATH = '/error/404';
+const CUSTOM_500_PATH = '/error/500'; 
+const CUSTOM_AUTH_ERROR_TOKEN_PATH = '/error/error-token'; 
+const CUSTOM_UNSUPPORTED_BROWSER = '/error/unsupported-error'; 
 
 const ADMIN_PATHS = ['/dashboard'];
 const AUTH_PATHS = [
@@ -19,11 +20,9 @@ const AUTH_PATHS = [
 const PROTECTED_PATHS = [
     ACCESS_LINKS.CHANGE_EMAIL.src,
     ACCESS_LINKS.CHANGE_PW.src,
-    ACCESS_LINKS.DHN_BT15.src,
-    ACCESS_LINKS.DHN_BT15_ADD.src,
+    ACCESS_LINKS.DHN_ADD.src,
     ACCESS_LINKS.DHN_DETAIL.src,
-    ACCESS_LINKS.DHN_ST15.src,
-    ACCESS_LINKS.DHN_ST15_ADD.src,
+    ACCESS_LINKS.DHN.src,
     ACCESS_LINKS.PDM.src,
     ACCESS_LINKS.PDM_ADD.src,
     ACCESS_LINKS.PDM_DETAIL.src
@@ -40,10 +39,30 @@ const VALID_PATHS = [
 
 
 export async function middleware(req: NextRequest) {
+    const { pathname, searchParams } = new URL(req.url);
+
+    // const userAgent = req.headers.get('user-agent') || '';
+    // console.log('User-Agent:', userAgent); // Ghi log user-agent để kiểm tra
+
+    // const isOldBrowser =
+    //     /MSIE \d|Trident.*rv:/.test(userAgent) || // Internet Explorer
+    //     /(Chrome\/[0-6][0-3]|Chrome\/[0-5]\d)/.test(userAgent) || // Chrome < 64
+    //     /(Edg\/[0-7][0-8]|Edg\/[0-7]\d|Edg\/[1-6]\d{2})/.test(userAgent) || // Edge < 79
+    //     /(Firefox\/[0-6][0-6]|Firefox\/[0-6]\d)/.test(userAgent) || // Firefox < 67
+    //     /(OPR\/[0-5][1]|OPR\/[0-5]\d|OPR\/[1-4]\d{2})/.test(userAgent) || // Opera < 51
+    //     /(Version\/[0-1][2]|Version\/[0-2]\d|Version\/[1-9]\d{2})/.test(userAgent); // Safari < 12
+
+
+    // if (isOldBrowser) {
+    //     if (CUSTOM_UNSUPPORTED_BROWSER.includes(pathname)) {
+    //         return NextResponse.next();
+    //     }
+    //     return NextResponse.redirect(new URL(CUSTOM_UNSUPPORTED_BROWSER, req.url));
+    // }
+
     const tokenCookie = req.cookies.get('accessToken')?.value;
     const refreshTokenCookie = req.cookies.get('refreshToken')?.value;
     const userCookie = req.cookies.get('user')?.value;
-    const { pathname, searchParams } = new URL(req.url);
 
     if (pathname.startsWith(ACCESS_LINKS.AUTH_RESET_PW.src)) {
         const token = pathname.split(ACCESS_LINKS.AUTH_RESET_PW.src + "/")[1];

@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState, useCallback, Suspense } from "react";
+import { useEffect, useState, useCallback } from "react";
 import c_vfml from "@styles/scss/components/verification-management-layout.module.scss";
 
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
@@ -10,20 +10,19 @@ import dayjs, { Dayjs } from "dayjs";
 import { viVN } from "@mui/x-date-pickers/locales";
 
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faChevronDown, faChevronUp, faEye, faTrash, faEllipsisH } from "@fortawesome/free-solid-svg-icons";
+import { faChevronDown, faChevronUp, faEye } from "@fortawesome/free-solid-svg-icons";
 import React from "react";
 
 import Select, { GroupBase } from 'react-select';
 import Pagination from "@/components/Pagination";
 import { PDMData, PDMFilterParameters } from "@lib/types";
 
-import { usePathname } from "next/navigation";
 import Link from "next/link";
 
 import { pdmStatusOptions, limitOptions, ACCESS_LINKS } from "@lib/system-constant";
-import api from "@/app/api/route";
-import { deletePDM, getPDMByFilter } from "@/app/api/pdm/route";
+import { getPDMByFilter } from "@/app/api/pdm/route";
 import Swal from "sweetalert2";
+import { useUser } from "@/context/AppContext";
 
 const Loading = React.lazy(() => import("@/components/Loading"));
 
@@ -31,17 +30,19 @@ const Loading = React.lazy(() => import("@/components/Loading"));
 interface PDMManagementProps {
     data: PDMData[],
     className?: string,
+    listDHNamesExist?: string[]
 }
 
-export default function PDMManagement({ data, className }: PDMManagementProps) {
+export default function PDMManagement({ data, className, listDHNamesExist }: PDMManagementProps) {
+    const { isAdmin } = useUser();
     const [rootData, setRootData] = useState(data);
     const [loading, setLoading] = useState(false);
     const [sortConfig, setSortConfig] = useState<{ key: string, direction: 'asc' | 'desc' | 'default' } | null>(null);
     const [selectedStatus, setSelectedStatus] = useState('');
+    const [selectedTenDHOption, setSelectedTenDHOption] = useState('');
     const [limit, setLimit] = useState(5);
     const [error, setError] = useState("");
-
-    const path = usePathname();
+    const [DHNameOptions, setDHNameOptions] = useState<{ value: string, label: string }[]>([]);
 
     useEffect(() => {
         if (error) {
@@ -71,9 +72,23 @@ export default function PDMManagement({ data, className }: PDMManagementProps) {
         }
     }, [error]);
 
+    useEffect(() => {
+        if (listDHNamesExist && listDHNamesExist.length > 0) {
+            setDHNameOptions([
+                ...listDHNamesExist.filter(name => name && name.trim() !== "")
+                    .map((name) => ({ value: name, label: name }))
+            ]);
+        }
+    }, [listDHNamesExist]);
+
+    // useEffect(() => {
+    //     console.log("dhnop: ", DHNameOptions)
+    // }, [DHNameOptions]);
+
 
     const [filterForm, setFilterForm] = useState<PDMFilterParameters>({
-        ma_tim_dong_ho_pdm: "",
+        // ma_tim_dong_ho_pdm: "",
+        ten_dong_ho: "",
         so_qd_pdm: "",
         tinh_trang: "",
         ngay_qd_pdm_from: null,
@@ -123,9 +138,9 @@ export default function PDMManagement({ data, className }: PDMManagementProps) {
     }, [rootData, sortConfig]);
 
     useEffect(() => {
-
         setLoading(true);
         const debounce = setTimeout(async () => {
+            console.log("ddd: ", filterForm)
             try {
                 const res = await getPDMByFilter(filterForm);
                 if (res.status === 200 || res.status === 201) {
@@ -153,44 +168,10 @@ export default function PDMManagement({ data, className }: PDMManagementProps) {
         }));
     };
 
-    const handleDelete = (ma_tim_dong_ho_pdm: string) => {
-        Swal.fire({
-            title: "Xác nhận xóa?",
-            text: "Bạn sẽ không thể hoàn tác dữ liệu này!",
-            icon: "warning",
-            showCancelButton: true,
-            confirmButtonColor: "#3085d6",
-            cancelButtonColor: "#d33",
-            confirmButtonText: "Có",
-            cancelButtonText: "Không"
-        }).then(async (result) => {
-            if (result.isConfirmed) {
-                setLoading(true);
-                try {
-                    const res = await deletePDM(ma_tim_dong_ho_pdm);
-                    if (res.status === 200 || res.status === 201) {
-                        setRootData(prevData => prevData.filter(item => item.ma_tim_dong_ho_pdm !== ma_tim_dong_ho_pdm));
-                        Swal.fire({
-                            text: "Xóa thành công!",
-                            icon: "success"
-                        });
-                    } else {
-                        console.error(res.msg);
-                        setError("Có lỗi đã xảy ra!");
-                    }
-                } catch (error) {
-                    console.error('Error deleting PDM:', error);
-                    setError("Có lỗi đã xảy ra!");
-                } finally {
-                    setLoading(false);
-                }
-            }
-        });
-    };
-
     const hanldeResetFilter = () => {
         setFilterForm({
-            ma_tim_dong_ho_pdm: "",
+            // ma_tim_dong_ho_pdm: "",
+            ten_dong_ho: "",
             so_qd_pdm: "",
             ngay_qd_pdm_from: null,
             ngay_qd_pdm_to: null,
@@ -228,6 +209,72 @@ export default function PDMManagement({ data, className }: PDMManagementProps) {
 
                             <div className="col-12 mb-3 col-md-6 col-xl-4 d-flex">
                                 <label className={`${c_vfml['form-label']}`} htmlFor="ma_tim_dong_ho_pdm">
+                                    Tên đồng hồ
+                                    <Select
+                                        options={DHNameOptions as unknown as readonly GroupBase<never>[]}
+                                        className="basic-multi-select mt-2"
+                                        placeholder="Tên đồng hồ"
+                                        classNamePrefix="select"
+                                        isClearable
+                                        id="ten_dong_ho"
+                                        value={selectedTenDHOption}
+                                        isSearchable
+                                        onChange={(selectedOptions: any) => {
+                                            if (selectedOptions) {
+                                                const values = selectedOptions.value;
+
+                                                setSelectedTenDHOption(selectedOptions);
+                                                handleFilterChange('ten_dong_ho', values);
+                                            } else {
+                                                setSelectedTenDHOption('');
+                                                handleFilterChange('ten_dong_ho', "");
+                                            }
+                                        }}
+                                        styles={{
+                                            control: (provided) => ({
+                                                ...provided,
+                                                height: '42px',
+                                                minHeight: '42px',
+                                                borderColor: '#dee2e6 !important',
+                                                boxShadow: 'none !important',
+                                                backgroundColor: "white",
+                                            }),
+                                            valueContainer: (provided) => ({
+                                                ...provided,
+                                                height: '42px',
+                                                padding: '0 8px'
+                                            }),
+                                            input: (provided) => ({
+                                                ...provided,
+                                                margin: '0',
+                                                padding: '0'
+                                            }),
+                                            indicatorsContainer: (provided) => ({
+                                                ...provided,
+                                                height: '42px',
+                                                display: DHNameOptions.length == 0 ? "none" : "flex",
+                                            }),
+                                            menu: (provided) => ({
+                                                ...provided,
+                                                display: DHNameOptions.length == 0 ? "none" : "",
+                                                maxHeight: "250px",
+                                                zIndex: 777
+                                            }),
+                                            menuList: (provided) => ({
+                                                ...provided,
+                                                maxHeight: "250px",
+                                            }),
+                                            singleValue: (provided, state) => ({
+                                                ...provided,
+                                                color: state.isDisabled ? '#000' : provided.color,
+                                            })
+                                        }}
+                                    />
+                                </label>
+                            </div>
+
+                            {/* <div className="col-12 mb-3 col-md-6 col-xl-4 d-flex">
+                                <label className={`${c_vfml['form-label']}`} htmlFor="ma_tim_dong_ho_pdm">
                                     Mã tìm đồng hồ PDM:
                                     <input
                                         type="text"
@@ -238,7 +285,7 @@ export default function PDMManagement({ data, className }: PDMManagementProps) {
                                         onChange={(e) => handleFilterChange('ma_tim_dong_ho_pdm', e.target.value)}
                                     />
                                 </label>
-                            </div>
+                            </div> */}
 
                             <div className="col-12 mb-3 col-md-6 col-xl-4">
                                 <label className={`${c_vfml['form-label']}`} htmlFor="so_qd_pdm">
@@ -247,7 +294,7 @@ export default function PDMManagement({ data, className }: PDMManagementProps) {
                                         type="text"
                                         id="so_qd_pdm"
                                         className="form-control"
-                                        placeholder="Nhập tên đồng hồ"
+                                        placeholder="Nhập số quyết định"
                                         value={filterForm.so_qd_pdm || ""}
                                         onChange={(e) => handleFilterChange('so_qd_pdm', e.target.value)}
                                     />
@@ -297,6 +344,10 @@ export default function PDMManagement({ data, className }: PDMManagementProps) {
                                                 margin: '0',
                                                 padding: '0'
                                             }),
+                                            menu: (provided) => ({
+                                                ...provided,
+                                                zIndex: 777
+                                            }),
                                             indicatorsContainer: (provided) => ({
                                                 ...provided,
                                                 height: '42px'
@@ -305,84 +356,6 @@ export default function PDMManagement({ data, className }: PDMManagementProps) {
                                     />
                                 </label>
                             </div>
-
-                            {/* <div className="col-12 mb-3 col-md-6 col-xl-4">
-                            <label className={`${c_vfml['form-label']}`}>
-                                Kiểu:
-                                <Select
-                                    name="type"
-                                    options={typeOptions as unknown as readonly GroupBase<never>[]}
-                                    className="basic-multi-select"
-                                    classNamePrefix="select"
-                                    isClearable
-                                    value={typeOptions.find(option => option.value === filterForm.type) || null}
-                                    onChange={(selectedOptions: any) => handleFilterChange('type', selectedOptions ? selectedOptions.value : null)}
-                                    styles={{
-                                        control: (provided) => ({
-                                            ...provided,
-                                            height: '42px',
-                                            minHeight: '42px',
-                                            marginTop: '0.5rem',
-                                            borderColor: '#dee2e6 !important',
-                                            boxShadow: 'none !important'
-                                        }),
-                                        valueContainer: (provided) => ({
-                                            ...provided,
-                                            height: '42px',
-                                            padding: '0 8px'
-                                        }),
-                                        input: (provided) => ({
-                                            ...provided,
-                                            margin: '0',
-                                            padding: '0'
-                                        }),
-                                        indicatorsContainer: (provided) => ({
-                                            ...provided,
-                                            height: '42px'
-                                        })
-                                    }}
-                                />
-                            </label>
-                        </div> */}
-
-                            {/* <div className="col-12 mb-3 col-md-6 col-xl-4">
-                            <label className={`${c_vfml['form-label']}`}>
-                                Cấp chính xác:
-                                <Select
-                                    name="ccx"
-                                    options={ccxOptions as unknown as readonly GroupBase<never>[]}
-                                    className="basic-multi-select"
-                                    classNamePrefix="select"
-                                    isClearable
-                                    value={ccxOptions.find(option => option.value === filterForm.ccx) || null}
-                                    onChange={(selectedOptions: any) => handleFilterChange('ccx', selectedOptions ? selectedOptions.value : null)}
-                                    styles={{
-                                        control: (provided) => ({
-                                            ...provided,
-                                            height: '42px',
-                                            minHeight: '42px',
-                                            marginTop: '0.5rem',
-                                            borderColor: '#dee2e6 !important',
-                                            boxShadow: 'none !important'
-                                        }),
-                                        valueContainer: (provided) => ({
-                                            ...provided,
-                                            height: '42px',
-                                            padding: '0 8px'
-                                        }),
-                                        input: (provided) => ({
-                                            ...provided,
-                                            margin: '0',
-                                            padding: '0'
-                                        }),
-                                        indicatorsContainer: (provided) => ({
-                                            ...provided,
-                                            height: '42px'
-                                        })
-                                    }}
-                                />
-                            </label>
-                        </div> */}
                             <div className="col-12 mb-3 col-md-6 col-xl-4">
                                 <label className={`${c_vfml['form-label']}`}>
                                     Số lượng bản ghi:
@@ -412,6 +385,10 @@ export default function PDMManagement({ data, className }: PDMManagementProps) {
                                                 margin: '0',
                                                 padding: '0'
                                             }),
+                                            menu: (provided) => ({
+                                                ...provided,
+                                                zIndex: 777
+                                            }),
                                             indicatorsContainer: (provided) => ({
                                                 ...provided,
                                                 height: '42px'
@@ -420,7 +397,6 @@ export default function PDMManagement({ data, className }: PDMManagementProps) {
                                     />
                                 </label>
                             </div>
-
                             <div className={`col-12 col-xl-8 mb-3 m-0 row p-0 ${c_vfml['search-created-date']}`}>
                                 <label className={`${c_vfml['form-label']} col-12`}>
                                     Ngày quyết định PDM:
@@ -463,7 +439,7 @@ export default function PDMManagement({ data, className }: PDMManagementProps) {
                                 <Link
                                     aria-label="Thêm mới"
                                     href={ACCESS_LINKS.PDM_ADD.src}
-                                    className="btn bg-main-green text-white"
+                                    className={`btn bg-main-green text-white ${isAdmin ? "" : "d-none"}`}
                                 >
                                     Thêm mới
                                 </Link>
@@ -479,7 +455,7 @@ export default function PDMManagement({ data, className }: PDMManagementProps) {
                                 <table className={`table table-striped table-bordered table-hover ${c_vfml['process-table']}`}>
                                     <thead>
                                         <tr className={`${c_vfml['table-header']}`}>
-                                            <th onClick={() => sortData('id')}>
+                                            {/* <th onClick={() => sortData('id')}>
                                                 <div className={`${c_vfml['table-label']}`}>
                                                     <span>
                                                         Mã tìm đồng hồ PDM
@@ -491,11 +467,53 @@ export default function PDMManagement({ data, className }: PDMManagementProps) {
                                                         <FontAwesomeIcon icon={faChevronDown}></FontAwesomeIcon>
                                                     )}
                                                 </div>
-                                            </th>
+                                            </th> */}
                                             <th>
                                                 <div className={`${c_vfml['table-label']}`}>
                                                     <span>
                                                         Tên đồng hồ
+                                                    </span>
+                                                </div>
+                                            </th>
+                                            <th>
+                                                <div className={`${c_vfml['table-label']}`}>
+                                                    <span>
+                                                        DN
+                                                    </span>
+                                                </div>
+                                            </th>
+                                            <th>
+                                                <div className={`${c_vfml['table-label']}`}>
+                                                    <span>
+                                                        CCX
+                                                    </span>
+                                                </div>
+                                            </th>
+                                            <th>
+                                                <div className={`${c_vfml['table-label']}`}>
+                                                    <span>
+                                                        Kiểu Sensor
+                                                    </span>
+                                                </div>
+                                            </th>
+                                            <th>
+                                                <div className={`${c_vfml['table-label']}`}>
+                                                    <span>
+                                                        Transmitter
+                                                    </span>
+                                                </div>
+                                            </th>
+                                            <th>
+                                                <div className={`${c_vfml['table-label']}`}>
+                                                    <span>
+                                                        Q
+                                                    </span>
+                                                </div>
+                                            </th>
+                                            <th>
+                                                <div className={`${c_vfml['table-label']}`}>
+                                                    <span>
+                                                        R
                                                     </span>
                                                 </div>
                                             </th>
@@ -508,32 +526,6 @@ export default function PDMManagement({ data, className }: PDMManagementProps) {
                                                         <FontAwesomeIcon icon={faChevronUp}></FontAwesomeIcon>
                                                     )}
                                                     {sortConfig && sortConfig.key === 'createdBy' && sortConfig.direction === 'desc' && (
-                                                        <FontAwesomeIcon icon={faChevronDown}></FontAwesomeIcon>
-                                                    )}
-                                                </div>
-                                            </th>
-                                            <th onClick={() => sortData('ngay_qd_pdm')}>
-                                                <div className={`${c_vfml['table-label']}`}>
-                                                    <span>
-                                                        Ngày quyết định PDM
-                                                    </span>
-                                                    {sortConfig && sortConfig.key === 'ngay_qd_pdm' && sortConfig.direction === 'asc' && (
-                                                        <FontAwesomeIcon icon={faChevronUp}></FontAwesomeIcon>
-                                                    )}
-                                                    {sortConfig && sortConfig.key === 'ngay_qd_pdm' && sortConfig.direction === 'desc' && (
-                                                        <FontAwesomeIcon icon={faChevronDown}></FontAwesomeIcon>
-                                                    )}
-                                                </div>
-                                            </th>
-                                            <th onClick={() => sortData('ngay_het_han')}>
-                                                <div className={`${c_vfml['table-label']}`}>
-                                                    <span>
-                                                        Ngày hết hạn
-                                                    </span>
-                                                    {sortConfig && sortConfig.key === 'ngay_het_han' && sortConfig.direction === 'asc' && (
-                                                        <FontAwesomeIcon icon={faChevronUp}></FontAwesomeIcon>
-                                                    )}
-                                                    {sortConfig && sortConfig.key === 'ngay_het_han' && sortConfig.direction === 'desc' && (
                                                         <FontAwesomeIcon icon={faChevronDown}></FontAwesomeIcon>
                                                     )}
                                                 </div>
@@ -567,11 +559,14 @@ export default function PDMManagement({ data, className }: PDMManagementProps) {
                                                 onClick={() => window.open(`${ACCESS_LINKS.PDM_DETAIL.src}/${item.ma_tim_dong_ho_pdm}`, '_blank')}
                                                 style={{ cursor: 'pointer' }} >
                                                 {/* <td>{item.id}</td> */}
-                                                <td>{item.ma_tim_dong_ho_pdm}</td>
                                                 <td>{item.ten_dong_ho}</td>
-                                                <td>{item.so_qd_pdm}</td>
-                                                <td>{dayjs(item.ngay_qd_pdm).format('DD-MM-YYYY')}</td>
-                                                <td>{dayjs(item.ngay_het_han).format('DD-MM-YYYY')}</td>
+                                                <td>{item.dn}</td>
+                                                <td>{item.ccx}</td>
+                                                <td>{item.kieu_sensor}</td>
+                                                <td>{item.transmitter}</td>
+                                                <td>{item.q3 ? <>Q<sub>III</sub>= {item.q3}</> : <>Q<sub>n</sub>= {item.qn}</>}</td>
+                                                <td>{item.r}</td>
+                                                <td>{item.so_qd_pdm}-{dayjs(item.ngay_qd_pdm).format('YYYY')}</td>
                                                 <td>
                                                     {new Date(item.ngay_het_han) > new Date() ? 'Còn hiệu lực' : 'Hết hạn'}
                                                 </td>
@@ -579,26 +574,6 @@ export default function PDMManagement({ data, className }: PDMManagementProps) {
                                                     <Link target="_blank" aria-label="Xem chi tiết" href={ACCESS_LINKS.PDM_DETAIL.src + "/" + item.ma_tim_dong_ho_pdm} className={`btn border-0 shadow-0 w-100 text-blue`}>
                                                         <FontAwesomeIcon icon={faEye}></FontAwesomeIcon>
                                                     </Link>
-                                                    {/* <div className={`dropdown ${c_vfml['action']}`}>
-                                                        <button aria-label="Lựa chọn" className={`${c_vfml['action-button']}`} type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                                            <FontAwesomeIcon icon={faEllipsisH}></FontAwesomeIcon>
-                                                        </button>
-                                                        <ul className="dropdown-menu">
-                                                            <li>
-                                                                <Link aria-label="Xem chi tiết" target="blank" href={path + "/chi-tiet/" + item.ma_tim_dong_ho_pdm} className={`btn w-100`}>
-                                                                    Xem chi tiết
-                                                                </Link>
-                                                            </li>
-                                                            <li>
-                                                                <button aria-label="Xóa" type="button"
-                                                                    // onClick={() => handleDelete(item.ma_tim_dong_ho_pdm)} 
-                                                                    className={`btn w-100`}>
-                                                                    Xóa
-                                                                </button>
-                                                            </li>
-                                                        </ul>
-                                                    </div> */}
-
                                                 </td>
                                             </tr>
                                         ))}

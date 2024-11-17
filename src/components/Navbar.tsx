@@ -32,7 +32,7 @@ interface NavbarProps {
     title?: string,
 }
 const Navbar: React.FC<NavbarProps> = ({ className, title = "Trang kiểm định" }) => {
-    const { user, logoutUser, isAdmin } = useUser();
+    const { user, logoutUser } = useUser();
 
     return (
         <>
@@ -87,12 +87,6 @@ const Navbar: React.FC<NavbarProps> = ({ className, title = "Trang kiểm địn
                                 </div>
                                 <hr className="my-2" />
 
-                                {isAdmin && (
-                                    <a aria-label="Trang quản trị" href="/dashboard" className={`dropdown-item ${layout['dD_item']}`}>
-                                        <FontAwesomeIcon icon={faUsersCog}></FontAwesomeIcon>
-                                        Trang quản trị
-                                    </a>
-                                )}
                                 <a aria-label="Đổi mật khẩu" href={ACCESS_LINKS.CHANGE_PW.src} className={`dropdown-item ${layout['dD_item']}`}>
                                     <FontAwesomeIcon icon={faKey}></FontAwesomeIcon>
                                     Đổi mật khẩu

@@ -1,5 +1,7 @@
 import dayjs from "dayjs";
-import { DongHo, DuLieuMotLanChay, TinhSaiSoValueTabs } from "./types";
+import { DongHo, DuLieuMotLanChay, PDMData, TinhSaiSoValueTabs } from "./types";
+import { getAllDongHoNamesExist } from "@/app/api/dongho/route";
+import { INDEXED_DB_DH_OBJ_NAME, INDEXED_DB_NAME } from "./system-constant";
 
 export const getSaiSoDongHo = (formValue: DuLieuMotLanChay) => {
     if (formValue) {
@@ -69,8 +71,7 @@ export const getVToiThieu = (q: string | number, d: string | number) => {
     // q: m3/h 
     // d: mm
     if (q && d) {
-
-        const qNum = parseFloat(typeof q === 'string' ? q : q.toString());
+        let qNum = parseFloat(typeof q === 'string' ? q : q.toString());
         const dNum = parseFloat(typeof d === 'string' ? d : d.toString());
 
         if (isNaN(qNum) || isNaN(dNum)) {
@@ -105,13 +106,14 @@ export const getHieuSaiSo = (formValues: TinhSaiSoValueTabs) => {
 
 
 // TODO: Check 
-export const isDongHoDatTieuChuan = (isQ3: boolean, formHieuSaiSo: { hss: number | null }[]) => {
+export const isDongHoDatTieuChuan = (formHieuSaiSo: { hss: number | null }[]) => {
     const lan1 = formHieuSaiSo[0].hss;
     const lan2 = formHieuSaiSo[1].hss;
     const lan3 = formHieuSaiSo[2].hss;
 
     if (lan1 !== null && lan2 !== null && lan3 !== null) {
-        return (isQ3) ? (lan1 >= -2 && lan2 >= -2 && lan3 >= -5) : (lan1 <= 2 && lan2 <= 2 && lan3 <= 5)
+        // return (isQ3) ? (lan1 >= -2 && lan2 >= -2 && lan3 >= -5) : (lan1 <= 2 && lan2 <= 2 && lan3 <= 5)
+        return (lan1 >= -2 && lan2 >= -2 && lan3 >= -5 && lan1 <= 2 && lan2 <= 2 && lan3 <= 5)
     }
     return null;
 }
@@ -153,5 +155,89 @@ export const convertToUppercaseNonAccent = (str: string) => {
 }
 
 export const getFullNameFileDownload = (dongho: DongHo) => {
-    return (dongho.ten_dong_ho || "") + (dongho.dn || "") + (dongho.ccx || "") + (dongho.q3 || "") + (dongho.r || "") + (dongho.qn || "") + (dongho.seri_sensor || "") + (dongho.seri_chi_thi || "") + (dongho.kieu_sensor || "") + (dongho.kieu_chi_thi || "")
+    return (dongho.so_giay_chung_nhan || "") +
+        (dongho.ten_khach_hang ? "_" + dongho.ten_khach_hang : "") +
+        (dongho.ten_dong_ho ? "_" + dongho.ten_dong_ho : "") +
+        (dongho.dn ? "_" + dongho.dn : "") +
+        (dongho.ngay_thuc_hien ? "_" + dayjs(dongho.ngay_thuc_hien).format('DD-MM-YYYY') : "")
+}
+
+export const getListDongHoNamesExist = async () => {
+    const res = await getAllDongHoNamesExist();
+    if (res.status == 200 || res.status == 201) {
+        const listNames: string[] = [...res.data.map((pdm: PDMData) => pdm["ten_dong_ho"])]
+        const uniqueNames = listNames.filter((value, index, self) => self.indexOf(value) === index);
+        const sortedNames = uniqueNames.sort((a, b) => a.localeCompare(b));
+        return sortedNames;
+    }
+    return []
+}
+
+export function openDB() {
+    return new Promise((resolve, reject) => {
+        if (typeof window === "undefined") return;
+
+        const request = indexedDB.open(INDEXED_DB_NAME, 1);
+        request.onupgradeneeded = (event) => {
+            const db = (event.target as IDBOpenDBRequest).result;
+            if (!db.objectStoreNames.contains(INDEXED_DB_DH_OBJ_NAME)) {
+                db.createObjectStore(INDEXED_DB_DH_OBJ_NAME, { keyPath: 'id' });
+            }
+        };
+        request.onsuccess = (event) => {
+            const target = event.target as IDBOpenDBRequest;
+            resolve(target.result);
+        };
+
+        request.onerror = (event) => {
+            const target = event.target as IDBOpenDBRequest;
+            reject(target.error);
+        };
+    });
+}
+
+export async function saveDongHoDataExistsToIndexedDB(username: string, data: DongHo[], savedData?: DongHo[]) {
+    const db = await openDB() as IDBDatabase;
+    return new Promise<void>((resolve, reject) => {
+        const transaction = db.transaction(INDEXED_DB_DH_OBJ_NAME, "readwrite");
+        const store = transaction.objectStore(INDEXED_DB_DH_OBJ_NAME);
+
+        const dataToStore = { id: username, dongHoList: data, saveDongHoList: savedData || [] };
+
+        const request = store.put(dataToStore);
+
+        request.onsuccess = () => {
+            resolve();
+        };
+        request.onerror = (event) => {
+            const error = (event.target as IDBRequest).error;
+            reject(error);
+        };
+    });
+}
+
+export async function getDongHoDataExistsFromIndexedDB(username: string) {
+    const db = await openDB() as IDBDatabase;
+    return new Promise((resolve, reject) => {
+        const transaction = db.transaction(INDEXED_DB_DH_OBJ_NAME, "readonly");
+        const store = transaction.objectStore(INDEXED_DB_DH_OBJ_NAME);
+        const request = store.get(username);
+
+        request.onsuccess = (event: Event) => {
+            const target = event.target as IDBRequest;
+            if (target.result) {
+                resolve(target.result.dongHoList);
+            } else {
+                resolve(null);
+            }
+        };
+
+        request.onerror = (event) => {
+            const target = event.target as IDBRequest;
+            if (target && target.error) {
+                console.error("Lỗi khi kiểm tra dữ liệu:", target.error);
+                reject(target.error);
+            }
+        };
+    });
 }

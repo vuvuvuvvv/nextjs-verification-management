@@ -2,19 +2,17 @@
 
 import dynamic from "next/dynamic";
 import { Suspense, useEffect, useState } from "react";
-import uiDNSm from "@/styles/scss/ui/dn-smt-15.module.scss";
+import uiQSm from "@/styles/scss/ui/q-smt-15.module.scss";
 import Loading from "@/components/Loading";
 import { useDongHoList } from "@/context/ListDongHo";
-// import { getDongHoBySerinumber } from "@/app/api/dongho/route";
 
-const DongHoListProvider = dynamic(() => import("@/context/ListDongHo").then(mod => mod.DongHoListProvider), { ssr: false });
-const FormDongHoNuocDNNhoHon15 = dynamic(() => import("@/components/NhomDongHoNuocForm"), { ssr: false });
+const NhomDongHoNuocForm = dynamic(() => import("@/components/NhomDongHoNuocForm"), { ssr: false });
 
-interface NewProcessDNSmallerThan15Props {
+interface NewProcessQSmallerThan15Props {
     className?: string,
 }
 
-export default function NewProcessDNSmallerThan15({ className }: NewProcessDNSmallerThan15Props) {
+export default function NewProcessQSmallerThan15({ className }: NewProcessQSmallerThan15Props) {
     const {setAmount} = useDongHoList();
     const [qnt, setQnt] = useState<number | null>(null);
     const [isModalOpen, setModalOpen] = useState(true);
@@ -54,8 +52,8 @@ export default function NewProcessDNSmallerThan15({ className }: NewProcessDNSma
     if (isModalOpen) {
         return (
             <Suspense fallback={<Loading />}>
-                <div className={`${uiDNSm['wraper-modal']}`}>
-                    <div className={`${uiDNSm['modal']}`}>
+                <div className={`${uiQSm['wraper-modal']}`}>
+                    <div className={`${uiQSm['modal']}`}>
                         <h5 className="modal-title mb-2">Nhập số lượng đồng hồ:</h5>
                         <input
                             type="text"
@@ -81,6 +79,6 @@ export default function NewProcessDNSmallerThan15({ className }: NewProcessDNSma
     }
 
     return (
-        <FormDongHoNuocDNNhoHon15 />
+        <NhomDongHoNuocForm />
     );
 }

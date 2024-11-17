@@ -6,10 +6,10 @@ import { DongHoListProvider } from "@/context/ListDongHo";
 
 export default function KiemDinhDongHoNuocLayout({ children }: Readonly<{ children: React.ReactNode }>) {
     return <DongHoProvider>
-        <DongHoListProvider>
-            <KiemDinhProvider>
+        <KiemDinhProvider>
+            <DongHoListProvider>
                 {children}
-            </KiemDinhProvider>
-        </DongHoListProvider>
+            </DongHoListProvider>
+        </KiemDinhProvider>
     </DongHoProvider>
 }

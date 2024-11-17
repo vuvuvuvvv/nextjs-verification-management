@@ -61,7 +61,8 @@ export interface PDM {
 
 
 export interface PDMFilterParameters {
-    ma_tim_dong_ho_pdm: string | null,
+    // ma_tim_dong_ho_pdm: string | null,
+    ten_dong_ho: string | null,
     so_qd_pdm: string | null,
     ngay_qd_pdm_from: Date | null,
     ngay_qd_pdm_to: Date | null,
@@ -101,7 +102,7 @@ export interface PDMData {
     "transmitter": string,
     "qn": string,
     "q3": string,
-    "R": string,
+    "r": string,
     "don_vi_pdm": string,
     "dia_chi": string,
     "so_qd_pdm": string,
@@ -179,7 +180,6 @@ export interface DongHo {
     kieu_chi_thi: string | null;
     kieu_sensor: string | null;
     kieu_thiet_bi: string | null;
-    co_so_san_xuat: string | null;
     so_tem: string | null;
     nam_san_xuat: Date | null;
     dn: string | null;
@@ -195,7 +195,11 @@ export interface DongHo {
     phuong_phap_thuc_hien: string | null;
     chuan_thiet_bi_su_dung: string | null;
     nguoi_kiem_dinh: string | null;
+    nguoi_soat_lai: string | null;
     ngay_thuc_hien: Date | null;
+    co_so_san_xuat: string | null;
+    noi_thuc_hien: string | null;
+    noi_su_dung: string | null;
     vi_tri: string | null;
     nhiet_do: string | null;
     do_am: string | null;
@@ -236,3 +240,6 @@ export interface NhomDongHoFilterParameters {
     ngay_kiem_dinh_from: Date | null;
     ngay_kiem_dinh_to: Date | null;
 }
+
+type VChuanDongBo = Record<number, { Vc1: number, Vc2: number } | null>;
+export type VChuanDongBoCacLL = Record<string, VChuanDongBo | null>

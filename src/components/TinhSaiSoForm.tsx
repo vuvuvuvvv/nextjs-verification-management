@@ -14,18 +14,18 @@ interface CaculatorFormProps {
         Tc: number;
     };
     readOnly?: boolean,
-    onFormChange: (field: string, value: number) => void;
+    onFormChange: (field: string, value: string) => void;
     d?: string;
     isDisable?: boolean
 }
 
-export default function DNBT30TinhSaiSoForm({ className, formValue, readOnly = false, onFormChange, d, isDisable }: CaculatorFormProps) {
+export default function QBT30TinhSaiSoForm({ className, formValue, readOnly = false, onFormChange, d, isDisable }: CaculatorFormProps) {
     const [V1, setV1] = useState<string>(formValue.V1.toString() || "0");
     const [V2, setV2] = useState<string>(formValue.V2.toString() || "0");
     const [Vc1, setVc1] = useState<string>(formValue.Vc1 ? formValue.Vc1.toString() : "0");
     const [Vc2, setVc2] = useState<string>(formValue.Vc2 ? formValue.Vc2.toString() : "0");
-    const [Tdh, setTdh] = useState<string>("0");
-    const [Tc, setTc] = useState<string>("0");
+    const [Tdh, setTdh] = useState<string>(formValue.Tdh ? formValue.Tdh.toString() : "0");
+    const [Tc, setTc] = useState<string>(formValue.Tc ? formValue.Tc.toString() : "0");
     const [saiSo, setSaiSo] = useState<string>("0%");
     const { dongHoSelected } = useDongHoList();
 
@@ -48,6 +48,7 @@ export default function DNBT30TinhSaiSoForm({ className, formValue, readOnly = f
             setTdh(formValue.Tdh.toString());
             setTc(formValue.Tc.toString());
 
+
             prevFormValuesRef.current = formValue;
         }
     }, [formValue]);
@@ -66,7 +67,6 @@ export default function DNBT30TinhSaiSoForm({ className, formValue, readOnly = f
         return (e: React.FormEvent<HTMLInputElement>) => {
             let rawValue = e.currentTarget.value.replace(/[^0-9]/g, '');
 
-            // Remove leading zeros if rawValue length is greater than or equal to decimalPlaces + 2
             if (rawValue.length >= decimalPlaces + 2) {
                 rawValue = rawValue.replace(/^0+/, '');
             }
@@ -74,12 +74,13 @@ export default function DNBT30TinhSaiSoForm({ className, formValue, readOnly = f
             let formattedValue = '';
 
             if (rawValue.length <= decimalPlaces) {
-                formattedValue = `0.${rawValue.padEnd(decimalPlaces, '0')}`;
+                formattedValue = `0.${rawValue.padStart(decimalPlaces, '0')}`;
             } else {
                 const integerPart = rawValue.slice(0, rawValue.length - decimalPlaces);
                 const decimalPart = rawValue.slice(rawValue.length - decimalPlaces);
                 formattedValue = `${integerPart}.${decimalPart}`;
             }
+            console.log(formattedValue);
 
             setter(formattedValue);
 
@@ -87,11 +88,8 @@ export default function DNBT30TinhSaiSoForm({ className, formValue, readOnly = f
                 clearTimeout(numericInputTimeout);
             }
 
-            // Capture the numeric value before setting the timeout
-            const numericValue = Number(formattedValue);
-
             const timeout = setTimeout(() => {
-                onFormChange(field, numericValue);
+                onFormChange(field, formattedValue);
             }, 0);
             setNumericInputTimeout(timeout);
         };
@@ -118,19 +116,19 @@ export default function DNBT30TinhSaiSoForm({ className, formValue, readOnly = f
                 if (numberChangeTimeout) {
                     clearTimeout(numberChangeTimeout);
                 }
-                const timeout = setTimeout(() => onFormChange(field, parseFloat(value)), 500);
+                const timeout = setTimeout(() => onFormChange(field, value), 0);
                 setNumberChangeTimeout(timeout);
             }
         };
     };
 
     const handleReset = () => {
-        onFormChange("V1", 0);
-        onFormChange("V2", 0);
-        onFormChange("Vc1", 0);
-        onFormChange("Vc2", 0);
-        onFormChange("Tdh", 0);
-        onFormChange("Tc", 0);
+        onFormChange("V1", "0");
+        onFormChange("V2", "0");
+        onFormChange("Vc1", "0");
+        onFormChange("Vc2", "0");
+        onFormChange("Tdh", "0");
+        onFormChange("Tc", "0");
         setV1("0");
         setV2("0");
         setVc1("0");
@@ -155,7 +153,7 @@ export default function DNBT30TinhSaiSoForm({ className, formValue, readOnly = f
                             type="text"
                             className="form-control"
                             id="firstNum"
-                            value={V1}
+                            value={V1 || "0"}
                             onChange={handleNumericInput(setV1, "V1")}
                             disabled={isDisable}
                             autoComplete="off"
@@ -169,7 +167,7 @@ export default function DNBT30TinhSaiSoForm({ className, formValue, readOnly = f
                             type="text"
                             className="form-control"
                             id="lastNum"
-                            value={V2}
+                            value={V2 || "0"}
                             onChange={handleNumericInput(setV2, "V2")}
                             disabled={isDisable}
                             autoComplete="off"
@@ -183,7 +181,7 @@ export default function DNBT30TinhSaiSoForm({ className, formValue, readOnly = f
                             type="text"
                             className="form-control"
                             id="tdh"
-                            value={Tdh}
+                            value={Tdh || "0"}
                             onChange={handleNumberChange(setTdh, "Tdh")}
                             disabled={isDisable}
                             autoComplete="off"
@@ -200,7 +198,7 @@ export default function DNBT30TinhSaiSoForm({ className, formValue, readOnly = f
                             type="text"
                             className="form-control"
                             id="firstNum"
-                            value={Vc1}
+                            value={Vc1 || "0"}
                             onChange={handleNumberChange(setVc1, "Vc1")}
                             disabled={isDisable}
                             autoComplete="off"

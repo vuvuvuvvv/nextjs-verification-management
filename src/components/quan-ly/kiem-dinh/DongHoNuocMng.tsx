@@ -71,7 +71,6 @@ export default function WaterMeterManagement({ className, isBiggerThan15 = false
     }, [error]);
 
     const path = usePathname();
-    console.log("path: ", path);
 
     const [filterForm, setFilterForm] = useState<DongHoFilterParameters>({
         is_bigger_than_15: isBiggerThan15,
@@ -309,135 +308,6 @@ export default function WaterMeterManagement({ className, isBiggerThan15 = false
                                     />
                                 </label>
                             </div>
-
-                            {/* <div className="col-12 mb-3 col-md-6 col-xl-4">
-                                <label className={`${c_vfml['form-label']}`}>
-                                    Trạng thái:
-                                    <Select
-                                        // isMulti
-                                        name="status"
-                                        options={statusOptions as unknown as readonly GroupBase<never>[]}
-                                        className="basic-multi-select"
-                                        classNamePrefix="select"
-                                        isClearable
-                                        value={selectedStatus}
-                                        onChange={(selectedOptions: any) => {
-                                            if (selectedOptions) {
-                                                // const values = selectedOptions.map((option: { value: string }) => option.value);
-                                                const values = selectedOptions.value;
-
-                                                setSelectedStatus(selectedOptions);
-                                                handleFilterChange('status', values);
-                                            } else {
-                                                setSelectedStatus(null);
-                                                handleFilterChange('status', []);
-                                            }
-                                        }}
-                                        styles={{
-                                            control: (provided) => ({
-                                                ...provided,
-                                                height: '42px',
-                                                minHeight: '42px',
-                                                marginTop: '0.5rem',
-                                                borderColor: '#dee2e6 !important',
-                                                boxShadow: 'none !important'
-                                            }),
-                                            valueContainer: (provided) => ({
-                                                ...provided,
-                                                height: '42px',
-                                                padding: '0 8px'
-                                            }),
-                                            input: (provided) => ({
-                                                ...provided,
-                                                margin: '0',
-                                                padding: '0'
-                                            }),
-                                            indicatorsContainer: (provided) => ({
-                                                ...provided,
-                                                height: '42px'
-                                            })
-                                        }}
-                                    />
-                                </label>
-                            </div> */}
-
-                            {/* <div className="col-12 mb-3 col-md-6 col-xl-4">
-                            <label className={`${c_vfml['form-label']}`}>
-                                Kiểu:
-                                <Select
-                                    name="type"
-                                    options={typeOptions as unknown as readonly GroupBase<never>[]}
-                                    className="basic-multi-select"
-                                    classNamePrefix="select"
-                                    isClearable
-                                    value={typeOptions.find(option => option.value === filterForm.type) || null}
-                                    onChange={(selectedOptions: any) => handleFilterChange('type', selectedOptions ? selectedOptions.value : null)}
-                                    styles={{
-                                        control: (provided) => ({
-                                            ...provided,
-                                            height: '42px',
-                                            minHeight: '42px',
-                                            marginTop: '0.5rem',
-                                            borderColor: '#dee2e6 !important',
-                                            boxShadow: 'none !important'
-                                        }),
-                                        valueContainer: (provided) => ({
-                                            ...provided,
-                                            height: '42px',
-                                            padding: '0 8px'
-                                        }),
-                                        input: (provided) => ({
-                                            ...provided,
-                                            margin: '0',
-                                            padding: '0'
-                                        }),
-                                        indicatorsContainer: (provided) => ({
-                                            ...provided,
-                                            height: '42px'
-                                        })
-                                    }}
-                                />
-                            </label>
-                        </div> */}
-
-                            {/* <div className="col-12 mb-3 col-md-6 col-xl-4">
-                            <label className={`${c_vfml['form-label']}`}>
-                                Cấp chính xác:
-                                <Select
-                                    name="ccx"
-                                    options={ccxOptions as unknown as readonly GroupBase<never>[]}
-                                    className="basic-multi-select"
-                                    classNamePrefix="select"
-                                    isClearable
-                                    value={ccxOptions.find(option => option.value === filterForm.ccx) || null}
-                                    onChange={(selectedOptions: any) => handleFilterChange('ccx', selectedOptions ? selectedOptions.value : null)}
-                                    styles={{
-                                        control: (provided) => ({
-                                            ...provided,
-                                            height: '42px',
-                                            minHeight: '42px',
-                                            marginTop: '0.5rem',
-                                            borderColor: '#dee2e6 !important',
-                                            boxShadow: 'none !important'
-                                        }),
-                                        valueContainer: (provided) => ({
-                                            ...provided,
-                                            height: '42px',
-                                            padding: '0 8px'
-                                        }),
-                                        input: (provided) => ({
-                                            ...provided,
-                                            margin: '0',
-                                            padding: '0'
-                                        }),
-                                        indicatorsContainer: (provided) => ({
-                                            ...provided,
-                                            height: '42px'
-                                        })
-                                    }}
-                                />
-                            </label>
-                        </div> */}
                             <div className={`col-12 col-md-6 col-xl-4 mb-3 m-0 p-0 row`}>
                                 <label className={`${c_vfml['form-label']}`}>
                                     Số lượng bản ghi:
@@ -466,6 +336,10 @@ export default function WaterMeterManagement({ className, isBiggerThan15 = false
                                                 ...provided,
                                                 margin: '0',
                                                 padding: '0'
+                                            }),
+                                            menu: (provided) => ({
+                                                ...provided,
+                                                zIndex: 777
                                             }),
                                             indicatorsContainer: (provided) => ({
                                                 ...provided,
@@ -516,7 +390,7 @@ export default function WaterMeterManagement({ className, isBiggerThan15 = false
                                     Xóa bộ lọc
                                 </button>
                                 <Link
-                                    href={path.includes(ACCESS_LINKS.DHN_BT15.src) ? ACCESS_LINKS.DHN_BT15_ADD.src : ACCESS_LINKS.DHN_ST15_ADD.src}
+                                    href={ACCESS_LINKS.DHN_ADD.src}
                                     className="btn bg-main-green text-white"
                                 >
                                     Thêm mới
@@ -529,7 +403,7 @@ export default function WaterMeterManagement({ className, isBiggerThan15 = false
                         <div className={`m-0 p-0 w-100 w-100 position-relative ${c_vfml['wrap-process-table']}`}>
                             {filterLoading && <Loading />}
                             {paginatedData.length > 0 ? (
-                                <table className={`table table-hover ${c_vfml['process-table']}`}>
+                                <table className={`table table-striped table-bordered table-hover ${c_vfml['process-table']}`}>
                                     <thead>
                                         <tr className={`${c_vfml['table-header']}`}>
                                             <th>

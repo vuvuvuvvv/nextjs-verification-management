@@ -3,7 +3,8 @@
 import { useKiemDinh } from "@/context/KiemDinh";
 import { faAdd, faTimes, faUndo } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { getHieuSaiSo, getVToiThieu, isDongHoDatTieuChuan } from "@lib/system-function";
+import { TITLE_LUU_LUONG } from "@lib/system-constant";
+import { getHieuSaiSo, getVToiThieu } from "@lib/system-function";
 import { DuLieuCacLanChay, DuLieuMotLanChay, TinhSaiSoValueTabs } from "@lib/types";
 import c_ect from "@styles/scss/components/tinh-sai-so-tab.module.scss";
 import { useEffect, useRef, useState } from "react";
@@ -20,7 +21,8 @@ interface TinhSaiSoTabProps {
     }
     Form: ({ className, d }: FormProps) => JSX.Element;
     onFormHSSChange: (value: number | null) => void;
-    isDisable?: boolean
+    isDisable?: boolean;
+    isDHDienTu?: boolean
 }
 
 interface TabFormState {
@@ -31,12 +33,12 @@ interface FormProps {
     className?: string;
     formValue: DuLieuMotLanChay;
     readOnly?: boolean,
-    onFormChange: (field: string, value: number) => void;
+    onFormChange: (field: string, value: string) => void;
     d?: string;
     isDisable?: boolean
 }
 
-export default function TinhSaiSoTab({ className, tabIndex, d, q, Form, onFormHSSChange, isDisable }: TinhSaiSoTabProps) {
+export default function TinhSaiSoTab({ className, tabIndex, d, q, Form, onFormHSSChange, isDisable, isDHDienTu }: TinhSaiSoTabProps) {
     const {
         duLieuKiemDinhCacLuuLuong,
         getDuLieuChayCuaLuuLuong,
@@ -44,6 +46,7 @@ export default function TinhSaiSoTab({ className, tabIndex, d, q, Form, onFormHS
         updateLuuLuong,
         xoaLanChayCuaLuuLuong,
         resetLanChay,
+        updateSoDongHoChuan,
         lanChayMoi
     } = useKiemDinh();
 
@@ -77,21 +80,24 @@ export default function TinhSaiSoTab({ className, tabIndex, d, q, Form, onFormHS
     const qRef = useRef<{ title: string; value: string; }>(q);
 
     useEffect(() => {
-        if (qRef.current != q) {
+        if (qRef.current.value != q.value) {
+            // console.log("Run by q!: ", q);
             updateLuuLuong(q, getDuLieuChayCuaLuuLuong(q) || lanChayMoi);
             qRef.current = q
         }
     }, [q]);
 
     useEffect(() => {
-        if (prevFormValuesRef.current != getDuLieuChayCuaLuuLuong(q)) {
+        if (JSON.stringify(prevFormValuesRef.current) !== JSON.stringify(getDuLieuChayCuaLuuLuong(q))) {
             setFormValues(getDuLieuChayCuaLuuLuong(q));
             // prevFormValuesRef.current = getDuLieuChayCuaLuuLuong(q);
         }
     }, [duLieuKiemDinhCacLuuLuong]);
 
+    // TODO: Check formValues
     useEffect(() => {
-        if (prevFormValuesRef.current != formValues) {
+        if (JSON.stringify(prevFormValuesRef.current) !== JSON.stringify(formValues)) {
+            // console.log("Run by form: ", q, formValues);
             setSelectedTabForm({
                 ...Object.keys(initialTabFormState).reduce((prevTabState, key) => {
                     prevTabState[Number(key)] = false;
@@ -121,7 +127,7 @@ export default function TinhSaiSoTab({ className, tabIndex, d, q, Form, onFormHS
     };
 
     // Form: change thì đổi hiệu sai số
-    const handleFormChange = (index: number, field: keyof DuLieuMotLanChay, value: number) => {
+    const handleFormChange = (index: number, field: keyof DuLieuMotLanChay, value: string) => {
         setFormValues(prevFormValues => {
             const newFormValues = { ...prevFormValues };
             newFormValues[index] = { ...newFormValues[index], [field]: value };
@@ -130,11 +136,16 @@ export default function TinhSaiSoTab({ className, tabIndex, d, q, Form, onFormHS
             if (field === "V2") {
                 const nextIndex = index + 1;
                 if (newFormValues[nextIndex]) {
-                    newFormValues[nextIndex] = { ...newFormValues[nextIndex], V1: value };
+                    newFormValues[nextIndex] = { ...newFormValues[nextIndex], V1: parseFloat(value) };
                 }
             }
+
+            //TODO: update vchuan
             return newFormValues;
         });
+        if (field == "Vc1" || field == "Vc2") {
+            updateSoDongHoChuan(q, index, field, value);
+        }
     };
 
     const handleDelete = (key: string) => {
@@ -176,37 +187,41 @@ export default function TinhSaiSoTab({ className, tabIndex, d, q, Form, onFormHS
 
     //
     const renderTabTinhSaiSo = () => {
-        return Object.entries(formValues).map(([key, formVal], index) => {
-            return (
-                <div
-                    key={index * tabIndex}
-                    className={`col-12 px-1 ${key + "+" + (Number(key) * tabIndex)} pt-2 ${c_ect["tab-form"]}`}
-                >
-                    <div className={`${c_ect["wrap-form"]} rounded w-100`}>
-                        <label className={`w-100 ${c_ect["tab-radio"]} ${selectedTabForm[Number(key) * tabIndex] ? c_ect["active"] : ""}`}>
-                            <h5 className="m-0">Lần {key}</h5>
-                            <input type="radio" name={`process-tab-${key}-${tabIndex}`} className="d-none" checked={selectedTabForm[Number(key) * tabIndex]} onChange={() => toggleTabForm(Number(key))} />
-                            <button aria-label={`Xóa lần ${key}`} type="button" className={`btn border-0 btn-light text-main-color`} onClick={() => handleDelete(key)}>
-                                <FontAwesomeIcon icon={faTimes} className="me-1" /> Xóa
-                            </button>
-                        </label>
-                        {!selectedTabForm[Number(key) * tabIndex] && (
-                            <div
-                                className={`w-100 d-none rounded ${c_ect["tab-cover"]} ${!selectedTabForm[Number(key) * tabIndex] ? c_ect["fade"] : c_ect["show"]}`}
-                                onClick={() => toggleTabForm(Number(key))}
-                            ></div>
-                        )}
-                        <Form
-                            isDisable={isDisable}
-                            className={`w-100 ${!selectedTabForm[Number(key) * tabIndex] ? "d-none" : ""}`}
-                            formValue={formVal}
-                            onFormChange={(field: string, value: number) => handleFormChange(Number(key), field as keyof DuLieuMotLanChay, value)}
-                            d={d}
-                        />
+        if (formValues) {
+            return Object.entries(formValues).map(([key, formVal], index) => {
+                return (
+                    <div
+                        key={index * tabIndex}
+                        className={`col-12 px-1 ${key + "+" + (Number(key) * tabIndex)} pt-2 ${c_ect["tab-form"]}`}
+                    >
+                        <div className={`${c_ect["wrap-form"]} rounded w-100`}>
+                            <label className={`w-100 ${c_ect["tab-radio"]} ${selectedTabForm[Number(key) * tabIndex] ? c_ect["active"] : ""}`}>
+                                <h5 className="m-0">Lần {key}</h5>
+                                <input type="radio" name={`process-tab-${key}-${tabIndex}`} className="d-none" checked={selectedTabForm[Number(key) * tabIndex]} onChange={() => toggleTabForm(Number(key))} />
+                                <button aria-label={`Xóa lần ${key}`} type="button" className={`btn border-0 btn-light text-main-color`} onClick={() => handleDelete(key)}>
+                                    <FontAwesomeIcon icon={faTimes} className="me-1" /> Xóa
+                                </button>
+                            </label>
+                            {!selectedTabForm[Number(key) * tabIndex] && (
+                                <div
+                                    className={`w-100 d-none rounded ${c_ect["tab-cover"]} ${!selectedTabForm[Number(key) * tabIndex] ? c_ect["fade"] : c_ect["show"]}`}
+                                    onClick={() => toggleTabForm(Number(key))}
+                                ></div>
+                            )}
+                            <Form
+                                isDisable={isDisable}
+                                className={`w-100 ${!selectedTabForm[Number(key) * tabIndex] ? "d-none" : ""}`}
+                                formValue={formVal}
+                                onFormChange={(field: string, value: string) => handleFormChange(Number(key), field as keyof DuLieuMotLanChay, value)}
+                                d={d}
+                            />
+                        </div>
                     </div>
-                </div>
-            );
-        });
+                );
+            });
+        } else {
+            console.error("Error formValues!");
+        }
     };
 
 
@@ -223,7 +238,7 @@ export default function TinhSaiSoTab({ className, tabIndex, d, q, Form, onFormHS
                                     type="text"
                                     className={`form-control text-start`}
                                     disabled
-                                    value={q.value}
+                                    value={q.value || ""}
                                 />
                                 <span className="input-group-text">m<sup>3</sup>/h</span>
                             </div>
@@ -238,7 +253,7 @@ export default function TinhSaiSoTab({ className, tabIndex, d, q, Form, onFormHS
                                     type="text"
                                     className={`form-control text-start`}
                                     disabled
-                                    value={getVToiThieu((q.title == "Q3") ? parseFloat(q.value) * 0.35 : q.value, d)}
+                                    value={getVToiThieu((q.title == TITLE_LUU_LUONG.q3 && isDHDienTu) ? parseFloat(q.value) * 0.35 : q.value, d)}
                                 />
                                 <span className="input-group-text">lít</span>
                             </div>
