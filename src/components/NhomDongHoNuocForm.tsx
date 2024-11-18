@@ -657,7 +657,7 @@ export default function NhomDongHoNuocForm({ className }: NhomDongHoNuocFormProp
                 setFormHieuSaiSo(duLieuKiemDinh.hieu_sai_so || initialFormHieuSaiSo);
 
 
-                
+
                 setSeriChiThi(dongHoSelected.seri_chi_thi || "");
                 setSeriSensor(dongHoSelected.seri_sensor || "");
                 setKFactor(dongHoSelected.k_factor || "");
@@ -726,7 +726,7 @@ export default function NhomDongHoNuocForm({ className }: NhomDongHoNuocFormProp
             // All dongHo are verified
             Swal.fire({
                 title: 'Xác nhận!',
-                text: 'Xác nhận lưu toàn bộ.',
+                text: 'Xác nhận lưu toàn bộ.?',
                 icon: 'info',
                 showCancelButton: true,
                 confirmButtonColor: '#3085d6',
@@ -1080,7 +1080,40 @@ export default function NhomDongHoNuocForm({ className }: NhomDongHoNuocFormProp
                             </div>
                             <label className="w-100 fs-5 fw-bold">Đặc trưng kỹ thuật:</label>
                             <div className="row mx-0 w-100 mb-3">
-
+                                <div className="mb-3 col-12 col-md-6 col-xxl-3">
+                                    <label htmlFor="kieu_sensor" className="form-label">- Kiểu sensor:</label>
+                                    <input
+                                        type="text"
+                                        className="form-control"
+                                        id="kieu_sensor"
+                                        disabled={isExistsDHSaved}
+                                        value={kieuSensor}
+                                        onChange={(e) => {
+                                            setKieuSensor(e.target.value);
+                                            handleChangeField('kieu_sensor', e.target.value)
+                                        }}
+                                    />
+                                </div>
+                                {((ccx && (ccx == "1" || ccx == "2")) || isDHDienTu) ? <>
+                                    <div className="mb-3 col-12 col-md-6 col-xxl-3">
+                                        <label htmlFor="kieu_chi_thi" className="form-label">- Kiểu chỉ thị:</label>
+                                        <div className="input-group">
+                                            <input
+                                                type="text"
+                                                className="form-control"
+                                                id="kieu_chi_thi"
+                                                disabled={isExistsDHSaved}
+                                                value={kieuChiThi}
+                                                onChange={(e) => {
+                                                    setKieuChiThi(e.target.value);
+                                                    handleChangeField('kieu_chi_thi', e.target.value)
+                                                }}
+                                            />
+                                        </div>
+                                    </div>
+                                </> :
+                                    <div className="mb-3 col-12 col-md-6 col-xxl-3">
+                                    </div>}
                                 <div className="mb-3 col-12 col-md-6 col-xxl-3">
                                     <label htmlFor="dn" className="form-label">- Đường kính danh định (DN):</label>
                                     <div className="input-group">
@@ -1142,18 +1175,6 @@ export default function NhomDongHoNuocForm({ className }: NhomDongHoNuocFormProp
                                         }}
                                     />
                                 </div>
-                                <div className="mb-3 col-12 col-md-6 col-lg-4 col-xxl-3">
-                                    <label htmlFor="dn" className="form-label">- Độ chia nhỏ nhất (d):</label>
-                                    <input
-                                        type="text"
-                                        className="form-control"
-                                        id="d"
-                                        value={d}
-                                        onChange={handleNumberChange(setD)}
-                                        disabled={isExistsDHSaved}
-
-                                    />
-                                </div>
 
                                 {((ccx && (ccx == "1" || ccx == "2")) || isDHDienTu) ? <>
                                     <div className="mb-3 col-12 col-md-6 col-lg-4 col-xxl-3">
@@ -1199,49 +1220,18 @@ export default function NhomDongHoNuocForm({ className }: NhomDongHoNuocFormProp
                                         </div>
                                     </div>
                                 </>}
-                                <div className="mb-3 col-12 col-md-6 col-xxl-3">
-                                    <label htmlFor="kieu_sensor" className="form-label">- Kiểu sensor:</label>
+                                <div className="mb-3 col-12 col-md-6 col-lg-4 col-xxl-3">
+                                    <label htmlFor="dn" className="form-label">- Độ chia nhỏ nhất (d):</label>
                                     <input
                                         type="text"
                                         className="form-control"
-                                        id="kieu_sensor"
+                                        id="d"
+                                        value={d}
+                                        onChange={handleNumberChange(setD)}
                                         disabled={isExistsDHSaved}
-                                        value={kieuSensor}
-                                        onChange={(e) => {
-                                            setKieuSensor(e.target.value);
-                                            handleChangeField('kieu_sensor', e.target.value)
-                                        }}
+
                                     />
                                 </div>
-                                {((ccx && (ccx == "1" || ccx == "2")) || isDHDienTu) && <>
-                                    <div className="mb-3 col-12 col-md-6 col-xxl-3">
-                                        <label htmlFor="kieu_chi_thi" className="form-label">- Kiểu chỉ thị:</label>
-                                        <div className="input-group">
-                                            <input
-                                                type="text"
-                                                className="form-control"
-                                                id="kieu_chi_thi"
-                                                disabled={isExistsDHSaved}
-                                                value={kieuChiThi}
-                                                onChange={(e) => {
-                                                    setKieuChiThi(e.target.value);
-                                                    handleChangeField('kieu_chi_thi', e.target.value)
-                                                }}
-                                            />
-                                        </div>
-                                    </div>
-                                    <div className="mb-3 col-12 col-md-6 col-xxl-3">
-                                        <label htmlFor="kFactor" className="form-label">- Hệ số K:</label>
-                                        <input
-                                            type="text"
-                                            className="form-control"
-                                            id="kFactor"
-                                            disabled={isExistsDHSaved}
-                                            value={kFactor}
-                                            onChange={handleNumberChange(setKFactor)}
-                                        />
-                                    </div>
-                                </>}
                                 <div className="mb-3 col-12 col-md-6 col-xxl-3">
                                     <label htmlFor="so_qd_pdm" className="form-label">- Ký hiệu PDM/Số quyết định PDM:</label>
                                     <input
@@ -1254,6 +1244,20 @@ export default function NhomDongHoNuocForm({ className }: NhomDongHoNuocFormProp
                                     />
                                     {errorPDM && <small className="text-danger">{errorPDM}</small>}
                                 </div>
+
+                                {((ccx && (ccx == "1" || ccx == "2")) || isDHDienTu) && <>
+                                    <div className="mb-3 col-12 col-md-6 col-xxl-3">
+                                        <label htmlFor="kFactor" className="form-label">- Hệ số K:</label>
+                                        <input
+                                            type="text"
+                                            className="form-control"
+                                            id="kFactor"
+                                            disabled={isExistsDHSaved}
+                                            value={kFactor}
+                                            onChange={handleNumberChange(setKFactor)}
+                                        />
+                                    </div>
+                                </>}
                                 <div className={`mb-3 col-12 d-flex ${isAdmin ? "" : "d-none"}`}>
                                     <Link
                                         href={ACCESS_LINKS.PDM_ADD.src}
@@ -1309,16 +1313,16 @@ export default function NhomDongHoNuocForm({ className }: NhomDongHoNuocFormProp
                                         onChange={(e) => setViTri(e.target.value)}
                                     />
                                 </div>
-                                <div className="mb-3 col-12 col-md-6">
-                                    <label htmlFor="noi_su_dung" className="form-label">Nơi thực hiện:</label>
+                                <div className="mb-3 col-12 col-md-6 col-xxl-4">
+                                    <label htmlFor="phuongPhapThucHien" className="form-label">Phương pháp thực hiện:</label>
                                     <input
                                         type="text"
                                         className="form-control"
-                                        id="noi_thuc_hien"
-                                        placeholder={DEFAULT_LOCATION}
                                         disabled={isExistsDHSaved}
-                                        value={noiThucHien}
-                                        onChange={(e) => setNoiThucHien(e.target.value)}
+                                        id="phuongPhapThucHien"
+                                        placeholder="Phương pháp thực hiện"
+                                        value={phuongPhapThucHien}
+                                        onChange={(e) => setPhuongPhapThucHien(e.target.value)}
                                     />
                                 </div>
                                 <div className="mb-3 col-12 col-md-6">
@@ -1333,28 +1337,6 @@ export default function NhomDongHoNuocForm({ className }: NhomDongHoNuocFormProp
                                     />
                                 </div>
                                 <div className="mb-3 col-12 col-md-6 col-xxl-4">
-                                    <label htmlFor="nguoi_kiem_dinh" className="form-label">Người thực hiện:</label>
-                                    <input
-                                        type="text"
-                                        className="form-control"
-                                        id="nguoi_kiem_dinh"
-                                        disabled={isExistsDHSaved}
-                                        value={nguoiKiemDinh}
-                                        onChange={(e) => setNguoiKiemDinh(e.target.value)}
-                                    />
-                                </div>
-                                <div className="mb-3 col-12 col-md-6 col-xxl-4">
-                                    <label htmlFor="nguoi_kiem_dinh" className="form-label">Người soát lại:</label>
-                                    <input
-                                        type="text"
-                                        className="form-control"
-                                        id="nguoi_soat_lai"
-                                        disabled={isExistsDHSaved}
-                                        value={nguoiSoatLai}
-                                        onChange={(e) => setNguoiKiemDinh(e.target.value)}
-                                    />
-                                </div>
-                                <div className="mb-3 col-12 col-md-6 col-xxl-4">
                                     <label htmlFor="ngayThucHien" className="form-label">Ngày thực hiện:</label>
                                     <DatePicker
                                         className={`${vrfWm['date-picker']}`}
@@ -1366,16 +1348,16 @@ export default function NhomDongHoNuocForm({ className }: NhomDongHoNuocFormProp
                                         slotProps={{ textField: { fullWidth: true } }}
                                     />
                                 </div>
-                                <div className="mb-3 col-12 col-md-6 col-xxl-4">
-                                    <label htmlFor="phuongPhapThucHien" className="form-label">Phương pháp thực hiện:</label>
+                                <div className="mb-3 col-12 col-md-6">
+                                    <label htmlFor="noi_su_dung" className="form-label">Nơi thực hiện:</label>
                                     <input
                                         type="text"
                                         className="form-control"
+                                        id="noi_thuc_hien"
+                                        placeholder={DEFAULT_LOCATION}
                                         disabled={isExistsDHSaved}
-                                        id="phuongPhapThucHien"
-                                        placeholder="Phương pháp thực hiện"
-                                        value={phuongPhapThucHien}
-                                        onChange={(e) => setPhuongPhapThucHien(e.target.value)}
+                                        value={noiThucHien}
+                                        onChange={(e) => setNoiThucHien(e.target.value)}
                                     />
                                 </div>
                                 <div className="mb-3 col-12 col-md-6 col-xxl-4">
@@ -1405,6 +1387,28 @@ export default function NhomDongHoNuocForm({ className }: NhomDongHoNuocFormProp
                                         />
                                         <span className="input-group-text">%</span>
                                     </div>
+                                </div>
+                                <div className="mb-3 col-12 col-md-6 col-xxl-4">
+                                    <label htmlFor="nguoi_kiem_dinh" className="form-label">Người thực hiện:</label>
+                                    <input
+                                        type="text"
+                                        className="form-control"
+                                        id="nguoi_kiem_dinh"
+                                        disabled={isExistsDHSaved}
+                                        value={nguoiKiemDinh}
+                                        onChange={(e) => setNguoiKiemDinh(e.target.value)}
+                                    />
+                                </div>
+                                <div className="mb-3 col-12 col-md-6 col-xxl-4">
+                                    <label htmlFor="nguoi_kiem_dinh" className="form-label">Người soát lại:</label>
+                                    <input
+                                        type="text"
+                                        className="form-control"
+                                        id="nguoi_soat_lai"
+                                        disabled={isExistsDHSaved}
+                                        value={nguoiSoatLai}
+                                        onChange={(e) => setNguoiSoatLai(e.target.value)}
+                                    />
                                 </div>
                             </div>
                         </form>
@@ -1652,14 +1656,14 @@ export default function NhomDongHoNuocForm({ className }: NhomDongHoNuocFormProp
                                                         </button>
                                                     </div> */}
                                                 </div>
-                                                <div className={`w-100 m-0 px-0 d-flex gap-2 justify-content-end ${isDHSaved != null && isDHSaved ? "d-none" : ""}`}>
+                                                {/* <div className={`w-100 m-0 px-0 d-flex gap-2 justify-content-end ${isDHSaved != null && isDHSaved ? "d-none" : ""}`}>
                                                     <button aria-label="Lưu Đồng hồ" className={`btn py-2 px-3 btn-success`}
                                                         disabled={(!canSave && (ketQua != null && ketQua)) || isCheckingInfo || !(!errorGCN && !errorSerialChiThi && !errorSerialSensor && !errorSoTem)}
                                                         onClick={handleSaveDongHo}
                                                     >
                                                         Lưu Đồng hồ
                                                     </button>
-                                                </div>
+                                                </div> */}
                                             </div>
 
                                         </div>
