@@ -51,7 +51,8 @@ export const getQ2OrQtAndQ1OrQMin = (isDHDienTu: boolean, ccx: string | null, q:
                 getQ2OrQt: parseFloat(qt.toFixed(3))
             };
         } else {
-            if (ccx && ccx in heso) {
+            // if (ccx && ccx in heso) {   // TODO: Check ccx in key of heso
+            if (ccx && heso.hasOwnProperty(ccx)) {   // TODO: Check ccx in key of heso?
                 const heso_qt = heso[ccx as keyof typeof heso].qt;
                 const heso_qmin = heso[ccx as keyof typeof heso].qmin;
                 return {

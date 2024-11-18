@@ -28,7 +28,8 @@ interface KiemDinhContextType {
 const KiemDinhContext = createContext<KiemDinhContextType | undefined>(undefined);
 
 export const KiemDinhProvider = ({ children }: { children: ReactNode }) => {
-    const randomT = parseFloat((Math.random() * (27 - 22) + 22).toFixed(1));
+    // const randomT = parseFloat((Math.random() * (25 - 22) + 22).toFixed(1));
+    const randomT = 23.6;
 
     const lanChayMoi: DuLieuCacLanChay = {
         1: { V1: 0, V2: 0, Vc1: 0, Vc2: 0, Tdh: randomT, Tc: randomT, },

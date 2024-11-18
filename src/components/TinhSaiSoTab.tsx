@@ -238,7 +238,7 @@ export default function TinhSaiSoTab({ className, tabIndex, d, q, Form, onFormHS
                                     type="text"
                                     className={`form-control text-start`}
                                     disabled
-                                    value={q.value || ""}
+                                    value={(q.title == TITLE_LUU_LUONG.q3 && isDHDienTu) ? parseFloat(q.value) * 0.3 : q.value || ""}
                                 />
                                 <span className="input-group-text">m<sup>3</sup>/h</span>
                             </div>
@@ -253,7 +253,7 @@ export default function TinhSaiSoTab({ className, tabIndex, d, q, Form, onFormHS
                                     type="text"
                                     className={`form-control text-start`}
                                     disabled
-                                    value={getVToiThieu((q.title == TITLE_LUU_LUONG.q3 && isDHDienTu) ? parseFloat(q.value) * 0.35 : q.value, d)}
+                                    value={getVToiThieu((q.title == TITLE_LUU_LUONG.q3 && isDHDienTu) ? parseFloat(q.value) * 0.3 : q.value, d)}
                                 />
                                 <span className="input-group-text">lít</span>
                             </div>
