@@ -23,7 +23,6 @@ export const getFullSoGiayCN = (soGiayCN: string, ngayThucHien: Date) => {
 }
 
 export const getQ2OrQtAndQ1OrQMin = (isDHDienTu: boolean, ccx: string | null, q: string | null, r: string | null) => {
-    // Qt:Q2 && Qmin:Q1 
     if (isDHDienTu != null && ccx && q) {
         const heso = {
             "A": {
@@ -51,16 +50,18 @@ export const getQ2OrQtAndQ1OrQMin = (isDHDienTu: boolean, ccx: string | null, q:
                 getQ2OrQt: parseFloat(qt.toFixed(3))
             };
         } else {
-            // if (ccx && ccx in heso) {   // TODO: Check ccx in key of heso
-            if (ccx && heso.hasOwnProperty(ccx)) {   // TODO: Check ccx in key of heso?
+            if (ccx && heso.hasOwnProperty(ccx)) {
                 const heso_qt = heso[ccx as keyof typeof heso].qt;
                 const heso_qmin = heso[ccx as keyof typeof heso].qmin;
                 return {
                     getQ1OrMin: (heso_qmin) ? parseFloat(q) * heso_qmin : null,
                     getQ2OrQt: (heso_qt) ? parseFloat(q) * heso_qt : null,
                 };
-            }
+            } 
         }
+    } else {
+        console.log("6")
+        console.log(isDHDienTu, ccx, q, r)
     }
     return {
         getQ1OrMin: null,
@@ -119,11 +120,14 @@ export const isDongHoDatTieuChuan = (formHieuSaiSo: { hss: number | null }[]) =>
     return null;
 }
 
-export const getLastDayOfMonthInFuture = (isDHDienTu: boolean): Date => {
-    const years = isDHDienTu ? 3 : 5
-    const today = new Date();
-    const futureDate = new Date(today.getFullYear() + years, today.getMonth() + 1, 0);
-    return futureDate;
+export const getLastDayOfMonthInFuture = (isDHDienTu: boolean | null): Date | null => {
+    if(isDHDienTu != null) {
+        const years = isDHDienTu ? 3 : 5
+        const today = new Date();
+        const futureDate = new Date(today.getFullYear() + years, today.getMonth() + 1, 0);
+        return futureDate;
+    }
+    return null
 }
 
 export const convertToUppercaseNonAccent = (str: string) => {

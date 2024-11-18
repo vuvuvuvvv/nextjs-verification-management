@@ -169,7 +169,19 @@ export default function TinhSaiSoTab({ className, tabIndex, d, q, Form, onFormHS
     };
 
     const handleReset = () => {
-        updateFormValuesAndSelectedTabForm(resetLanChay(q));
+        Swal.fire({
+            title: `Reset toàn bộ lần chạy của ${q.title}?`,
+            text: "Không thể hồi phục dữ liệu đã reset!",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonColor: "#3085d6",
+            cancelButtonColor: "#d33",
+            confirmButtonText: "Reset"
+        }).then((result) => {
+            if (result.isConfirmed) {
+                updateFormValuesAndSelectedTabForm(resetLanChay(q));
+            }
+        });
     }
 
     const updateFormValuesAndSelectedTabForm = (newFormValues: DuLieuCacLanChay) => {
@@ -253,7 +265,7 @@ export default function TinhSaiSoTab({ className, tabIndex, d, q, Form, onFormHS
                                     type="text"
                                     className={`form-control text-start`}
                                     disabled
-                                    value={getVToiThieu((q.title == TITLE_LUU_LUONG.q3 && isDHDienTu) ? parseFloat(q.value) * 0.3 : q.value, d)}
+                                    value={getVToiThieu((q.title == TITLE_LUU_LUONG.q3 && isDHDienTu) ? parseFloat(q.value) * 0.3 : q.value, d) || ""}
                                 />
                                 <span className="input-group-text">lít</span>
                             </div>

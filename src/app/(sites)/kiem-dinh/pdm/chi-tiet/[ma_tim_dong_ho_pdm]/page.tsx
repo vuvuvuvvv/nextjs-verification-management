@@ -510,7 +510,7 @@ export default function Page({ params }: { params: { ma_tim_dong_ho_pdm: string 
                         </div>
                     ) : (
                         <>
-                            <div className="w-100 mt-2 p-3">
+                            <div className="w-100 mt-2 px-3">
                                 <label className="w-100 fs-5 fw-bold">Mã tìm đồng hồ:</label>
                                 <div className="row mx-0 w-100 mb-3">
                                     <div className="mb-3 col-12">
@@ -529,37 +529,37 @@ export default function Page({ params }: { params: { ma_tim_dong_ho_pdm: string 
                                 <label className="w-100 fs-5 fw-bold">Đặc trưng kỹ thuật:</label>
                                 <div className="row mx-0 w-100 mb-3">
                                     {pdmData?.ccx && (
-                                        <div className="mb-3 col-12 col-md-6 col-xl-4">
+                                        <div className="mb-3 col-12 col-md-6 col-xl-6">
                                             <label className="form-label fw-bold me-3">- Cấp chính xác:</label>
                                             <span className="fs-5 fw-light">{pdmData.ccx.replace('.0', '')}</span>
                                         </div>
                                     )}
                                     {pdmData?.dn && (
-                                        <div className="mb-3 col-12 col-md-6 col-xl-4">
+                                        <div className="mb-3 col-12 col-md-6 col-xl-6">
                                             <label className="form-label fw-bold me-3">- Đường kính danh định (DN):</label>
                                             <span className="fs-5 fw-light">{pdmData.dn.replace('.0', '')} mm</span>
                                         </div>
                                     )}
                                     {pdmData?.q3 && (
-                                        <div className="mb-3 col-12 col-md-6 col-xl-4">
+                                        <div className="mb-3 col-12 col-md-6 col-xl-6">
                                             <label className="form-label fw-bold me-3">- Q<sub>3</sub>:</label>
                                             <span className="fs-5 fw-light">{pdmData.q3.replace('.0', '')} m<sup>3</sup>/h</span>
                                         </div>
                                     )}
                                     {pdmData?.r && (
-                                        <div className="mb-3 col-12 col-md-6 col-xl-4">
+                                        <div className="mb-3 col-12 col-md-6 col-xl-6">
                                             <label className="form-label fw-bold me-3">- Tỷ số Q<sub>3</sub>/Q<sub>1</sub> (R):</label>
                                             <span className="fs-5 fw-light">{pdmData.r.replace('.0', '')}</span>
                                         </div>
                                     )}
                                     {pdmData?.kieu_sensor && (
-                                        <div className="mb-3 col-12 col-md-6 col-xl-4">
+                                        <div className="mb-3 col-12 col-md-6 col-xl-6">
                                             <label className="form-label fw-bold me-3">- Kiểu sensor:</label>
                                             <span className="fs-5 fw-light">{pdmData.kieu_sensor}</span>
                                         </div>
                                     )}
                                     {pdmData?.transmitter && (
-                                        <div className="mb-3 col-12 col-md-6 col-xl-4">
+                                        <div className="mb-3 col-12 col-md-6 col-xl-6">
                                             <label className="form-label fw-bold me-3">- Kiểu chỉ thị:</label>
                                             <span className="fs-5 fw-light">{pdmData.transmitter}</span>
                                         </div>
@@ -568,38 +568,38 @@ export default function Page({ params }: { params: { ma_tim_dong_ho_pdm: string 
                                 <label className="w-100 fs-5 fw-bold">Chi tiết:</label>
                                 <div className="row mx-0 w-100 mb-3">
                                     {pdmData?.don_vi_pdm && (
-                                        <div className="mb-3 col-12 col-md-6 col-xl-4">
+                                        <div className="mb-3 col-12 col-md-6 col-xl-6">
                                             <label className="form-label fw-bold me-3">Đơn vị phê duyệt:</label>
                                             <span className="fs-5 fw-light">{pdmData.don_vi_pdm}</span>
                                         </div>
                                     )}
                                     {pdmData?.dia_chi && (
-                                        <div className="mb-3 col-12 col-md-6 col-xl-4">
+                                        <div className="mb-3 col-12 col-md-6 col-xl-6">
                                             <label className="form-label fw-bold me-3">Địa chỉ:</label>
                                             <span className="fs-5 fw-light">{pdmData.dia_chi}</span>
                                         </div>
                                     )}
                                     {pdmData?.so_qd_pdm && (
-                                        <div className="mb-3 col-12 col-md-6 col-xl-4">
+                                        <div className="mb-3 col-12 col-md-6 col-xl-6">
                                             <label className="form-label fw-bold me-3">Ký hiệu PDM/Số quyết định PDM:</label>
-                                            <span className="fs-5 fw-light">{pdmData.so_qd_pdm}</span>
+                                            <span className="fs-5 fw-light">{pdmData.so_qd_pdm}-{dayjs(pdmData.ngay_qd_pdm).format("YYYY")}</span>
                                         </div>
                                     )}
                                     {pdmData?.ngay_qd_pdm && (
-                                        <div className="mb-3 col-12 col-md-6 col-xl-4">
+                                        <div className="mb-3 col-12 col-md-6 col-xl-6">
                                             <label className="form-label fw-bold me-3">Ngày quyết định:</label>
                                             <span className="fs-5 fw-light">{dayjs(pdmData.ngay_qd_pdm).format("DD-MM-YYYY")}</span>
                                         </div>
                                     )}
                                     {pdmData?.ngay_het_han && (
-                                        <div className="mb-3 col-12 col-md-6 col-xl-4">
+                                        <div className="mb-3 col-12 col-md-6 col-xl-6">
                                             <label className="form-label fw-bold me-3">Ngày hết hạn:</label>
                                             <span className="fs-5 fw-light">{dayjs(pdmData.ngay_het_han).format("DD-MM-YYYY")}</span>
                                         </div>
                                     )}
                                 </div>
                             </div>
-                            <div className="w-100 mt-2 px-3 d-flex justify-content-end gap-3">
+                            <div className="w-100 px-3 d-flex justify-content-end gap-3">
 
                                 {isAdmin && (
                                     <button aria-label="Chỉnh sửa" type="button" onClick={() => setIsEditing(!isEditing)} className="btn text-white bg-warning">

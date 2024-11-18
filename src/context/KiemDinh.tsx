@@ -28,8 +28,7 @@ interface KiemDinhContextType {
 const KiemDinhContext = createContext<KiemDinhContextType | undefined>(undefined);
 
 export const KiemDinhProvider = ({ children }: { children: ReactNode }) => {
-    // const randomT = parseFloat((Math.random() * (25 - 22) + 22).toFixed(1));
-    const randomT = 23.6;
+    const randomT = parseFloat((Math.random() * (25 - 22) + 22).toFixed(1));
 
     const lanChayMoi: DuLieuCacLanChay = {
         1: { V1: 0, V2: 0, Vc1: 0, Vc2: 0, Tdh: randomT, Tc: randomT, },
@@ -86,11 +85,13 @@ export const KiemDinhProvider = ({ children }: { children: ReactNode }) => {
             setVChuanDongBoCacLL(prevState => {
                 const prevVLL = prevState[key] || null;
                 const prevV = prevVLL ? prevVLL[index] : null;
+                const nextVL = prevVLL ? prevVLL[index + 1] : null;
                 const newState: VChuanDongBoCacLL = {
                     ...prevState,
                     [key]: {
                         ...prevVLL,
                         [index]: prevV ? { ...prevV, [field]: parseFloat(value) } : { Vc1: 0, Vc2: 0, [field]: parseFloat(value) },
+                        [index + 1]: nextVL ? { ...nextVL, Vc1: parseFloat(value) } : { Vc1: parseFloat(value), Vc2: 0 },
                     }
                 };
                 return newState;
@@ -146,7 +147,8 @@ export const KiemDinhProvider = ({ children }: { children: ReactNode }) => {
             const newDLKD = Object.entries(data).reduce((acc: Record<number, DuLieuMotLanChay>, [key, val]) => {
                 acc[Number(key)] = {
                     ...val,
-                    ...(vChuanDongBoCacLL?.[q.title]?.[Number(key)] || {})
+                    ...(vChuanDongBoCacLL?.[q.title]?.[Number(key)] || {}),
+                    ...(vChuanDongBoCacLL?.[q.title]?.[Number(key) + 1] || {})
                 };
                 return acc;
             }, {})
