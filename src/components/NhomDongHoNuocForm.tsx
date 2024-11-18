@@ -1,6 +1,6 @@
 "use client"
 
-import vrfWm from "@styles/scss/ui/vfm.module.scss"
+import ui_vfm from "@styles/scss/ui/vfm.module.scss"
 
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { viVN } from "@mui/x-date-pickers/locales";
@@ -656,8 +656,6 @@ export default function NhomDongHoNuocForm({ className }: NhomDongHoNuocFormProp
 
                 setFormHieuSaiSo(duLieuKiemDinh.hieu_sai_so || initialFormHieuSaiSo);
 
-
-                
                 setSeriChiThi(dongHoSelected.seri_chi_thi || "");
                 setSeriSensor(dongHoSelected.seri_sensor || "");
                 setKFactor(dongHoSelected.k_factor || "");
@@ -820,13 +818,13 @@ export default function NhomDongHoNuocForm({ className }: NhomDongHoNuocFormProp
                 handleClose={handleCloseModal}
                 setExitsDHSaved={setExitsDHSaved}
             /> */}
-            <div className={`${className ? className : ""} ${vrfWm['wraper']} container-fluid p-0 px-2 py-3 w-100`}>
+            <div className={`${className ? className : ""} ${ui_vfm['wraper']} container-fluid p-0 px-2 py-3 w-100`}>
                 <div className={`row m-0 mb-3 p-3 w-100 bg-white shadow-sm rounded`}>
                     <div className="w-100 m-0 p-0 mb-3 position-relative">
                         <h3 className="text-uppercase fw-bolder text-center mt-3 mb-0">thông tin chung đồng hồ</h3>
                     </div>
                     <div className={`w-100 p-0 row m-0`}>
-                        <div className={`col-12 p-0 mb-3 ${vrfWm['seri-number-input']}`}>
+                        <div className={`col-12 p-0 mb-3 ${ui_vfm['seri-number-input']}`}>
                             <label htmlFor="ten_dong_ho" className={`form-label m-0 fs-5 fw-bold d-block`} style={{ width: "150px" }}>Tên đồng hồ:</label>
                             <CreatableSelect
                                 options={DHNameOptions as unknown as readonly GroupBase<never>[]}
@@ -1058,7 +1056,7 @@ export default function NhomDongHoNuocForm({ className }: NhomDongHoNuocFormProp
                                 <div className="mb-3 col-12 col-md-6">
                                     <label htmlFor="namSanXuat" className="form-label">Năm sản xuất:</label>
                                     <DatePicker
-                                        className={`${vrfWm['date-picker']}`}
+                                        className={`${ui_vfm['date-picker']}`}
                                         value={namSanXuat ? dayjs(namSanXuat) : null}
                                         views={['year']}
                                         format="YYYY"
@@ -1357,7 +1355,7 @@ export default function NhomDongHoNuocForm({ className }: NhomDongHoNuocFormProp
                                 <div className="mb-3 col-12 col-md-6 col-xxl-4">
                                     <label htmlFor="ngayThucHien" className="form-label">Ngày thực hiện:</label>
                                     <DatePicker
-                                        className={`${vrfWm['date-picker']}`}
+                                        className={`${ui_vfm['date-picker']}`}
                                         disabled={isExistsDHSaved}
                                         value={dayjs(ngayThucHien)}
                                         format="DD-MM-YYYY"
@@ -1410,346 +1408,438 @@ export default function NhomDongHoNuocForm({ className }: NhomDongHoNuocFormProp
                         </form>
                     </div>
                     <div className="w-100 m-0 p-0 d-flex justify-content-center align-items-center gap-4" ref={scrollRef}>
-                        <span className={vrfWm['end-line']}></span>
-                        <button aria-label={`${isCollapsed ? "Hiện thêm" : "Ẩn bớt"}`} type="button" className={`btn ${vrfWm['btn-collapse-info']} ${vrfWm['btn-collapse-end']}`} onClick={toggleCollapse}>
+                        <span className={ui_vfm['end-line']}></span>
+                        <button aria-label={`${isCollapsed ? "Hiện thêm" : "Ẩn bớt"}`} type="button" className={`btn ${ui_vfm['btn-collapse-info']} ${ui_vfm['btn-collapse-end']}`} onClick={toggleCollapse}>
                             {isCollapsed ? "Hiện thêm" : "Ẩn bớt"}
                         </button>
-                        <span className={vrfWm['end-line']}></span>
+                        <span className={ui_vfm['end-line']}></span>
                     </div>
                 </div>
                 <div className={`m-0 mb-3 bg-white rounded shadow-sm w-100 position-relative`}>
-                    {/* Select Nav  */}
-                    <div className={`w-100 p-3 shadow-sm bg-main-blue d-flex align-items-center sticky-top justify-content-center`} style={{ top: "60px", zIndex: "900" }}>
-                        <span className="fs-5 fw-bold mb-0 text-white me-2">Đồng hồ:</span>
-                        <button aria-label="Đồng hồ trước" className="btn bg-white m-0 p-0 px-2 d-flex align-items-center justify-content-center" style={{ height: "42px", width: "42px" }} onClick={() => {
-                            handlePrevDongHo()
-                        }}>
-                            <FontAwesomeIcon icon={faArrowLeft} style={{ fontSize: "1.6rem" }} className="fa-2x text-blue"></FontAwesomeIcon>
-                        </button>
+                    <div className="w-100 m-0 mb-3 p-0 position-relative">
+                        {/* Select Nav  */}
+                        <div className={`w-100 p-3 shadow-sm rounded-top bg-main-blue d-flex align-items-center sticky-top justify-content-center`} style={{ top: "60px", zIndex: "900" }}>
+                            <span className="fs-5 fw-bold mb-0 text-white me-2">Đồng hồ:</span>
+                            <button aria-label="Đồng hồ trước" className="btn bg-white m-0 p-0 px-2 d-flex align-items-center justify-content-center" style={{ height: "42px", width: "42px" }} onClick={() => {
+                                handlePrevDongHo()
+                            }}>
+                                <FontAwesomeIcon icon={faArrowLeft} style={{ fontSize: "1.6rem" }} className="fa-2x text-blue"></FontAwesomeIcon>
+                            </button>
 
-                        <div className="mx-2">
-                            <Select
-                                name="phuongTienDo"
-                                options={dongHoList.map((dongHo, index) => ({ value: index, label: "Đồng hồ " + (index + 1) }))} // Assuming each dong ho has a 'name' property
-                                className="basic-multi-select"
-                                classNamePrefix="select"
-                                placeholder="- Chọn đồng hồ -"
-                                value={{ value: selectedDongHoIndex, label: "Đồng hồ " + (selectedDongHoIndex + 1) }} // Đặt giá trị dựa trên state
-                                onChange={(selectedOptions) => {
-                                    if (selectedOptions) {
-                                        handleDongHoChange(selectedOptions.value);
-                                    }
-                                }} // Pass the index
-                                styles={{
-                                    control: (provided) => ({
-                                        ...provided,
-                                        minWidth: "180px",
-                                        width: "30vw",
-                                        height: '42px',
-                                        minHeight: '42px',
-                                        borderColor: '#dee2e6 !important',
-                                        boxShadow: 'none !important',
-                                        backgroundColor: "white",
-                                        overflow: "hidden"
-                                    }),
-                                    valueContainer: (provided) => ({
-                                        ...provided,
-                                        height: '42px',
-                                        padding: '0 8px',
-                                        color: "#000 !important",
-                                    }),
-                                    input: (provided) => ({
-                                        ...provided,
-                                        margin: '0',
-                                        padding: '0'
-                                    }),
-                                    indicatorsContainer: (provided) => ({
-                                        ...provided,
-                                        height: '42px',
-                                        width: '34px'
-                                    }),
-                                    menu: (provided) => ({
-                                        ...provided,
-                                        zIndex: 777
-                                    }),
-                                    singleValue: (provided, state) => ({
-                                        ...provided,
-                                        color: state.isDisabled ? '#000' : provided.color,
-                                    })
-                                }}
-                            />
+                            <div className="mx-2">
+                                <Select
+                                    name="phuongTienDo"
+                                    options={dongHoList.map((dongHo, index) => ({ value: index, label: "Đồng hồ " + (index + 1) }))} // Assuming each dong ho has a 'name' property
+                                    className="basic-multi-select"
+                                    classNamePrefix="select"
+                                    placeholder="- Chọn đồng hồ -"
+                                    value={{ value: selectedDongHoIndex, label: "Đồng hồ " + (selectedDongHoIndex + 1) }} // Đặt giá trị dựa trên state
+                                    onChange={(selectedOptions) => {
+                                        if (selectedOptions) {
+                                            handleDongHoChange(selectedOptions.value);
+                                        }
+                                    }} // Pass the index
+                                    styles={{
+                                        control: (provided) => ({
+                                            ...provided,
+                                            minWidth: "180px",
+                                            width: "30vw",
+                                            height: '42px',
+                                            minHeight: '42px',
+                                            borderColor: '#dee2e6 !important',
+                                            boxShadow: 'none !important',
+                                            backgroundColor: "white",
+                                            overflow: "hidden"
+                                        }),
+                                        valueContainer: (provided) => ({
+                                            ...provided,
+                                            height: '42px',
+                                            padding: '0 8px',
+                                            color: "#000 !important",
+                                        }),
+                                        input: (provided) => ({
+                                            ...provided,
+                                            margin: '0',
+                                            padding: '0'
+                                        }),
+                                        indicatorsContainer: (provided) => ({
+                                            ...provided,
+                                            height: '42px',
+                                            width: '34px'
+                                        }),
+                                        menu: (provided) => ({
+                                            ...provided,
+                                            zIndex: 777
+                                        }),
+                                        singleValue: (provided, state) => ({
+                                            ...provided,
+                                            color: state.isDisabled ? '#000' : provided.color,
+                                        })
+                                    }}
+                                />
+                            </div>
+
+                            <button aria-label="Đồng hồ tiếp theo" className="btn bg-white m-0 p-0 px-2 d-flex align-items-center justify-content-center" style={{ height: "42px", width: "42px" }} onClick={() => {
+                                handleNextDongHo()
+                            }}>
+                                <FontAwesomeIcon icon={faArrowRight} style={{ fontSize: "1.6rem" }} className="fa-2x text-blue"></FontAwesomeIcon>
+                            </button>
                         </div>
+                        {/* End select nav  */}
 
-                        <button aria-label="Đồng hồ tiếp theo" className="btn bg-white m-0 p-0 px-2 d-flex align-items-center justify-content-center" style={{ height: "42px", width: "42px" }} onClick={() => {
-                            handleNextDongHo()
-                        }}>
-                            <FontAwesomeIcon icon={faArrowRight} style={{ fontSize: "1.6rem" }} className="fa-2x text-blue"></FontAwesomeIcon>
-                        </button>
-                    </div>
-                    {/* End select nav  */}
-
-                    <div className={`w-100 p-2`}>
-                        {dongHoSelected ? (
-                            <>
-                                <div className={`w-100 p-2`}>
-                                    <h5 className="p-0">Thông tin kỹ thuật:</h5>
-                                    <div className="row m-0 p-0">
-                                        {((ccx && (ccx == "1" || ccx == "2")) || isDHDienTu) && <>
+                        <div className={`w-100 p-2`}>
+                            {dongHoSelected ? (
+                                <>
+                                    <div className={`w-100 p-2`}>
+                                        <h5 className="p-0">Thông tin kỹ thuật:</h5>
+                                        <div className="row m-0 p-0">
+                                            {((ccx && (ccx == "1" || ccx == "2")) || isDHDienTu) && <>
+                                                <div className="mb-3 col-12 col-md-6 col-xxl-6">
+                                                    <label htmlFor="seri_sensor" className="form-label">Serial sensor:</label>
+                                                    <input
+                                                        type="text"
+                                                        className="form-control"
+                                                        id="seri_sensor"
+                                                        placeholder="Serial sensor"
+                                                        value={seriSensor}
+                                                        disabled={isDHSaved != null && isDHSaved}
+                                                        onChange={(e) => {
+                                                            setSeriSensor(e.target.value);
+                                                            handleChangeField('seri_sensor', e.target.value)
+                                                        }}
+                                                    />
+                                                    {(errorSerialSensor && !isDHSaved) && <small className="text-danger">{errorSerialSensor}</small>}
+                                                </div>
+                                            </>}
                                             <div className="mb-3 col-12 col-md-6 col-xxl-6">
-                                                <label htmlFor="seri_sensor" className="form-label">Serial sensor:</label>
+                                                <label htmlFor="seri_chi_thi" className="form-label">Serial chỉ thị:</label>
                                                 <input
                                                     type="text"
                                                     className="form-control"
-                                                    id="seri_sensor"
-                                                    placeholder="Serial sensor"
-                                                    value={seriSensor}
+                                                    id="seri_chi_thi"
+                                                    placeholder="Serial chỉ thị"
+                                                    value={seriChiThi}
                                                     disabled={isDHSaved != null && isDHSaved}
                                                     onChange={(e) => {
-                                                        setSeriSensor(e.target.value);
-                                                        handleChangeField('seri_sensor', e.target.value)
+                                                        setSeriChiThi(e.target.value);
+                                                        handleChangeField('seri_chi_thi', e.target.value)
                                                     }}
                                                 />
-                                                {(errorSerialSensor && !isDHSaved) && <small className="text-danger">{errorSerialSensor}</small>}
+                                                {(errorSerialChiThi && !isDHSaved) && <small className="text-danger">{errorSerialChiThi}</small>}
                                             </div>
-                                        </>}
-                                        <div className="mb-3 col-12 col-md-6 col-xxl-6">
-                                            <label htmlFor="seri_chi_thi" className="form-label">Serial chỉ thị:</label>
-                                            <input
-                                                type="text"
-                                                className="form-control"
-                                                id="seri_chi_thi"
-                                                placeholder="Serial chỉ thị"
-                                                value={seriChiThi}
-                                                disabled={isDHSaved != null && isDHSaved}
-                                                onChange={(e) => {
-                                                    setSeriChiThi(e.target.value);
-                                                    handleChangeField('seri_chi_thi', e.target.value)
-                                                }}
-                                            />
-                                            {(errorSerialChiThi && !isDHSaved) && <small className="text-danger">{errorSerialChiThi}</small>}
                                         </div>
-                                    </div>
 
-                                    <div className={`w-100 p-2 d-flex gap-2 justify-content-between ${showFormTienTrinh ? "d-none" : ""}`}>
-                                        <div className={`w-100 px-3 row alert alert-warning m-0 ${(ketQua != null) ? "fade d-none" : "show"}`}>
-                                            <h6><i>* Điền đủ các thông tin để hiện Form tiến trình!</i></h6>
-                                            {errorFields.map((error, index) => (
-                                                <div className="col-12 col-sm-6 col-lg-4 col-xxl-3" key={index}><span className="me-2">•</span> {fieldTitles[error as keyof typeof fieldTitles]} là bắt buộc</div>
-                                            ))}
+                                        <div className={`w-100 p-2 d-flex gap-2 justify-content-between ${showFormTienTrinh ? "d-none" : ""}`}>
+                                            <div className={`w-100 px-3 row alert alert-warning m-0 ${(ketQua != null) ? "fade d-none" : "show"}`}>
+                                                <h6><i>* Điền đủ các thông tin để hiện Form tiến trình!</i></h6>
+                                                {errorFields.map((error, index) => (
+                                                    <div className="col-12 col-sm-6 col-lg-4 col-xxl-3" key={index}><span className="me-2">•</span> {fieldTitles[error as keyof typeof fieldTitles]} là bắt buộc</div>
+                                                ))}
+                                            </div>
                                         </div>
-                                    </div>
 
-                                    <div className={`w-100 ${showFormTienTrinh ? "" : "d-none"}`}>
-                                        <h5 className="p-0">Đo lường:</h5>
-                                        <NavTab buttonControl={true} gotoFirstTab={isFirstTabLL} tabContent={[
-                                            {
-                                                title: <>Q<sub>{isDHDienTu ? "3" : "n"}</sub></>,
-                                                content: <TinhSaiSoTab isDHDienTu={isDHDienTu} onFormHSSChange={(value: number | null) => handleFormHSSChange(0, value)}
-                                                    isDisable={isDHSaved != null && isDHSaved}
-                                                    d={d ? d : ""} q={{
-                                                        title: (isDHDienTu) ? TITLE_LUU_LUONG.q3 : TITLE_LUU_LUONG.qn,
-                                                        value: (q3) ? q3 : ((qn) ? qn : "")
-                                                    }} className="" tabIndex={1} Form={TinhSaiSoForm as any} />
-                                            },
-                                            {
-                                                title: <>Q<sub>{isDHDienTu ? "2" : "t"}</sub></>,
-                                                content: <TinhSaiSoTab onFormHSSChange={(value: number | null) => handleFormHSSChange(1, value)}
-                                                    isDisable={isDHSaved != null && isDHSaved}
-                                                    d={d ? d : ""} q={{
-                                                        title: (isDHDienTu) ? TITLE_LUU_LUONG.q2 : TITLE_LUU_LUONG.qt,
-                                                        value: (q2Ort) ? q2Ort.toString() : ""
-                                                    }} tabIndex={2} Form={TinhSaiSoForm as any} />
-                                            },
-                                            {
-                                                title: <>Q<sub>{isDHDienTu ? "1" : "min"}</sub></>,
-                                                content: <TinhSaiSoTab onFormHSSChange={(value: number | null) => handleFormHSSChange(2, value)}
-                                                    isDisable={isDHSaved != null && isDHSaved}
-                                                    d={d ? d : ""} q={{
-                                                        title: (isDHDienTu) ? TITLE_LUU_LUONG.q1 : TITLE_LUU_LUONG.qmin,
-                                                        value: (q1Ormin) ? q1Ormin.toString() : ""
-                                                    }} tabIndex={3} Form={TinhSaiSoForm as any} />
-                                            },
-                                        ]} />
+                                        <div className={`w-100 ${showFormTienTrinh ? "" : "d-none"}`}>
+                                            <h5 className="p-0">Đo lường:</h5>
+                                            <NavTab buttonControl={true} gotoFirstTab={isFirstTabLL} tabContent={[
+                                                {
+                                                    title: <>Q<sub>{isDHDienTu ? "3" : "n"}</sub></>,
+                                                    content: <TinhSaiSoTab isDHDienTu={isDHDienTu} onFormHSSChange={(value: number | null) => handleFormHSSChange(0, value)}
+                                                        isDisable={isDHSaved != null && isDHSaved}
+                                                        d={d ? d : ""} q={{
+                                                            title: (isDHDienTu) ? TITLE_LUU_LUONG.q3 : TITLE_LUU_LUONG.qn,
+                                                            value: (q3) ? q3 : ((qn) ? qn : "")
+                                                        }} className="" tabIndex={1} Form={TinhSaiSoForm as any} />
+                                                },
+                                                {
+                                                    title: <>Q<sub>{isDHDienTu ? "2" : "t"}</sub></>,
+                                                    content: <TinhSaiSoTab onFormHSSChange={(value: number | null) => handleFormHSSChange(1, value)}
+                                                        isDisable={isDHSaved != null && isDHSaved}
+                                                        d={d ? d : ""} q={{
+                                                            title: (isDHDienTu) ? TITLE_LUU_LUONG.q2 : TITLE_LUU_LUONG.qt,
+                                                            value: (q2Ort) ? q2Ort.toString() : ""
+                                                        }} tabIndex={2} Form={TinhSaiSoForm as any} />
+                                                },
+                                                {
+                                                    title: <>Q<sub>{isDHDienTu ? "1" : "min"}</sub></>,
+                                                    content: <TinhSaiSoTab onFormHSSChange={(value: number | null) => handleFormHSSChange(2, value)}
+                                                        isDisable={isDHSaved != null && isDHSaved}
+                                                        d={d ? d : ""} q={{
+                                                            title: (isDHDienTu) ? TITLE_LUU_LUONG.q1 : TITLE_LUU_LUONG.qmin,
+                                                            value: (q1Ormin) ? q1Ormin.toString() : ""
+                                                        }} tabIndex={3} Form={TinhSaiSoForm as any} />
+                                                },
+                                            ]} />
 
-                                        <div className={`w-100 px-2 py-1 d-flex gap-2 justify-content-between`}>
-                                            <div className={`w-100 px-3 row alert alert-warning m-0 ${(ketQua != null) ? "fade d-none" : "show"} ${isDHSaved != null && isDHSaved ? "d-none" : ""}`}>
-                                                <h6><i>* Điền đủ các thông tin để hiện kết quả kiểm tra!</i></h6>
+                                            <div className={`w-100 px-2 py-1 d-flex gap-2 justify-content-between`}>
+                                                <div className={`w-100 px-3 row alert alert-warning m-0 ${(ketQua != null) ? "fade d-none" : "show"} ${isDHSaved != null && isDHSaved ? "d-none" : ""}`}>
+                                                    <h6><i>* Điền đủ các thông tin để hiện kết quả kiểm tra!</i></h6>
 
-                                                {ketQua == null && (
-                                                    <div className="col-12"><span className="me-2">•</span>Tiến trình chạy lưu lượng không được bỏ trống</div>
-                                                )}
-                                            </div>
-                                            <div className={`w-100 px-3 py-2 m-0 bg-lighter-grey rounded d-flex align-items-center justify-content-end ${(ketQua == null) || (checking) ? "fade d-none" : "show"}`}>
-                                                <button aria-label="Kiểm tra" className={`btn btn-success px-3 py-2 text-white ${vrfWm['btn-check']}`} onClick={
-                                                    () => {
-                                                        // TODO:
-                                                        // handleCheck();
-                                                        setChecking(true);
-                                                    }
-                                                }><FontAwesomeIcon className="me-2" icon={faTasks} />Kiểm tra</button>
-                                            </div>
-                                            <div className={`w-100 px-3 p-xl-4 row alert ${ketQua ? "alert-success" : "alert-danger"} m-0 ${(ketQua != null) && (checking) ? "show" : "fade d-none"}`}>
-                                                <h5 className="p-0">Kết quả kiểm tra kỹ thuật:</h5>
-                                                <p className="p-0 m-0">- Khả năng hoạt động của hệ thống: <b className="text-uppercase">{ketQua ? "Đạt" : "Không đạt"}</b></p>
-                                                <div className={`w-100 m-0 mt-3 p-0 ${ketQua ? "" : "d-none"}`}>
-                                                    <div className="w-100 m-0 p-0 justify-content-between">
-                                                        <div className="w-100 m-0 p-0 row mb-3">
+                                                    {ketQua == null && (
+                                                        <div className="col-12"><span className="me-2">•</span>Tiến trình chạy lưu lượng không được bỏ trống</div>
+                                                    )}
+                                                </div>
+                                                {/* <div className={`w-100 px-3 py-2 m-0 bg-lighter-grey rounded d-flex align-items-center justify-content-end ${(ketQua == null) || (checking) ? "fade d-none" : "show"}`}>
+                                                    <button aria-label="Kiểm tra" className={`btn btn-success px-3 py-2 text-white ${ui_vfm['btn-check']}`} onClick={
+                                                        () => {
+                                                            // TODO:
+                                                            // handleCheck();
+                                                            setChecking(true);
+                                                        }
+                                                    }><FontAwesomeIcon className="me-2" icon={faTasks} />Kiểm tra</button>
+                                                </div> */}
+                                                {/* <div className={`w-100 px-3 p-xl-4 row alert ${ketQua ? "alert-success" : "alert-danger"} m-0 ${(ketQua != null) && (checking) ? "show" : "fade d-none"}`}>
+                                                    <h5 className="p-0">Kết quả kiểm tra kỹ thuật:</h5>
+                                                    <p className="p-0 m-0">- Khả năng hoạt động của hệ thống: <b className="text-uppercase">{ketQua ? "Đạt" : "Không đạt"}</b></p>
+                                                    <div className={`w-100 m-0 mt-3 p-0 ${ketQua ? "" : "d-none"}`}>
+                                                        <div className="w-100 m-0 p-0 justify-content-between">
+                                                            <div className="w-100 m-0 p-0 row mb-3">
 
-                                                            <div className={`col-12 col-md-10 col-xl-10 col-xxl-9 m-0 p-0 ps-lg-4 d-md-flex align-items-center justify-content-between ${vrfWm['seri-number-input']}`}>
-                                                                <label htmlFor="soTem" className={`form-label m-0 fs-6 fw-bold d-block`}>Số Tem:</label>
-                                                                <input
-                                                                    type="text"
-                                                                    id="soTem"
-                                                                    className={`form-control`}
-                                                                    placeholder="Nhập số tem"
-                                                                    value={ketQua ? soTem : ""}
-                                                                    disabled={isDHSaved != null && isDHSaved}
-                                                                    onChange={(e) => setSoTem(e.target.value)}
-                                                                />
-                                                            </div>
-                                                            {errorSoTem && <small className="text-danger px-4">{errorSoTem}</small>}
-                                                        </div>
-                                                        <div className="w-100 m-0 p-0 row mb-3">
-                                                            <div className={`col-12 col-md-10 col-xl-10 col-xxl-9 m-0 p-0 ps-lg-4 d-md-flex align-items-center justify-content-between ${vrfWm['seri-number-input']}`}>
-                                                                <label htmlFor="soGiayChungNhan" className={`form-label m-0 fs-6 fw-bold d-block`} style={{ width: "210px" }}>Số giấy chứng nhận:</label>
-                                                                <div className="input-group d-flex align-items-center justify-content-center">
+                                                                <div className={`col-12 col-md-10 col-xl-10 col-xxl-9 m-0 p-0 ps-lg-4 d-md-flex align-items-center justify-content-between ${ui_vfm['seri-number-input']}`}>
+                                                                    <label htmlFor="soTem" className={`form-label m-0 fs-6 fw-bold d-block`}>Số Tem:</label>
                                                                     <input
                                                                         type="text"
-                                                                        id="soGiayChungNhan"
+                                                                        id="soTem"
                                                                         className={`form-control`}
-                                                                        style={{ width: "max-content", borderTopRightRadius: "0", borderBottomRightRadius: "0" }}
-                                                                        placeholder="Nhập số giấy chứng nhận"
-                                                                        value={ketQua ? soGiayChungNhan : ""}
+                                                                        placeholder="Nhập số tem"
+                                                                        value={ketQua ? soTem : ""}
                                                                         disabled={isDHSaved != null && isDHSaved}
-                                                                        onChange={(e) => setSoGiayChungNhan(e.target.value)}
+                                                                        onChange={(e) => setSoTem(e.target.value)}
                                                                     />
-                                                                    <span className="input-group-text" style={{ height: "42px" }}>Số: FMS.KĐ.<span className="text-primary">{soGiayChungNhan || "-----"}</span>.{dayjs().format("YY")}</span>
                                                                 </div>
+                                                                {errorSoTem && <small className="text-danger px-4">{errorSoTem}</small>}
                                                             </div>
-                                                            {errorGCN && <small className="text-danger px-4">{errorGCN}</small>}
-                                                        </div>
+                                                            <div className="w-100 m-0 p-0 row mb-3">
+                                                                <div className={`col-12 col-md-10 col-xl-10 col-xxl-9 m-0 p-0 ps-lg-4 d-md-flex align-items-center justify-content-between ${ui_vfm['seri-number-input']}`}>
+                                                                    <label htmlFor="soGiayChungNhan" className={`form-label m-0 fs-6 fw-bold d-block`} style={{ width: "210px" }}>Số giấy chứng nhận:</label>
+                                                                    <div className="input-group d-flex align-items-center justify-content-center">
+                                                                        <input
+                                                                            type="text"
+                                                                            id="soGiayChungNhan"
+                                                                            className={`form-control`}
+                                                                            style={{ width: "max-content", borderTopRightRadius: "0", borderBottomRightRadius: "0" }}
+                                                                            placeholder="Nhập số giấy chứng nhận"
+                                                                            value={ketQua ? soGiayChungNhan : ""}
+                                                                            disabled={isDHSaved != null && isDHSaved}
+                                                                            onChange={(e) => setSoGiayChungNhan(e.target.value)}
+                                                                        />
+                                                                        <span className="input-group-text" style={{ height: "42px" }}>Số: FMS.KĐ.<span className="text-primary">{soGiayChungNhan || "-----"}</span>.{dayjs().format("YY")}</span>
+                                                                    </div>
+                                                                </div>
+                                                                {errorGCN && <small className="text-danger px-4">{errorGCN}</small>}
+                                                            </div>
 
-                                                        <div className="w-100 m-0 p-0 row mb-3">
-                                                            <div className={`col-12 col-md-10 col-xl-10 col-xxl-9 m-0 p-0 ps-lg-4 d-md-flex align-items-center justify-content-between ${(soTem && soGiayChungNhan) ? "" : "d-none"} ${vrfWm['seri-number-input']}`}>
-                                                                <label htmlFor="hieuLucBienBan" style={{ width: "180px" }} className="form-label m-0 fs-6 fw-bold d-block">Hiệu lực đến:</label>
-                                                                <DatePicker
-                                                                    className={`bg-white ${vrfWm['date-picker']}`}
-                                                                    value={dayjs(hieuLucBienBan)}
-                                                                    format="DD-MM-YYYY"
-                                                                    // maxDate={dayjs().endOf('day')}
-                                                                    disabled={isDHSaved != null && isDHSaved}
-                                                                    minDate={dayjs().endOf('day')}
-                                                                    onChange={(newValue: Dayjs | null) => setHieuLucBienBan(newValue ? newValue.toDate() : null)}
-                                                                    slotProps={{ textField: { fullWidth: true } }}
-                                                                />
+                                                            <div className="w-100 m-0 p-0 row mb-3">
+                                                                <div className={`col-12 col-md-10 col-xl-10 col-xxl-9 m-0 p-0 ps-lg-4 d-md-flex align-items-center justify-content-between ${(soTem && soGiayChungNhan) ? "" : "d-none"} ${ui_vfm['seri-number-input']}`}>
+                                                                    <label htmlFor="hieuLucBienBan" style={{ width: "180px" }} className="form-label m-0 fs-6 fw-bold d-block">Hiệu lực đến:</label>
+                                                                    <DatePicker
+                                                                        className={`bg-white ${ui_vfm['date-picker']}`}
+                                                                        value={dayjs(hieuLucBienBan)}
+                                                                        format="DD-MM-YYYY"
+                                                                        // maxDate={dayjs().endOf('day')}
+                                                                        disabled={isDHSaved != null && isDHSaved}
+                                                                        minDate={dayjs().endOf('day')}
+                                                                        onChange={(newValue: Dayjs | null) => setHieuLucBienBan(newValue ? newValue.toDate() : null)}
+                                                                        slotProps={{ textField: { fullWidth: true } }}
+                                                                    />
+                                                                </div>
                                                             </div>
                                                         </div>
                                                     </div>
-                                                    {/* TODO: Giấy chứng nhận */}
-                                                    {/* <div className="w-100 m-0 p-0">
-                                                        <button aria-label="Giấy chứng nhận" className="btn px-3 py-2 btn-success" style={{ width: "max-content" }}>
-                                                            <FontAwesomeIcon icon={faFileAlt} className="me-2"></FontAwesomeIcon> Giấy chứng nhận
+                                                    <div className={`w-100 m-0 px-0 d-flex gap-2 justify-content-end ${isDHSaved != null && isDHSaved ? "d-none" : ""}`}>
+                                                        <button aria-label="Lưu Đồng hồ" className={`btn py-2 px-3 btn-success`}
+                                                            disabled={(!canSave && (ketQua != null && ketQua)) || isCheckingInfo || !(!errorGCN && !errorSerialChiThi && !errorSerialSensor && !errorSoTem)}
+                                                            onClick={handleSaveDongHo}
+                                                        >
+                                                            Lưu Đồng hồ
                                                         </button>
-                                                    </div> */}
-                                                </div>
-                                                <div className={`w-100 m-0 px-0 d-flex gap-2 justify-content-end ${isDHSaved != null && isDHSaved ? "d-none" : ""}`}>
-                                                    <button aria-label="Lưu Đồng hồ" className={`btn py-2 px-3 btn-success`}
-                                                        disabled={(!canSave && (ketQua != null && ketQua)) || isCheckingInfo || !(!errorGCN && !errorSerialChiThi && !errorSerialSensor && !errorSoTem)}
-                                                        onClick={handleSaveDongHo}
-                                                    >
-                                                        Lưu Đồng hồ
-                                                    </button>
-                                                </div>
-                                            </div>
+                                                    </div>
+                                                </div> */}
 
+                                            </div>
+                                        </div>
+                                        <div className={`w-100 m-0 p-2 d-flex gap-2 justify-content-between ${isDHSaved != null && isDHSaved ? "" : "d-none"}`}>
+                                            <button aria-label="Đồng hồ đã lưu" className={`btn py-2 px-3 btn-secondary`} disabled={isDHSaved != null && isDHSaved}>
+                                                Đồng hồ đã lưu
+                                            </button>
                                         </div>
                                     </div>
-                                    <div className={`w-100 m-0 p-2 d-flex gap-2 justify-content-between ${isDHSaved != null && isDHSaved ? "" : "d-none"}`}>
-                                        <button aria-label="Đồng hồ đã lưu" className={`btn py-2 px-3 btn-secondary`} disabled={isDHSaved != null && isDHSaved}>
-                                            Đồng hồ đã lưu
-                                        </button>
-                                    </div>
-                                </div>
-                            </>
-                        ) : (
-                            <p className="py-4 w-100 text-center"><i>CHƯA CHỌN ĐỒNG HỒ</i></p>
-                        )}
-                    </div>
-
-                    {/* Select Nav  */}
-                    <div className={`w-100 p-3 bg-light-grey d-flex align-items-center justify-content-center`}>
-                        {/* <span className="fs-5 fw-bold mb-0 text-white me-2">Đồng hồ:</span> */}
-                        <button aria-label="Đồng hồ trước" className="btn bg-white m-0 p-0 px-2 d-flex align-items-center justify-content-center" style={{ height: "42px", width: "42px" }}
-                            onClick={() => {
-                                handlePrevDongHo()
-                            }}>
-                            <FontAwesomeIcon icon={faArrowLeft} style={{ fontSize: "1.6rem" }} className="fa-2x text-blue"></FontAwesomeIcon>
-                        </button>
-
-                        <div className="mx-2">
-                            <Select
-                                name="phuongTienDo"
-                                options={dongHoList.map((dongHo, index) => ({ value: index, label: "Đồng hồ " + (index + 1) }))}
-                                className="basic-multi-select"
-                                classNamePrefix="select"
-                                placeholder="- Chọn đồng hồ -"
-                                value={{ value: selectedDongHoIndex, label: "Đồng hồ " + (selectedDongHoIndex + 1) }}
-                                onChange={(selectedOptions) => {
-                                    if (selectedOptions) {
-                                        handleDongHoChange(selectedOptions.value);
-                                    }
-                                }} // Pass the index
-                                menuPlacement="top"
-                                styles={{
-                                    control: (provided) => ({
-                                        ...provided,
-                                        minWidth: "180px",
-                                        width: "30vw",
-                                        height: '42px',
-                                        minHeight: '42px',
-                                        borderColor: '#dee2e6 !important',
-                                        boxShadow: 'none !important',
-                                        backgroundColor: "white",
-                                        overflow: "hidden"
-                                    }),
-                                    valueContainer: (provided) => ({
-                                        ...provided,
-                                        height: '42px',
-                                        padding: '0 8px',
-                                        color: "#000 !important",
-                                    }),
-                                    input: (provided) => ({
-                                        ...provided,
-                                        margin: '0',
-                                        padding: '0'
-                                    }),
-                                    indicatorsContainer: (provided) => ({
-                                        ...provided,
-                                        height: '42px',
-                                        width: '34px'
-                                    }),
-                                    menu: (provided) => ({
-                                        ...provided,
-                                        zIndex: 777
-                                    }),
-                                    singleValue: (provided, state) => ({
-                                        ...provided,
-                                        color: state.isDisabled ? '#000' : provided.color,
-                                    })
-                                }}
-                            />
+                                </>
+                            ) : (
+                                <p className="py-4 w-100 text-center"><i>CHƯA CHỌN ĐỒNG HỒ</i></p>
+                            )}
                         </div>
 
-                        <button aria-label="Đồng hồ tiếp theo" className="btn bg-white m-0 p-0 px-2 d-flex align-items-center justify-content-center" style={{ height: "42px", width: "42px" }}
-                            onClick={() => {
-                                handleNextDongHo()
-                            }}>
-                            <FontAwesomeIcon icon={faArrowRight} style={{ fontSize: "1.6rem" }} className="fa-2x text-blue"></FontAwesomeIcon>
-                        </button>
-                    </div>
-                    {/* End select nav  */}
+                        {/* Select Nav  */}
+                        <div className={`w-100 rounded-bottom p-3 bg-light-grey d-flex align-items-center justify-content-center`}>
+                            {/* <span className="fs-5 fw-bold mb-0 text-white me-2">Đồng hồ:</span> */}
+                            <button aria-label="Đồng hồ trước" className="btn bg-white m-0 p-0 px-2 d-flex align-items-center justify-content-center" style={{ height: "42px", width: "42px" }}
+                                onClick={() => {
+                                    handlePrevDongHo()
+                                }}>
+                                <FontAwesomeIcon icon={faArrowLeft} style={{ fontSize: "1.6rem" }} className="fa-2x text-blue"></FontAwesomeIcon>
+                            </button>
 
-                    <div className={`w-100 px-2 py-3 p-md-3 d-flex gap-2 align-items-center justify-content-end mb-4 `}>
+                            <div className="mx-2">
+                                <Select
+                                    name="phuongTienDo"
+                                    options={dongHoList.map((dongHo, index) => ({ value: index, label: "Đồng hồ " + (index + 1) }))}
+                                    className="basic-multi-select"
+                                    classNamePrefix="select"
+                                    placeholder="- Chọn đồng hồ -"
+                                    value={{ value: selectedDongHoIndex, label: "Đồng hồ " + (selectedDongHoIndex + 1) }}
+                                    onChange={(selectedOptions) => {
+                                        if (selectedOptions) {
+                                            handleDongHoChange(selectedOptions.value);
+                                        }
+                                    }} // Pass the index
+                                    menuPlacement="top"
+                                    styles={{
+                                        control: (provided) => ({
+                                            ...provided,
+                                            minWidth: "180px",
+                                            width: "30vw",
+                                            height: '42px',
+                                            minHeight: '42px',
+                                            borderColor: '#dee2e6 !important',
+                                            boxShadow: 'none !important',
+                                            backgroundColor: "white",
+                                            overflow: "hidden"
+                                        }),
+                                        valueContainer: (provided) => ({
+                                            ...provided,
+                                            height: '42px',
+                                            padding: '0 8px',
+                                            color: "#000 !important",
+                                        }),
+                                        input: (provided) => ({
+                                            ...provided,
+                                            margin: '0',
+                                            padding: '0'
+                                        }),
+                                        indicatorsContainer: (provided) => ({
+                                            ...provided,
+                                            height: '42px',
+                                            width: '34px'
+                                        }),
+                                        menu: (provided) => ({
+                                            ...provided,
+                                            zIndex: 777
+                                        }),
+                                        singleValue: (provided, state) => ({
+                                            ...provided,
+                                            color: state.isDisabled ? '#000' : provided.color,
+                                        })
+                                    }}
+                                />
+                            </div>
+
+                            <button aria-label="Đồng hồ tiếp theo" className="btn bg-white m-0 p-0 px-2 d-flex align-items-center justify-content-center" style={{ height: "42px", width: "42px" }}
+                                onClick={() => {
+                                    handleNextDongHo()
+                                }}>
+                                <FontAwesomeIcon icon={faArrowRight} style={{ fontSize: "1.6rem" }} className="fa-2x text-blue"></FontAwesomeIcon>
+                            </button>
+                        </div>
+                        {/* End select nav  */}
+                    </div>
+                </div>
+                <div className={`m-0 mb-3 bg-white rounded shadow-sm w-100 position-relative py-3 pt-md-4`}>
+                    <h4 className="w-100 text-uppercase text-center">Thông tin riêng</h4>
+                    <div className={`w-100 m-0 p-0 ${ui_vfm['wrap-process-table']}`}>
+                        <table className={`table table-striped table-bordered table-hover ${ui_vfm['process-table']}`}>
+                            <thead>
+                                <tr className={`${ui_vfm['table-header']}`}>
+                                    <th>
+                                        <div className={`${ui_vfm['table-label']}`}>
+                                            <span>
+                                                Đồng hồ
+                                            </span>
+                                        </div>
+                                    </th>
+                                    <th>
+                                        <div className={`${ui_vfm['table-label']}`}>
+                                            <span>
+                                                Số giấy CN
+                                            </span>
+                                        </div>
+                                    </th>
+                                    <th>
+                                        <div className={`${ui_vfm['table-label']}`}>
+                                            <span>
+                                                Số Tem
+                                            </span>
+                                        </div>
+                                    </th>
+                                    <th>
+                                        <div className={`${ui_vfm['table-label']}`}>
+                                            <span>
+                                                Serial Sensor
+                                            </span>
+                                        </div>
+                                    </th>
+                                    <th>
+                                        <div className={`${ui_vfm['table-label']}`}>
+                                            <span>
+                                                Serial chỉ thị
+                                            </span>
+                                        </div>
+                                    </th>
+                                    <th>
+                                        <div className={`${ui_vfm['table-label']}`}>
+                                            <span>
+                                                Hiệu lực đến
+                                            </span>
+                                        </div>
+                                    </th>
+                                    <th>
+                                        <div className={`${ui_vfm['table-label']}`}>
+                                            <span>
+                                                Kết quả
+                                            </span>
+                                        </div>
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>
+                                        100
+                                    </td>
+                                    <td>
+                                        <input className="form-control" style={{width: "170px"}} />
+                                        <small className="w-100 text-center text-danger">Serail sensor đã tồn tại</small>
+                                    </td>
+                                    <td>
+                                        <input className="form-control" style={{width: "170px"}} />
+                                    </td>
+                                    <td>
+                                        <input className="form-control" style={{width: "170px"}} />
+                                    </td>
+                                    <td>
+                                        <input className="form-control" style={{width: "170px"}} />
+                                    </td>
+                                    <td>
+
+                                        <DatePicker
+                                            className={`bg-white ${ui_vfm['date-picker']}`}
+                                            value={dayjs(hieuLucBienBan)}
+                                            format="DD-MM-YYYY"
+                                            // maxDate={dayjs().endOf('day')}
+                                            disabled={isDHSaved != null && isDHSaved}
+                                            minDate={dayjs().endOf('day')}
+                                            onChange={(newValue: Dayjs | null) => setHieuLucBienBan(newValue ? newValue.toDate() : null)}
+                                            slotProps={{ textField: { fullWidth: true, style: { maxWidth: '175px' } } }}
+                                        />
+                                    </td>
+                                    <td>
+                                        <p className="m-0 p-0" style={{ width: "140px" }}>Chưa kiểm định</p>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div className={`w-100 px-2 px-md-3 d-flex gap-2 align-items-center justify-content-end`}>
                         {/* <button aria-label="Áp dụng số giấy chứng nhận cho toàn đồng hồ" className="btn py-2 bg-light-grey px-4 text-white d-none" style={{ color: "#489444", border: "2px solid #489444 !important" }} onClick={
                             () => {
                                 // TODO: set GCN for all dongHo 
