@@ -59,13 +59,13 @@ export default function NavTab({ className, classNameGroupTab, classNameContent,
                     })}
                 </div>
             </div>
-            <div className={`w-100 p-1 ${nt['wrap-process-tab']}`}>
+            <div className={`w-100 p-0 px-1 ${nt['wrap-process-tab']}`}>
                 <div className={`m-0 p-0 w-100 ${classNameContent ? classNameContent : ""}`} id={nt['process-tab-content']}>
                     {tabContent.map((val, index) => {
                         return (
                             <div tabIndex={index + 1} key={index + 1} className={`m-0 p-0 ${selectedTab[index + 1] ? nt['show'] : 'd-none'}`}>
                                 {val.content}
-                                <div className={`w-100 px-1 py-3 d-flex justify-content-between ${buttonControl ? "" : "d-none"}`}>
+                                <div className={`w-100 px-1 py-2 d-flex justify-content-between ${buttonControl ? "" : "d-none"}`}>
                                     {(0 == index) ? <span></span> : <button aria-label={`Quay lại (${tabContent[index - 1].title})`} className="btn text-white bg-dark-blue" onClick={() => toggleTab(index)}>Quay lại ({tabContent[index - 1].title})</button>}
 
                                     {(tabContent.length - 1 == index) ? "" : <button aria-label={`Tiếp (${tabContent[index + 1].title})`} type="button" className="btn text-white bg-dark-blue" onClick={() => toggleTab(index + 2)}>Tiếp ({tabContent[index + 1].title})</button>}

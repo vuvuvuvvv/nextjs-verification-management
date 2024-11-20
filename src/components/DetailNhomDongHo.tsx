@@ -397,16 +397,16 @@ export default function DetailNhomDongHo({ nhomDongHo }: DetailNhomDongHoProps) 
                             </div>
 
                             <div className="row px-3">
-                                {(dongHo.so_giay_chung_nhan && dongHo.ngay_thuc_hien) && <div className="col-12 col-md-6">
-                                    <p>Số giấy chứng nhận: <b>{getFullSoGiayCN(dongHo.so_giay_chung_nhan, dongHo.ngay_thuc_hien)}</b></p>
-                                </div>}
-                                {dongHo.so_tem && <div className="col-12 col-md-6">
-                                    <p>Số tem: <b>{dongHo.so_tem}</b></p>
-                                </div>}
-                                {dongHo.seri_sensor && <div className="col-12 col-md-6">
+                                {(dongHo.so_giay_chung_nhan && dongHo.ngay_thuc_hien) ? <div className="col-12 col-md-6">
+                                    <p>Số giấy chứng nhận: <b>{getFullSoGiayCN(dongHo.so_giay_chung_nhan, dongHo.ngay_thuc_hien) || "Không có số giấy chứng nhận"}</b></p>
+                                </div> : <div className="col-12 col-md-6"></div>}
+                                {dongHo.so_tem ? <div className="col-12 col-md-6">
+                                    <p>Số tem: <b>{dongHo.so_tem || "Không có số tem"}</b></p>
+                                </div> : <div className="col-12 col-md-6"></div>}
+                                {dongHo.seri_sensor && <div className="col-12">
                                     <p>Serial sensor: <b>{dongHo.seri_sensor}</b></p>
                                 </div>}
-                                {dongHo.seri_chi_thi && <div className="col-12 col-md-6">
+                                {dongHo.seri_chi_thi && <div className="col-12">
                                     <p>Serial chỉ thị: <b>{dongHo.seri_chi_thi}</b></p>
                                 </div>}
                             </div>

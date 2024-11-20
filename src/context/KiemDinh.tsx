@@ -28,7 +28,7 @@ interface KiemDinhContextType {
 const KiemDinhContext = createContext<KiemDinhContextType | undefined>(undefined);
 
 export const KiemDinhProvider = ({ children }: { children: ReactNode }) => {
-    const randomT = parseFloat((Math.random() * (25 - 22) + 22).toFixed(1));
+    const [randomT, setRandomT] = useState(parseFloat((Math.random() * (25 - 22) + 22).toFixed(1)));
 
     const lanChayMoi: DuLieuCacLanChay = {
         1: { V1: 0, V2: 0, Vc1: 0, Vc2: 0, Tdh: randomT, Tc: randomT, },
@@ -56,9 +56,9 @@ export const KiemDinhProvider = ({ children }: { children: ReactNode }) => {
     const [ketQua, setKetQua] = useState<boolean | null>(null);
     const [vChuanDongBoCacLL, setVChuanDongBoCacLL] = useState<VChuanDongBoCacLL>({})
 
-    useEffect(() => {
-        console.log("vchuan: ", vChuanDongBoCacLL);
-    }, [vChuanDongBoCacLL]);
+    // useEffect(() => {
+    //     console.log("vchuan: ", vChuanDongBoCacLL);
+    // }, [vChuanDongBoCacLL]);
 
     // useEffect(() => {
     //     console.log("dlkdcll: ", duLieuKiemDinhCacLuuLuong);
@@ -90,8 +90,8 @@ export const KiemDinhProvider = ({ children }: { children: ReactNode }) => {
                     ...prevState,
                     [key]: {
                         ...prevVLL,
-                        [index]: prevV ? { ...prevV, [field]: parseFloat(value) } : { Vc1: 0, Vc2: 0, [field]: parseFloat(value) },
-                        [index + 1]: nextVL ? { ...nextVL, Vc1: parseFloat(value) } : { Vc1: parseFloat(value), Vc2: 0 },
+                        [index]: prevV ? { ...prevV, [field]: value } : { [field]: value },
+                        // [index + 1]: nextVL ? { ...nextVL, Vc1: value } : { Vc1: value, Vc2: "-1" },
                     }
                 };
                 return newState;
@@ -139,7 +139,6 @@ export const KiemDinhProvider = ({ children }: { children: ReactNode }) => {
         });
     };
 
-    // TODO: Update vchuan here
     const getDuLieuChayCuaLuuLuong = (q: { title: string; value: string }) => {
         let data = duLieuKiemDinhCacLuuLuong[q.title]?.lan_chay;
 
@@ -148,7 +147,7 @@ export const KiemDinhProvider = ({ children }: { children: ReactNode }) => {
                 acc[Number(key)] = {
                     ...val,
                     ...(vChuanDongBoCacLL?.[q.title]?.[Number(key)] || {}),
-                    ...(vChuanDongBoCacLL?.[q.title]?.[Number(key) + 1] || {})
+                    // ...(vChuanDongBoCacLL?.[q.title]?.[Number(key) + 1] || {})
                 };
                 return acc;
             }, {})
@@ -160,8 +159,8 @@ export const KiemDinhProvider = ({ children }: { children: ReactNode }) => {
             1: {
                 V1: 0,
                 V2: 0,
-                Vc1: 0,
-                Vc2: 0,
+                Vc1: "0",
+                Vc2: "0",
                 Tdh: randomT,
                 Tc: randomT,
                 ...(vChuanDongBoCacLL?.[q.title]?.[1] || {})
@@ -175,7 +174,8 @@ export const KiemDinhProvider = ({ children }: { children: ReactNode }) => {
             let key = q.title;
             let data = duLieuKiemDinhCacLuuLuong[key]?.lan_chay;
             if (data) {
-                let latest_data = data[Number(Object.keys(data)[Object.entries(data).length - 1])].V2
+                let latest_V2= data[Number(Object.keys(data)[Object.entries(data).length - 1])].V2
+                let latest_Vc2 = data[Number(Object.keys(data)[Object.entries(data).length - 1])].Vc2
                 const newIndexOfLanChay = Number(Object.keys(data)[Object.entries(data).length - 1]) + 1;
                 setDuLieuKiemDinhCacLuuLuong(prevState => {
                     const existingData = prevState[key] || {
@@ -198,9 +198,9 @@ export const KiemDinhProvider = ({ children }: { children: ReactNode }) => {
                             lan_chay: {
                                 ...data,
                                 [newIndexOfLanChay]: {
-                                    V1: latest_data || 0,
+                                    V1: latest_V2 || 0,
                                     V2: 0,
-                                    Vc1: 0,
+                                    Vc1: latest_Vc2 || 0,
                                     Vc2: 0,
                                     Tdh: randomT,
                                     Tc: randomT,
@@ -227,7 +227,7 @@ export const KiemDinhProvider = ({ children }: { children: ReactNode }) => {
             if (data) {
                 setDuLieuKiemDinhCacLuuLuong(prevState => {
                     const existingData = prevState[key] || {
-                        value: 0, lanChay: {
+                        value: 0, lan_chay: {
                             1: {
                                 V1: 0,
                                 V2: 0,

@@ -54,11 +54,11 @@ export const DongHoListProvider = ({ children }: { children: ReactNode }) => {
         fetchDongHoData();
     }, [user]);
 
-    useEffect(() => {
-        if (oldDongHoData.length > 0) {
-            console.log("Old: ", oldDongHoData);
-        }
-    }, [oldDongHoData]);
+    // useEffect(() => {
+    //     if (oldDongHoData.length > 0) {
+    //         console.log("Old: ", oldDongHoData);
+    //     }
+    // }, [oldDongHoData]);
 
     const [amount, setAmount] = useState<number>(1)
 

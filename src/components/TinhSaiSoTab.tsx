@@ -22,7 +22,7 @@ interface TinhSaiSoTabProps {
     Form: ({ className, d }: FormProps) => JSX.Element;
     onFormHSSChange: (value: number | null) => void;
     isDisable?: boolean;
-    isDHDienTu?: boolean
+    isDHDienTu?: boolean | null
 }
 
 interface TabFormState {
@@ -38,7 +38,7 @@ interface FormProps {
     isDisable?: boolean
 }
 
-export default function TinhSaiSoTab({ className, tabIndex, d, q, Form, onFormHSSChange, isDisable, isDHDienTu }: TinhSaiSoTabProps) {
+export default function TinhSaiSoTab({ className, tabIndex, d, q, Form, onFormHSSChange, isDisable, isDHDienTu = null }: TinhSaiSoTabProps) {
     const {
         duLieuKiemDinhCacLuuLuong,
         getDuLieuChayCuaLuuLuong,
@@ -94,16 +94,14 @@ export default function TinhSaiSoTab({ className, tabIndex, d, q, Form, onFormHS
         }
     }, [duLieuKiemDinhCacLuuLuong]);
 
-    // TODO: Check formValues
     useEffect(() => {
         if (JSON.stringify(prevFormValuesRef.current) !== JSON.stringify(formValues)) {
-            // console.log("Run by form: ", q, formValues);
             setSelectedTabForm({
                 ...Object.keys(initialTabFormState).reduce((prevTabState, key) => {
                     prevTabState[Number(key)] = false;
                     return prevTabState;
                 }, {} as TabFormState),
-                [(selectedTabForm[activeTab] ? activeTab : parseInt(Object.keys(selectedTabForm)[0]))]: true
+                [(Object.keys(formValues).includes(activeTab.toString()) && selectedTabForm[activeTab]) ? activeTab : parseInt(Object.keys(selectedTabForm)[0])]: true
             });
             onFormHSSChange(getHieuSaiSo(formValues as TinhSaiSoValueTabs));
             updateLuuLuong(q, formValues);
@@ -128,6 +126,10 @@ export default function TinhSaiSoTab({ className, tabIndex, d, q, Form, onFormHS
 
     // Form: change thì đổi hiệu sai số
     const handleFormChange = (index: number, field: keyof DuLieuMotLanChay, value: string) => {
+        if (field == "Vc1" || field == "Vc2") {
+            updateSoDongHoChuan(q, index, field, value);
+        }
+
         setFormValues(prevFormValues => {
             const newFormValues = { ...prevFormValues };
             newFormValues[index] = { ...newFormValues[index], [field]: value };
@@ -139,13 +141,15 @@ export default function TinhSaiSoTab({ className, tabIndex, d, q, Form, onFormHS
                     newFormValues[nextIndex] = { ...newFormValues[nextIndex], V1: parseFloat(value) };
                 }
             }
+            if (field == "Vc2") {
+                const nextIndex = index + 1;
+                if (newFormValues[nextIndex]) {
+                    newFormValues[nextIndex] = { ...newFormValues[nextIndex], Vc1: parseFloat(value) };
+                }
+            }
 
-            //TODO: update vchuan
             return newFormValues;
         });
-        if (field == "Vc1" || field == "Vc2") {
-            updateSoDongHoChuan(q, index, field, value);
-        }
     };
 
     const handleDelete = (key: string) => {
@@ -250,7 +254,7 @@ export default function TinhSaiSoTab({ className, tabIndex, d, q, Form, onFormHS
                                     type="text"
                                     className={`form-control text-start`}
                                     disabled
-                                    value={(q.title == TITLE_LUU_LUONG.q3 && isDHDienTu) ? parseFloat(q.value) * 0.3 : q.value || ""}
+                                    value={((q.title == TITLE_LUU_LUONG.q3 && isDHDienTu != null && isDHDienTu) ? parseFloat(q.value) * 0.3 : q.value) || ""}
                                 />
                                 <span className="input-group-text">m<sup>3</sup>/h</span>
                             </div>
@@ -265,7 +269,7 @@ export default function TinhSaiSoTab({ className, tabIndex, d, q, Form, onFormHS
                                     type="text"
                                     className={`form-control text-start`}
                                     disabled
-                                    value={getVToiThieu((q.title == TITLE_LUU_LUONG.q3 && isDHDienTu) ? parseFloat(q.value) * 0.3 : q.value, d) || ""}
+                                    value={(getVToiThieu((q.title == TITLE_LUU_LUONG.q3 && isDHDienTu != null && isDHDienTu) ? parseFloat(q.value) * 0.3 : q.value, d)) || ""}
                                 />
                                 <span className="input-group-text">lít</span>
                             </div>
@@ -280,12 +284,14 @@ export default function TinhSaiSoTab({ className, tabIndex, d, q, Form, onFormHS
                     <button aria-label="Reset lần chạy" className="btn px-3 py-2 me-2 btn-secondary" onClick={() => handleReset()}>
                         <FontAwesomeIcon icon={faUndo} className="me-2"></FontAwesomeIcon>Reset
                     </button>
-                    <button aria-label="Thêm lần chạy" className="btn px-3 py-2 btn-success" onClick={() => handleAdd()}>
-                        <FontAwesomeIcon icon={faAdd} className="me-2"></FontAwesomeIcon>Thêm lần chạy
-                    </button>
                 </div>
             </div>
             {renderTabTinhSaiSo()}
+            <div className="w-100 d-flex justify-content-center mt-1">
+                <button aria-label="Thêm lần chạy" className="btn px-3 py-2 btn-success" onClick={() => handleAdd()}>
+                    <FontAwesomeIcon icon={faAdd} className="me-2"></FontAwesomeIcon>Thêm lần
+                </button>
+            </div>
         </div>
     );
 }

@@ -335,7 +335,6 @@ export default function NhomDongHoNuocForm({ className }: NhomDongHoNuocFormProp
         // { value: phuongTienDo, setter: setPhuongTienDo, id: "phuong_tien_do" },
         { value: kieuThietBi, setter: setKieuThietBi, id: "kieu_thiet_bi" },
 
-        // TODO: Seri
         // { value: seriChiThi, setter: setSeriChiThi, id: "seri_chi_thi" },
         // { value: seriSensor, setter: setSeriSensor, id: "seri_sensor" },
         // { value: kieuChiThi, setter: setKieuChiThi, id: "kieu_chi_thi" },
@@ -370,7 +369,13 @@ export default function NhomDongHoNuocForm({ className }: NhomDongHoNuocFormProp
             setCanSave(false);
         };
 
-        if (errorFields.length === 0 && !errorGCN && !errorSerialChiThi && !errorSerialSensor && !errorSoTem) {
+        // TODO: Check cansave
+        if (errorFields.length === 0 
+            // && !errorGCN 
+            // && !errorSerialChiThi 
+            // && !errorSerialSensor 
+            // && !errorSoTem
+        ) {
             const checkQ3 = ((ccx && (ccx == "1" || ccx == "2")) || isDHDienTu);
             setDongHo({
                 id: null,
@@ -406,7 +411,7 @@ export default function NhomDongHoNuocForm({ className }: NhomDongHoNuocFormProp
                 nhiet_do: nhietDo,
                 do_am: doAm,
                 du_lieu_kiem_dinh: getDuLieuKiemDinhJSON(), // Assuming this is not part of the form
-                hieu_luc_bien_ban: soTem ? getLastDayOfMonthInFuture(isDHDienTu) : null,
+                hieu_luc_bien_ban: soTem && soGiayChungNhan ? getLastDayOfMonthInFuture(isDHDienTu) : null,
                 so_giay_chung_nhan: soGiayChungNhan,
             });
 
@@ -523,7 +528,7 @@ export default function NhomDongHoNuocForm({ className }: NhomDongHoNuocFormProp
             nhiet_do: nhietDo || "",
             do_am: doAm || "",
             du_lieu_kiem_dinh: getDuLieuKiemDinhJSON(),
-            hieu_luc_bien_ban: soTem ? getLastDayOfMonthInFuture(isDHDienTu) : null,
+            hieu_luc_bien_ban: soTem && soGiayChungNhan ? getLastDayOfMonthInFuture(isDHDienTu) : null,
             so_giay_chung_nhan: soGiayChungNhan || "",
         }
     }
@@ -605,7 +610,7 @@ export default function NhomDongHoNuocForm({ className }: NhomDongHoNuocFormProp
 
     // TODO: Check cơ điện từ
     useEffect(() => {
-        setDHDienTu(Boolean((ccx && ["1", "2"].includes(ccx)) || (kieuThietBi && ["Điện tử"].includes(kieuThietBi))));
+        setDHDienTu(Boolean((ccx && ["1", "2"].includes(ccx)) || kieuThietBi == "Điện tử"));
         if (kieuThietBi) {
             setPhuongTienDo(kieuThietBi == "Điện tử" ? "Đồng hồ đo nước lạnh có cơ cấu điện tử" : "Đồng hồ đo nước lạnh cơ khí")
         } else {
@@ -656,11 +661,8 @@ export default function NhomDongHoNuocForm({ className }: NhomDongHoNuocFormProp
 
             if (duLieuKiemDinhJSON) {
                 const duLieuKiemDinh = JSON.parse(duLieuKiemDinhJSON);
-                console.log(duLieuKiemDinh.du_lieu)
                 setDuLieuKiemDinhCacLuuLuong(duLieuKiemDinh.du_lieu || initialDuLieuKiemDinhCacLuuLuong);
-
                 setFormHieuSaiSo(duLieuKiemDinh.hieu_sai_so || initialFormHieuSaiSo);
-
                 setSeriChiThi(dongHoSelected.seri_chi_thi || "");
                 setSeriSensor(dongHoSelected.seri_sensor || "");
                 setKFactor(dongHoSelected.k_factor || "");
@@ -1096,7 +1098,7 @@ export default function NhomDongHoNuocForm({ className }: NhomDongHoNuocFormProp
                                         }}
                                     />
                                 </div>
-                                {((ccx && (ccx == "1" || ccx == "2")) || isDHDienTu) ? <>
+                                {(isDHDienTu != null && isDHDienTu) ? <>
                                     <div className="mb-3 col-12 col-md-6 col-xxl-4">
                                         <label htmlFor="kieu_chi_thi" className="form-label">- Kiểu chỉ thị:</label>
                                         <div className="input-group">
@@ -1178,7 +1180,7 @@ export default function NhomDongHoNuocForm({ className }: NhomDongHoNuocFormProp
                                     />
                                 </div>
 
-                                {((ccx && (ccx == "1" || ccx == "2")) || isDHDienTu) ? <>
+                                {(isDHDienTu != null && isDHDienTu) ? <>
                                     <div className="mb-3 col-12 col-md-6 col-lg-4 col-xxl-4">
                                         <label htmlFor="q3" className="form-label">- Q<sub>3</sub>:</label>
                                         <div className="input-group">
@@ -1247,7 +1249,7 @@ export default function NhomDongHoNuocForm({ className }: NhomDongHoNuocFormProp
                                     {errorPDM && <small className="text-danger">{errorPDM}</small>}
                                 </div>
 
-                                {((ccx && (ccx == "1" || ccx == "2")) || isDHDienTu) && <>
+                                {(isDHDienTu != null && isDHDienTu) && <>
                                     <div className="mb-3 col-12 col-md-6 col-xxl-4">
                                         <label htmlFor="kFactor" className="form-label">- Hệ số K:</label>
                                         <input
@@ -1517,7 +1519,7 @@ export default function NhomDongHoNuocForm({ className }: NhomDongHoNuocFormProp
                                                 />
                                                 {(errorSerialSensor && !isDHSaved) && <small className="text-danger">{errorSerialSensor}</small>}
                                             </div>
-                                            {((ccx && (ccx == "1" || ccx == "2")) || isDHDienTu) && <>
+                                            {(isDHDienTu != null && isDHDienTu) && <>
                                                 <div className="mb-3 col-12 col-md-6 col-xxl-6">
                                                     <label htmlFor="seri_chi_thi" className="form-label">Serial chỉ thị:</label>
                                                     <input
@@ -1550,29 +1552,29 @@ export default function NhomDongHoNuocForm({ className }: NhomDongHoNuocFormProp
                                             <h5 className="p-0">Đo lường:</h5>
                                             <NavTab buttonControl={true} gotoFirstTab={isFirstTabLL} tabContent={[
                                                 {
-                                                    title: <>Q<sub>{isDHDienTu ? "3" : "n"}</sub></>,
+                                                    title: <>Q<sub>{isDHDienTu != null && isDHDienTu ? "3" : "n"}</sub></>,
                                                     content: <TinhSaiSoTab isDHDienTu={isDHDienTu} onFormHSSChange={(value: number | null) => handleFormHSSChange(0, value)}
                                                         isDisable={isDHSaved != null && isDHSaved}
                                                         d={d ? d : ""} q={{
-                                                            title: (isDHDienTu) ? TITLE_LUU_LUONG.q3 : TITLE_LUU_LUONG.qn,
+                                                            title: (isDHDienTu != null && isDHDienTu) ? TITLE_LUU_LUONG.q3 : TITLE_LUU_LUONG.qn,
                                                             value: (q3) ? q3 : ((qn) ? qn : "")
                                                         }} className="" tabIndex={1} Form={TinhSaiSoForm as any} />
                                                 },
                                                 {
-                                                    title: <>Q<sub>{isDHDienTu ? "2" : "t"}</sub></>,
+                                                    title: <>Q<sub>{isDHDienTu != null && isDHDienTu ? "2" : "t"}</sub></>,
                                                     content: <TinhSaiSoTab onFormHSSChange={(value: number | null) => handleFormHSSChange(1, value)}
                                                         isDisable={isDHSaved != null && isDHSaved}
                                                         d={d ? d : ""} q={{
-                                                            title: (isDHDienTu) ? TITLE_LUU_LUONG.q2 : TITLE_LUU_LUONG.qt,
+                                                            title: (isDHDienTu != null && isDHDienTu) ? TITLE_LUU_LUONG.q2 : TITLE_LUU_LUONG.qt,
                                                             value: (q2Ort) ? q2Ort.toString() : ""
                                                         }} tabIndex={2} Form={TinhSaiSoForm as any} />
                                                 },
                                                 {
-                                                    title: <>Q<sub>{isDHDienTu ? "1" : "min"}</sub></>,
+                                                    title: <>Q<sub>{isDHDienTu != null && isDHDienTu ? "1" : "min"}</sub></>,
                                                     content: <TinhSaiSoTab onFormHSSChange={(value: number | null) => handleFormHSSChange(2, value)}
                                                         isDisable={isDHSaved != null && isDHSaved}
                                                         d={d ? d : ""} q={{
-                                                            title: (isDHDienTu) ? TITLE_LUU_LUONG.q1 : TITLE_LUU_LUONG.qmin,
+                                                            title: (isDHDienTu != null && isDHDienTu) ? TITLE_LUU_LUONG.q1 : TITLE_LUU_LUONG.qmin,
                                                             value: (q1Ormin) ? q1Ormin.toString() : ""
                                                         }} tabIndex={3} Form={TinhSaiSoForm as any} />
                                                 },
@@ -1586,89 +1588,6 @@ export default function NhomDongHoNuocForm({ className }: NhomDongHoNuocFormProp
                                                         <div className="col-12"><span className="me-2">•</span>Tiến trình chạy lưu lượng không được bỏ trống</div>
                                                     )}
                                                 </div>
-                                                {/* <div className={`w-100 px-3 py-2 m-0 bg-lighter-grey rounded d-flex align-items-center justify-content-end ${(ketQua == null) || (checking) ? "fade d-none" : "show"}`}>
-                                                    <button aria-label="Kiểm tra" className={`btn btn-success px-3 py-2 text-white ${ui_vfm['btn-check']}`} onClick={
-                                                        () => {
-                                                            // TODO:
-                                                            // handleCheck();
-                                                            setChecking(true);
-                                                        }
-                                                    }><FontAwesomeIcon className="me-2" icon={faTasks} />Kiểm tra</button>
-                                                </div> */}
-                                                {/* <div className={`w-100 px-3 p-xl-4 row alert ${ketQua ? "alert-success" : "alert-danger"} m-0 ${(ketQua != null) && (checking) ? "show" : "fade d-none"}`}>
-                                                    <h5 className="p-0">Kết quả kiểm tra kỹ thuật:</h5>
-                                                    <p className="p-0 m-0">- Khả năng hoạt động của hệ thống: <b className="text-uppercase">{ketQua ? "Đạt" : "Không đạt"}</b></p>
-                                                    <div className={`w-100 m-0 mt-3 p-0 ${ketQua ? "" : "d-none"}`}>
-                                                        <div className="w-100 m-0 p-0 justify-content-between">
-                                                            <div className="w-100 m-0 p-0 row mb-3">
-
-                                                                <div className={`col-12 col-md-10 col-xl-10 col-xxl-9 m-0 p-0 ps-lg-4 d-md-flex align-items-center justify-content-between ${ui_vfm['seri-number-input']}`}>
-                                                                    <label htmlFor="soTem" className={`form-label m-0 fs-6 fw-bold d-block`}>Số Tem:</label>
-                                                                    <input
-                                                                        type="text"
-                                                                        id="soTem"
-                                                                        className={`form-control`}
-                                                                        placeholder="Nhập số tem"
-                                                                        value={ketQua ? soTem : ""}
-                                                                        disabled={isDHSaved != null && isDHSaved}
-                                                                        onChange={(e) => setSoTem(e.target.value)}
-                                                                    />
-                                                                </div>
-                                                                {errorSoTem && <small className="text-danger px-4">{errorSoTem}</small>}
-                                                            </div>
-                                                            <div className="w-100 m-0 p-0 row mb-3">
-                                                                <div className={`col-12 col-md-10 col-xl-10 col-xxl-9 m-0 p-0 ps-lg-4 d-md-flex align-items-center justify-content-between ${ui_vfm['seri-number-input']}`}>
-                                                                    <label htmlFor="soGiayChungNhan" className={`form-label m-0 fs-6 fw-bold d-block`} style={{ width: "210px" }}>Số giấy chứng nhận:</label>
-                                                                    <div className="input-group d-flex align-items-center justify-content-center">
-                                                                        <input
-                                                                            type="text"
-                                                                            id="soGiayChungNhan"
-                                                                            className={`form-control`}
-                                                                            style={{ width: "max-content", borderTopRightRadius: "0", borderBottomRightRadius: "0" }}
-                                                                            placeholder="Nhập số giấy chứng nhận"
-                                                                            value={ketQua ? soGiayChungNhan : ""}
-                                                                            disabled={isDHSaved != null && isDHSaved}
-                                                                            onChange={(e) => setSoGiayChungNhan(e.target.value)}
-                                                                        />
-                                                                        <span className="input-group-text" style={{ height: "42px" }}>Số: FMS.KĐ.<span className="text-primary">{soGiayChungNhan || "-----"}</span>.{dayjs().format("YY")}</span>
-                                                                    </div>
-                                                                </div>
-                                                                {errorGCN && <small className="text-danger px-4">{errorGCN}</small>}
-                                                            </div>
-
-                                                            <div className="w-100 m-0 p-0 row mb-3">
-                                                                <div className={`col-12 col-md-10 col-xl-10 col-xxl-9 m-0 p-0 ps-lg-4 d-md-flex align-items-center justify-content-between ${(soTem && soGiayChungNhan) ? "" : "d-none"} ${ui_vfm['seri-number-input']}`}>
-                                                                    <label htmlFor="hieuLucBienBan" style={{ width: "180px" }} className="form-label m-0 fs-6 fw-bold d-block">Hiệu lực đến:</label>
-                                                                    <DatePicker
-                                                                        className={`bg-white ${ui_vfm['date-picker']}`}
-                                                                        value={dayjs(hieuLucBienBan)}
-                                                                        format="DD-MM-YYYY"
-                                                                        // maxDate={dayjs().endOf('day')}
-                                                                        disabled={isDHSaved != null && isDHSaved}
-                                                                        minDate={dayjs().endOf('day')}
-                                                                        onChange={(newValue: Dayjs | null) => setHieuLucBienBan(newValue ? newValue.toDate() : null)}
-                                                                        slotProps={{ textField: { fullWidth: true } }}
-                                                                    />
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                    <div className={`w-100 m-0 px-0 d-flex gap-2 justify-content-end ${isDHSaved != null && isDHSaved ? "d-none" : ""}`}>
-                                                        <button aria-label="Lưu Đồng hồ" className={`btn py-2 px-3 btn-success`}
-                                                            disabled={(!canSave && (ketQua != null && ketQua)) || isCheckingInfo || !(!errorGCN && !errorSerialChiThi && !errorSerialSensor && !errorSoTem)}
-                                                            onClick={handleSaveDongHo}
-                                                        >
-                                                            Lưu Đồng hồ
-                                                        </button>
-                                                    </div> */}
-                                                {/* <div className={`w-100 m-0 px-0 d-flex gap-2 justify-content-end ${isDHSaved != null && isDHSaved ? "d-none" : ""}`}>
-                                                    <button aria-label="Lưu Đồng hồ" className={`btn py-2 px-3 btn-success`}
-                                                        disabled={(!canSave && (ketQua != null && ketQua)) || isCheckingInfo || !(!errorGCN && !errorSerialChiThi && !errorSerialSensor && !errorSoTem)}
-                                                        onClick={handleSaveDongHo}
-                                                    >
-                                                        Lưu Đồng hồ
-                                                    </button>
-                                                </div> */}
                                             </div>
                                         </div>
                                         <div className={`w-100 m-0 p-2 d-flex gap-2 justify-content-between ${isDHSaved != null && isDHSaved ? "" : "d-none"}`}>
@@ -1854,16 +1773,6 @@ export default function NhomDongHoNuocForm({ className }: NhomDongHoNuocFormProp
                     </div>
 
                     <div className={`w-100 px-2 px-md-3 d-flex gap-2 align-items-center justify-content-end`}>
-                        {/* <button aria-label="Áp dụng số giấy chứng nhận cho toàn đồng hồ" className="btn py-2 bg-light-grey px-4 text-white d-none" style={{ color: "#489444", border: "2px solid #489444 !important" }} onClick={
-                            () => {
-                                // TODO: set GCN for all dongHo 
-                            }
-                        }>
-                            <FontAwesomeIcon icon={faCogs} className="me-2"></FontAwesomeIcon> Đặt số GCN cho toàn đồng hồ
-                        </button>
-                        <button aria-label="Lưu tùy chọn" className="btn py-2 px-4 bg-lighter-grey" style={{ color: "#137f0e" }} onClick={handleSaveDongHoWithOptions}>
-                            <FontAwesomeIcon icon={faCheckSquare} className="me-2"></FontAwesomeIcon> Lưu tùy chọn
-                        </button> */}
                         <button aria-label="Lưu toàn bộ" className="btn btn-success py-2 px-4" onClick={handleSaveAllDongHo}>
                             <FontAwesomeIcon icon={faSave} className="me-2"></FontAwesomeIcon> Lưu toàn bộ
                         </button>

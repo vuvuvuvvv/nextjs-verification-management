@@ -213,7 +213,7 @@ export default function DetailDongHo({ dongHo }: DetailDongHoProps) {
                         </div>
                     </div>
                     <div className="row mb-3">
-                        <p>Cơ sở sử dụng: <b>{dongHo.co_so_su_dung || "Chưa có cơ sở sử dụng"}</b></p>
+                        <p>Cơ sở sử dụng: <b>{dongHo.noi_su_dung || "Chưa có cơ sở sử dụng"}</b></p>
                     </div>
                     <div className="row mb-3">
                         <p>Phương pháp thực hiện: <b>{dongHo.phuong_phap_thuc_hien || "Chưa có phương pháp thực hiện"}</b></p>
@@ -227,7 +227,7 @@ export default function DetailDongHo({ dongHo }: DetailDongHoProps) {
                             <p>Ngày thực hiện: <b>{dayjs(dongHo.ngay_thuc_hien).format("DD/MM/YYYY")}</b></p>
                         </div>
                         <div className="col-12">
-                            <p>Địa điểm thực hiện: <b>{dongHo.noi_su_dung || "Chưa có địa điểm thực hiện"}</b></p>
+                            <p>Địa điểm thực hiện: <b>{dongHo.co_so_su_dung || "Chưa có địa điểm thực hiện"}</b></p>
                         </div>
                     </div>
                     <div className="w-100 mb-3">

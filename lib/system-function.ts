@@ -9,7 +9,7 @@ export const getSaiSoDongHo = (formValue: DuLieuMotLanChay) => {
         if (formValue.V2 == 0 && formValue.V1 == 0 && formValue.Vc2 == 0 && formValue.Vc1 == 0) return null;
 
         const VDHCT = formValue.V2 - formValue.V1;
-        const VDHC = formValue.Vc2 - formValue.Vc1;
+        const VDHC = parseFloat(formValue.Vc2.toString()) - parseFloat(formValue.Vc1.toString());
         if (VDHC !== 0) {
             const error = ((VDHCT - VDHC) / VDHC) * 100;
             return Number((Math.round(error * 10000) / 10000).toFixed(3));
@@ -59,10 +59,7 @@ export const getQ2OrQtAndQ1OrQMin = (isDHDienTu: boolean, ccx: string | null, q:
                 };
             } 
         }
-    } else {
-        console.log("6")
-        console.log(isDHDienTu, ccx, q, r)
-    }
+    } 
     return {
         getQ1OrMin: null,
         getQ2OrQt: null,
@@ -121,13 +118,14 @@ export const isDongHoDatTieuChuan = (formHieuSaiSo: { hss: number | null }[]) =>
 }
 
 export const getLastDayOfMonthInFuture = (isDHDienTu: boolean | null): Date | null => {
+    console.log("2")
     if(isDHDienTu != null) {
         const years = isDHDienTu ? 3 : 5
         const today = new Date();
         const futureDate = new Date(today.getFullYear() + years, today.getMonth() + 1, 0);
         return futureDate;
     }
-    return null
+    return new Date();
 }
 
 export const convertToUppercaseNonAccent = (str: string) => {

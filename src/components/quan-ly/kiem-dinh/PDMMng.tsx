@@ -140,7 +140,6 @@ export default function PDMManagement({ data, className, listDHNamesExist }: PDM
     useEffect(() => {
         setLoading(true);
         const debounce = setTimeout(async () => {
-            console.log("ddd: ", filterForm)
             try {
                 const res = await getPDMByFilter(filterForm);
                 if (res.status === 200 || res.status === 201) {
