@@ -10,6 +10,7 @@ const DatePicker = dynamic(() => import('@mui/x-date-pickers/DatePicker').then(m
 const NavTab = dynamic(() => import('@/components/NavTab'), { ssr: false });
 const TinhSaiSoTab = dynamic(() => import('@/components/TinhSaiSoTab'), { ssr: false });
 const TinhSaiSoForm = dynamic(() => import('@/components/TinhSaiSoForm'), { ssr: false });
+const TableDongHoInfo = dynamic(() => import('@/components/TableInputDongHoInfo'), { ssr: false });
 const Loading = dynamic(() => import("@/components/Loading"), { ssr: false });
 // const ModalSelectDongHoToSave = dynamic(() => import('@/components/ui/ModalSelectDongHoToSave'), { ssr: false });
 
@@ -95,7 +96,7 @@ export default function NhomDongHoNuocForm({ className }: NhomDongHoNuocFormProp
     const { dongHo, setDongHo } = useDongHo();
 
     const { dongHoList,
-        saveListDongHo,
+        createListDongHo,
         getDongHoDaKiemDinh,
         updateListDongHo,
         updateDongHoFieldsInList,
@@ -131,6 +132,8 @@ export default function NhomDongHoNuocForm({ className }: NhomDongHoNuocFormProp
     const fetchCalled = useRef(false);
     const [selectedCssxOption, setSelectedCssxOption] = useState('');
     const [CSSXOptions, setCSSXOptions] = useState<{ value: string, label: string }[]>([]);
+    
+    const [isErrorInfoExists, setIsErrorInfoExists] = useState<boolean | null>(false);
 
     // Func: Set err
     useEffect(() => {
@@ -370,7 +373,7 @@ export default function NhomDongHoNuocForm({ className }: NhomDongHoNuocFormProp
         };
 
         // TODO: Check cansave
-        if (errorFields.length === 0 
+        if (errorFields.length === 0
             // && !errorGCN 
             // && !errorSerialChiThi 
             // && !errorSerialSensor 
@@ -746,7 +749,7 @@ export default function NhomDongHoNuocForm({ className }: NhomDongHoNuocFormProp
                         allowOutsideClick: false,
                         didOpen: () => {
                             Swal.showLoading();
-                            saveListDongHo(dongHoList);
+                            createListDongHo(dongHoList);
                             updateDongHoSaved(getCurrentDongHo())
                         }
                     });
@@ -782,7 +785,7 @@ export default function NhomDongHoNuocForm({ className }: NhomDongHoNuocFormProp
                         allowOutsideClick: false,
                         didOpen: () => {
                             Swal.showLoading();
-                            saveListDongHo(getDongHoDaKiemDinh(dongHoList));
+                            createListDongHo(getDongHoDaKiemDinh(dongHoList));
                             updateDongHoSaved(getCurrentDongHo())
                         }
                     });
@@ -1429,7 +1432,7 @@ export default function NhomDongHoNuocForm({ className }: NhomDongHoNuocFormProp
                     <div className="w-100 m-0 mb-3 p-0 position-relative">
                         {/* Select Nav  */}
                         <div className={`w-100 p-3 shadow-sm rounded-top bg-main-blue d-flex align-items-center sticky-top justify-content-center`} style={{ top: "60px", zIndex: "900" }}>
-                            <span className="fs-5 fw-bold mb-0 text-white me-2">Đồng hồ:</span>
+                            {/* <span className="fs-5 fw-bold mb-0 text-white me-2">Đồng hồ:</span> */}
                             <button aria-label="Đồng hồ trước" className="btn bg-white m-0 p-0 px-2 d-flex align-items-center justify-content-center" style={{ height: "42px", width: "42px" }} onClick={() => {
                                 handlePrevDongHo()
                             }}>
@@ -1678,99 +1681,8 @@ export default function NhomDongHoNuocForm({ className }: NhomDongHoNuocFormProp
                 </div>
                 <div className={`m-0 mb-3 bg-white rounded shadow-sm w-100 position-relative py-3 pt-md-4`}>
                     <h4 className="w-100 text-uppercase text-center">Thông tin riêng</h4>
-                    <div className={`w-100 m-0 p-0 ${ui_vfm['wrap-process-table']}`}>
-                        <table className={`table table-striped table-bordered table-hover ${ui_vfm['process-table']}`}>
-                            <thead>
-                                <tr className={`${ui_vfm['table-header']}`}>
-                                    <th>
-                                        <div className={`${ui_vfm['table-label']}`}>
-                                            <span>
-                                                Đồng hồ
-                                            </span>
-                                        </div>
-                                    </th>
-                                    <th>
-                                        <div className={`${ui_vfm['table-label']}`}>
-                                            <span>
-                                                Số giấy CN
-                                            </span>
-                                        </div>
-                                    </th>
-                                    <th>
-                                        <div className={`${ui_vfm['table-label']}`}>
-                                            <span>
-                                                Số Tem
-                                            </span>
-                                        </div>
-                                    </th>
-                                    <th>
-                                        <div className={`${ui_vfm['table-label']}`}>
-                                            <span>
-                                                Serial Sensor
-                                            </span>
-                                        </div>
-                                    </th>
-                                    <th>
-                                        <div className={`${ui_vfm['table-label']}`}>
-                                            <span>
-                                                Serial chỉ thị
-                                            </span>
-                                        </div>
-                                    </th>
-                                    <th>
-                                        <div className={`${ui_vfm['table-label']}`}>
-                                            <span>
-                                                Hiệu lực đến
-                                            </span>
-                                        </div>
-                                    </th>
-                                    <th>
-                                        <div className={`${ui_vfm['table-label']}`}>
-                                            <span>
-                                                Kết quả
-                                            </span>
-                                        </div>
-                                    </th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr>
-                                    <td>
-                                        100
-                                    </td>
-                                    <td>
-                                        <input className="form-control" style={{ width: "170px" }} />
-                                        <small className="w-100 text-center text-danger">Serail sensor đã tồn tại</small>
-                                    </td>
-                                    <td>
-                                        <input className="form-control" style={{ width: "170px" }} />
-                                    </td>
-                                    <td>
-                                        <input className="form-control" style={{ width: "170px" }} />
-                                    </td>
-                                    <td>
-                                        <input className="form-control" style={{ width: "170px" }} />
-                                    </td>
-                                    <td>
 
-                                        <DatePicker
-                                            className={`bg-white ${ui_vfm['date-picker']}`}
-                                            value={dayjs(hieuLucBienBan) || null}
-                                            format="DD-MM-YYYY"
-                                            // maxDate={dayjs().endOf('day')}
-                                            disabled={isDHSaved != null && isDHSaved}
-                                            minDate={dayjs().endOf('day')}
-                                            onChange={(newValue: Dayjs | null) => setHieuLucBienBan(newValue ? newValue.toDate() : null)}
-                                            slotProps={{ textField: { fullWidth: true, style: { maxWidth: '175px' } } }}
-                                        />
-                                    </td>
-                                    <td>
-                                        <p className="m-0 p-0" style={{ width: "140px" }}>Chưa kiểm định</p>
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
+                    <TableDongHoInfo setIsErrorInfoExists={setIsErrorInfoExists} />
 
                     <div className={`w-100 px-2 px-md-3 d-flex gap-2 align-items-center justify-content-end`}>
                         <button aria-label="Lưu toàn bộ" className="btn btn-success py-2 px-4" onClick={handleSaveAllDongHo}>

@@ -20,7 +20,7 @@ interface DongHoListContextType {
     deleteDongHoInList: (index: number) => void;
     getDongHoChuaKiemDinh: (dongHoList: DongHo[]) => DongHo[];
     getDongHoDaKiemDinh: (dongHoList: DongHo[]) => DongHo[];
-    saveListDongHo: (listDongHo: DongHo[]) => Promise<void>;
+    createListDongHo: (listDongHo: DongHo[]) => Promise<void>;
     savedDongHoList: DongHo[];
     setSavedDongHoList: React.Dispatch<React.SetStateAction<DongHo[]>>;
 }
@@ -175,28 +175,6 @@ export const DongHoListProvider = ({ children }: { children: ReactNode }) => {
         })
     }, [amount])
 
-    // useEffect(() => {
-    //     if (vChuanDongBoCacLLPrev.current != vChuanDongBoCacLL) {
-    //         setDongHoList((prevState) => {
-    //             const newState = [
-    //                 ...prevState.map((dongHo, index) => {
-    //                     if (dongHo && dongHo.du_lieu_kiem_dinh) {
-    //                         const duLieuKiemDinh = JSON.parse(dongHo.du_lieu_kiem_dinh);
-    //                         console.log(duLieuKiemDinh.du_lieu);
-    //                     }
-    //                     return null
-    //                 })
-    //             ]
-
-    //             return [
-    //                 ...prevState
-    //             ]
-    //         });
-
-    //         vChuanDongBoCacLLPrev.current = vChuanDongBoCacLL
-    //     }
-    // }, [vChuanDongBoCacLL]);
-
     const [dongHoSelected, setDongHoSelected] = useState<DongHo | null>(dongHoList[0] || null);
     const [savedDongHoList, setSavedDongHoList] = useState<DongHo[]>([]);
 
@@ -286,7 +264,7 @@ export const DongHoListProvider = ({ children }: { children: ReactNode }) => {
         setDongHoList(prevList => prevList.filter((_, i) => i !== index));
     };
 
-    const saveListDongHo = async (listDongHo: DongHo[]) => {
+    const createListDongHo = async (listDongHo: DongHo[]) => {
         let successMessages: string[] = [];
         let errorMessages: string[] = [];
 
@@ -369,7 +347,7 @@ export const DongHoListProvider = ({ children }: { children: ReactNode }) => {
             deleteDongHoInList,
             getDongHoChuaKiemDinh,
             getDongHoDaKiemDinh,
-            saveListDongHo,
+            createListDongHo,
             savedDongHoList,
             setSavedDongHoList
         }}>
