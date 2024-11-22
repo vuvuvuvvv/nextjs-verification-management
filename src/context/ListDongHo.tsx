@@ -30,7 +30,6 @@ const DongHoListContext = createContext<DongHoListContextType | undefined>(undef
 export const DongHoListProvider = ({ children }: { children: ReactNode }) => {
     const { user } = useUser();
     const { vChuanDongBoCacLL } = useKiemDinh();
-    const vChuanDongBoCacLLPrev = useRef(vChuanDongBoCacLL);
     const [oldDongHoData, setOldDongHoData] = useState<DongHo[]>([]);
     const [isInitialization, setInitialization] = useState(true);
 
@@ -214,15 +213,18 @@ export const DongHoListProvider = ({ children }: { children: ReactNode }) => {
     const [generalInfoDongHo, setGeneralInfoDongHo] = useState(getGeneralInfo(dongHoList[0]));
 
     useEffect(() => {
-        if (user && user.username && !isInitialization) {
-            const handler = setTimeout(() => {
-                saveDongHoDataExistsToIndexedDB(user.username, dongHoList);
-            }, 500);
+        // TODO:
+        // if (user && user.username && !isInitialization) {
+        //     const handler = setTimeout(() => {
+        //         saveDongHoDataExistsToIndexedDB(user.username, dongHoList);
+        //     }, 500);
 
-            return () => {
-                clearTimeout(handler);
-            };
-        }
+        //     return () => {
+        //         clearTimeout(handler);
+        //     };
+        // }
+
+        // console.log(dongHoList);
     }, [dongHoList]);
 
     const updateListDongHo = (index: number, updatedDongHo: DongHo) => {

@@ -44,9 +44,9 @@ export const KiemDinhProvider = ({ children }: { children: ReactNode }) => {
     };
 
     const initialFormHieuSaiSo: { hss: number | null }[] = [
-        { hss: null },
-        { hss: null },
-        { hss: null },
+        { hss: null },      // Q3-n
+        { hss: null },      // Q2-t
+        { hss: null },      // Q1-min
     ];
 
     const [duLieuKiemDinhCacLuuLuong, setDuLieuKiemDinhCacLuuLuong] = useState<DuLieuChayDongHo>(initialDuLieuKiemDinhCacLuuLuong);

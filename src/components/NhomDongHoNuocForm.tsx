@@ -47,7 +47,28 @@ interface NhomDongHoNuocFormProps {
 
 export default function NhomDongHoNuocForm({ className }: NhomDongHoNuocFormProps) {
     const { user, isAdmin } = useUser();
-    const [loading, setLoading] = useState<boolean>(true);
+    const { dongHo, setDongHo } = useDongHo();
+    const { dongHoList,
+        createListDongHo,
+        getDongHoDaKiemDinh,
+        updateListDongHo,
+        updateDongHoFieldsInList,
+        dongHoSelected,
+        setDongHoSelected,
+        getDongHoChuaKiemDinh,
+        savedDongHoList,
+        setSavedDongHoList,
+        setDongHoList
+    } = useDongHoList();
+    const {
+        getDuLieuKiemDinhJSON,
+        ketQua, formHieuSaiSo,
+        setDuLieuKiemDinhCacLuuLuong,
+        setFormHieuSaiSo, setKetQua,
+        initialFormHieuSaiSo,
+        initialDuLieuKiemDinhCacLuuLuong
+    } = useKiemDinh();
+
     const [isCollapsed, setIsCollapsed] = useState<boolean>(false);
 
     const [tenDongHo, setTenDongHo] = useState<string>("");
@@ -93,20 +114,6 @@ export default function NhomDongHoNuocForm({ className }: NhomDongHoNuocFormProp
 
     const [debouncedFields, setDebouncedFields] = useState<Partial<DongHo>>({});
 
-    const { dongHo, setDongHo } = useDongHo();
-
-    const { dongHoList,
-        createListDongHo,
-        getDongHoDaKiemDinh,
-        updateListDongHo,
-        updateDongHoFieldsInList,
-        dongHoSelected,
-        setDongHoSelected,
-        getDongHoChuaKiemDinh,
-        savedDongHoList,
-        setSavedDongHoList
-    } = useDongHoList();
-
     // const [showModalSelectDongHoToSave, setShowModalSelectDongHoToSave] = useState(false);
 
     const [showFormTienTrinh, setShowFormTienTrinh] = useState(false);
@@ -114,26 +121,20 @@ export default function NhomDongHoNuocForm({ className }: NhomDongHoNuocFormProp
     const [error, setError] = useState("");
     const [errorPDM, setErrorPDM] = useState("");
 
-    const [errorSoTem, setErrorSoTem] = useState("");
-    const [errorGCN, setErrorGCN] = useState("");
-    const [errorSerialSensor, setErrorSerialSensor] = useState("");
-    const [errorSerialChiThi, setErrorSerialChiThi] = useState("");
-
     const [errorFields, setErrorFields] = useState<string[]>([]);
-    const [checking, setChecking] = useState(false);
-    const [isCheckingInfo, setCheckingInfo] = useState(false);
 
     const router = useRouter();
 
     const [isDHSaved, setDHSaved] = useState<boolean | null>(null);
     const [isExistsDHSaved, setExitsDHSaved] = useState<boolean>(false);
-
     const [isFirstTabLL, setFirsttabLL] = useState<boolean>(false);
     const fetchCalled = useRef(false);
     const [selectedCssxOption, setSelectedCssxOption] = useState('');
     const [CSSXOptions, setCSSXOptions] = useState<{ value: string, label: string }[]>([]);
-    
     const [isErrorInfoExists, setIsErrorInfoExists] = useState<boolean | null>(false);
+    const prevErrorInfoExists = useRef(isErrorInfoExists);
+    const [selectedDongHoIndex, setSelectedDongHoIndex] = useState<number>(0);
+    const [loading, setLoading] = useState<boolean>(false);
 
     // Func: Set err
     useEffect(() => {
@@ -170,6 +171,7 @@ export default function NhomDongHoNuocForm({ className }: NhomDongHoNuocFormProp
         fetchCalled.current = true;
 
         const fetchData = async () => {
+            setLoading(true);
             try {
                 const res = await api.get(`${BASE_API_URL}/pdm`);
                 const listNames: string[] = [...res.data.map((pdm: PDMData) => pdm["ten_dong_ho"])]
@@ -214,15 +216,6 @@ export default function NhomDongHoNuocForm({ className }: NhomDongHoNuocFormProp
         setDebouncedFields(prevFields => ({ ...prevFields, [field]: value }));
     };
 
-    const {
-        getDuLieuKiemDinhJSON,
-        ketQua, formHieuSaiSo,
-        setDuLieuKiemDinhCacLuuLuong,
-        setFormHieuSaiSo, setKetQua,
-        initialFormHieuSaiSo,
-        initialDuLieuKiemDinhCacLuuLuong
-    } = useKiemDinh();
-
     useEffect(() => {
         if (isFirstTabLL) {
             setFirsttabLL(false);
@@ -236,8 +229,6 @@ export default function NhomDongHoNuocForm({ className }: NhomDongHoNuocFormProp
             updateDongHoSaved(getCurrentDongHo())
         }
     }, [savedDongHoList]);
-
-    const [selectedDongHoIndex, setSelectedDongHoIndex] = useState<number>(0); // State để lưu trữ chỉ số đồng hồ đã chọn
 
     const scrollRef = useRef<HTMLDivElement | null>(null);
 
@@ -270,27 +261,34 @@ export default function NhomDongHoNuocForm({ className }: NhomDongHoNuocFormProp
                 const ma_tim_dong_ho_pdm = convertToUppercaseNonAccent(filterPDM.tenDongHo + filterPDM.dn + filterPDM.ccx + filterPDM.kieuSensor + filterPDM.kieuChiThi + (isDHDienTu ? (filterPDM.q3 + filterPDM.r) : filterPDM.qn));
 
                 const handler = setTimeout(async () => {
-                    const res = await getPDMByMaTimDongHoPDM(ma_tim_dong_ho_pdm);
-                    if (res.status == 200 || res.status == 201) {
-                        const pdm = res.data;
-                        const getDate = new Date(pdm.ngay_qd_pdm)
-                        setSoQDPDM(pdm.so_qd_pdm + (getDate.getFullYear() ? "-" + getDate.getFullYear() : ""));
-                        if (dayjs(pdm.ngay_het_han) < dayjs()) {
-                            setErrorPDM("Số quyết định PDM đã hết hạn.")
+                    setLoading(true);
+                    try {
+                        const res = await getPDMByMaTimDongHoPDM(ma_tim_dong_ho_pdm);
+                        if (res.status == 200 || res.status == 201) {
+                            const pdm = res.data;
+                            const getDate = new Date(pdm.ngay_qd_pdm)
+                            setSoQDPDM(pdm.so_qd_pdm + (getDate.getFullYear() ? "-" + getDate.getFullYear() : ""));
+                            if (dayjs(pdm.ngay_het_han) < dayjs()) {
+                                setErrorPDM("Số quyết định PDM đã hết hạn.")
+                                setPhuongPhapThucHien("FMS - PP - 02")
+                                // setSoQDPDM("");
+                                setCanSave(false);
+                            }
+                            setCoSoSuDung(pdm.don_vi_pdm);
+                            setPhuongPhapThucHien("ĐNVN 17:2017");
+                        } else if (res.status == 404) {
+                            setErrorPDM("Không có số PDM phù hợp hoặc số PDM đã hết hạn.")
                             setPhuongPhapThucHien("FMS - PP - 02")
-                            // setSoQDPDM("");
-                            setCanSave(false);
+                            // setErrorPDM("")
+                            setSoQDPDM("");
+                        } else {
+                            setErrorPDM("Có lỗi xảy ra khi lấy số quyết định PDM!")
+                            setSoQDPDM("");
                         }
-                        setCoSoSuDung(pdm.don_vi_pdm);
-                        setPhuongPhapThucHien("ĐNVN 17:2017");
-                    } else if (res.status == 404) {
-                        setErrorPDM("Không có số PDM phù hợp hoặc số PDM đã hết hạn.")
-                        setPhuongPhapThucHien("FMS - PP - 02")
-                        // setErrorPDM("")
-                        setSoQDPDM("");
-                    } else {
-                        setErrorPDM("Có lỗi xảy ra khi lấy số quyết định PDM!")
-                        setSoQDPDM("");
+                    } catch (error) {
+                        setError("Đã có lỗi xảy ra! Hãy thử lại sau.");
+                    } finally {
+                        setLoading(false);
                     }
                 }, 500);
 
@@ -363,69 +361,33 @@ export default function NhomDongHoNuocForm({ className }: NhomDongHoNuocFormProp
         // { value: doAm, setter: setDoAm, id: "do_am" },
     ];
 
+    // TODO:
     useEffect(() => {
-        setKetQua(isDongHoDatTieuChuan(formHieuSaiSo));
+        if (prevErrorInfoExists.current = isErrorInfoExists) {
+        }
+
+        // setKetQua(isDongHoDatTieuChuan(formHieuSaiSo));
+
         setShowFormTienTrinh(errorFields.length === 0)
         if (errorFields.length != 0) {
-            setKetQua(null)
+            // setKetQua(null)
             setSoTem("");;
             setCanSave(false);
         };
 
         // TODO: Check cansave
         if (errorFields.length === 0
-            // && !errorGCN 
-            // && !errorSerialChiThi 
-            // && !errorSerialSensor 
-            // && !errorSoTem
         ) {
-            const checkQ3 = ((ccx && (ccx == "1" || ccx == "2")) || isDHDienTu);
-            setDongHo({
-                id: null,
-                ten_dong_ho: tenDongHo || "",
-                group_id: null,
-                phuong_tien_do: phuongTienDo,
-                seri_chi_thi: seriChiThi,
-                seri_sensor: checkQ3 ? seriSensor : "",
-                kieu_chi_thi: kieuChiThi,
-                kieu_sensor: checkQ3 ? kieuSensor : "",
-                kieu_thiet_bi: kieuThietBi,
-                co_so_san_xuat: coSoSanXuat,
-                so_tem: soTem,
-                nam_san_xuat: namSanXuat,
-                dn: dn,
-                d: d,
-                ccx: ccx,
-                q3: checkQ3 ? q3 : "",
-                r: r,
-                qn: checkQ3 ? "" : qn,
-                k_factor: kFactor,
-                so_qd_pdm: soQDPDM,
-                ten_khach_hang: tenKhachHang,
-                co_so_su_dung: coSoSuDung,
-                phuong_phap_thuc_hien: phuongPhapThucHien,
-                chuan_thiet_bi_su_dung: chuanThietBiSuDung,
-                nguoi_kiem_dinh: nguoiKiemDinh,
-                nguoi_soat_lai: nguoiSoatLai,
-                ngay_thuc_hien: ngayThucHien,
-                noi_su_dung: noiSuDung || "",
-                noi_thuc_hien: noiThucHien || DEFAULT_LOCATION,
-                vi_tri: viTri || "",
-                nhiet_do: nhietDo,
-                do_am: doAm,
-                du_lieu_kiem_dinh: getDuLieuKiemDinhJSON(), // Assuming this is not part of the form
-                hieu_luc_bien_ban: soTem && soGiayChungNhan ? getLastDayOfMonthInFuture(isDHDienTu) : null,
-                so_giay_chung_nhan: soGiayChungNhan,
-            });
+            setDongHo(getCurrentDongHo());
 
-            if (isDongHoDatTieuChuan(formHieuSaiSo) != null && (soTem && soGiayChungNhan)) {
-                setCanSave(true);
-            }
+            // if (isDongHoDatTieuChuan(formHieuSaiSo) != null && (soTem && soGiayChungNhan)) {
+            //     setCanSave(true);
+            // }
         } else {
             setCanSave(false);
 
         }
-    }, [errorFields, errorGCN, errorSerialChiThi, errorSerialSensor, errorSoTem]);
+    }, [errorFields, isErrorInfoExists]);
 
     const validateFields = () => {
         let validationErrors = [];
@@ -448,55 +410,13 @@ export default function NhomDongHoNuocForm({ className }: NhomDongHoNuocFormProp
         tenDongHo, kieuThietBi, seriChiThi, seriSensor, kieuChiThi, kieuSensor, soTem, coSoSanXuat, dn, d, ccx, q3, r, qn, soQDPDM, tenKhachHang, coSoSuDung, phuongPhapThucHien, viTri, nhietDo, doAm, isDHDienTu
     ]);
 
-    const infoStates = [
-        { info: soTem, setError: setErrorSoTem, title: "Số tem" },
-        { info: soGiayChungNhan, setError: setErrorGCN, title: "Số giấy chứng nhận" },
-        { info: seriSensor, setError: setErrorSerialSensor, title: "Serial sensor" },
-        { info: seriChiThi, setError: setErrorSerialChiThi, title: "Serial chỉ thị" },
-    ];
-
-    const previousInfoStates = useRef(infoStates.map(state => state.info));
-
-    useEffect(() => {
-        infoStates.forEach(({ info, setError, title }, index) => {
-            if (info && !isDHSaved && info !== previousInfoStates.current[index]) {
-                setCheckingInfo(true)
-                const handler = setTimeout(async () => {
-                    const res = await getDongHoExistsByInfo(info);
-                    if (res?.status === 200 || res?.status === 201) {
-                        setError(title + " đã tồn tại!");
-                    } else if (res?.status === 404) {
-                        setError("");
-                    } else {
-                        setError("Có lỗi xảy ra khi kiểm tra " + title + "!");
-                    }
-                    setCheckingInfo(false)
-                }, 500);
-
-                return () => {
-                    clearTimeout(handler);
-                };
-            }
-            if (!info) {
-                setError("")
-            }
-        });
-
-        previousInfoStates.current = infoStates.map(state => state.info);
-    }, [soTem, soGiayChungNhan, seriSensor, seriChiThi]);
-
-    useEffect(() => {
-        if (errorGCN || errorSerialChiThi || errorSerialSensor || errorSoTem) {
-            setCanSave(false);
-            setHieuLucBienBan(null);
-        } else {
-            setCanSave(soTem && soGiayChungNhan ? true : false);
-            setHieuLucBienBan(soTem && soGiayChungNhan ? getLastDayOfMonthInFuture(isDHDienTu) : null);
-        }
-    }, [soTem, soGiayChungNhan]);
-
     const getCurrentDongHo = () => {
         const checkQ3 = ((ccx && (ccx == "1" || ccx == "2")) || isDHDienTu);
+        const duLieuKiemDinhJSON = getDuLieuKiemDinhJSON();
+        const duLieuKiemDinh = duLieuKiemDinhJSON ? JSON.parse(duLieuKiemDinhJSON) : null;
+        const status = duLieuKiemDinh ? duLieuKiemDinh.ket_qua : null;
+
+
         return {
             id: null,
             ten_dong_ho: tenDongHo || "",
@@ -508,7 +428,7 @@ export default function NhomDongHoNuocForm({ className }: NhomDongHoNuocFormProp
             kieu_sensor: checkQ3 ? kieuSensor : "",
             kieu_thiet_bi: kieuThietBi,
             co_so_san_xuat: coSoSanXuat,
-            so_tem: soTem || "",
+            so_tem: (status != null && status) ? (soTem || "") : "",
             nam_san_xuat: namSanXuat || null,
             dn: dn,
             d: d,
@@ -531,8 +451,8 @@ export default function NhomDongHoNuocForm({ className }: NhomDongHoNuocFormProp
             nhiet_do: nhietDo || "",
             do_am: doAm || "",
             du_lieu_kiem_dinh: getDuLieuKiemDinhJSON(),
-            hieu_luc_bien_ban: soTem && soGiayChungNhan ? getLastDayOfMonthInFuture(isDHDienTu) : null,
-            so_giay_chung_nhan: soGiayChungNhan || "",
+            hieu_luc_bien_ban: (status != null && status) && soTem && soGiayChungNhan ? getLastDayOfMonthInFuture(isDHDienTu) : null,
+            so_giay_chung_nhan: (status != null && status) ? (soGiayChungNhan || "") : "",
         }
     }
 
@@ -540,6 +460,7 @@ export default function NhomDongHoNuocForm({ className }: NhomDongHoNuocFormProp
     const handleSaveDongHo = async () => {
         const currentDongHo = getCurrentDongHo();
         if (canSave) {
+            setLoading(true);
             try {
                 const response = await createDongHo(currentDongHo);
                 if (response.status == 201) {
@@ -573,6 +494,8 @@ export default function NhomDongHoNuocForm({ className }: NhomDongHoNuocFormProp
                 }
             } catch (err) {
                 setError("Đã có lỗi xảy ra. Vui lòng thử lại!");
+            } finally {
+                setLoading(false);
             }
         } else {
             setError("Chưa thể lưu lúc này!");
@@ -585,15 +508,37 @@ export default function NhomDongHoNuocForm({ className }: NhomDongHoNuocFormProp
         setFormHieuSaiSo(newFormValues);
     };
 
+
+    // TODO: Save list dongHo
     // Func: Hieu sai so
     useEffect(() => {
         if (q3 || qn) {
-            setKetQua(isDongHoDatTieuChuan(formHieuSaiSo));
+            const newKetQua = isDongHoDatTieuChuan(formHieuSaiSo);
+            if (newKetQua !== ketQua) { 
+                setKetQua(newKetQua);
+                // console.log(formHieuSaiSo);
+                if(newKetQua != null && !newKetQua) {
+                    setSoGiayChungNhan("");
+                    setSoTem("");
+                    setHieuLucBienBan(null);
+                }
+            }
         }
-        if (checking) {
-            setChecking(false);
-        }
-    }, [formHieuSaiSo])
+    }, [formHieuSaiSo]);
+
+    useEffect(() => {
+        setLoading(true);
+        const handler = setTimeout(() => {
+            const updatedDongHoList = [...dongHoList];
+            updatedDongHoList[selectedDongHoIndex] = getCurrentDongHo();
+            setDongHoList(updatedDongHoList);
+            setLoading(false);
+        }, 500);
+
+        return () => {
+            clearTimeout(handler);
+        };
+    }, [ketQua])
 
     // Check Đồng hồ điện tử
     const toggleCollapse = () => {
@@ -654,10 +599,6 @@ export default function NhomDongHoNuocForm({ className }: NhomDongHoNuocFormProp
     useEffect(() => {
         if (dongHoSelected) {
             setCanSave(false);
-            setErrorGCN("");
-            setErrorSerialChiThi("");
-            setErrorSerialSensor("");
-            setErrorSoTem("");
             // setFirsttabLL(true);
 
             const duLieuKiemDinhJSON = dongHoSelected.du_lieu_kiem_dinh; // Define the type
@@ -701,9 +642,6 @@ export default function NhomDongHoNuocForm({ className }: NhomDongHoNuocFormProp
     // Handle previous and next button clicks
     const handlePrevDongHo = () => {
         if (selectedDongHoIndex > 0) {
-            if (scrollRef.current) {
-                scrollRef.current.scrollIntoView({ behavior: 'smooth' });
-            }
             setSelectedDongHoIndex(selectedDongHoIndex - 1);
             setDongHoSelected(dongHoList[selectedDongHoIndex - 1]);
             updateCurrentDongHo();
@@ -712,9 +650,6 @@ export default function NhomDongHoNuocForm({ className }: NhomDongHoNuocFormProp
 
     const handleNextDongHo = () => {
         if (selectedDongHoIndex < dongHoList.length - 1) {
-            // if (scrollRef.current) {
-            //     scrollRef.current.scrollIntoView({ behavior: 'smooth' });
-            // }
             setSelectedDongHoIndex(selectedDongHoIndex + 1);
             setDongHoSelected(dongHoList[selectedDongHoIndex + 1]);
             updateCurrentDongHo();
@@ -769,7 +704,9 @@ export default function NhomDongHoNuocForm({ className }: NhomDongHoNuocFormProp
             // Some dongHo are not verified
             Swal.fire({
                 title: 'Chú ý!',
-                text: 'Có ' + dongHoChuaKiemDinh.length + ' đồng hồ chưa kiểm định. Chỉ có thể lưu toàn bộ những đồng hồ đã kiểm định. Có muốn tiếp tục lưu?',
+                text: 'Đồng hồ ' + dongHoChuaKiemDinh.map((dongHo, i) => {
+                    return (dongHoList.indexOf(dongHo) + 1)
+                }) + ' chưa kiểm định xong. Tiếp tục lưu?',
                 icon: 'warning',
                 showCancelButton: true,
                 confirmButtonColor: '#3085d6',
@@ -808,16 +745,6 @@ export default function NhomDongHoNuocForm({ className }: NhomDongHoNuocFormProp
         }
         return options;
     };
-
-    // const handleShowModal = () => {
-    //     updateCurrentDongHo();
-    //     setShowModalSelectDongHoToSave(true)
-    // };
-    // const handleCloseModal = () => setShowModalSelectDongHoToSave(false);
-
-    if (loading) {
-        return <Loading></Loading>;
-    }
 
     return (
         <LocalizationProvider dateAdapter={AdapterDayjs} localeText={viVN.components.MuiLocalizationProvider.defaultProps.localeText}>
@@ -1446,7 +1373,7 @@ export default function NhomDongHoNuocForm({ className }: NhomDongHoNuocFormProp
                                     className="basic-multi-select"
                                     classNamePrefix="select"
                                     placeholder="- Chọn đồng hồ -"
-                                    value={{ value: selectedDongHoIndex, label: "Đồng hồ " + (selectedDongHoIndex + 1) } || null} // Đặt giá trị dựa trên state
+                                    value={{ value: selectedDongHoIndex, label: "Đồng hồ " + (selectedDongHoIndex + 1) + (isDHSaved != null && isDHSaved ? " (Đã lưu)" : "") } || null} // Đặt giá trị dựa trên state
                                     onChange={(selectedOptions) => {
                                         if (selectedOptions) {
                                             handleDongHoChange(selectedOptions.value);
@@ -1504,44 +1431,6 @@ export default function NhomDongHoNuocForm({ className }: NhomDongHoNuocFormProp
                             {dongHoSelected ? (
                                 <>
                                     <div className={`w-100 p-2`}>
-                                        <h5 className="p-0">Thông tin kỹ thuật:</h5>
-                                        <div className="row m-0 p-0">
-                                            <div className="mb-3 col-12 col-md-6 col-xxl-6">
-                                                <label htmlFor="seri_sensor" className="form-label">Serial sensor:</label>
-                                                <input
-                                                    type="text"
-                                                    className="form-control"
-                                                    id="seri_sensor"
-                                                    placeholder="Serial sensor"
-                                                    value={seriSensor || ""}
-                                                    disabled={isDHSaved != null && isDHSaved}
-                                                    onChange={(e) => {
-                                                        setSeriSensor(e.target.value);
-                                                        handleChangeField('seri_sensor', e.target.value)
-                                                    }}
-                                                />
-                                                {(errorSerialSensor && !isDHSaved) && <small className="text-danger">{errorSerialSensor}</small>}
-                                            </div>
-                                            {(isDHDienTu != null && isDHDienTu) && <>
-                                                <div className="mb-3 col-12 col-md-6 col-xxl-6">
-                                                    <label htmlFor="seri_chi_thi" className="form-label">Serial chỉ thị:</label>
-                                                    <input
-                                                        type="text"
-                                                        className="form-control"
-                                                        id="seri_chi_thi"
-                                                        placeholder="Serial chỉ thị"
-                                                        value={seriChiThi || ""}
-                                                        disabled={isDHSaved != null && isDHSaved}
-                                                        onChange={(e) => {
-                                                            setSeriChiThi(e.target.value);
-                                                            handleChangeField('seri_chi_thi', e.target.value)
-                                                        }}
-                                                    />
-                                                    {(errorSerialChiThi && !isDHSaved) && <small className="text-danger">{errorSerialChiThi}</small>}
-                                                </div>
-                                            </>}
-                                        </div>
-
                                         <div className={`w-100 p-2 d-flex gap-2 justify-content-between ${showFormTienTrinh ? "d-none" : ""}`}>
                                             <div className={`w-100 px-3 row alert alert-warning m-0 ${(ketQua != null) ? "fade d-none" : "show"}`}>
                                                 <h6><i>* Điền đủ các thông tin để hiện Form tiến trình!</i></h6>
@@ -1582,7 +1471,7 @@ export default function NhomDongHoNuocForm({ className }: NhomDongHoNuocFormProp
                                                         }} tabIndex={3} Form={TinhSaiSoForm as any} />
                                                 },
                                             ]} />
-
+                                            {/* 
                                             <div className={`w-100 px-2 py-1 d-flex gap-2 justify-content-between`}>
                                                 <div className={`w-100 px-3 row alert alert-warning m-0 ${(ketQua != null) ? "fade d-none" : "show"} ${isDHSaved != null && isDHSaved ? "d-none" : ""}`}>
                                                     <h6><i>* Điền đủ các thông tin để hiện kết quả kiểm tra!</i></h6>
@@ -1591,9 +1480,9 @@ export default function NhomDongHoNuocForm({ className }: NhomDongHoNuocFormProp
                                                         <div className="col-12"><span className="me-2">•</span>Tiến trình chạy lưu lượng không được bỏ trống</div>
                                                     )}
                                                 </div>
-                                            </div>
+                                            </div> */}
                                         </div>
-                                        <div className={`w-100 m-0 p-2 d-flex gap-2 justify-content-between ${isDHSaved != null && isDHSaved ? "" : "d-none"}`}>
+                                        <div className={`w-100 m-0 p-2 d-flex gap-2 justify-content-center ${isDHSaved != null && isDHSaved ? "" : "d-none"}`}>
                                             <button aria-label="Đồng hồ đã lưu" className={`btn py-2 px-3 btn-secondary`} disabled={isDHSaved != null && isDHSaved}>
                                                 Đồng hồ đã lưu
                                             </button>
@@ -1622,7 +1511,7 @@ export default function NhomDongHoNuocForm({ className }: NhomDongHoNuocFormProp
                                     className="basic-multi-select"
                                     classNamePrefix="select"
                                     placeholder="- Chọn đồng hồ -"
-                                    value={{ value: selectedDongHoIndex, label: "Đồng hồ " + (selectedDongHoIndex + 1) } || null}
+                                    value={{ value: selectedDongHoIndex, label: "Đồng hồ " + (selectedDongHoIndex + 1) + (isDHSaved != null && isDHSaved ? " (Đã lưu)" : "") } || null}
                                     onChange={(selectedOptions) => {
                                         if (selectedOptions) {
                                             handleDongHoChange(selectedOptions.value);
@@ -1682,11 +1571,14 @@ export default function NhomDongHoNuocForm({ className }: NhomDongHoNuocFormProp
                 <div className={`m-0 mb-3 bg-white rounded shadow-sm w-100 position-relative py-3 pt-md-4`}>
                     <h4 className="w-100 text-uppercase text-center">Thông tin riêng</h4>
 
-                    <TableDongHoInfo setIsErrorInfoExists={setIsErrorInfoExists} />
+                    <TableDongHoInfo setIsErrorInfoExists={(value: boolean | null) => setIsErrorInfoExists(value)} setLoading={(value: boolean) => setLoading(value)} />
 
                     <div className={`w-100 px-2 px-md-3 d-flex gap-2 align-items-center justify-content-end`}>
-                        <button aria-label="Lưu toàn bộ" className="btn btn-success py-2 px-4" onClick={handleSaveAllDongHo}>
-                            <FontAwesomeIcon icon={faSave} className="me-2"></FontAwesomeIcon> Lưu toàn bộ
+                        <button aria-label="Lưu toàn bộ" className="btn btn-success py-2 px-4" disabled={loading} onClick={handleSaveAllDongHo}>
+                            {loading ?
+                                <><span className="spinner-border spinner-border-sm me-2" aria-hidden="true"></span></> :
+                                <><FontAwesomeIcon icon={faSave} className="me-2"></FontAwesomeIcon></>
+                            } Lưu toàn bộ
                         </button>
                     </div>
                 </div>

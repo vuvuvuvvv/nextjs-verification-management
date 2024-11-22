@@ -5,8 +5,7 @@ import { INDEXED_DB_DH_OBJ_NAME, INDEXED_DB_NAME } from "./system-constant";
 
 export const getSaiSoDongHo = (formValue: DuLieuMotLanChay) => {
     if (formValue) {
-
-        if (formValue.V2 == 0 && formValue.V1 == 0 && formValue.Vc2 == 0 && formValue.Vc1 == 0) return null;
+        if ((formValue.V2 == 0 && formValue.V1 == 0) || (formValue.V2 <= formValue.V1)) return null;
 
         const VDHCT = formValue.V2 - formValue.V1;
         const VDHC = parseFloat(formValue.Vc2.toString()) - parseFloat(formValue.Vc1.toString());
@@ -87,6 +86,9 @@ export const getVToiThieu = (q: string | number, d: string | number) => {
 
 export const getHieuSaiSo = (formValues: TinhSaiSoValueTabs) => {
     try {
+        const hasZeroValues = Object.values(formValues).some(({ V1, V2 }) => V1 === 0 && V2 === 0);
+        if (hasZeroValues) return null; 
+
         const values = Object.values(formValues)
             .map(getSaiSoDongHo)
             .filter(value => value !== null);
@@ -98,7 +100,8 @@ export const getHieuSaiSo = (formValues: TinhSaiSoValueTabs) => {
         }, 0);
 
         return Number(result.toFixed(3));
-    } catch {
+    } catch(e) {
+        // console.log(e)
         return null;
     }
 }
@@ -118,7 +121,6 @@ export const isDongHoDatTieuChuan = (formHieuSaiSo: { hss: number | null }[]) =>
 }
 
 export const getLastDayOfMonthInFuture = (isDHDienTu: boolean | null): Date | null => {
-    console.log("2")
     if(isDHDienTu != null) {
         const years = isDHDienTu ? 3 : 5
         const today = new Date();

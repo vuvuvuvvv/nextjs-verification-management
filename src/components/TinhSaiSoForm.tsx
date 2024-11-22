@@ -82,7 +82,6 @@ export default function QBT30TinhSaiSoForm({ className, formValue, readOnly = fa
                 const decimalPart = rawValue.slice(rawValue.length - decimalPlaces);
                 formattedValue = `${integerPart}.${decimalPart}`;
             }
-            console.log(formattedValue);
 
             setter(formattedValue);
 
@@ -150,6 +149,7 @@ export default function QBT30TinhSaiSoForm({ className, formValue, readOnly = fa
                     <div className={`mb-3 ${ecf["box-input-form"]}`}>
                         <label htmlFor="firstNum" className="form-label">Số đầu</label>
                         <input
+                            tabIndex={1}
                             readOnly={readOnly ? true : false}
                             type="text"
                             className="form-control"
@@ -164,6 +164,7 @@ export default function QBT30TinhSaiSoForm({ className, formValue, readOnly = fa
                     <div className={`mb-3 ${ecf["box-input-form"]}`}>
                         <label htmlFor="lastNum" className="form-label">Số cuối</label>
                         <input
+                            tabIndex={2}
                             readOnly={readOnly ? true : false}
                             type="text"
                             className="form-control"
@@ -178,6 +179,7 @@ export default function QBT30TinhSaiSoForm({ className, formValue, readOnly = fa
                     <div className={`mb-3 ${ecf["box-input-form"]}`}>
                         <label htmlFor="tdh" className="form-label">Nhiệt độ (℃)</label>
                         <input
+                            tabIndex={5}
                             readOnly={readOnly ? true : false}
                             type="text"
                             className="form-control"
@@ -195,6 +197,7 @@ export default function QBT30TinhSaiSoForm({ className, formValue, readOnly = fa
                     <div className={`mb-3 ${ecf["box-input-form"]}`}>
                         <label htmlFor="firstNum" className="form-label">Số đầu</label>
                         <input
+                            tabIndex={3}
                             readOnly={readOnly ? true : false}
                             type="text"
                             className="form-control"
@@ -208,6 +211,7 @@ export default function QBT30TinhSaiSoForm({ className, formValue, readOnly = fa
                     <div className={`mb-3 ${ecf["box-input-form"]}`}>
                         <label htmlFor="lastNum" className="form-label">Số cuối</label>
                         <input
+                            tabIndex={4}
                             readOnly={readOnly ? true : false}
                             type="text"
                             className="form-control"
@@ -222,6 +226,7 @@ export default function QBT30TinhSaiSoForm({ className, formValue, readOnly = fa
                     <div className={`mb-3 ${ecf["box-input-form"]}`}>
                         <label htmlFor="tc" className="form-label">Nhiệt độ (℃)</label>
                         <input
+                            tabIndex={6}
                             readOnly={readOnly ? true : false}
                             type="text"
                             className="form-control"
