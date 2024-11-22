@@ -8,12 +8,14 @@ import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import { getDongHoExistsByInfo } from "@/app/api/dongho/route";
 import { stat } from "fs";
 import { getLastDayOfMonthInFuture } from "@lib/system-function";
+import { TITLE_LUU_LUONG } from "@lib/system-constant";
 
 interface TableDongHoInfoProps {
     // dongHoList: DongHo[],
     className?: string,
     setIsErrorInfoExists: (value: boolean | null) => void;
     setLoading: (value: boolean) => void;
+    isDHDienTu?: boolean
 }
 
 
@@ -36,7 +38,8 @@ type InfoField = {
 const TableDongHoInfo: React.FC<TableDongHoInfoProps> = ({
     className,
     setIsErrorInfoExists,
-    setLoading
+    setLoading,
+    isDHDienTu
 }) => {
     const { dongHoList, setDongHoList, savedDongHoList } = useDongHoList();
     const prevDongHoList = useRef(dongHoList);
@@ -231,7 +234,7 @@ const TableDongHoInfo: React.FC<TableDongHoInfoProps> = ({
                         <th>
                             <div className={`${c_tbIDHInf['table-label']}`}>
                                 <span>
-                                    Kết quả
+                                    Trạng thái
                                 </span>
                             </div>
                         </th>
@@ -243,12 +246,15 @@ const TableDongHoInfo: React.FC<TableDongHoInfoProps> = ({
                         const duLieuKiemDinhJSON = dongHo.du_lieu_kiem_dinh;
                         const duLieuKiemDinh = duLieuKiemDinhJSON ? JSON.parse(duLieuKiemDinhJSON) : null;
                         const status = duLieuKiemDinh ? duLieuKiemDinh.ket_qua : null;
-                        const isDHDienTu = Boolean((dongHo.ccx && ["1", "2"].includes(dongHo.ccx)) || dongHo.kieu_thiet_bi == "Điện tử")
+                        const objHss = duLieuKiemDinh ? duLieuKiemDinh.hieu_sai_so : null;
+                        // console.log(index, objHss);
+
                         return (
                             <tr key={index}>
                                 <td>{index + 1}</td>
                                 <td>
                                     <input
+                                        autoComplete="off"
                                         type="text"
                                         value={tempValues[index]?.so_giay_chung_nhan
                                             // || dongHo?.so_giay_chung_nhan 
@@ -269,6 +275,7 @@ const TableDongHoInfo: React.FC<TableDongHoInfoProps> = ({
                                 <td>
                                     <input
                                         type="text"
+                                        autoComplete="off"
                                         value={tempValues[index]?.so_tem
                                             // || dongHo?.so_tem 
                                             || ""}
@@ -288,6 +295,7 @@ const TableDongHoInfo: React.FC<TableDongHoInfoProps> = ({
                                 <td>
                                     <input
                                         type="text"
+                                        autoComplete="off"
                                         value={tempValues[index]?.seri_sensor
                                             // || dongHo?.seri_sensor 
                                             || ""}
@@ -307,6 +315,7 @@ const TableDongHoInfo: React.FC<TableDongHoInfoProps> = ({
                                 <td>
                                     <input
                                         type="text"
+                                        autoComplete="off"
                                         value={tempValues[index]?.seri_chi_thi
                                             // || dongHo?.seri_chi_thi 
                                             || ""}
@@ -356,7 +365,23 @@ const TableDongHoInfo: React.FC<TableDongHoInfoProps> = ({
                                     />
                                 </td>
                                 <td>
-                                    <p className="m-0 p-0" style={{ width: "140px" }}>{status != null ? (status ? "Đạt" : "Không đạt") : "Chưa kiểm định"}</p>
+                                    <p className="m-0 p-0" style={{ width: "140px" }}>
+                                        {status != null ?
+                                            (status ? "Đạt" : "Không đạt") :
+                                            objHss ?
+                                                (
+                                                    objHss[0].hss == null &&
+                                                        objHss[1].hss == null &&
+                                                        objHss[2].hss == null ?
+                                                        "Chưa kiểm định" :
+                                                        "Còn: " +
+                                                        (objHss[0].hss == null ? (isDHDienTu ? TITLE_LUU_LUONG.q3 : TITLE_LUU_LUONG.qn) + " " : "") +
+                                                        (objHss[1].hss == null ? (isDHDienTu ? TITLE_LUU_LUONG.q2 : TITLE_LUU_LUONG.qt) + " " : "") +
+                                                        (objHss[2].hss == null ? (isDHDienTu ? TITLE_LUU_LUONG.q1 : TITLE_LUU_LUONG.qmin) : "")
+                                                ) :
+                                                "Chưa kiểm định"
+                                        }
+                                    </p>
                                 </td>
                             </tr>
                         )

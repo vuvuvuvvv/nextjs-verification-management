@@ -506,39 +506,30 @@ export default function NhomDongHoNuocForm({ className }: NhomDongHoNuocFormProp
         const newFormValues = [...formHieuSaiSo];
         newFormValues[index].hss = value;
         setFormHieuSaiSo(newFormValues);
-    };
-
-
-    // TODO: Save list dongHo
-    // Func: Hieu sai so
-    useEffect(() => {
-        if (q3 || qn) {
-            const newKetQua = isDongHoDatTieuChuan(formHieuSaiSo);
-            if (newKetQua !== ketQua) { 
-                setKetQua(newKetQua);
-                // console.log(formHieuSaiSo);
-                if(newKetQua != null && !newKetQua) {
-                    setSoGiayChungNhan("");
-                    setSoTem("");
-                    setHieuLucBienBan(null);
-                }
-            }
+        const newKetQua = isDongHoDatTieuChuan(newFormValues);
+        if (newKetQua != null && !newKetQua) {
+            setSoGiayChungNhan("");
+            setSoTem("");
+            setHieuLucBienBan(null);
         }
-    }, [formHieuSaiSo]);
+        setKetQua(newKetQua);
 
-    useEffect(() => {
         setLoading(true);
-        const handler = setTimeout(() => {
+
+        // Clear previous timeout if it exists
+        if (handler.current) {
+            clearTimeout(handler.current);
+        }
+
+        handler.current = setTimeout(() => {
             const updatedDongHoList = [...dongHoList];
             updatedDongHoList[selectedDongHoIndex] = getCurrentDongHo();
             setDongHoList(updatedDongHoList);
             setLoading(false);
         }, 500);
+    };
 
-        return () => {
-            clearTimeout(handler);
-        };
-    }, [ketQua])
+    const handler = useRef<NodeJS.Timeout | null>(null);
 
     // Check Đồng hồ điện tử
     const toggleCollapse = () => {
@@ -1571,7 +1562,7 @@ export default function NhomDongHoNuocForm({ className }: NhomDongHoNuocFormProp
                 <div className={`m-0 mb-3 bg-white rounded shadow-sm w-100 position-relative py-3 pt-md-4`}>
                     <h4 className="w-100 text-uppercase text-center">Thông tin riêng</h4>
 
-                    <TableDongHoInfo setIsErrorInfoExists={(value: boolean | null) => setIsErrorInfoExists(value)} setLoading={(value: boolean) => setLoading(value)} />
+                    <TableDongHoInfo isDHDienTu={isDHDienTu} setIsErrorInfoExists={(value: boolean | null) => setIsErrorInfoExists(value)} setLoading={(value: boolean) => setLoading(value)} />
 
                     <div className={`w-100 px-2 px-md-3 d-flex gap-2 align-items-center justify-content-end`}>
                         <button aria-label="Lưu toàn bộ" className="btn btn-success py-2 px-4" disabled={loading} onClick={handleSaveAllDongHo}>
