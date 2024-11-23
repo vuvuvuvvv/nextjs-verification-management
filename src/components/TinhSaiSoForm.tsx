@@ -34,14 +34,16 @@ export default function QBT30TinhSaiSoForm({ className, formValue, readOnly = fa
 
     useEffect(() => {
         if (prevFormValuesRef.current != formValue) {
-            if (dongHoSelectedRef.current != dongHoSelected) {
-                dongHoSelectedRef.current = dongHoSelected;
-                setVc1(formValue.Vc1.toString());
-                setVc2(formValue.Vc2.toString());
-            } else {
-                setVc1(Vc1);
-                setVc2(Vc2);
-            }
+            // if (dongHoSelectedRef.current != dongHoSelected) {
+            //     dongHoSelectedRef.current = dongHoSelected;
+            //     setVc1(formValue.Vc1.toString());
+            //     setVc2(formValue.Vc2.toString());
+            // } else {
+            //     setVc1(Vc1);
+            //     setVc2(Vc2);
+            // }
+            setVc1(formValue.Vc1.toString());
+            setVc2(formValue.Vc2.toString());
 
             setV1(formValue.V1.toString());
             setV2(formValue.V2.toString());
@@ -80,7 +82,6 @@ export default function QBT30TinhSaiSoForm({ className, formValue, readOnly = fa
                 const decimalPart = rawValue.slice(rawValue.length - decimalPlaces);
                 formattedValue = `${integerPart}.${decimalPart}`;
             }
-            console.log(formattedValue);
 
             setter(formattedValue);
 
@@ -90,11 +91,10 @@ export default function QBT30TinhSaiSoForm({ className, formValue, readOnly = fa
 
             const timeout = setTimeout(() => {
                 onFormChange(field, formattedValue);
-            }, 0);
+            }, 300);
             setNumericInputTimeout(timeout);
         };
     };
-
 
     const [numberChangeTimeout, setNumberChangeTimeout] = useState<NodeJS.Timeout | null>(null);
     const handleNumberChange = (setter: (value: string) => void, field: string) => {
@@ -116,7 +116,7 @@ export default function QBT30TinhSaiSoForm({ className, formValue, readOnly = fa
                 if (numberChangeTimeout) {
                     clearTimeout(numberChangeTimeout);
                 }
-                const timeout = setTimeout(() => onFormChange(field, value), 0);
+                const timeout = setTimeout(() => onFormChange(field, value), 500);
                 setNumberChangeTimeout(timeout);
             }
         };
@@ -138,7 +138,7 @@ export default function QBT30TinhSaiSoForm({ className, formValue, readOnly = fa
     };
 
     useEffect(() => {
-        setSaiSo(getSaiSoDongHo(formValue) ? getSaiSoDongHo(formValue)?.toString() + "%" : "0%");
+        setSaiSo(getSaiSoDongHo(formValue) || getSaiSoDongHo(formValue) == 0 ? getSaiSoDongHo(formValue)?.toString() + "%" : "--%");
     }, [formValue.Vc2, formValue.V2, formValue.Vc1, formValue.V1]);
 
     return (
@@ -149,6 +149,7 @@ export default function QBT30TinhSaiSoForm({ className, formValue, readOnly = fa
                     <div className={`mb-3 ${ecf["box-input-form"]}`}>
                         <label htmlFor="firstNum" className="form-label">Số đầu</label>
                         <input
+                            tabIndex={1}
                             readOnly={readOnly ? true : false}
                             type="text"
                             className="form-control"
@@ -163,6 +164,7 @@ export default function QBT30TinhSaiSoForm({ className, formValue, readOnly = fa
                     <div className={`mb-3 ${ecf["box-input-form"]}`}>
                         <label htmlFor="lastNum" className="form-label">Số cuối</label>
                         <input
+                            tabIndex={2}
                             readOnly={readOnly ? true : false}
                             type="text"
                             className="form-control"
@@ -177,6 +179,7 @@ export default function QBT30TinhSaiSoForm({ className, formValue, readOnly = fa
                     <div className={`mb-3 ${ecf["box-input-form"]}`}>
                         <label htmlFor="tdh" className="form-label">Nhiệt độ (℃)</label>
                         <input
+                            tabIndex={5}
                             readOnly={readOnly ? true : false}
                             type="text"
                             className="form-control"
@@ -194,6 +197,7 @@ export default function QBT30TinhSaiSoForm({ className, formValue, readOnly = fa
                     <div className={`mb-3 ${ecf["box-input-form"]}`}>
                         <label htmlFor="firstNum" className="form-label">Số đầu</label>
                         <input
+                            tabIndex={3}
                             readOnly={readOnly ? true : false}
                             type="text"
                             className="form-control"
@@ -207,11 +211,12 @@ export default function QBT30TinhSaiSoForm({ className, formValue, readOnly = fa
                     <div className={`mb-3 ${ecf["box-input-form"]}`}>
                         <label htmlFor="lastNum" className="form-label">Số cuối</label>
                         <input
+                            tabIndex={4}
                             readOnly={readOnly ? true : false}
                             type="text"
                             className="form-control"
                             id="lastNum"
-                            value={Vc2}
+                            value={Vc2 || "0"}
                             onChange={handleNumberChange(setVc2, "Vc2")}
                             disabled={isDisable}
                             autoComplete="off"
@@ -221,11 +226,12 @@ export default function QBT30TinhSaiSoForm({ className, formValue, readOnly = fa
                     <div className={`mb-3 ${ecf["box-input-form"]}`}>
                         <label htmlFor="tc" className="form-label">Nhiệt độ (℃)</label>
                         <input
+                            tabIndex={6}
                             readOnly={readOnly ? true : false}
                             type="text"
                             className="form-control"
                             id="tc"
-                            value={Tc}
+                            value={Tc || "0"}
                             onChange={handleNumberChange(setTc, "Tc")}
                             disabled={isDisable}
                             autoComplete="off"
@@ -236,7 +242,7 @@ export default function QBT30TinhSaiSoForm({ className, formValue, readOnly = fa
                 <div className="mb-3 w-100">
                     <div className={`${ecf["box-input-form"]}`}>
                         <h5 className="mb-2">Sai số:</h5>
-                        <input type="text" className="form-control p-3" id={ecf["errNum"]} value={saiSo} disabled readOnly />
+                        <input type="text" className="form-control p-3" id={ecf["errNum"]} value={saiSo || "0%"} disabled readOnly />
                     </div>
                 </div>
                 <div className={`${ecf["box-button"]} ${readOnly || isDisable ? "d-none" : ""}`}>

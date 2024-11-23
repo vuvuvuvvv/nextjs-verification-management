@@ -5,16 +5,20 @@ import { INDEXED_DB_DH_OBJ_NAME, INDEXED_DB_NAME } from "./system-constant";
 
 export const getSaiSoDongHo = (formValue: DuLieuMotLanChay) => {
     if (formValue) {
-
-        if (formValue.V2 == 0 && formValue.V1 == 0 && formValue.Vc2 == 0 && formValue.Vc1 == 0) return null;
+        if ((formValue.V2 == 0 && formValue.V1 == 0) || (formValue.V2 - formValue.V1 == 0)) {
+            console.log("dayy")
+            return null;
+        };
 
         const VDHCT = formValue.V2 - formValue.V1;
-        const VDHC = formValue.Vc2 - formValue.Vc1;
+        const VDHC = parseFloat(formValue.Vc2.toString()) - parseFloat(formValue.Vc1.toString());
         if (VDHC !== 0) {
             const error = ((VDHCT - VDHC) / VDHC) * 100;
+            console.log("dayy: ", error)
             return Number((Math.round(error * 10000) / 10000).toFixed(3));
         }
     }
+    console.log("dayy222")
     return null;
 };
 
@@ -23,7 +27,6 @@ export const getFullSoGiayCN = (soGiayCN: string, ngayThucHien: Date) => {
 }
 
 export const getQ2OrQtAndQ1OrQMin = (isDHDienTu: boolean, ccx: string | null, q: string | null, r: string | null) => {
-    // Qt:Q2 && Qmin:Q1 
     if (isDHDienTu != null && ccx && q) {
         const heso = {
             "A": {
@@ -51,8 +54,7 @@ export const getQ2OrQtAndQ1OrQMin = (isDHDienTu: boolean, ccx: string | null, q:
                 getQ2OrQt: parseFloat(qt.toFixed(3))
             };
         } else {
-            // if (ccx && ccx in heso) {   // TODO: Check ccx in key of heso
-            if (ccx && heso.hasOwnProperty(ccx)) {   // TODO: Check ccx in key of heso?
+            if (ccx && heso.hasOwnProperty(ccx)) {
                 const heso_qt = heso[ccx as keyof typeof heso].qt;
                 const heso_qmin = heso[ccx as keyof typeof heso].qmin;
                 return {
@@ -88,7 +90,11 @@ export const getVToiThieu = (q: string | number, d: string | number) => {
 }
 
 export const getHieuSaiSo = (formValues: TinhSaiSoValueTabs) => {
+    console.log(formValues);
     try {
+        const hasZeroValues = Object.values(formValues).some(({ V1, V2 }) => V1 === 0 && V2 === 0);
+        if (hasZeroValues) return null;
+
         const values = Object.values(formValues)
             .map(getSaiSoDongHo)
             .filter(value => value !== null);
@@ -100,7 +106,8 @@ export const getHieuSaiSo = (formValues: TinhSaiSoValueTabs) => {
         }, 0);
 
         return Number(result.toFixed(3));
-    } catch {
+    } catch (e) {
+        // console.log(e)
         return null;
     }
 }
@@ -119,11 +126,14 @@ export const isDongHoDatTieuChuan = (formHieuSaiSo: { hss: number | null }[]) =>
     return null;
 }
 
-export const getLastDayOfMonthInFuture = (isDHDienTu: boolean): Date => {
-    const years = isDHDienTu ? 3 : 5
-    const today = new Date();
-    const futureDate = new Date(today.getFullYear() + years, today.getMonth() + 1, 0);
-    return futureDate;
+export const getLastDayOfMonthInFuture = (isDHDienTu: boolean | null, date?: Date | null): Date | null => {
+    if (isDHDienTu != null) {
+        const years = isDHDienTu ? 3 : 5
+        const today = date ? date : new Date();
+        const futureDate = new Date(today.getFullYear() + years, today.getMonth() + 1, 0);
+        return futureDate;
+    }
+    return new Date();
 }
 
 export const convertToUppercaseNonAccent = (str: string) => {

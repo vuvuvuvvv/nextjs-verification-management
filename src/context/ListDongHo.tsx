@@ -20,7 +20,7 @@ interface DongHoListContextType {
     deleteDongHoInList: (index: number) => void;
     getDongHoChuaKiemDinh: (dongHoList: DongHo[]) => DongHo[];
     getDongHoDaKiemDinh: (dongHoList: DongHo[]) => DongHo[];
-    saveListDongHo: (listDongHo: DongHo[]) => Promise<void>;
+    createListDongHo: (listDongHo: DongHo[]) => Promise<void>;
     savedDongHoList: DongHo[];
     setSavedDongHoList: React.Dispatch<React.SetStateAction<DongHo[]>>;
 }
@@ -30,7 +30,6 @@ const DongHoListContext = createContext<DongHoListContextType | undefined>(undef
 export const DongHoListProvider = ({ children }: { children: ReactNode }) => {
     const { user } = useUser();
     const { vChuanDongBoCacLL } = useKiemDinh();
-    const vChuanDongBoCacLLPrev = useRef(vChuanDongBoCacLL);
     const [oldDongHoData, setOldDongHoData] = useState<DongHo[]>([]);
     const [isInitialization, setInitialization] = useState(true);
 
@@ -54,11 +53,11 @@ export const DongHoListProvider = ({ children }: { children: ReactNode }) => {
         fetchDongHoData();
     }, [user]);
 
-    useEffect(() => {
-        if (oldDongHoData.length > 0) {
-            console.log("Old: ", oldDongHoData);
-        }
-    }, [oldDongHoData]);
+    // useEffect(() => {
+    //     if (oldDongHoData.length > 0) {
+    //         console.log("Old: ", oldDongHoData);
+    //     }
+    // }, [oldDongHoData]);
 
     const [amount, setAmount] = useState<number>(1)
 
@@ -175,28 +174,6 @@ export const DongHoListProvider = ({ children }: { children: ReactNode }) => {
         })
     }, [amount])
 
-    // useEffect(() => {
-    //     if (vChuanDongBoCacLLPrev.current != vChuanDongBoCacLL) {
-    //         setDongHoList((prevState) => {
-    //             const newState = [
-    //                 ...prevState.map((dongHo, index) => {
-    //                     if (dongHo && dongHo.du_lieu_kiem_dinh) {
-    //                         const duLieuKiemDinh = JSON.parse(dongHo.du_lieu_kiem_dinh);
-    //                         console.log(duLieuKiemDinh.du_lieu);
-    //                     }
-    //                     return null
-    //                 })
-    //             ]
-
-    //             return [
-    //                 ...prevState
-    //             ]
-    //         });
-
-    //         vChuanDongBoCacLLPrev.current = vChuanDongBoCacLL
-    //     }
-    // }, [vChuanDongBoCacLL]);
-
     const [dongHoSelected, setDongHoSelected] = useState<DongHo | null>(dongHoList[0] || null);
     const [savedDongHoList, setSavedDongHoList] = useState<DongHo[]>([]);
 
@@ -236,15 +213,18 @@ export const DongHoListProvider = ({ children }: { children: ReactNode }) => {
     const [generalInfoDongHo, setGeneralInfoDongHo] = useState(getGeneralInfo(dongHoList[0]));
 
     useEffect(() => {
-        if (user && user.username && !isInitialization) {
-            const handler = setTimeout(() => {
-                saveDongHoDataExistsToIndexedDB(user.username, dongHoList);
-            }, 500);
+        // TODO:
+        // if (user && user.username && !isInitialization) {
+        //     const handler = setTimeout(() => {
+        //         saveDongHoDataExistsToIndexedDB(user.username, dongHoList);
+        //     }, 500);
 
-            return () => {
-                clearTimeout(handler);
-            };
-        }
+        //     return () => {
+        //         clearTimeout(handler);
+        //     };
+        // }
+
+        // console.log(dongHoList);
     }, [dongHoList]);
 
     const updateListDongHo = (index: number, updatedDongHo: DongHo) => {
@@ -286,7 +266,7 @@ export const DongHoListProvider = ({ children }: { children: ReactNode }) => {
         setDongHoList(prevList => prevList.filter((_, i) => i !== index));
     };
 
-    const saveListDongHo = async (listDongHo: DongHo[]) => {
+    const createListDongHo = async (listDongHo: DongHo[]) => {
         let successMessages: string[] = [];
         let errorMessages: string[] = [];
 
@@ -369,7 +349,7 @@ export const DongHoListProvider = ({ children }: { children: ReactNode }) => {
             deleteDongHoInList,
             getDongHoChuaKiemDinh,
             getDongHoDaKiemDinh,
-            saveListDongHo,
+            createListDongHo,
             savedDongHoList,
             setSavedDongHoList
         }}>

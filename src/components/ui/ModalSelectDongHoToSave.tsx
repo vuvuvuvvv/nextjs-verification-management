@@ -17,7 +17,7 @@ export default function ModalSelectDongHoToSave({ dongHoList, show, handleClose,
     const [selectedDongHo, setSelectedDongHo] = useState<DongHo[]>([]);
     const [isShow, setIsShow] = useState<boolean | null>(null);
 
-    const { getDongHoChuaKiemDinh, saveListDongHo, savedDongHoList } = useDongHoList();
+    const { getDongHoChuaKiemDinh, createListDongHo, savedDongHoList } = useDongHoList();
 
     const toggleSelectDongHo = (dongHo: DongHo) => {
         setSelectedDongHo(prevSelected => {
@@ -39,7 +39,7 @@ export default function ModalSelectDongHoToSave({ dongHoList, show, handleClose,
                 setIsShow(null);
                 handleClose();
                 Swal.showLoading();
-                saveListDongHo(selectedDongHo);
+                createListDongHo(selectedDongHo);
                 setSelectedDongHo([])
                 setExitsDHSaved(true);
             }

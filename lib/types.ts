@@ -127,8 +127,8 @@ export type DuLieuMotLanChay = {
     V1: number;
     V2: number;
     Tdh: number;
-    Vc1: number;
-    Vc2: number;
+    Vc1: number | string;
+    Vc2: number | string;
     Tc: number;
 };
 
@@ -241,5 +241,5 @@ export interface NhomDongHoFilterParameters {
     ngay_kiem_dinh_to: Date | null;
 }
 
-type VChuanDongBo = Record<number, { Vc1: number, Vc2: number } | null>;
+type VChuanDongBo = Record<number, { Vc1?: string, Vc2?: string } | null>;
 export type VChuanDongBoCacLL = Record<string, VChuanDongBo | null>

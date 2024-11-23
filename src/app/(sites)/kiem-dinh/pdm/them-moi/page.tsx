@@ -102,7 +102,7 @@ export default function AddNewPDM({ className }: AddNewPDMProps) {
         const fetchData = async () => {
             try {
                 const res = await api.get(`${BASE_API_URL}/pdm`);
-                console.log(res.data);
+                // console.log(res.data);
                 const listNames: string[] = [...res.data.map((pdm: PDMData) => pdm["ten_dong_ho"])]
                 const uniqueNames = listNames.filter((value, index, self) => self.indexOf(value) === index);
                 const sortedNames = uniqueNames.sort((a, b) => a.localeCompare(b));
