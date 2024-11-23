@@ -247,7 +247,7 @@ const TableDongHoInfo: React.FC<TableDongHoInfoProps> = ({
                         const duLieuKiemDinh = duLieuKiemDinhJSON ? JSON.parse(duLieuKiemDinhJSON) : null;
                         const status = duLieuKiemDinh ? duLieuKiemDinh.ket_qua : null;
                         const objHss = duLieuKiemDinh ? duLieuKiemDinh.hieu_sai_so : null;
-                        // console.log(index, objHss);
+                        // console.log(index, status);
 
                         return (
                             <tr key={index}>
@@ -340,7 +340,7 @@ const TableDongHoInfo: React.FC<TableDongHoInfoProps> = ({
                                         disabled={
                                             status == null
                                             || (status != null && !status)
-                                            || !(tempValues[index].so_giay_chung_nhan && tempValues[index].so_tem)
+                                            || !(tempValues[index]?.so_giay_chung_nhan && tempValues[index]?.so_tem)
                                             || savedDongHoList.includes(dongHo)
                                         }
                                         minDate={dayjs().endOf('day')}
@@ -353,7 +353,7 @@ const TableDongHoInfo: React.FC<TableDongHoInfoProps> = ({
                                                     backgroundColor: (
                                                         status == null
                                                         || (status != null && !status)
-                                                        || !(tempValues[index].so_giay_chung_nhan && tempValues[index].so_tem)
+                                                        || !(tempValues[index]?.so_giay_chung_nhan && tempValues[index]?.so_tem)
                                                         || savedDongHoList.includes(dongHo)
                                                     )
                                                         ? "#e9ecef"

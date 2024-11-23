@@ -1,4 +1,5 @@
 import { TITLE_LUU_LUONG } from '@lib/system-constant';
+import { isDongHoDatTieuChuan } from '@lib/system-function';
 import { DuLieuChayDongHo, DuLieuChayDiemLuuLuong, DuLieuMotLanChay, DuLieuCacLanChay, VChuanDongBoCacLL } from '@lib/types';
 import React, { createContext, useState, useContext, ReactNode, useRef, useEffect } from 'react';
 
@@ -21,7 +22,7 @@ interface KiemDinhContextType {
     themLanChayCuaLuuLuong: (q: { title: string; value: string }) => DuLieuCacLanChay;
     xoaLanChayCuaLuuLuong: (q: { title: string; value: string }, id: number | string) => DuLieuCacLanChay;
     resetLanChay: (q: { title: string; value: string }) => DuLieuCacLanChay;
-    getDuLieuKiemDinhJSON: () => string;
+    getDuLieuKiemDinhJSON: (formHieuSaiSoProp?: { hss: number | null }[]) => string;
     vChuanDongBoCacLL: VChuanDongBoCacLL;
 }
 
@@ -174,7 +175,7 @@ export const KiemDinhProvider = ({ children }: { children: ReactNode }) => {
             let key = q.title;
             let data = duLieuKiemDinhCacLuuLuong[key]?.lan_chay;
             if (data) {
-                let latest_V2= data[Number(Object.keys(data)[Object.entries(data).length - 1])].V2
+                let latest_V2 = data[Number(Object.keys(data)[Object.entries(data).length - 1])].V2
                 let latest_Vc2 = data[Number(Object.keys(data)[Object.entries(data).length - 1])].Vc2
                 const newIndexOfLanChay = Number(Object.keys(data)[Object.entries(data).length - 1]) + 1;
                 setDuLieuKiemDinhCacLuuLuong(prevState => {
@@ -329,11 +330,11 @@ export const KiemDinhProvider = ({ children }: { children: ReactNode }) => {
         return updatedData[q.title]?.lan_chay as DuLieuCacLanChay;
     };
 
-    const getDuLieuKiemDinhJSON = () => {
+    const getDuLieuKiemDinhJSON = (formHieuSaiSoProp?: { hss: number | null }[]) => {
         return JSON.stringify({
-            hieu_sai_so: formHieuSaiSo,
+            hieu_sai_so: formHieuSaiSoProp ? formHieuSaiSoProp : formHieuSaiSo,
             du_lieu: duLieuKiemDinhCacLuuLuong,
-            ket_qua: ketQua
+            ket_qua: formHieuSaiSoProp ? isDongHoDatTieuChuan(formHieuSaiSoProp) : ketQua
         });
     }
 

@@ -410,9 +410,9 @@ export default function NhomDongHoNuocForm({ className }: NhomDongHoNuocFormProp
         tenDongHo, kieuThietBi, seriChiThi, seriSensor, kieuChiThi, kieuSensor, soTem, coSoSanXuat, dn, d, ccx, q3, r, qn, soQDPDM, tenKhachHang, coSoSuDung, phuongPhapThucHien, viTri, nhietDo, doAm, isDHDienTu
     ]);
 
-    const getCurrentDongHo = () => {
+    const getCurrentDongHo = (formHieuSaiSoProp?: { hss: number | null }[]) => {
         const checkQ3 = ((ccx && (ccx == "1" || ccx == "2")) || isDHDienTu);
-        const duLieuKiemDinhJSON = getDuLieuKiemDinhJSON();
+        const duLieuKiemDinhJSON = getDuLieuKiemDinhJSON(formHieuSaiSoProp);
         const duLieuKiemDinh = duLieuKiemDinhJSON ? JSON.parse(duLieuKiemDinhJSON) : null;
         const status = duLieuKiemDinh ? duLieuKiemDinh.ket_qua : null;
 
@@ -450,7 +450,7 @@ export default function NhomDongHoNuocForm({ className }: NhomDongHoNuocFormProp
             vi_tri: viTri || "",
             nhiet_do: nhietDo || "",
             do_am: doAm || "",
-            du_lieu_kiem_dinh: getDuLieuKiemDinhJSON(),
+            du_lieu_kiem_dinh: getDuLieuKiemDinhJSON(formHieuSaiSoProp),
             hieu_luc_bien_ban: (status != null && status) && soTem && soGiayChungNhan ? getLastDayOfMonthInFuture(isDHDienTu) : null,
             so_giay_chung_nhan: (status != null && status) ? (soGiayChungNhan || "") : "",
         }
@@ -523,7 +523,7 @@ export default function NhomDongHoNuocForm({ className }: NhomDongHoNuocFormProp
 
         handler.current = setTimeout(() => {
             const updatedDongHoList = [...dongHoList];
-            updatedDongHoList[selectedDongHoIndex] = getCurrentDongHo();
+            updatedDongHoList[selectedDongHoIndex] = getCurrentDongHo(newFormValues);
             setDongHoList(updatedDongHoList);
             setLoading(false);
         }, 500);
@@ -697,27 +697,29 @@ export default function NhomDongHoNuocForm({ className }: NhomDongHoNuocFormProp
                 title: 'Chú ý!',
                 text: 'Đồng hồ ' + dongHoChuaKiemDinh.map((dongHo, i) => {
                     return (dongHoList.indexOf(dongHo) + 1)
-                }) + ' chưa kiểm định xong. Tiếp tục lưu?',
+                }) + ' chưa kiểm định xong.' 
+                // + ' Tiếp tục lưu?'
+                ,
                 icon: 'warning',
                 showCancelButton: true,
-                confirmButtonColor: '#3085d6',
+                // confirmButtonColor: '#3085d6',
                 cancelButtonColor: '#d33',
                 cancelButtonText: 'Hủy',
-                confirmButtonText: 'Lưu',
+                // confirmButtonText: 'Lưu',
                 reverseButtons: true
             }).then((rs) => {
-                if (rs.isConfirmed) {
-                    Swal.fire({
-                        title: 'Đang lưu đồng hồ',
-                        html: 'Đang chuẩn bị...',
-                        allowOutsideClick: false,
-                        didOpen: () => {
-                            Swal.showLoading();
-                            createListDongHo(getDongHoDaKiemDinh(dongHoList));
-                            updateDongHoSaved(getCurrentDongHo())
-                        }
-                    });
-                }
+                // if (rs.isConfirmed) {
+                //     Swal.fire({
+                //         title: 'Đang lưu đồng hồ',
+                //         html: 'Đang chuẩn bị...',
+                //         allowOutsideClick: false,
+                //         didOpen: () => {
+                //             Swal.showLoading();
+                //             createListDongHo(getDongHoDaKiemDinh(dongHoList));
+                //             updateDongHoSaved(getCurrentDongHo())
+                //         }
+                //     });
+                // }
             });
         }
     }
