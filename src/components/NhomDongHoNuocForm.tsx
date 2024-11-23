@@ -355,7 +355,7 @@ export default function NhomDongHoNuocForm({ className }: NhomDongHoNuocFormProp
         { value: tenKhachHang, setter: setTenKhachhang, id: "ten_khach_hang" },
         { value: coSoSuDung, setter: setCoSoSuDung, id: "co_so_su_dung" },
         { value: phuongPhapThucHien, setter: setPhuongPhapThucHien, id: "phuong_phap_thuc_hien" },
-        { value: noiSuDung, setter: setNoiSuDung, id: "noi_su_dung" },
+        // { value: noiSuDung, setter: setNoiSuDung, id: "noi_su_dung" },
         // { value: viTri, setter: setViTri, id: "vi_tri" },
         // { value: nhietDo, setter: setNhietDo, id: "nhiet_do" },
         // { value: doAm, setter: setDoAm, id: "do_am" },
@@ -451,7 +451,7 @@ export default function NhomDongHoNuocForm({ className }: NhomDongHoNuocFormProp
             nhiet_do: nhietDo || "",
             do_am: doAm || "",
             du_lieu_kiem_dinh: getDuLieuKiemDinhJSON(formHieuSaiSoProp),
-            hieu_luc_bien_ban: (status != null && status) && soTem && soGiayChungNhan ? getLastDayOfMonthInFuture(isDHDienTu) : null,
+            hieu_luc_bien_ban: (status != null && status) && soTem && soGiayChungNhan ? getLastDayOfMonthInFuture(isDHDienTu, ngayThucHien) : null,
             so_giay_chung_nhan: (status != null && status) ? (soGiayChungNhan || "") : "",
         }
     }
@@ -1439,7 +1439,7 @@ export default function NhomDongHoNuocForm({ className }: NhomDongHoNuocFormProp
                                                 {
                                                     title: <>Q<sub>{isDHDienTu != null && isDHDienTu ? "3" : "n"}</sub></>,
                                                     content: <TinhSaiSoTab isDHDienTu={isDHDienTu} onFormHSSChange={(value: number | null) => handleFormHSSChange(0, value)}
-                                                        isDisable={isDHSaved != null && isDHSaved}
+                                                        isDisable={isExistsDHSaved}
                                                         d={d ? d : ""} q={{
                                                             title: (isDHDienTu != null && isDHDienTu) ? TITLE_LUU_LUONG.q3 : TITLE_LUU_LUONG.qn,
                                                             value: (q3) ? q3 : ((qn) ? qn : "")
@@ -1448,7 +1448,7 @@ export default function NhomDongHoNuocForm({ className }: NhomDongHoNuocFormProp
                                                 {
                                                     title: <>Q<sub>{isDHDienTu != null && isDHDienTu ? "2" : "t"}</sub></>,
                                                     content: <TinhSaiSoTab onFormHSSChange={(value: number | null) => handleFormHSSChange(1, value)}
-                                                        isDisable={isDHSaved != null && isDHSaved}
+                                                        isDisable={isExistsDHSaved}
                                                         d={d ? d : ""} q={{
                                                             title: (isDHDienTu != null && isDHDienTu) ? TITLE_LUU_LUONG.q2 : TITLE_LUU_LUONG.qt,
                                                             value: (q2Ort) ? q2Ort.toString() : ""
@@ -1457,7 +1457,7 @@ export default function NhomDongHoNuocForm({ className }: NhomDongHoNuocFormProp
                                                 {
                                                     title: <>Q<sub>{isDHDienTu != null && isDHDienTu ? "1" : "min"}</sub></>,
                                                     content: <TinhSaiSoTab onFormHSSChange={(value: number | null) => handleFormHSSChange(2, value)}
-                                                        isDisable={isDHSaved != null && isDHSaved}
+                                                        isDisable={isExistsDHSaved}
                                                         d={d ? d : ""} q={{
                                                             title: (isDHDienTu != null && isDHDienTu) ? TITLE_LUU_LUONG.q1 : TITLE_LUU_LUONG.qmin,
                                                             value: (q1Ormin) ? q1Ormin.toString() : ""

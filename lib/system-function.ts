@@ -5,15 +5,20 @@ import { INDEXED_DB_DH_OBJ_NAME, INDEXED_DB_NAME } from "./system-constant";
 
 export const getSaiSoDongHo = (formValue: DuLieuMotLanChay) => {
     if (formValue) {
-        if ((formValue.V2 == 0 && formValue.V1 == 0) || (formValue.V2 <= formValue.V1)) return null;
+        if ((formValue.V2 == 0 && formValue.V1 == 0) || (formValue.V2 - formValue.V1 == 0)) {
+            console.log("dayy")
+            return null;
+        };
 
         const VDHCT = formValue.V2 - formValue.V1;
         const VDHC = parseFloat(formValue.Vc2.toString()) - parseFloat(formValue.Vc1.toString());
         if (VDHC !== 0) {
             const error = ((VDHCT - VDHC) / VDHC) * 100;
+            console.log("dayy: ", error)
             return Number((Math.round(error * 10000) / 10000).toFixed(3));
         }
     }
+    console.log("dayy222")
     return null;
 };
 
@@ -56,9 +61,9 @@ export const getQ2OrQtAndQ1OrQMin = (isDHDienTu: boolean, ccx: string | null, q:
                     getQ1OrMin: (heso_qmin) ? parseFloat(q) * heso_qmin : null,
                     getQ2OrQt: (heso_qt) ? parseFloat(q) * heso_qt : null,
                 };
-            } 
+            }
         }
-    } 
+    }
     return {
         getQ1OrMin: null,
         getQ2OrQt: null,
@@ -85,9 +90,10 @@ export const getVToiThieu = (q: string | number, d: string | number) => {
 }
 
 export const getHieuSaiSo = (formValues: TinhSaiSoValueTabs) => {
+    console.log(formValues);
     try {
         const hasZeroValues = Object.values(formValues).some(({ V1, V2 }) => V1 === 0 && V2 === 0);
-        if (hasZeroValues) return null; 
+        if (hasZeroValues) return null;
 
         const values = Object.values(formValues)
             .map(getSaiSoDongHo)
@@ -100,7 +106,7 @@ export const getHieuSaiSo = (formValues: TinhSaiSoValueTabs) => {
         }, 0);
 
         return Number(result.toFixed(3));
-    } catch(e) {
+    } catch (e) {
         // console.log(e)
         return null;
     }
@@ -120,10 +126,10 @@ export const isDongHoDatTieuChuan = (formHieuSaiSo: { hss: number | null }[]) =>
     return null;
 }
 
-export const getLastDayOfMonthInFuture = (isDHDienTu: boolean | null): Date | null => {
-    if(isDHDienTu != null) {
+export const getLastDayOfMonthInFuture = (isDHDienTu: boolean | null, date?: Date | null): Date | null => {
+    if (isDHDienTu != null) {
         const years = isDHDienTu ? 3 : 5
-        const today = new Date();
+        const today = date ? date : new Date();
         const futureDate = new Date(today.getFullYear() + years, today.getMonth() + 1, 0);
         return futureDate;
     }

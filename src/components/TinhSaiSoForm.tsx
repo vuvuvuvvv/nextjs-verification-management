@@ -138,7 +138,7 @@ export default function QBT30TinhSaiSoForm({ className, formValue, readOnly = fa
     };
 
     useEffect(() => {
-        setSaiSo(getSaiSoDongHo(formValue) ? getSaiSoDongHo(formValue)?.toString() + "%" : "0%");
+        setSaiSo(getSaiSoDongHo(formValue) || getSaiSoDongHo(formValue) == 0 ? getSaiSoDongHo(formValue)?.toString() + "%" : "--%");
     }, [formValue.Vc2, formValue.V2, formValue.Vc1, formValue.V1]);
 
     return (

@@ -96,12 +96,13 @@ export default function TinhSaiSoTab({ className, tabIndex, d, q, Form, onFormHS
 
     useEffect(() => {
         if (JSON.stringify(prevFormValuesRef.current) !== JSON.stringify(formValues)) {
+            console.log("formvl: ", q, activeTab, formValues);
             setSelectedTabForm({
                 ...Object.keys(initialTabFormState).reduce((prevTabState, key) => {
                     prevTabState[Number(key)] = false;
                     return prevTabState;
                 }, {} as TabFormState),
-                [(Object.keys(formValues).includes(activeTab.toString()) && selectedTabForm[activeTab]) ? activeTab : parseInt(Object.keys(selectedTabForm)[0])]: true
+                [(Object.keys(formValues).includes((activeTab / tabIndex).toString()) && selectedTabForm[activeTab]) ? activeTab : parseInt(Object.keys(selectedTabForm)[0])]: true
             });
             onFormHSSChange(getHieuSaiSo(formValues as TinhSaiSoValueTabs));
             updateLuuLuong(q, formValues);
@@ -214,7 +215,7 @@ export default function TinhSaiSoTab({ className, tabIndex, d, q, Form, onFormHS
                             <label className={`w-100 ${c_ect["tab-radio"]} ${selectedTabForm[Number(key) * tabIndex] ? c_ect["active"] : ""}`}>
                                 <h5 className="m-0">Lần {key}</h5>
                                 <input type="radio" name={`process-tab-${key}-${tabIndex}`} className="d-none" checked={selectedTabForm[Number(key) * tabIndex]} onChange={() => toggleTabForm(Number(key))} />
-                                <button aria-label={`Xóa lần ${key}`} type="button" className={`btn border-0 btn-light text-main-color`} onClick={() => handleDelete(key)}>
+                                <button aria-label={`Xóa lần ${key}`} type="button" className={`btn border-0 btn-light text-main-color ${isDisable ? "d-none" : ""}`} onClick={() => handleDelete(key)}>
                                     <FontAwesomeIcon icon={faTimes} className="me-1" /> Xóa
                                 </button>
                             </label>
@@ -227,7 +228,7 @@ export default function TinhSaiSoTab({ className, tabIndex, d, q, Form, onFormHS
                             <Form
                                 isDisable={isDisable}
                                 className={`w-100 ${!selectedTabForm[Number(key) * tabIndex] ? "d-none" : ""}`}
-                                formValue={formVal}
+                                formValue={formVal || {}}
                                 onFormChange={(field: string, value: string) => handleFormChange(Number(key), field as keyof DuLieuMotLanChay, value)}
                                 d={d}
                             />
@@ -279,15 +280,12 @@ export default function TinhSaiSoTab({ className, tabIndex, d, q, Form, onFormHS
             </div>
             <div className="w-100 d-flex px-1 align-items-center justify-content-between">
                 <h5 className="m-0">Lần thực hiện:</h5>
-                <div className={`justify-content-between gap-2 ${isDisable ? "d-none" : ""}`}>
-
-                    <button aria-label="Reset lần chạy" className="btn px-3 py-2 me-2 btn-secondary" onClick={() => handleReset()}>
-                        <FontAwesomeIcon icon={faUndo} className="me-2"></FontAwesomeIcon>Reset
-                    </button>
-                </div>
+                <button aria-label="Reset lần chạy" className={`btn px-3 py-2 me-2 btn-secondary ${isDisable ? "d-none" : ""}`} onClick={() => handleReset()}>
+                    <FontAwesomeIcon icon={faUndo} className="me-2"></FontAwesomeIcon>Reset
+                </button>
             </div>
             {renderTabTinhSaiSo()}
-            <div className="w-100 d-flex justify-content-center mt-1">
+            <div className={`w-100 d-flex justify-content-center mt-1 ${isDisable ? "d-none" : ""}`}>
                 <button aria-label="Thêm lần chạy" className="btn px-3 py-2 btn-success" onClick={() => handleAdd()}>
                     <FontAwesomeIcon icon={faAdd} className="me-2"></FontAwesomeIcon>Thêm lần
                 </button>

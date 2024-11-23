@@ -1,12 +1,10 @@
 import { useDongHoList } from "@/context/ListDongHo";
-import { DongHo } from "@lib/types";
 import { Dayjs } from "dayjs";
 import dayjs from "dayjs";
 import React, { useEffect, useRef, useState } from "react";
 import c_tbIDHInf from "@styles/scss/components/table-input-dongho-info.module.scss";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import { getDongHoExistsByInfo } from "@/app/api/dongho/route";
-import { stat } from "fs";
 import { getLastDayOfMonthInFuture } from "@lib/system-function";
 import { TITLE_LUU_LUONG } from "@lib/system-constant";
 
@@ -127,7 +125,7 @@ const TableDongHoInfo: React.FC<TableDongHoInfoProps> = ({
                     if (!updatedTMP[index].hieu_luc_bien_ban) {
                         const isDHDienTu = Boolean((dongHoList[index].ccx && ["1", "2"].includes(dongHoList[index].ccx)) || dongHoList[index].kieu_thiet_bi == "Điện tử");
 
-                        updatedDongHoList[index].hieu_luc_bien_ban = getLastDayOfMonthInFuture(isDHDienTu) || null;
+                        updatedDongHoList[index].hieu_luc_bien_ban = getLastDayOfMonthInFuture(isDHDienTu, dongHoList[index].ngay_thuc_hien) || null;
                     }
                 } else {
                     updatedDongHoList[index].hieu_luc_bien_ban = null;
@@ -247,7 +245,6 @@ const TableDongHoInfo: React.FC<TableDongHoInfoProps> = ({
                         const duLieuKiemDinh = duLieuKiemDinhJSON ? JSON.parse(duLieuKiemDinhJSON) : null;
                         const status = duLieuKiemDinh ? duLieuKiemDinh.ket_qua : null;
                         const objHss = duLieuKiemDinh ? duLieuKiemDinh.hieu_sai_so : null;
-                        // console.log(index, status);
 
                         return (
                             <tr key={index}>
