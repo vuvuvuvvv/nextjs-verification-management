@@ -171,16 +171,12 @@ export type DuLieuChayDiemLuuLuong = {
 export type DuLieuChayDongHo = Record<string, DuLieuChayDiemLuuLuong | null>;
 
 export interface DongHo {
-    id: string | null;
     group_id: string | null;
     ten_dong_ho: string | null;
     phuong_tien_do: string | null;
-    seri_chi_thi: string | null;
-    seri_sensor: string | null;
     kieu_chi_thi: string | null;
     kieu_sensor: string | null;
     kieu_thiet_bi: string | null;
-    so_tem: string | null;
     nam_san_xuat: Date | null;
     dn: string | null;
     d: string | null;
@@ -203,6 +199,11 @@ export interface DongHo {
     vi_tri: string | null;
     nhiet_do: string | null;
     do_am: string | null;
+
+    so_tem: string | null;
+    id: string | null;
+    seri_chi_thi: string | null;
+    seri_sensor: string | null;
     du_lieu_kiem_dinh: string | null;
     hieu_luc_bien_ban: Date | null;
     so_giay_chung_nhan: string | null;

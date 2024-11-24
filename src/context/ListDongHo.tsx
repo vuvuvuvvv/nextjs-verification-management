@@ -16,7 +16,7 @@ interface DongHoListContextType {
     setAmount: React.Dispatch<React.SetStateAction<number>>;
     addToListDongHo: (dongHo: DongHo) => void;
     updateListDongHo: (index: number, updatedDongHo: DongHo) => void;
-    updateDongHoFieldsInList: (index: number, fields: Partial<DongHo>) => void;
+    // updateDongHoFieldsInList: (index: number, fields: Partial<DongHo>) => void;
     deleteDongHoInList: (index: number) => void;
     getDongHoChuaKiemDinh: (dongHoList: DongHo[]) => DongHo[];
     getDongHoDaKiemDinh: (dongHoList: DongHo[]) => DongHo[];
@@ -53,11 +53,11 @@ export const DongHoListProvider = ({ children }: { children: ReactNode }) => {
         fetchDongHoData();
     }, [user]);
 
-    // useEffect(() => {
-    //     if (oldDongHoData.length > 0) {
-    //         console.log("Old: ", oldDongHoData);
-    //     }
-    // }, [oldDongHoData]);
+    useEffect(() => {
+        if (oldDongHoData.length > 0) {
+            console.log("Old: ", oldDongHoData);
+        }
+    }, [oldDongHoData]);
 
     const [amount, setAmount] = useState<number>(1)
 
@@ -184,61 +184,80 @@ export const DongHoListProvider = ({ children }: { children: ReactNode }) => {
     const getGeneralInfo = (dongHo: DongHo) => {
         return {
             group_id: dongHo.group_id,
+            kieu_thiet_bi: dongHo.kieu_thiet_bi,
+
             ten_dong_ho: dongHo.ten_dong_ho,
             phuong_tien_do: dongHo.phuong_tien_do,
-            kieu_thiet_bi: dongHo.kieu_thiet_bi,
+
             kieu_chi_thi: dongHo.kieu_chi_thi,
             kieu_sensor: dongHo.kieu_sensor,
             co_so_san_xuat: dongHo.co_so_san_xuat,
+
             nam_san_xuat: dongHo.nam_san_xuat,
             dn: dongHo.dn,
             d: dongHo.d,
+
             ccx: dongHo.ccx,
             q3: dongHo.q3,
             r: dongHo.r,
+
             qn: dongHo.qn,
             k_factor: dongHo.k_factor,
             so_qd_pdm: dongHo.so_qd_pdm,
+
             ten_khach_hang: dongHo.ten_khach_hang,
             co_so_su_dung: dongHo.co_so_su_dung,
             phuong_phap_thuc_hien: dongHo.phuong_phap_thuc_hien,
+
             chuan_thiet_bi_su_dung: dongHo.chuan_thiet_bi_su_dung,
             nguoi_kiem_dinh: dongHo.nguoi_kiem_dinh,
             ngay_thuc_hien: dongHo.ngay_thuc_hien,
+
             vi_tri: dongHo.vi_tri,
             nhiet_do: dongHo.nhiet_do,
             do_am: dongHo.do_am,
+
+            nguoi_soat_lai: dongHo.nguoi_soat_lai,
+            noi_thuc_hien: dongHo.noi_thuc_hien,
+            noi_su_dung: dongHo.noi_su_dung,
+
         }
     }
     const [generalInfoDongHo, setGeneralInfoDongHo] = useState(getGeneralInfo(dongHoList[0]));
 
+    const handler = useRef<NodeJS.Timeout | null>(null); // Declare handler as a ref
+
     useEffect(() => {
         // TODO:
-        // if (user && user.username && !isInitialization) {
-        //     const handler = setTimeout(() => {
-        //         saveDongHoDataExistsToIndexedDB(user.username, dongHoList);
-        //     }, 500);
+        if (user && user.username 
+            // && !isInitialization
+        ) {
+            // Clear previous timeout if it exists
+            if (handler.current) {
+                clearTimeout(handler.current);
+            }
 
-        //     return () => {
-        //         clearTimeout(handler);
-        //     };
-        // }
+            handler.current = setTimeout(() => {
+                saveDongHoDataExistsToIndexedDB(user.username, dongHoList);
+            }, 3000);
 
-        // console.log(dongHoList);
+            return () => {
+                if (handler.current) {
+                    clearTimeout(handler.current);
+                }
+            };
+        }
     }, [dongHoList]);
 
     const updateListDongHo = (index: number, updatedDongHo: DongHo) => {
         setDongHoList(prevList => {
             const newList = prevList.map((item, i) => (i === index ? updatedDongHo : item));
 
-            // Get the general info of the updated dongHo
             const generalInfo = getGeneralInfo(updatedDongHo);
 
-            // Check if the general info has changed
             if (JSON.stringify(generalInfoDongHo) !== JSON.stringify(generalInfo)) {
                 setGeneralInfoDongHo(generalInfo);
 
-                // Update all items in the list with the new general info
                 return newList.map(dongHo => ({
                     ...dongHo,
                     ...generalInfo
@@ -253,14 +272,14 @@ export const DongHoListProvider = ({ children }: { children: ReactNode }) => {
         setDongHoList(prevList => [...prevList, dongHo]);
     };
 
-    // Update serial chi thi, sensor vaf kieu chi thi, sensor
-    const updateDongHoFieldsInList = (index: number, fields: Partial<DongHo>) => {
-        setDongHoList(prevList =>
-            prevList.map((item, i) =>
-                i === index ? { ...item, ...fields } : item
-            )
-        );
-    };
+    // // Update serial chi thi, sensor vaf kieu chi thi, sensor
+    // const updateDongHoFieldsInList = (index: number, fields: Partial<DongHo>) => {
+    //     setDongHoList(prevList =>
+    //         prevList.map((item, i) =>
+    //             i === index ? { ...item, ...fields } : item
+    //         )
+    //     );
+    // };
 
     const deleteDongHoInList = (index: number) => {
         setDongHoList(prevList => prevList.filter((_, i) => i !== index));
@@ -344,7 +363,7 @@ export const DongHoListProvider = ({ children }: { children: ReactNode }) => {
             setDongHoList,
             setAmount,
             addToListDongHo,
-            updateDongHoFieldsInList,
+            // updateDongHoFieldsInList,
             updateListDongHo,
             deleteDongHoInList,
             getDongHoChuaKiemDinh,

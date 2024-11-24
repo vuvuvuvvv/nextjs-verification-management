@@ -6,7 +6,6 @@ import { INDEXED_DB_DH_OBJ_NAME, INDEXED_DB_NAME } from "./system-constant";
 export const getSaiSoDongHo = (formValue: DuLieuMotLanChay) => {
     if (formValue) {
         if ((formValue.V2 == 0 && formValue.V1 == 0) || (formValue.V2 - formValue.V1 == 0)) {
-            console.log("dayy")
             return null;
         };
 
@@ -18,7 +17,6 @@ export const getSaiSoDongHo = (formValue: DuLieuMotLanChay) => {
             return Number((Math.round(error * 10000) / 10000).toFixed(3));
         }
     }
-    console.log("dayy222")
     return null;
 };
 

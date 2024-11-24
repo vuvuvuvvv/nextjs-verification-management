@@ -96,7 +96,6 @@ export default function TinhSaiSoTab({ className, tabIndex, d, q, Form, onFormHS
 
     useEffect(() => {
         if (JSON.stringify(prevFormValuesRef.current) !== JSON.stringify(formValues)) {
-            console.log("formvl: ", q, activeTab, formValues);
             setSelectedTabForm({
                 ...Object.keys(initialTabFormState).reduce((prevTabState, key) => {
                     prevTabState[Number(key)] = false;

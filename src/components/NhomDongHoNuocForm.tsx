@@ -10,7 +10,7 @@ const DatePicker = dynamic(() => import('@mui/x-date-pickers/DatePicker').then(m
 const NavTab = dynamic(() => import('@/components/NavTab'), { ssr: false });
 const TinhSaiSoTab = dynamic(() => import('@/components/TinhSaiSoTab'), { ssr: false });
 const TinhSaiSoForm = dynamic(() => import('@/components/TinhSaiSoForm'), { ssr: false });
-const TableDongHoInfo = dynamic(() => import('@/components/TableInputDongHoInfo'), { ssr: false });
+const TableDongHoInfo = dynamic(() => import('@/components/TableInputDongHoInfo'));
 const Loading = dynamic(() => import("@/components/Loading"), { ssr: false });
 // const ModalSelectDongHoToSave = dynamic(() => import('@/components/ui/ModalSelectDongHoToSave'), { ssr: false });
 
@@ -47,12 +47,10 @@ interface NhomDongHoNuocFormProps {
 
 export default function NhomDongHoNuocForm({ className }: NhomDongHoNuocFormProps) {
     const { user, isAdmin } = useUser();
-    const { dongHo, setDongHo } = useDongHo();
     const { dongHoList,
         createListDongHo,
         getDongHoDaKiemDinh,
         updateListDongHo,
-        updateDongHoFieldsInList,
         dongHoSelected,
         setDongHoSelected,
         getDongHoChuaKiemDinh,
@@ -97,7 +95,6 @@ export default function NhomDongHoNuocForm({ className }: NhomDongHoNuocFormProp
     const [nguoiKiemDinh, setNguoiKiemDinh] = useState<string>(user?.fullname || "");
     const [nguoiSoatLai, setNguoiSoatLai] = useState<string>("");
     const [ngayThucHien, setNgayThucHien] = useState<Date | null>(new Date());
-    const [hieuLucBienBan, setHieuLucBienBan] = useState<Date | null>(new Date());
     const [coSoSuDung, setCoSoSuDung] = useState<string>("");
     const [noiSuDung, setNoiSuDung] = useState<string>("");
     const [noiThucHien, setNoiThucHien] = useState<string>("");
@@ -201,26 +198,17 @@ export default function NhomDongHoNuocForm({ className }: NhomDongHoNuocFormProp
         fetchData();
     }, []);
 
-    // Debounce effect
-    useEffect(() => {
-        const handler = setTimeout(() => {
-            updateDongHoFieldsInList(selectedDongHoIndex, debouncedFields);
-        }, 300); // 500ms debounce delay
-
-        return () => {
-            clearTimeout(handler);
-        };
-    }, [debouncedFields]);
-
     const handleChangeField = (field: keyof DongHo, value: string) => {
-        setDebouncedFields(prevFields => ({ ...prevFields, [field]: value }));
+        if (debounceFieldTimeoutRef.current) {
+            clearTimeout(debounceFieldTimeoutRef.current);
+        }
+
+        debounceFieldTimeoutRef.current = setTimeout(() => {
+            setDebouncedFields(prevFields => ({ ...prevFields, [field]: value }));
+        }, 500);
     };
 
-    useEffect(() => {
-        if (isFirstTabLL) {
-            setFirsttabLL(false);
-        }
-    }, [isFirstTabLL])
+    const debounceFieldTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
     // Func: Set saved
     useEffect(() => {
@@ -363,30 +351,20 @@ export default function NhomDongHoNuocForm({ className }: NhomDongHoNuocFormProp
 
     // TODO:
     useEffect(() => {
-        if (prevErrorInfoExists.current = isErrorInfoExists) {
+        if (prevErrorInfoExists.current == isErrorInfoExists) {
+            if (isErrorInfoExists != null) {
+                setCanSave(isErrorInfoExists);
+            }
+            prevErrorInfoExists.current = isErrorInfoExists
         }
-
-        // setKetQua(isDongHoDatTieuChuan(formHieuSaiSo));
 
         setShowFormTienTrinh(errorFields.length === 0)
         if (errorFields.length != 0) {
-            // setKetQua(null)
             setSoTem("");;
             setCanSave(false);
         };
 
-        // TODO: Check cansave
-        if (errorFields.length === 0
-        ) {
-            setDongHo(getCurrentDongHo());
-
-            // if (isDongHoDatTieuChuan(formHieuSaiSo) != null && (soTem && soGiayChungNhan)) {
-            //     setCanSave(true);
-            // }
-        } else {
-            setCanSave(false);
-
-        }
+        setCanSave(errorFields.length === 0);
     }, [errorFields, isErrorInfoExists]);
 
     const validateFields = () => {
@@ -404,10 +382,49 @@ export default function NhomDongHoNuocForm({ className }: NhomDongHoNuocFormProp
         return validationErrors;
     };
 
+    const infoTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+
     useEffect(() => {
-        setErrorFields(validateFields());
+        if (infoTimeoutRef.current) {
+            clearTimeout(infoTimeoutRef.current);
+        }
+
+        infoTimeoutRef.current = setTimeout(() => {
+            setErrorFields(validateFields());
+        }, 500);
+
+        return () => {
+            if (infoTimeoutRef.current) {
+                clearTimeout(infoTimeoutRef.current);
+            }
+        };
     }, [
-        tenDongHo, kieuThietBi, seriChiThi, seriSensor, kieuChiThi, kieuSensor, soTem, coSoSanXuat, dn, d, ccx, q3, r, qn, soQDPDM, tenKhachHang, coSoSuDung, phuongPhapThucHien, viTri, nhietDo, doAm, isDHDienTu
+        tenDongHo,
+        kieuThietBi,
+        kieuChiThi,
+        kieuSensor,
+        coSoSanXuat,
+        dn,
+        d,
+        ccx,
+        q3,
+        r,
+        qn,
+        soQDPDM,
+        tenKhachHang,
+        coSoSuDung,
+        phuongPhapThucHien,
+        viTri,
+        nhietDo,
+        doAm,
+        ngayThucHien,
+        nguoiKiemDinh,
+        chuanThietBiSuDung,
+        kFactor,
+        namSanXuat,
+        nguoiSoatLai,
+        noiSuDung,
+        noiThucHien,
     ]);
 
     const getCurrentDongHo = (formHieuSaiSoProp?: { hss: number | null }[]) => {
@@ -510,7 +527,6 @@ export default function NhomDongHoNuocForm({ className }: NhomDongHoNuocFormProp
         if (newKetQua != null && !newKetQua) {
             setSoGiayChungNhan("");
             setSoTem("");
-            setHieuLucBienBan(null);
         }
         setKetQua(newKetQua);
 
@@ -603,7 +619,6 @@ export default function NhomDongHoNuocForm({ className }: NhomDongHoNuocFormProp
                 setKFactor(dongHoSelected.k_factor || "");
                 setSoGiayChungNhan(dongHoSelected.so_giay_chung_nhan || "");
                 setSoTem(dongHoSelected.so_tem || "");
-                setHieuLucBienBan(dongHoSelected.hieu_luc_bien_ban ? new Date(dongHoSelected.hieu_luc_bien_ban) : null);
             } else {
                 setFormHieuSaiSo(initialFormHieuSaiSo);
                 setDuLieuKiemDinhCacLuuLuong(initialDuLieuKiemDinhCacLuuLuong);
@@ -646,10 +661,6 @@ export default function NhomDongHoNuocForm({ className }: NhomDongHoNuocFormProp
             updateCurrentDongHo();
         }
     };
-
-    // const handleSaveDongHoWithOptions = () => {
-    //     handleShowModal();
-    // }
 
     const handleSaveAllDongHo = () => {
         const dongHoChuaKiemDinh = getDongHoChuaKiemDinh(dongHoList);
@@ -697,7 +708,7 @@ export default function NhomDongHoNuocForm({ className }: NhomDongHoNuocFormProp
                 title: 'Chú ý!',
                 text: 'Đồng hồ ' + dongHoChuaKiemDinh.map((dongHo, i) => {
                     return (dongHoList.indexOf(dongHo) + 1)
-                }) + ' chưa kiểm định xong.' 
+                }) + ' chưa kiểm định xong.'
                 // + ' Tiếp tục lưu?'
                 ,
                 icon: 'warning',
@@ -822,54 +833,6 @@ export default function NhomDongHoNuocForm({ className }: NhomDongHoNuocFormProp
                         <form className="w-100">
                             <label className="w-100 fs-5 fw-bold">Thông tin thiết bị:</label>
                             <div className="row mx-0 w-100 mb-3">
-                                {/* <div className="mb-3 col-12 col-md-6">
-                                    <label htmlFor="phuongTienDo" className="form-label">Tên phương tiện đo:</label>
-                                    <Select
-                                        name="phuongTienDo"
-                                        options={phuongTienDoOptions as unknown as readonly GroupBase<never>[]}
-                                        className="basic-multi-select"
-                                        classNamePrefix="select"
-                                        placeholder="-- Chọn tên --"
-                                        isClearable
-                                        isDisabled={isExistsDHSaved}
-                                        value={phuongTienDoOptions.find(option => option.label == phuongTienDo) || null}
-                                        onChange={(selectedOptions: any) => setPhuongTienDo(selectedOptions ? selectedOptions.label : "")}
-                                        styles={{
-                                            control: (provided) => ({
-                                                ...provided,
-                                                height: '42px',
-                                                minHeight: '42px',
-                                                borderColor: '#dee2e6 !important',
-                                                boxShadow: 'none !important',
-                                                backgroundColor: isExistsDHSaved ? "#e9ecef" : "white",
-                                            }),
-                                            valueContainer: (provided) => ({
-                                                ...provided,
-                                                height: '42px',
-                                                padding: '0 8px',
-                                                color: "#000 !important",
-                                            }),
-                                            input: (provided) => ({
-                                                ...provided,
-                                                margin: '0',
-                                                padding: '0'
-                                            }),
-                                            indicatorsContainer: (provided) => ({
-                                                ...provided,
-                                                height: '42px'
-                                            }),
-                                            menu: (provided) => ({
-                                                ...provided,
-                                                zIndex: 777
-                                            }),
-                                            singleValue: (provided, state) => ({
-                                                ...provided,
-                                                color: state.isDisabled ? '#000' : provided.color,
-                                            })
-                                        }}
-                                    />
-                                </div> */}
-
                                 <div className="mb-3 col-12 col-md-6">
                                     <label htmlFor="kieuThietBi" className="form-label">Kiểu:</label>
                                     <Select
@@ -1348,6 +1311,7 @@ export default function NhomDongHoNuocForm({ className }: NhomDongHoNuocFormProp
                         <span className={ui_vfm['end-line']}></span>
                     </div>
                 </div>
+
                 <div className={`m-0 mb-3 bg-white rounded shadow-sm w-100 position-relative`}>
                     <div className="w-100 m-0 mb-3 p-0 position-relative">
                         {/* Select Nav  */}
@@ -1561,10 +1525,11 @@ export default function NhomDongHoNuocForm({ className }: NhomDongHoNuocFormProp
                         {/* End select nav  */}
                     </div>
                 </div>
+
+
                 <div className={`m-0 mb-3 bg-white rounded shadow-sm w-100 position-relative py-3 pt-md-4`}>
                     <h4 className="w-100 text-uppercase text-center">Thông tin riêng</h4>
-
-                    <TableDongHoInfo isDHDienTu={isDHDienTu} setIsErrorInfoExists={(value: boolean | null) => setIsErrorInfoExists(value)} setLoading={(value: boolean) => setLoading(value)} />
+                    {showFormTienTrinh && <TableDongHoInfo setIsErrorInfoExists={(value: boolean | null) => setIsErrorInfoExists(value)} setLoading={(value: boolean) => setLoading(value)} />}
 
                     <div className={`w-100 px-2 px-md-3 d-flex gap-2 align-items-center justify-content-end`}>
                         <button aria-label="Lưu toàn bộ" className="btn btn-success py-2 px-4" disabled={loading} onClick={handleSaveAllDongHo}>

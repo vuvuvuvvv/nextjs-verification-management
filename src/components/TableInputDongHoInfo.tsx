@@ -7,15 +7,15 @@ import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import { getDongHoExistsByInfo } from "@/app/api/dongho/route";
 import { getLastDayOfMonthInFuture } from "@lib/system-function";
 import { TITLE_LUU_LUONG } from "@lib/system-constant";
+import DatePickerField from "./ui/DatePickerTBDHInfo";
+import InputField from "./ui/InputFieldTBDHInfo";
 
 interface TableDongHoInfoProps {
     // dongHoList: DongHo[],
     className?: string,
     setIsErrorInfoExists: (value: boolean | null) => void;
     setLoading: (value: boolean) => void;
-    isDHDienTu?: boolean
 }
-
 
 const InfoFieldTitle = {
     so_giay_chung_nhan: "Số GCN",
@@ -33,11 +33,10 @@ type InfoField = {
     hieu_luc_bien_ban?: Date | null,
 };
 
-const TableDongHoInfo: React.FC<TableDongHoInfoProps> = ({
+const TableDongHoInfo: React.FC<TableDongHoInfoProps> = React.memo(({
     className,
     setIsErrorInfoExists,
-    setLoading,
-    isDHDienTu
+    setLoading
 }) => {
     const { dongHoList, setDongHoList, savedDongHoList } = useDongHoList();
     const prevDongHoList = useRef(dongHoList);
@@ -68,7 +67,7 @@ const TableDongHoInfo: React.FC<TableDongHoInfoProps> = ({
         }
     }, [dongHoList])
 
-    const handleInputChange = (
+    const handleInputChange = React.useCallback((
         index: number,
         field: "so_giay_chung_nhan" | "seri_sensor" | "seri_chi_thi" | "so_tem" | "hieu_luc_bien_ban",
         value: string | Date
@@ -145,8 +144,11 @@ const TableDongHoInfo: React.FC<TableDongHoInfoProps> = ({
 
             setErrorsList(updatedErrors);
         }
+    },
+        [dongHoList, errorsList, tempValues, setLoading, setIsErrorInfoExists] // Thêm dependencies cần thiết
+    );
 
-    };
+    const tempValuesMemo = React.useMemo(() => tempValues, [tempValues]);
 
     useEffect(() => {
         return () => {
@@ -245,119 +247,60 @@ const TableDongHoInfo: React.FC<TableDongHoInfoProps> = ({
                         const duLieuKiemDinh = duLieuKiemDinhJSON ? JSON.parse(duLieuKiemDinhJSON) : null;
                         const status = duLieuKiemDinh ? duLieuKiemDinh.ket_qua : null;
                         const objHss = duLieuKiemDinh ? duLieuKiemDinh.hieu_sai_so : null;
+                        const isDHDienTu = Boolean((dongHo.ccx && ["1", "2"].includes(dongHo.ccx)) || dongHo.kieu_thiet_bi == "Điện tử");
 
                         return (
                             <tr key={index}>
                                 <td>{index + 1}</td>
                                 <td>
-                                    <input
-                                        autoComplete="off"
-                                        type="text"
-                                        value={tempValues[index]?.so_giay_chung_nhan
-                                            // || dongHo?.so_giay_chung_nhan 
-                                            || ""}
+                                    <InputField
+                                        value={tempValuesMemo[index]?.so_giay_chung_nhan || ""}
+                                        onChange={(value) => handleInputChange(index, "so_giay_chung_nhan", value)}
                                         disabled={status == null || (status != null && !status) || savedDongHoList.includes(dongHo)}
-                                        onChange={(e) => handleInputChange(index, "so_giay_chung_nhan", e.target.value)}
-                                        className="form-control"
-                                        style={{ width: "100%", minWidth: "170px" }}
-                                        onKeyDown={(e) => handleEnterKey(e, index, "so_giay_chung_nhan")}
+                                        error={errorsList[index]?.so_giay_chung_nhan}
                                         name={`so_giay_chung_nhan-${index}`}
                                     />
-                                    {errorsList[index]?.so_giay_chung_nhan && (
-                                        <small className="w-100 text-center text-danger">
-                                            {errorsList[index].so_giay_chung_nhan}
-                                        </small>
-                                    )}
                                 </td>
                                 <td>
-                                    <input
-                                        type="text"
-                                        autoComplete="off"
-                                        value={tempValues[index]?.so_tem
-                                            // || dongHo?.so_tem 
-                                            || ""}
+                                    <InputField
+                                        value={tempValuesMemo[index]?.so_tem || ""}
+                                        onChange={(value) => handleInputChange(index, "so_tem", value)}
                                         disabled={status == null || (status != null && !status) || savedDongHoList.includes(dongHo)}
-                                        onChange={(e) => handleInputChange(index, "so_tem", e.target.value)}
-                                        className="form-control"
-                                        style={{ width: "100%", minWidth: "170px" }}
-                                        onKeyDown={(e) => handleEnterKey(e, index, "so_tem")}
+                                        error={errorsList[index]?.so_tem}
                                         name={`so_tem-${index}`}
                                     />
-                                    {errorsList[index]?.so_tem && (
-                                        <small className="w-100 text-center text-danger">
-                                            {errorsList[index].so_tem}
-                                        </small>
-                                    )}
                                 </td>
                                 <td>
-                                    <input
-                                        type="text"
-                                        autoComplete="off"
-                                        value={tempValues[index]?.seri_sensor
-                                            // || dongHo?.seri_sensor 
-                                            || ""}
+                                    <InputField
+                                        value={tempValuesMemo[index]?.seri_sensor || ""}
+                                        onChange={(value) => handleInputChange(index, "seri_sensor", value)}
                                         disabled={savedDongHoList.includes(dongHo)}
-                                        onChange={(e) => handleInputChange(index, "seri_sensor", e.target.value)}
-                                        className="form-control"
-                                        style={{ width: "100%", minWidth: "170px" }}
-                                        onKeyDown={(e) => handleEnterKey(e, index, "seri_sensor")}
+                                        error={errorsList[index]?.seri_sensor}
                                         name={`seri_sensor-${index}`}
                                     />
-                                    {errorsList[index]?.seri_sensor && (
-                                        <small className="w-100 text-center text-danger">
-                                            {errorsList[index].seri_sensor}
-                                        </small>
-                                    )}
                                 </td>
                                 <td>
-                                    <input
-                                        type="text"
-                                        autoComplete="off"
-                                        value={tempValues[index]?.seri_chi_thi
-                                            // || dongHo?.seri_chi_thi 
-                                            || ""}
+
+                                    <InputField
+                                        value={tempValuesMemo[index]?.seri_chi_thi || ""}
+                                        onChange={(value) => handleInputChange(index, "seri_chi_thi", value)}
                                         disabled={savedDongHoList.includes(dongHo)}
-                                        onChange={(e) => handleInputChange(index, "seri_chi_thi", e.target.value)}
-                                        className="form-control"
-                                        style={{ width: "100%", minWidth: "170px" }}
-                                        onKeyDown={(e) => handleEnterKey(e, index, "seri_chi_thi")}
+                                        error={errorsList[index]?.seri_chi_thi}
                                         name={`seri_chi_thi-${index}`}
                                     />
-                                    {errorsList[index]?.seri_chi_thi && (
-                                        <small className="w-100 text-center text-danger">
-                                            {errorsList[index].seri_chi_thi}
-                                        </small>
-                                    )}
                                 </td>
                                 <td>
-                                    <DatePicker
+                                    <DatePickerField
                                         className={`${c_tbIDHInf['date-picker']}`}
-                                        value={dayjs(tempValues[index]?.hieu_luc_bien_ban) || null}
-                                        format="DD-MM-YYYY"
+                                        value={dayjs(tempValuesMemo[index]?.hieu_luc_bien_ban) || null}
+                                        onChange={(newValue: Dayjs | null) => handleInputChange(index, "hieu_luc_bien_ban", newValue ? newValue.format('DD-MM-YYYY') : '')}
                                         disabled={
                                             status == null
                                             || (status != null && !status)
-                                            || !(tempValues[index]?.so_giay_chung_nhan && tempValues[index]?.so_tem)
+                                            || !(tempValuesMemo[index]?.so_giay_chung_nhan && tempValuesMemo[index]?.so_tem)
                                             || savedDongHoList.includes(dongHo)
                                         }
                                         minDate={dayjs().endOf('day')}
-                                        onChange={(newValue: Dayjs | null) => handleInputChange(index, "hieu_luc_bien_ban", newValue ? newValue.format('DD-MM-YYYY') : '')}
-                                        slotProps={{
-                                            textField: {
-                                                fullWidth: true,
-                                                style: {
-                                                    minWidth: '175px',
-                                                    backgroundColor: (
-                                                        status == null
-                                                        || (status != null && !status)
-                                                        || !(tempValues[index]?.so_giay_chung_nhan && tempValues[index]?.so_tem)
-                                                        || savedDongHoList.includes(dongHo)
-                                                    )
-                                                        ? "#e9ecef"
-                                                        : "white"
-                                                }
-                                            }
-                                        }}
                                         name={"hieu_luc_bien_ban-" + index}
                                     />
                                 </td>
@@ -387,6 +330,6 @@ const TableDongHoInfo: React.FC<TableDongHoInfoProps> = ({
             </table>
         </div>
     );
-};
+});
 
 export default TableDongHoInfo;
