@@ -17,9 +17,10 @@ interface CaculatorFormProps {
     onFormChange: (field: string, value: string) => void;
     d?: string;
     isDisable?: boolean
+    tabFormName: string;
 }
 
-export default function QBT30TinhSaiSoForm({ className, formValue, readOnly = false, onFormChange, d, isDisable }: CaculatorFormProps) {
+export default function QBT30TinhSaiSoForm({ tabFormName, className, formValue, readOnly = false, onFormChange, d, isDisable }: CaculatorFormProps) {
     const [V1, setV1] = useState<string>(formValue.V1.toString() || "0");
     const [V2, setV2] = useState<string>(formValue.V2.toString() || "0");
     const [Vc1, setVc1] = useState<string>(formValue.Vc1 ? formValue.Vc1.toString() : "0");
@@ -28,9 +29,32 @@ export default function QBT30TinhSaiSoForm({ className, formValue, readOnly = fa
     const [Tc, setTc] = useState<string>(formValue.Tc ? formValue.Tc.toString() : "0");
     const [saiSo, setSaiSo] = useState<string>("0%");
     const { dongHoSelected } = useDongHoList();
-
-    const dongHoSelectedRef = useRef(dongHoSelected);
     const prevFormValuesRef = useRef(formValue);
+
+    const handleEnterKey = (e: React.KeyboardEvent<HTMLInputElement>,
+        index: number,
+        name:string,
+    ) => {
+        if (e.key === 'Enter') {
+            if (e.shiftKey) {
+                const prevIndex = index - 1;
+                if (prevIndex >= 0) {
+                    const prevInput = document.querySelector(`input[name="${name}-${prevIndex}"]`) as HTMLInputElement;
+                    if (prevInput) {
+                        prevInput.focus();
+                    }
+                }
+            } else {
+                const nextIndex = index + 1;
+                if (nextIndex < 4) {
+                    const nextInput = document.querySelector(`input[name="${name}-${nextIndex}"]`) as HTMLInputElement;
+                    if (nextInput) {
+                        nextInput.focus();
+                    }
+                }
+            }
+        }
+    };
 
     useEffect(() => {
         if (prevFormValuesRef.current != formValue) {
@@ -149,6 +173,7 @@ export default function QBT30TinhSaiSoForm({ className, formValue, readOnly = fa
                     <div className={`mb-3 ${ecf["box-input-form"]}`}>
                         <label htmlFor="firstNum" className="form-label">Số đầu</label>
                         <input
+                            onKeyDown={(e) => handleEnterKey(e, 1, tabFormName)}
                             tabIndex={1}
                             readOnly={readOnly ? true : false}
                             type="text"
@@ -158,13 +183,15 @@ export default function QBT30TinhSaiSoForm({ className, formValue, readOnly = fa
                             onChange={handleNumericInput(setV1, "V1")}
                             disabled={isDisable}
                             autoComplete="off"
+                            name={tabFormName + "-1"}
                         />
                     </div>
 
                     <div className={`mb-3 ${ecf["box-input-form"]}`}>
                         <label htmlFor="lastNum" className="form-label">Số cuối</label>
                         <input
-                            tabIndex={2}
+                            onKeyDown={(e) => handleEnterKey(e, 2, tabFormName)}
+                            tabIndex={3}
                             readOnly={readOnly ? true : false}
                             type="text"
                             className="form-control"
@@ -173,12 +200,14 @@ export default function QBT30TinhSaiSoForm({ className, formValue, readOnly = fa
                             onChange={handleNumericInput(setV2, "V2")}
                             disabled={isDisable}
                             autoComplete="off"
+                            name={tabFormName + "-2"}
                         />
                     </div>
 
                     <div className={`mb-3 ${ecf["box-input-form"]}`}>
                         <label htmlFor="tdh" className="form-label">Nhiệt độ (℃)</label>
                         <input
+                            onKeyDown={(e) => handleEnterKey(e, 3, tabFormName)}
                             tabIndex={5}
                             readOnly={readOnly ? true : false}
                             type="text"
@@ -188,6 +217,7 @@ export default function QBT30TinhSaiSoForm({ className, formValue, readOnly = fa
                             onChange={handleNumberChange(setTdh, "Tdh")}
                             disabled={isDisable}
                             autoComplete="off"
+                            name={tabFormName + "-3"}
                         />
                     </div>
                 </div>
@@ -197,7 +227,8 @@ export default function QBT30TinhSaiSoForm({ className, formValue, readOnly = fa
                     <div className={`mb-3 ${ecf["box-input-form"]}`}>
                         <label htmlFor="firstNum" className="form-label">Số đầu</label>
                         <input
-                            tabIndex={3}
+                            onKeyDown={(e) => handleEnterKey(e, 1, tabFormName + "-c")}
+                            tabIndex={2}
                             readOnly={readOnly ? true : false}
                             type="text"
                             className="form-control"
@@ -206,11 +237,13 @@ export default function QBT30TinhSaiSoForm({ className, formValue, readOnly = fa
                             onChange={handleNumberChange(setVc1, "Vc1")}
                             disabled={isDisable}
                             autoComplete="off"
+                            name={tabFormName + "-c-1"}
                         />
                     </div>
                     <div className={`mb-3 ${ecf["box-input-form"]}`}>
                         <label htmlFor="lastNum" className="form-label">Số cuối</label>
                         <input
+                            onKeyDown={(e) => handleEnterKey(e, 2, tabFormName + "-c")}
                             tabIndex={4}
                             readOnly={readOnly ? true : false}
                             type="text"
@@ -220,12 +253,14 @@ export default function QBT30TinhSaiSoForm({ className, formValue, readOnly = fa
                             onChange={handleNumberChange(setVc2, "Vc2")}
                             disabled={isDisable}
                             autoComplete="off"
+                            name={tabFormName + "-c-2"}
                         />
                     </div>
 
                     <div className={`mb-3 ${ecf["box-input-form"]}`}>
                         <label htmlFor="tc" className="form-label">Nhiệt độ (℃)</label>
                         <input
+                            onKeyDown={(e) => handleEnterKey(e, 3, tabFormName + "-c")}
                             tabIndex={6}
                             readOnly={readOnly ? true : false}
                             type="text"
@@ -235,6 +270,7 @@ export default function QBT30TinhSaiSoForm({ className, formValue, readOnly = fa
                             onChange={handleNumberChange(setTc, "Tc")}
                             disabled={isDisable}
                             autoComplete="off"
+                            name={tabFormName + "-c-3"}
                         />
                     </div>
                 </div>

@@ -26,7 +26,7 @@ export type AppContextType = {
 const AppContext = createContext<AppContextType | undefined>(undefined);
 
 // Provider component
-export const AppProvider : React.FC<{ children: React.ReactNode }> = ({ children }) => {
+export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
     const [user, setUser] = useState<User | null>(null);
     const [loading, setLoading] = useState(true);
 
@@ -56,36 +56,36 @@ export const AppProvider : React.FC<{ children: React.ReactNode }> = ({ children
     };
 
     const logoutUser = async () => {
-        const res = await logout();
-        if (res?.status == 200 || res?.status == 201) {
-            window.location.href = ACCESS_LINKS.AUTH_LOGIN.src;
-        } else if (res?.status == 401) {
-            Swal.fire({
-                icon: "error",
-                title: res?.msg || "Phiên đăng nhập hết hạn!",
-                text: "Mời đăng nhập lại.",
-                showClass: {
-                    popup: `
+        // const res = await logout();
+        // if (res?.status == 200 || res?.status == 201) {
+        //     window.location.href = ACCESS_LINKS.AUTH_LOGIN.src;
+        // } else if (res?.status == 401) {
+        Swal.fire({
+            icon: "error",
+            title: "Phiên đăng nhập hết hạn!",
+            text: "Mời đăng nhập lại.",
+            showClass: {
+                popup: `
                     animate__animated
                     animate__fadeInUp
                     animate__faster
                   `
-                },
-                hideClass: {
-                    popup: `
+            },
+            hideClass: {
+                popup: `
                     animate__animated
                     animate__fadeOutDown
                     animate__faster
                   `
-                },
-                confirmButtonColor: "#0980de",
-                confirmButtonText: "OK"
-            }).then(() => {
-                window.location.href = ACCESS_LINKS.AUTH_LOGIN.src;
-            });
-        }
+            },
+            confirmButtonColor: "#0980de",
+            confirmButtonText: "OK"
+        }).then(() => {
+            window.location.href = ACCESS_LINKS.AUTH_LOGIN.src;
+        });
+        // }
     };
-    
+
     return (loading) ? (
         <Loading></Loading>
     ) : (

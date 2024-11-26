@@ -88,7 +88,6 @@ export default function NhomDongHoNuocForm({ className, generalInfoDongHo }: Nho
     const [q3, setQ3] = useState<string>(generalInfoDongHo?.q3 || "");
     const [r, setR] = useState<string>(generalInfoDongHo?.r || "");
     const [qn, setQN] = useState<string>(generalInfoDongHo?.qn || "");
-    const [kFactor, setKFactor] = useState<string>(generalInfoDongHo?.k_factor || "");
     const [soQDPDM, setSoQDPDM] = useState<string>(generalInfoDongHo?.so_qd_pdm || "");
     const [tenKhachHang, setTenKhachhang] = useState<string>(generalInfoDongHo?.ten_khach_hang || "");
     const [phuongPhapThucHien, setPhuongPhapThucHien] = useState<string>(generalInfoDongHo?.phuong_phap_thuc_hien || "FMS - PP - 02");
@@ -406,7 +405,6 @@ export default function NhomDongHoNuocForm({ className, generalInfoDongHo }: Nho
         ngayThucHien,
         nguoiKiemDinh,
         chuanThietBiSuDung,
-        kFactor,
         namSanXuat,
         nguoiSoatLai,
         noiSuDung,
@@ -427,8 +425,8 @@ export default function NhomDongHoNuocForm({ className, generalInfoDongHo }: Nho
             phuong_tien_do: phuongTienDo,
             seri_chi_thi: '',
             seri_sensor: "",
-            kieu_chi_thi: kieuChiThi,
-            kieu_sensor: checkQ3 ? kieuSensor : "",
+            kieu_chi_thi: checkQ3 ? kieuChiThi : "",
+            kieu_sensor:  kieuSensor,
             kieu_thiet_bi: kieuThietBi,
             co_so_san_xuat: coSoSanXuat,
             so_tem: "",
@@ -439,7 +437,7 @@ export default function NhomDongHoNuocForm({ className, generalInfoDongHo }: Nho
             q3: checkQ3 ? q3 : "",
             r: r,
             qn: checkQ3 ? "" : qn,
-            k_factor: kFactor || "",
+            k_factor: "",
             so_qd_pdm: soQDPDM || "",
             ten_khach_hang: tenKhachHang || "",
             co_so_su_dung: coSoSuDung || "",
@@ -582,10 +580,8 @@ export default function NhomDongHoNuocForm({ className, generalInfoDongHo }: Nho
 
         if (duLieuKiemDinhJSON) {
             const duLieuKiemDinh = JSON.parse(duLieuKiemDinhJSON);
-            console.log("dlkd: ", duLieuKiemDinh.du_lieu);
             setDuLieuKiemDinhCacLuuLuong(duLieuKiemDinh.du_lieu || initialDuLieuKiemDinhCacLuuLuong);
             setFormHieuSaiSo(duLieuKiemDinh.hieu_sai_so || initialFormHieuSaiSo);
-            setKFactor(dongHoSelected.k_factor || "");
         } else {
             setFormHieuSaiSo(initialFormHieuSaiSo);
             setDuLieuKiemDinhCacLuuLuong(initialDuLieuKiemDinhCacLuuLuong);
@@ -612,7 +608,6 @@ export default function NhomDongHoNuocForm({ className, generalInfoDongHo }: Nho
 
     // Handle previous and next button clicks
     const handlePrevDongHo = () => {
-        console.log(dongHoList);
         if (selectedDongHoIndex > 0) {
             setSelectedDongHoIndex(selectedDongHoIndex - 1);
             updateCurrentDongHo();
@@ -620,7 +615,6 @@ export default function NhomDongHoNuocForm({ className, generalInfoDongHo }: Nho
     };
 
     const handleNextDongHo = () => {
-        console.log(dongHoList);
         if (selectedDongHoIndex < dongHoList.length - 1) {
             setSelectedDongHoIndex(selectedDongHoIndex + 1);
             updateCurrentDongHo();
@@ -853,6 +847,28 @@ export default function NhomDongHoNuocForm({ className, generalInfoDongHo }: Nho
                                         }}
                                     />
                                 </div>
+                                <div className="mb-3 col-12 col-md-6">
+                                    <label htmlFor="namSanXuat" className="form-label">Năm sản xuất:</label>
+                                    <DatePicker
+                                        className={`${ui_vfm['date-picker']}`}
+                                        value={namSanXuat ? dayjs(namSanXuat) : null}
+                                        views={['year']}
+                                        format="YYYY"
+                                        minDate={dayjs('1900-01-01')}
+                                        maxDate={dayjs().endOf('year')}
+                                        disabled={isExistsDHSaved}
+                                        onChange={(newValue: Dayjs | null) => {
+                                            if (newValue) {
+
+                                                setNamSanXuat(newValue.toDate());
+                                            } else {
+                                                setNamSanXuat(null); // or handle invalid date
+                                            }
+
+                                        }}
+                                        slotProps={{ textField: { fullWidth: true, style: { backgroundColor: isExistsDHSaved ? "#e9ecef" : "white" } } }}
+                                    />
+                                </div>
 
                                 <div className="mb-3 col-12 col-md-6">
                                     <label htmlFor="coSoSanXuat" className="form-label">Cơ sở sản xuất:</label>
@@ -916,28 +932,6 @@ export default function NhomDongHoNuocForm({ className, generalInfoDongHo }: Nho
                                                 color: state.isDisabled ? '#000' : provided.color,
                                             })
                                         }}
-                                    />
-                                </div>
-                                <div className="mb-3 col-12 col-md-6">
-                                    <label htmlFor="namSanXuat" className="form-label">Năm sản xuất:</label>
-                                    <DatePicker
-                                        className={`${ui_vfm['date-picker']}`}
-                                        value={namSanXuat ? dayjs(namSanXuat) : null}
-                                        views={['year']}
-                                        format="YYYY"
-                                        minDate={dayjs('1900-01-01')}
-                                        maxDate={dayjs().endOf('year')}
-                                        disabled={isExistsDHSaved}
-                                        onChange={(newValue: Dayjs | null) => {
-                                            if (newValue) {
-
-                                                setNamSanXuat(newValue.toDate());
-                                            } else {
-                                                setNamSanXuat(null); // or handle invalid date
-                                            }
-
-                                        }}
-                                        slotProps={{ textField: { fullWidth: true, style: { backgroundColor: isExistsDHSaved ? "#e9ecef" : "white" } } }}
                                     />
                                 </div>
                             </div>
@@ -1067,7 +1061,7 @@ export default function NhomDongHoNuocForm({ className, generalInfoDongHo }: Nho
                                         />
                                     </div>
                                 </> : <>
-                                    <div className="mb-3 col-12 col-md-6 col-xxl-4">
+                                    <div className="mb-3 col-12 col-md-6">
                                         <label htmlFor="qn" className="form-label">- Q<sub>n</sub>:</label>
                                         <div className="input-group">
                                             <input
@@ -1083,7 +1077,7 @@ export default function NhomDongHoNuocForm({ className, generalInfoDongHo }: Nho
                                         </div>
                                     </div>
                                 </>}
-                                <div className={`mb-3 col-12 col-md-6 ${isDHDienTu ? "col-lg-4" : ""} col-xxl-4`}>
+                                <div className={`mb-3 col-12 col-md-6 ${isDHDienTu ? "col-lg-4" : ""}`}>
                                     <label htmlFor="dn" className="form-label">- Độ chia nhỏ nhất (d):</label>
                                     <input
                                         type="text"
@@ -1095,7 +1089,7 @@ export default function NhomDongHoNuocForm({ className, generalInfoDongHo }: Nho
 
                                     />
                                 </div>
-                                <div className="mb-3 col-12 col-md-6 col-xxl-4">
+                                <div className={`mb-3 col-12 col-md-6 ${isDHDienTu ? "col-xxl-4" : ""}`}>
                                     <label htmlFor="so_qd_pdm" className="form-label">- Ký hiệu PDM/Số quyết định PDM:</label>
                                     <input
                                         type="text"
@@ -1108,23 +1102,12 @@ export default function NhomDongHoNuocForm({ className, generalInfoDongHo }: Nho
                                     {errorPDM && <small className="text-danger">{errorPDM}</small>}
                                 </div>
 
-                                {(isDHDienTu != null && isDHDienTu) && <>
-                                    <div className="mb-3 col-12 col-md-6 col-xxl-4">
-                                        <label htmlFor="kFactor" className="form-label">- Hệ số K:</label>
-                                        <input
-                                            type="text"
-                                            className="form-control"
-                                            id="kFactor"
-                                            disabled={isExistsDHSaved}
-                                            value={kFactor || ""}
-                                            onChange={handleNumberChange(setKFactor)}
-                                        />
-                                    </div>
-                                </>}
-                                <div className={`mb-3 col-12 d-flex ${isAdmin ? "" : "d-none"}`}>
+                                <div className={`mb-3 col-12 col-md-6 col-xxl-4 d-flex align-items-end ${isAdmin ? "" : "d-none"}`}>
+
                                     <Link
                                         href={ACCESS_LINKS.PDM_ADD.src}
                                         className="btn btn-success px-3 py-2 text-white"
+                                        style={{ width: "max-content", height: "max-content" }}
                                     >
                                         Thêm mới PDM
                                     </Link>
@@ -1374,11 +1357,11 @@ export default function NhomDongHoNuocForm({ className, generalInfoDongHo }: Nho
                                             <h5 className="p-0">Đo lường:</h5>
                                             <NavTab buttonControl={true} gotoFirstTab={isFirstTabLL} tabContent={[
                                                 {
-                                                    title: <>Q<sub>{isDHDienTu != null && isDHDienTu ? "3" : "n"}</sub></>,
+                                                    title: <>{isDHDienTu != null && isDHDienTu ? "0.3*" : ""}Q<sub>{isDHDienTu != null && isDHDienTu ? "3" : "n"}</sub></>,
                                                     content: <TinhSaiSoTab isDHDienTu={isDHDienTu} onFormHSSChange={(value: number | null) => handleFormHSSChange(0, value)}
                                                         isDisable={isExistsDHSaved}
                                                         d={d ? d : ""} q={{
-                                                            title: (isDHDienTu != null && isDHDienTu) ? TITLE_LUU_LUONG.q3 : TITLE_LUU_LUONG.qn,
+                                                            title: isDHDienTu != null && isDHDienTu ? TITLE_LUU_LUONG.q3 : TITLE_LUU_LUONG.qn,
                                                             value: (q3) ? q3 : ((qn) ? qn : "")
                                                         }} className="" tabIndex={1} Form={TinhSaiSoForm as any} />
                                                 },
@@ -1387,7 +1370,7 @@ export default function NhomDongHoNuocForm({ className, generalInfoDongHo }: Nho
                                                     content: <TinhSaiSoTab onFormHSSChange={(value: number | null) => handleFormHSSChange(1, value)}
                                                         isDisable={isExistsDHSaved}
                                                         d={d ? d : ""} q={{
-                                                            title: (isDHDienTu != null && isDHDienTu) ? TITLE_LUU_LUONG.q2 : TITLE_LUU_LUONG.qt,
+                                                            title: isDHDienTu != null && isDHDienTu ? TITLE_LUU_LUONG.q2 : TITLE_LUU_LUONG.qt,
                                                             value: (q2Ort) ? q2Ort.toString() : ""
                                                         }} tabIndex={2} Form={TinhSaiSoForm as any} />
                                                 },
@@ -1396,7 +1379,7 @@ export default function NhomDongHoNuocForm({ className, generalInfoDongHo }: Nho
                                                     content: <TinhSaiSoTab onFormHSSChange={(value: number | null) => handleFormHSSChange(2, value)}
                                                         isDisable={isExistsDHSaved}
                                                         d={d ? d : ""} q={{
-                                                            title: (isDHDienTu != null && isDHDienTu) ? TITLE_LUU_LUONG.q1 : TITLE_LUU_LUONG.qmin,
+                                                            title: isDHDienTu != null && isDHDienTu ? TITLE_LUU_LUONG.q1 : TITLE_LUU_LUONG.qmin,
                                                             value: (q1Ormin) ? q1Ormin.toString() : ""
                                                         }} tabIndex={3} Form={TinhSaiSoForm as any} />
                                                 },
@@ -1504,6 +1487,7 @@ export default function NhomDongHoNuocForm({ className, generalInfoDongHo }: Nho
                         <>
                             <h4 className="w-100 text-uppercase text-center">Thông tin riêng</h4>
                             <TableDongHoInfo
+                                isDHDienTu={isDHDienTu}
                                 setIsErrorInfoExists={(value: boolean | null) => setIsErrorInfoExists(value)}
                                 setLoading={(value: boolean) => setLoading(value)} />
                         </>}

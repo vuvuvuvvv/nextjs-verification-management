@@ -42,6 +42,7 @@ interface GeneralInfo {
     nguoi_kiem_dinh: string | null;
     ngay_thuc_hien: Date | null;
     noi_su_dung: string | null;
+    noi_thuc_hien: string|null;
     vi_tri: string | null;
     nhiet_do: string | null;
     do_am: string | null;
@@ -202,6 +203,7 @@ export default function DetailNhomDongHo({ nhomDongHo }: DetailNhomDongHoProps) 
                 vi_tri: dongHo.vi_tri,
                 nhiet_do: dongHo.nhiet_do,
                 do_am: dongHo.do_am,
+                noi_thuc_hien: dongHo.noi_thuc_hien
             })
 
             let tmpNhomDuLieuKiemDinh: DuLieuKiemDinh[] = []
@@ -313,14 +315,15 @@ export default function DetailNhomDongHo({ nhomDongHo }: DetailNhomDongHoProps) 
                     show={showModalSelectDongHoToDownload}
                     handleClose={handleCloseModal}
                     handleSelectedDongHo={setSelectedDongHo}
+                    isDownloadGCN={DOWNLOAD_TYPE.GCN == typeToDownload}
                 ></ModalSelectDongHoToDownload>
-                <div className={`container my-3 p-0 d-flex align-items-center`}>
-                    <span style={{ cursor: "unset" }} className="m-0 btn border-0 py-2 bg-main-blue text-white rounded-end-0">Chọn tải:</span>
+                <div className={`container my-3 p-0 d-flex align-items-center justify-content-end`}>
+                    <span style={{ cursor: "unset" }} className="m-0 btn border-0 py-2 bg-main-blue text-white rounded-end-0">Tải nhiều:</span>
                     <button aria-label="Tải biên bản kiểm định" className="btn bg-main-green rounded-0 border-0 py-2 text-white" onClick={handleMultDownloadBB}>
-                        <FontAwesomeIcon icon={faFileExcel} className="me-1"></FontAwesomeIcon> BB kiểm định
+                        <FontAwesomeIcon icon={faFileExcel} className="me-1"></FontAwesomeIcon> Biên bản
                     </button>
                     <button aria-label="Tải giấy chứng nhận kiểm định" className="btn bg-main-green rounded-start-0 py-2 border-top-0 border-bottom-0 border-end-0 border-white text-white" onClick={handleMultDownloadGCN}>
-                        <FontAwesomeIcon icon={faFileExcel} className="me-1"></FontAwesomeIcon> GCN kiểm định
+                        <FontAwesomeIcon icon={faFileExcel} className="me-1"></FontAwesomeIcon> Giấy chứng nhận
                     </button>
                 </div>
                 <div className="container bg-white px-3 py-4 p-md-5">
@@ -373,7 +376,7 @@ export default function DetailNhomDongHo({ nhomDongHo }: DetailNhomDongHoProps) 
                             <p>Ngày thực hiện: <b>{dayjs(generalInfo.ngay_thuc_hien).format("DD/MM/YYYY")}</b></p>
                         </div>
                         <div className="col-12">
-                            <p>Địa điểm thực hiện: <b>{generalInfo.co_so_su_dung || "Chưa có địa điểm thực hiện"}</b></p>
+                            <p>Địa điểm thực hiện: <b>{generalInfo.noi_thuc_hien || "Chưa có địa điểm thực hiện"}</b></p>
                         </div>
                     </div>
 
@@ -385,7 +388,7 @@ export default function DetailNhomDongHo({ nhomDongHo }: DetailNhomDongHoProps) 
                             <div className="w-100 mb-3 d-flex row mx-0 align-items-center justify-content-between">
                                 <h4 className="col-12 col-md-4 mb-md-0 p-0 text-center text-md-start text-uppercase text-decoration-underline fw-bold">Đồng hồ số {index + 1}:</h4>
 
-                                <div className="col-12 px-0 col-md-8 d-flex align-items-center justify-content-center justify-content-md-end">
+                                <div className={`col-12 px-0 col-md-8 ${dongHo.so_giay_chung_nhan ? "d-flex":"d-none"} align-items-center justify-content-center justify-content-md-end`}>
                                     <span style={{ cursor: "unset" }} className="btn border-0 bg-lighter-grey rounded-start rounded-end-0"><FontAwesomeIcon icon={faDownload}></FontAwesomeIcon></span>
                                     <button aria-label="Tải biên bản kiểm định" className="btn bg-main-green rounded-0 text-white" onClick={() => handleDownloadBB(dongHo)}>
                                         <FontAwesomeIcon icon={faFileExcel} className="me-1"></FontAwesomeIcon> Biên bản
@@ -397,12 +400,12 @@ export default function DetailNhomDongHo({ nhomDongHo }: DetailNhomDongHoProps) 
                             </div>
 
                             <div className="row px-3">
-                                {(dongHo.so_giay_chung_nhan && dongHo.ngay_thuc_hien) ? <div className="col-12 col-md-6">
-                                    <p>Số giấy chứng nhận: <b>{getFullSoGiayCN(dongHo.so_giay_chung_nhan, dongHo.ngay_thuc_hien) || "Không có số giấy chứng nhận"}</b></p>
-                                </div> : <div className="col-12 col-md-6"></div>}
-                                {dongHo.so_tem ? <div className="col-12 col-md-6">
-                                    <p>Số tem: <b>{dongHo.so_tem || "Không có số tem"}</b></p>
-                                </div> : <div className="col-12 col-md-6"></div>}
+                                <div className="col-12 col-md-6">
+                                    <p>Số giấy chứng nhận: <b>{(dongHo.so_giay_chung_nhan) ? getFullSoGiayCN(dongHo.so_giay_chung_nhan, dongHo.ngay_thuc_hien || new Date) : "Không có số giấy chứng nhận"}</b></p>
+                                </div>
+                                <div className="col-12 col-md-6">
+                                    <p>Số tem: <b>{dongHo.so_tem ? dongHo.so_tem : "Không có số tem"}</b></p>
+                                </div>
                                 {dongHo.seri_sensor && <div className="col-12">
                                     <p>Serial sensor: <b>{dongHo.seri_sensor}</b></p>
                                 </div>}

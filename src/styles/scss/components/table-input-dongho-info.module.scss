@@ -66,16 +66,6 @@
                     }
                 }
             }
-
-
-            th:not(:last-child) {
-                cursor: pointer;
-                transition: 0.3s all ease;
-
-                &:hover {
-                    background-color: $dark_blue !important;
-                }
-            }
         }
 
         tbody {

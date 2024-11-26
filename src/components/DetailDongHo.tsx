@@ -227,7 +227,7 @@ export default function DetailDongHo({ dongHo }: DetailDongHoProps) {
                             <p>Ngày thực hiện: <b>{dayjs(dongHo.ngay_thuc_hien).format("DD/MM/YYYY")}</b></p>
                         </div>
                         <div className="col-12">
-                            <p>Địa điểm thực hiện: <b>{dongHo.co_so_su_dung || "Chưa có địa điểm thực hiện"}</b></p>
+                            <p>Địa điểm thực hiện: <b>{dongHo.noi_thuc_hien || "Chưa có địa điểm thực hiện"}</b></p>
                         </div>
                     </div>
                     <div className="w-100 mb-3">

@@ -129,7 +129,6 @@ export const getLastDayOfMonthInFuture = (isDHDienTu: boolean | null, date?: Dat
         const futureDate = new Date(today.getFullYear() + years, today.getMonth() + 1, 0);
         return futureDate;
     }
-    console.log("222")
     return new Date();
 }
 

@@ -15,6 +15,7 @@ interface TableDongHoInfoProps {
     className?: string,
     setIsErrorInfoExists: (value: boolean | null) => void;
     setLoading: (value: boolean) => void;
+    isDHDienTu: boolean;
 }
 
 const InfoFieldTitle = {
@@ -22,7 +23,8 @@ const InfoFieldTitle = {
     seri_sensor: "Serial sensor",
     seri_chi_thi: "Serial chỉ thị",
     so_tem: "Số tem",
-    hieu_luc_bien_ban: "Hiệu lực biên bản"
+    hieu_luc_bien_ban: "Hiệu lực biên bản",
+    k_factor: "Hệ số K"
 };
 
 type InfoField = {
@@ -30,13 +32,15 @@ type InfoField = {
     seri_sensor?: string,
     seri_chi_thi?: string,
     so_tem?: string,
+    k_factor?: string,
     hieu_luc_bien_ban?: Date | null,
 };
 
 const TableDongHoInfo: React.FC<TableDongHoInfoProps> = React.memo(({
     className,
     setIsErrorInfoExists,
-    setLoading
+    setLoading,
+    isDHDienTu
 }) => {
     const { dongHoList, setDongHoList, savedDongHoList } = useDongHoList();
     const [errorsList, setErrorsList] = useState<InfoField[]>([]);
@@ -56,7 +60,7 @@ const TableDongHoInfo: React.FC<TableDongHoInfoProps> = React.memo(({
 
     const handleInputChange = React.useCallback((
         index: number,
-        field: "so_giay_chung_nhan" | "seri_sensor" | "seri_chi_thi" | "so_tem" | "hieu_luc_bien_ban",
+        field: "so_giay_chung_nhan" | "seri_sensor" | "seri_chi_thi" | "so_tem" | "hieu_luc_bien_ban" | "k_factor",
         value: string | Date
     ) => {
         const updatedErrors = [...errorsList];
@@ -64,7 +68,7 @@ const TableDongHoInfo: React.FC<TableDongHoInfoProps> = React.memo(({
             const updatedDongHoList = [...dongHoList];
             updatedDongHoList[index].hieu_luc_bien_ban = dayjs(value, 'DD-MM-YYYY').isValid() ? dayjs(value, 'DD-MM-YYYY').toDate() : null;
             setDongHoList(updatedDongHoList);
-        } else {
+        } else if (field != "k_factor") {
             if (debounceTimeout) {
                 clearTimeout(debounceTimeout);
             }
@@ -73,7 +77,6 @@ const TableDongHoInfo: React.FC<TableDongHoInfoProps> = React.memo(({
                 if (value) {
                     const title = InfoFieldTitle[field as keyof InfoField];
                     if (!updatedErrors[index]) {
-                        console.log("clear");
                         updatedErrors[index] = {}
                     };
                     setLoading(true)
@@ -178,6 +181,13 @@ const TableDongHoInfo: React.FC<TableDongHoInfoProps> = React.memo(({
                         <th>
                             <div className={`${c_tbIDHInf['table-label']}`}>
                                 <span>
+                                    Trạng thái
+                                </span>
+                            </div>
+                        </th>
+                        <th>
+                            <div className={`${c_tbIDHInf['table-label']}`}>
+                                <span>
                                     Số giấy CN
                                 </span>
                             </div>
@@ -196,13 +206,24 @@ const TableDongHoInfo: React.FC<TableDongHoInfoProps> = React.memo(({
                                 </span>
                             </div>
                         </th>
-                        <th>
-                            <div className={`${c_tbIDHInf['table-label']}`}>
-                                <span>
-                                    Serial chỉ thị
-                                </span>
-                            </div>
-                        </th>
+                        {isDHDienTu &&
+                            <th>
+                                <div className={`${c_tbIDHInf['table-label']}`}>
+                                    <span>
+                                        Serial chỉ thị
+                                    </span>
+                                </div>
+                            </th>
+                        }
+                        {["Điện tử", "Cơ - Điện từ"].includes(dongHoList[0].kieu_thiet_bi || "xx") &&
+                            <th>
+                                <div className={`${c_tbIDHInf['table-label']}`}>
+                                    <span>
+                                        Hệ số K
+                                    </span>
+                                </div>
+                            </th>
+                        }
                         {/* <th>
                             <div className={`${c_tbIDHInf['table-label']}`}>
                                 <span>
@@ -210,13 +231,6 @@ const TableDongHoInfo: React.FC<TableDongHoInfoProps> = React.memo(({
                                 </span>
                             </div>
                         </th> */}
-                        <th>
-                            <div className={`${c_tbIDHInf['table-label']}`}>
-                                <span>
-                                    Trạng thái
-                                </span>
-                            </div>
-                        </th>
                     </tr>
                 </thead>
                 <tbody>
@@ -234,6 +248,25 @@ const TableDongHoInfo: React.FC<TableDongHoInfoProps> = React.memo(({
                             rows.push(
                                 <tr key={index}>
                                     <td>{index + 1}</td>
+                                    <td>
+                                        <p className="m-0 p-0" style={{ width: "140px" }}>
+                                            {status != null ?
+                                                (status ? "Đạt" : "Không đạt") :
+                                                objHss ?
+                                                    (
+                                                        objHss[0].hss == null &&
+                                                            objHss[1].hss == null &&
+                                                            objHss[2].hss == null ?
+                                                            "Chưa kiểm định" :
+                                                            "Còn: " +
+                                                            (objHss[0].hss == null ? (isDHDienTu ? TITLE_LUU_LUONG.q3 : TITLE_LUU_LUONG.qn) + " " : "") +
+                                                            (objHss[1].hss == null ? (isDHDienTu ? TITLE_LUU_LUONG.q2 : TITLE_LUU_LUONG.qt) + " " : "") +
+                                                            (objHss[2].hss == null ? (isDHDienTu ? TITLE_LUU_LUONG.q1 : TITLE_LUU_LUONG.qmin) : "")
+                                                    ) :
+                                                    "Chưa kiểm định"
+                                            }
+                                        </p>
+                                    </td>
                                     <td>
                                         <InputField
                                             index={index}
@@ -261,16 +294,27 @@ const TableDongHoInfo: React.FC<TableDongHoInfoProps> = React.memo(({
                                             name={`seri_sensor`}
                                         />
                                     </td>
-                                    <td>
-
-                                        <InputField
-                                            index={index}
-                                            onChange={(value) => handleInputChange(index, "seri_chi_thi", value)}
-                                            disabled={savedDongHoList.some(dh => JSON.stringify(dh) == JSON.stringify(dongHo)) || savedDongHoList.length == dongHoList.length}
-                                            error={errorsList[index]?.seri_chi_thi}
-                                            name={`seri_chi_thi`}
-                                        />
-                                    </td>
+                                    {isDHDienTu &&
+                                        <td>
+                                            <InputField
+                                                index={index}
+                                                onChange={(value) => handleInputChange(index, "seri_chi_thi", value)}
+                                                disabled={savedDongHoList.some(dh => JSON.stringify(dh) == JSON.stringify(dongHo)) || savedDongHoList.length == dongHoList.length}
+                                                error={errorsList[index]?.seri_chi_thi}
+                                                name={`seri_chi_thi`}
+                                            />
+                                        </td>
+                                    }
+                                    {["Điện tử", "Cơ - Điện từ"].includes(dongHoList[0].kieu_thiet_bi || "xx") &&
+                                        <td>
+                                            <InputField
+                                                index={index}
+                                                onChange={(value) => handleInputChange(index, "k_factor", value)}
+                                                disabled={savedDongHoList.some(dh => JSON.stringify(dh) == JSON.stringify(dongHo)) || savedDongHoList.length == dongHoList.length}
+                                                name={`k_factor`}
+                                            />
+                                        </td>
+                                    }
                                     {/* <td> */}
                                     {/* {dayjs(dongHo.hieu_luc_bien_ban).format('DD-MM-YYYY').toString()} */}
                                     {/* {dongHo.hieu_luc_bien_ban?.toString() || ""} */}
@@ -284,25 +328,6 @@ const TableDongHoInfo: React.FC<TableDongHoInfoProps> = React.memo(({
                                             name={"hieu_luc_bien_ban"}
                                         /> */}
                                     {/* </td> */}
-                                    <td>
-                                        <p className="m-0 p-0" style={{ width: "140px" }}>
-                                            {status != null ?
-                                                (status ? "Đạt" : "Không đạt") :
-                                                objHss ?
-                                                    (
-                                                        objHss[0].hss == null &&
-                                                            objHss[1].hss == null &&
-                                                            objHss[2].hss == null ?
-                                                            "Chưa kiểm định" :
-                                                            "Còn: " +
-                                                            (objHss[0].hss == null ? (isDHDienTu ? TITLE_LUU_LUONG.q3 : TITLE_LUU_LUONG.qn) + " " : "") +
-                                                            (objHss[1].hss == null ? (isDHDienTu ? TITLE_LUU_LUONG.q2 : TITLE_LUU_LUONG.qt) + " " : "") +
-                                                            (objHss[2].hss == null ? (isDHDienTu ? TITLE_LUU_LUONG.q1 : TITLE_LUU_LUONG.qmin) : "")
-                                                    ) :
-                                                    "Chưa kiểm định"
-                                            }
-                                        </p>
-                                    </td>
                                 </tr>
                             );
                         }

@@ -35,7 +35,8 @@ interface FormProps {
     readOnly?: boolean,
     onFormChange: (field: string, value: string) => void;
     d?: string;
-    isDisable?: boolean
+    isDisable?: boolean;
+    tabFormName: string
 }
 
 export default function TinhSaiSoTab({ className, tabIndex, d, q, Form, onFormHSSChange, isDisable, isDHDienTu = null }: TinhSaiSoTabProps) {
@@ -226,6 +227,7 @@ export default function TinhSaiSoTab({ className, tabIndex, d, q, Form, onFormHS
                             )}
                             <Form
                                 isDisable={isDisable}
+                                tabFormName={q.title + "-" + (Number(key) * tabIndex)}
                                 className={`w-100 ${!selectedTabForm[Number(key) * tabIndex] ? "d-none" : ""}`}
                                 formValue={formVal || {}}
                                 onFormChange={(field: string, value: string) => handleFormChange(Number(key), field as keyof DuLieuMotLanChay, value)}
@@ -248,7 +250,7 @@ export default function TinhSaiSoTab({ className, tabIndex, d, q, Form, onFormHS
                     <div className={`col-12 col-lg-6 col-xxl-5 mb-2 p-0 px-1`}>
                         <h5 className="w-100">Lưu lượng:</h5>
                         <div className="w-100 px-3 pe-lg-2  d-flex align-items-center justify-content-between gap-3">
-                            <label className={`form-label m-0 fs-5 fw-bold d-block`}>{q.title}:</label>
+                            <label className={`form-label m-0 fs-5 fw-bold d-block`}>Q:</label>
                             <div className="input-group">
                                 <input
                                     type="text"

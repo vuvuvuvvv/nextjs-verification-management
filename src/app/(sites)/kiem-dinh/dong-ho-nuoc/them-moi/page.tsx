@@ -85,20 +85,18 @@ export default function NewProcessQSmallerThan15({ className }: NewProcessQSmall
             hasShownModal.current = true;
             Swal.fire({
                 title: 'Công việc chưa hoàn thành',
-                text: 'Bạn có muốn tiếp tục công việc đang dở không?',
+                text: 'Bạn có muốn tiếp tục?',
                 icon: 'warning',
                 showCancelButton: true,
                 confirmButtonText: 'Có',
                 cancelButtonText: 'Không',
-                allowOutsideClick: false // Prevent clicking outside to close the modal
+                allowOutsideClick: false 
             }).then((result) => {
                 if (result.isConfirmed) {
                     setDongHoList(oldDongHoData);
                     setModalOpen(false);
-                    console.log("vlll");
                 } else {
                     deleteOldData();
-                    console.log("vll that")
                 }
             });
         }

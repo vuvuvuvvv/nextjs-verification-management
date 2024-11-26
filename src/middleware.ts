@@ -102,8 +102,11 @@ export async function middleware(req: NextRequest) {
                 return NextResponse.redirect(redirectUrl);
             }
         } catch (error) {
-            logout();
-            return NextResponse.redirect(redirectUrl);
+            const response = NextResponse.redirect(redirectUrl);
+            response.cookies.delete('accessToken');
+            response.cookies.delete('refreshToken');
+            response.cookies.delete('user');
+            return response;
         }
     }
 
