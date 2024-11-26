@@ -13,7 +13,6 @@ export const getSaiSoDongHo = (formValue: DuLieuMotLanChay) => {
         const VDHC = parseFloat(formValue.Vc2.toString()) - parseFloat(formValue.Vc1.toString());
         if (VDHC !== 0) {
             const error = ((VDHCT - VDHC) / VDHC) * 100;
-            console.log("dayy: ", error)
             return Number((Math.round(error * 10000) / 10000).toFixed(3));
         }
     }
@@ -88,7 +87,6 @@ export const getVToiThieu = (q: string | number, d: string | number) => {
 }
 
 export const getHieuSaiSo = (formValues: TinhSaiSoValueTabs) => {
-    console.log(formValues);
     try {
         const hasZeroValues = Object.values(formValues).some(({ V1, V2 }) => V1 === 0 && V2 === 0);
         if (hasZeroValues) return null;
@@ -131,6 +129,7 @@ export const getLastDayOfMonthInFuture = (isDHDienTu: boolean | null, date?: Dat
         const futureDate = new Date(today.getFullYear() + years, today.getMonth() + 1, 0);
         return futureDate;
     }
+    console.log("222")
     return new Date();
 }
 
@@ -225,7 +224,10 @@ export async function saveDongHoDataExistsToIndexedDB(username: string, data: Do
     });
 }
 
-export async function getDongHoDataExistsFromIndexedDB(username: string) {
+export async function getDongHoDataExistsFromIndexedDB(username: string): Promise<{
+    dongHoList: DongHo[],
+    savedDongHoList: DongHo[]
+} | null> {
     const db = await openDB() as IDBDatabase;
     return new Promise((resolve, reject) => {
         const transaction = db.transaction(INDEXED_DB_DH_OBJ_NAME, "readonly");
@@ -235,7 +237,10 @@ export async function getDongHoDataExistsFromIndexedDB(username: string) {
         request.onsuccess = (event: Event) => {
             const target = event.target as IDBRequest;
             if (target.result) {
-                resolve(target.result.dongHoList);
+                resolve({
+                    dongHoList: target.result?.dongHoList || [],
+                    savedDongHoList: target.result?.savedDongHoList || []
+                });
             } else {
                 resolve(null);
             }
@@ -244,9 +249,30 @@ export async function getDongHoDataExistsFromIndexedDB(username: string) {
         request.onerror = (event) => {
             const target = event.target as IDBRequest;
             if (target && target.error) {
-                console.error("Lỗi khi kiểm tra dữ liệu:", target.error);
+                // console.error("Lỗi khi kiểm tra dữ liệu:", target.error);
                 reject(target.error);
             }
+        };
+    });
+}
+
+export async function deleteDongHoDataFromIndexedDB(username: string): Promise<void> {
+    const db = await openDB() as IDBDatabase;
+    return new Promise<void>((resolve, reject) => {
+        const transaction = db.transaction(INDEXED_DB_DH_OBJ_NAME, "readwrite");
+        const store = transaction.objectStore(INDEXED_DB_DH_OBJ_NAME);
+
+        const request = store.delete(username);
+
+        request.onsuccess = () => {
+            // console.log(`Dữ liệu cho ${username} đã được xóa thành công.`);
+            resolve();
+        };
+
+        request.onerror = (event) => {
+            const error = (event.target as IDBRequest).error;
+            // console.error("Lỗi khi xóa dữ liệu:", error);
+            reject(error);
         };
     });
 }

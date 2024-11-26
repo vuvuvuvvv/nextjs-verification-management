@@ -1,27 +1,30 @@
 import { createDongHo } from '@/app/api/dongho/route';
-import { DEFAULT_LOCATION, TITLE_LUU_LUONG } from '@lib/system-constant';
-import { DongHo, DuLieuMotLanChay } from '@lib/types';
+import { ACCESS_LINKS, DEFAULT_LOCATION, TITLE_LUU_LUONG } from '@lib/system-constant';
+import { DongHo, DuLieuMotLanChay, GeneralInfoDongHo } from '@lib/types';
 
 import React, { createContext, useState, useContext, ReactNode, useEffect, useRef } from 'react';
 import Swal from 'sweetalert2';
 import { useUser } from './AppContext';
-import { getDongHoDataExistsFromIndexedDB, saveDongHoDataExistsToIndexedDB } from '@lib/system-function';
+import { deleteDongHoDataFromIndexedDB, getDongHoDataExistsFromIndexedDB, saveDongHoDataExistsToIndexedDB } from '@lib/system-function';
 import { useKiemDinh } from './KiemDinh';
 
 interface DongHoListContextType {
     dongHoList: DongHo[];
+    oldDongHoData: DongHo[];
     dongHoSelected: DongHo | null;
     setDongHoSelected: React.Dispatch<React.SetStateAction<DongHo | null>>;
     setDongHoList: React.Dispatch<React.SetStateAction<DongHo[]>>;
     setAmount: React.Dispatch<React.SetStateAction<number>>;
     addToListDongHo: (dongHo: DongHo) => void;
-    updateListDongHo: (index: number, updatedDongHo: DongHo) => void;
+    updateListDongHo: (updatedDongHo: DongHo) => void;
     // updateDongHoFieldsInList: (index: number, fields: Partial<DongHo>) => void;
     deleteDongHoInList: (index: number) => void;
     getDongHoChuaKiemDinh: (dongHoList: DongHo[]) => DongHo[];
     getDongHoDaKiemDinh: (dongHoList: DongHo[]) => DongHo[];
-    createListDongHo: (listDongHo: DongHo[]) => Promise<void>;
+    createListDongHo: (listDongHo: DongHo[]) => Promise<boolean>;
     savedDongHoList: DongHo[];
+    // deleteOldData: () => void;
+    generalInfoDongHo: GeneralInfoDongHo;
     setSavedDongHoList: React.Dispatch<React.SetStateAction<DongHo[]>>;
 }
 
@@ -29,35 +32,37 @@ const DongHoListContext = createContext<DongHoListContextType | undefined>(undef
 
 export const DongHoListProvider = ({ children }: { children: ReactNode }) => {
     const { user } = useUser();
-    const { vChuanDongBoCacLL } = useKiemDinh();
     const [oldDongHoData, setOldDongHoData] = useState<DongHo[]>([]);
     const [isInitialization, setInitialization] = useState(true);
 
-    useEffect(() => {
-        const fetchDongHoData = async () => {
-            if (user && user.username) {
-                try {
-                    const data = await getDongHoDataExistsFromIndexedDB(user.username) as DongHo[];
-                    if (data) {
-                        setOldDongHoData(data);
-                        saveDongHoDataExistsToIndexedDB(user.username, data);
-                    } else {
-                        setOldDongHoData([]);
-                    }
-                } catch (error) {
-                    console.error("Error fetching Dong Ho data:", error);
-                }
-            }
-        };
 
-        fetchDongHoData();
-    }, [user]);
+    // useEffect(() => {
+    //     const fetchDongHoData = async () => {
+    //         if (user && user.username) {
+    //             try {
+    //                 const data = await getDongHoDataExistsFromIndexedDB(user.username);
+    //                 if (data) {
+    //                     // console.log("data: ", data);
+    //                     setOldDongHoData(data?.dongHoList || []);
+    //                 } else {
+    //                     setOldDongHoData([]);
+    //                 }
+    //             } catch (error) {
+    //                 console.error("Error fetching Dong Ho data:", error);
+    //             }
+    //         }
+    //     };
 
-    useEffect(() => {
-        if (oldDongHoData.length > 0) {
-            console.log("Old: ", oldDongHoData);
-        }
-    }, [oldDongHoData]);
+    //     fetchDongHoData();
+    // }, [user]);
+
+    // const deleteOldData = () => {
+    //     if (savedDongHoList.length == dongHoList.length && user && user.username) {
+    //         deleteDongHoDataFromIndexedDB(user.username);
+    //         setOldDongHoData([]);
+    //         setGeneralInfoDongHo(getGeneralInfo(dongHoList[0]));
+    //     }
+    // }
 
     const [amount, setAmount] = useState<number>(1)
 
@@ -177,11 +182,13 @@ export const DongHoListProvider = ({ children }: { children: ReactNode }) => {
     const [dongHoSelected, setDongHoSelected] = useState<DongHo | null>(dongHoList[0] || null);
     const [savedDongHoList, setSavedDongHoList] = useState<DongHo[]>([]);
 
-    // useEffect(() => {
-    //     console.log("Saved: ", savedDongHoList);
-    // }, [savedDongHoList]);
+    useEffect(() => {
+        if (savedDongHoList.length == dongHoList.length && user && user.username) {
+            deleteDongHoDataFromIndexedDB(user.username);
+        }
+    }, [savedDongHoList]);
 
-    const getGeneralInfo = (dongHo: DongHo) => {
+    const getGeneralInfo = (dongHo: DongHo): GeneralInfoDongHo => {
         return {
             group_id: dongHo.group_id,
             kieu_thiet_bi: dongHo.kieu_thiet_bi,
@@ -223,23 +230,19 @@ export const DongHoListProvider = ({ children }: { children: ReactNode }) => {
 
         }
     }
-    const [generalInfoDongHo, setGeneralInfoDongHo] = useState(getGeneralInfo(dongHoList[0]));
+    const [generalInfoDongHo, setGeneralInfoDongHo] = useState<GeneralInfoDongHo>(getGeneralInfo(dongHoList[0]));
 
-    const handler = useRef<NodeJS.Timeout | null>(null); // Declare handler as a ref
+    const handler = useRef<NodeJS.Timeout | null>(null);
 
     useEffect(() => {
-        // TODO:
-        if (user && user.username 
-            // && !isInitialization
-        ) {
-            // Clear previous timeout if it exists
+        if (user && user.username && !isInitialization && savedDongHoList.length != dongHoList.length) {
             if (handler.current) {
                 clearTimeout(handler.current);
             }
 
             handler.current = setTimeout(() => {
-                saveDongHoDataExistsToIndexedDB(user.username, dongHoList);
-            }, 3000);
+                saveDongHoDataExistsToIndexedDB(user.username, dongHoList, savedDongHoList);
+            }, 1500);
 
             return () => {
                 if (handler.current) {
@@ -249,22 +252,23 @@ export const DongHoListProvider = ({ children }: { children: ReactNode }) => {
         }
     }, [dongHoList]);
 
-    const updateListDongHo = (index: number, updatedDongHo: DongHo) => {
+    const updateListDongHo = (updatedDongHo: DongHo) => {
+        setInitialization(false);
         setDongHoList(prevList => {
-            const newList = prevList.map((item, i) => (i === index ? updatedDongHo : item));
+            // const newList = prevList.map((item, i) => (i === index ? updatedDongHo : item));
 
             const generalInfo = getGeneralInfo(updatedDongHo);
 
             if (JSON.stringify(generalInfoDongHo) !== JSON.stringify(generalInfo)) {
                 setGeneralInfoDongHo(generalInfo);
 
-                return newList.map(dongHo => ({
+                return prevList.map(dongHo => ({
                     ...dongHo,
                     ...generalInfo
                 }));
             }
 
-            return newList;
+            return prevList;
         });
     };
 
@@ -285,7 +289,7 @@ export const DongHoListProvider = ({ children }: { children: ReactNode }) => {
         setDongHoList(prevList => prevList.filter((_, i) => i !== index));
     };
 
-    const createListDongHo = async (listDongHo: DongHo[]) => {
+    const createListDongHo = async (listDongHo: DongHo[]): Promise<boolean> => {
         let successMessages: string[] = [];
         let errorMessages: string[] = [];
 
@@ -311,10 +315,12 @@ export const DongHoListProvider = ({ children }: { children: ReactNode }) => {
         // Close Swal and show results
         Swal.close();
         const resultMessages = [...successMessages, ...errorMessages];
-        Swal.fire({
+        return Swal.fire({
             title: 'Kết quả lưu đồng hồ',
             html: errorMessages.length > 0 ? resultMessages.join('<br>') : "Lưu thành công!",
             icon: errorMessages.length > 0 ? 'error' : 'success',
+        }).then((result) => {
+            return errorMessages.length === 0;
         });
     }
 
@@ -358,6 +364,8 @@ export const DongHoListProvider = ({ children }: { children: ReactNode }) => {
     return (
         <DongHoListContext.Provider value={{
             dongHoList,
+            generalInfoDongHo,
+            oldDongHoData,
             dongHoSelected,
             setDongHoSelected,
             setDongHoList,
@@ -369,6 +377,7 @@ export const DongHoListProvider = ({ children }: { children: ReactNode }) => {
             getDongHoChuaKiemDinh,
             getDongHoDaKiemDinh,
             createListDongHo,
+            // deleteOldData,
             savedDongHoList,
             setSavedDongHoList
         }}>
