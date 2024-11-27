@@ -110,6 +110,14 @@ export const ACCESS_LINKS = {
         src: KD_DHN + "/them-moi",
         title: "Thêm mới đồng hồ nước"
     },
+    DHN_EDIT_DH : {
+        src: KD_DHN + "/chinh-sua",
+        title: ""
+    },
+    DHN_EDIT_NDH : {
+        src: KD_DHN + "/chinh-sua/nhom",
+        title: ""
+    },
     DHN_DETAIL : {
         src: KD_DHN + "/chi-tiet",
         title: ""

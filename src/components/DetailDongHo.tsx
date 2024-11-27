@@ -10,7 +10,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faDownload, faEdit, faFileExcel } from "@fortawesome/free-solid-svg-icons";
 import { downloadBB, downloadGCN } from "@/app/api/download/route";
 import Swal from "sweetalert2";
-import { TITLE_LUU_LUONG } from "@lib/system-constant";
+import { ACCESS_LINKS, TITLE_LUU_LUONG } from "@lib/system-constant";
 import Link from "next/link";
 
 const Loading = dynamic(() => import('@/components/Loading'), { ssr: false });
@@ -173,7 +173,7 @@ export default function DetailDongHo({ dongHo }: DetailDongHoProps) {
                 </div>
                 <div className="w-100 bg-white px-3 px-md-5 py-3">
                     <div className={`w-100 mb-3 mx-0 d-flex align-items-center justify-content-end p-0}`}>
-                        <Link href={""} aria-label="Chỉnh sửa đồng hồ" className="btn bg-warning text-white" onClick={handleDownloadGCN}>
+                        <Link href={ACCESS_LINKS.DHN_EDIT_DH.src  + "/" + dongHo.id} aria-label="Chỉnh sửa đồng hồ" className="btn bg-warning text-white" onClick={handleDownloadGCN}>
                             <FontAwesomeIcon icon={faEdit} className="me-1"></FontAwesomeIcon> Chỉnh sửa
                         </Link>
                     </div>

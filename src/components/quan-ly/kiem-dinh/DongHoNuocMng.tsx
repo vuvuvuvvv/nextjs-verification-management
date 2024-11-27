@@ -10,7 +10,7 @@ import dayjs, { Dayjs } from "dayjs";
 import { viVN } from "@mui/x-date-pickers/locales";
 
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faChevronDown, faChevronUp, faEye } from "@fortawesome/free-solid-svg-icons";
+import { faChevronDown, faChevronUp, faEdit, faEye } from "@fortawesome/free-solid-svg-icons";
 import React from "react";
 
 import Select, { GroupBase } from 'react-select';
@@ -20,7 +20,7 @@ import { DongHo, DongHoFilterParameters, DuLieuChayDongHo } from "@lib/types";
 import { usePathname } from "next/navigation";
 import Link from "next/link";
 
-import {ACCESS_LINKS, limitOptions } from "@lib/system-constant";
+import { ACCESS_LINKS, limitOptions } from "@lib/system-constant";
 import Swal from "sweetalert2";
 import { deleteDongHo, getAllDongHo, getDongHoByFilter } from "@/app/api/dongho/route";
 
@@ -480,7 +480,7 @@ export default function WaterMeterManagement({ className, isBiggerThan15 = false
                                             <tr
                                                 key={index}
                                                 onClick={() => window.open(`${ACCESS_LINKS.DHN_DETAIL.src}/${item.id}`, '_blank')}
-                                                style={{ cursor: 'pointer' }} 
+                                                style={{ cursor: 'pointer' }}
                                             >
                                                 <td>{item.so_giay_chung_nhan}</td>
                                                 <td>{item.ten_khach_hang}</td>
@@ -490,9 +490,13 @@ export default function WaterMeterManagement({ className, isBiggerThan15 = false
                                                     {processDuLieu(item.du_lieu_kiem_dinh as { du_lieu?: DuLieuChayDongHo })}
                                                 </td>
                                                 <td>
-                                                    <Link target="_blank" aria-label="Xem chi tiết" href={ACCESS_LINKS.DHN_DETAIL.src + "/" + item.id} className={`btn w-100 text-blue`}>
+                                                    {/* <Link target="_blank" aria-label="Xem chi tiết" href={ACCESS_LINKS.DHN_DETAIL.src + "/" + item.id} className={`btn w-100 text-blue`}>
                                                         <FontAwesomeIcon icon={faEye}></FontAwesomeIcon>
+                                                    </Link> */}
+                                                    <Link target="_blank" aria-label="Chỉnh sửa" href={ACCESS_LINKS.DHN_EDIT_DH.src + "/" + item.id} className={`btn w-100 text-blue shadow-0`}>
+                                                        <FontAwesomeIcon icon={faEdit}></FontAwesomeIcon>
                                                     </Link>
+
                                                     {/* <div className={`dropdown ${c_vfml['action']}`}>
                                                         <button aria-label="Lựa chọn" className={`${c_vfml['action-button']}`} type="button" data-bs-toggle="dropdown" aria-expanded="false">
                                                             <FontAwesomeIcon icon={faEllipsisH}></FontAwesomeIcon>

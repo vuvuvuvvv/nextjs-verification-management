@@ -1494,11 +1494,11 @@ export default function NhomDongHoNuocForm({ className, generalInfoDongHo,isEdit
                         </>}
 
                     <div className={`w-100 px-2 px-md-3 d-flex gap-2 align-items-center justify-content-end ${savedDongHoList.length == dongHoList.length ? "d-none" : ""}`}>
-                        <button aria-label="Lưu toàn bộ" className="btn btn-success py-2 px-4" disabled={loading || !showFormTienTrinh} onClick={handleSaveAllDongHo}>
+                        <button aria-label={dongHoList.length <= 1 ? "Lưu đồng hồ":"Lưu toàn bộ"} className="btn btn-success py-2 px-4" disabled={loading || !showFormTienTrinh} onClick={handleSaveAllDongHo}>
                             {loading ?
                                 <><span className="spinner-border spinner-border-sm me-2" aria-hidden="true"></span></> :
                                 <><FontAwesomeIcon icon={faSave} className="me-2"></FontAwesomeIcon></>
-                            } Lưu toàn bộ
+                            } {dongHoList.length <= 1 ? "Lưu đồng hồ":"Lưu toàn bộ"}
                         </button>
                     </div>
                 </div>

@@ -7,9 +7,9 @@ import { ACCESS_LINKS } from '@lib/system-constant';
 
 const ADMIN_ROLE = 'ADMIN';
 const CUSTOM_404_PATH = '/error/404';
-const CUSTOM_500_PATH = '/error/500'; 
-const CUSTOM_AUTH_ERROR_TOKEN_PATH = '/error/error-token'; 
-const CUSTOM_UNSUPPORTED_BROWSER = '/error/unsupported-error'; 
+const CUSTOM_500_PATH = '/error/500';
+const CUSTOM_AUTH_ERROR_TOKEN_PATH = '/error/error-token';
+const CUSTOM_UNSUPPORTED_BROWSER = '/error/unsupported-error';
 
 const ADMIN_PATHS = ['/dashboard'];
 const AUTH_PATHS = [
@@ -110,25 +110,21 @@ export async function middleware(req: NextRequest) {
         }
     }
 
-    try {
-        const user = userCookie ? JSON.parse(userCookie) : null;
-        if (ADMIN_PATHS.includes(pathname) && user?.role !== ADMIN_ROLE) {
-            return NextResponse.redirect(redirectUrl);
-        }
-
-        if (AUTH_PATHS.includes(pathname)) {
-            return NextResponse.redirect(new URL(ACCESS_LINKS.HOME.src, req.url));
-        }
-
-        if (!VALID_PATHS.some(path => pathname.includes(path) || pathname.startsWith(path))) {
-            return NextResponse.redirect(new URL(CUSTOM_404_PATH, req.url));
-        }
-
-        return NextResponse.next();
-    } catch (error) {
-        logout();
+    // Let Appcontext catch user null
+    const user = userCookie ? JSON.parse(userCookie) : null;
+    if (ADMIN_PATHS.includes(pathname) && user?.role !== ADMIN_ROLE) {
         return NextResponse.redirect(redirectUrl);
     }
+
+    if (AUTH_PATHS.includes(pathname)) {
+        return NextResponse.redirect(new URL(ACCESS_LINKS.HOME.src, req.url));
+    }
+
+    if (!VALID_PATHS.some(path => pathname.includes(path) || pathname.startsWith(path))) {
+        return NextResponse.redirect(new URL(CUSTOM_404_PATH, req.url));
+    }
+
+    return NextResponse.next();
 }
 
 export const config = {

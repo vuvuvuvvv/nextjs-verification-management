@@ -10,7 +10,7 @@ import dayjs, { Dayjs } from "dayjs";
 import { viVN } from "@mui/x-date-pickers/locales";
 
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faChevronDown, faChevronUp, faEye } from "@fortawesome/free-solid-svg-icons";
+import { faChevronDown, faChevronUp, faEdit, faEye } from "@fortawesome/free-solid-svg-icons";
 import React from "react";
 
 import Select, { GroupBase } from 'react-select';
@@ -509,8 +509,11 @@ export default function NhomDongHoNuocManagement({ className }: NhomDongHoNuocMa
                                                 <td>{item.nguoi_kiem_dinh}</td>
                                                 <td>{dayjs(item.ngay_thuc_hien).format('DD-MM-YYYY')}</td>
                                                 <td>
-                                                    <Link target="_blank" aria-label="Xem chi tiết" href={ACCESS_LINKS.DHN_DETAIL.src + "/nhom/" + item.group_id} className={`btn w-100 text-blue`}>
+                                                    {/* <Link target="_blank" aria-label="Xem chi tiết" href={ACCESS_LINKS.DHN_DETAIL.src + "/nhom/" + item.group_id} className={`btn w-100 text-blue`}>
                                                         <FontAwesomeIcon icon={faEye}></FontAwesomeIcon>
+                                                    </Link> */}
+                                                    <Link target="_blank" aria-label="Chỉnh sửa" href={ACCESS_LINKS.DHN_EDIT_NDH.src + "/" + item.group_id} className={`btn w-100 text-blue shadow-0`}>
+                                                        <FontAwesomeIcon icon={faEdit}></FontAwesomeIcon>
                                                     </Link>
                                                 </td>
                                             </tr>

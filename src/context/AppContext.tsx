@@ -44,45 +44,67 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
                 setUser(cookieUser);
                 setLoading(false);
             } catch (error) {
-                logoutUser();
+                Swal.fire({
+                    icon: "error",
+                    title: "Phiên đăng nhập hết hạn!",
+                    text: "Mời đăng nhập lại.",
+                    showClass: {
+                        popup: `
+                            animate__animated
+                            animate__fadeInUp
+                            animate__faster
+                          `
+                    },
+                    hideClass: {
+                        popup: `
+                            animate__animated
+                            animate__fadeOutDown
+                            animate__faster
+                          `
+                    },
+                    confirmButtonColor: "#0980de",
+                    confirmButtonText: "OK"
+                }).then(() => {
+                    logoutUser();
+                });
             }
         } else {
-            logoutUser();
+            Swal.fire({
+                icon: "error",
+                title: "Phiên đăng nhập hết hạn!",
+                text: "Mời đăng nhập lại.",
+                showClass: {
+                    popup: `
+                        animate__animated
+                        animate__fadeInUp
+                        animate__faster
+                      `
+                },
+                hideClass: {
+                    popup: `
+                        animate__animated
+                        animate__fadeOutDown
+                        animate__faster
+                      `
+                },
+                confirmButtonColor: "#0980de",
+                confirmButtonText: "OK"
+            }).then(() => {
+                logoutUser();
+            });
         }
-    }, []);
+    }, [Cookies.get('user')]);
 
     const updateUser = (updatedUser: User | null) => {
         setUser(updatedUser);
     };
 
     const logoutUser = async () => {
-        const allCookies = Cookies.get(); 
+        const allCookies = Cookies.get();
         for (let cookie in allCookies) {
             Cookies.remove(cookie);
         }
-        Swal.fire({
-            icon: "error",
-            title: "Phiên đăng nhập hết hạn!",
-            text: "Mời đăng nhập lại.",
-            showClass: {
-                popup: `
-                    animate__animated
-                    animate__fadeInUp
-                    animate__faster
-                  `
-            },
-            hideClass: {
-                popup: `
-                    animate__animated
-                    animate__fadeOutDown
-                    animate__faster
-                  `
-            },
-            confirmButtonColor: "#0980de",
-            confirmButtonText: "OK"
-        }).then(() => {
-            window.location.href = ACCESS_LINKS.AUTH_LOGIN.src;
-        });
+        window.location.href = ACCESS_LINKS.AUTH_LOGIN.src;
     };
 
     return (loading) ? (

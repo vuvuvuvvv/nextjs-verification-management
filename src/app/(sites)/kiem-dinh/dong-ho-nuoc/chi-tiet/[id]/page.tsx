@@ -21,7 +21,7 @@ export default function DongHoDetailPage({ params }: { params: { id: string } })
                 const res = await getDongHoById(params.id);
                 setDongHoData(res?.data);
             } catch (error) {
-                console.error("Error fetching data:", error);
+                console.error("Error fetching data!");
             } finally {
                 setLoading(false);
             }
