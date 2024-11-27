@@ -56,10 +56,10 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     };
 
     const logoutUser = async () => {
-        // const res = await logout();
-        // if (res?.status == 200 || res?.status == 201) {
-        //     window.location.href = ACCESS_LINKS.AUTH_LOGIN.src;
-        // } else if (res?.status == 401) {
+        const allCookies = Cookies.get(); 
+        for (let cookie in allCookies) {
+            Cookies.remove(cookie);
+        }
         Swal.fire({
             icon: "error",
             title: "Phiên đăng nhập hết hạn!",
@@ -83,7 +83,6 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         }).then(() => {
             window.location.href = ACCESS_LINKS.AUTH_LOGIN.src;
         });
-        // }
     };
 
     return (loading) ? (

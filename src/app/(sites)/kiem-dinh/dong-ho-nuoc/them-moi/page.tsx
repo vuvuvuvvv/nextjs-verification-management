@@ -12,13 +12,14 @@ import { useUser } from "@/context/AppContext";
 
 const NhomDongHoNuocForm = dynamic(() => import("@/components/NhomDongHoNuocForm"), { ssr: false });
 
-interface NewProcessQSmallerThan15Props {
+interface AddNewDongHoNuocProps {
     className?: string,
 }
 
-export default function NewProcessQSmallerThan15({ className }: NewProcessQSmallerThan15Props) {
+export default function AddNewDongHoNuoc({ className }: AddNewDongHoNuocProps) {
     const { user } = useUser();
     const { setAmount, setDongHoList } = useDongHoList();
+
     const [oldDongHoData, setOldDongHoData] = useState<DongHo[]>([]);
     const [qnt, setQnt] = useState<number | null>(null);
     const [isModalOpen, setModalOpen] = useState(true);

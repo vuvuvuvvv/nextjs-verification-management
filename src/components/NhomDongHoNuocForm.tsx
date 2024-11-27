@@ -42,11 +42,12 @@ import api from "@/app/api/route";
 
 interface NhomDongHoNuocFormProps {
     className?: string;
-    generalInfoDongHo?: DongHo | null
+    generalInfoDongHo?: DongHo | null,
+    isEditable?:boolean
 }
 
 
-export default function NhomDongHoNuocForm({ className, generalInfoDongHo }: NhomDongHoNuocFormProps) {
+export default function NhomDongHoNuocForm({ className, generalInfoDongHo,isEditable }: NhomDongHoNuocFormProps) {
     const { user, isAdmin } = useUser();
     const { dongHoList,
         createListDongHo,
@@ -1271,7 +1272,7 @@ export default function NhomDongHoNuocForm({ className, generalInfoDongHo }: Nho
                 <div className={`m-0 mb-3 bg-white rounded shadow-sm w-100 position-relative`}>
                     <div className="w-100 m-0 mb-3 p-0 position-relative">
                         {/* Select Nav  */}
-                        <div className={`w-100 p-3 shadow-sm rounded-top bg-main-blue d-flex align-items-center sticky-top justify-content-center`} style={{ top: "60px", zIndex: "900" }}>
+                        <div className={`w-100 p-3 shadow-sm rounded-top bg-main-blue d-flex align-items-center sticky-top justify-content-center ${dongHoList.length <= 1 ? "d-none":""}`} style={{ top: "60px", zIndex: "900" }}>
                             {/* <span className="fs-5 fw-bold mb-0 text-white me-2">Đồng hồ:</span> */}
                             <button aria-label="Đồng hồ trước" className="btn bg-white m-0 p-0 px-2 d-flex align-items-center justify-content-center" style={{ height: "42px", width: "42px" }} onClick={() => {
                                 handlePrevDongHo()
@@ -1408,7 +1409,7 @@ export default function NhomDongHoNuocForm({ className, generalInfoDongHo }: Nho
                         </div>
 
                         {/* Select Nav  */}
-                        <div className={`w-100 rounded-bottom p-3 bg-light-grey d-flex align-items-center justify-content-center`}>
+                        <div className={`w-100 rounded-bottom p-3 bg-light-grey d-flex align-items-center justify-content-center ${dongHoList.length <= 1 ? "d-none":""}`}>
                             {/* <span className="fs-5 fw-bold mb-0 text-white me-2">Đồng hồ:</span> */}
                             <button aria-label="Đồng hồ trước" className="btn bg-white m-0 p-0 px-2 d-flex align-items-center justify-content-center" style={{ height: "42px", width: "42px" }}
                                 onClick={() => {

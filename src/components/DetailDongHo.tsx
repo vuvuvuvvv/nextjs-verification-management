@@ -7,10 +7,11 @@ import dynamic from "next/dynamic";
 import { DongHo, DuLieuChayDiemLuuLuong, DuLieuChayDongHo } from "@lib/types";
 import { Fragment, useEffect, useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faDownload, faFileExcel } from "@fortawesome/free-solid-svg-icons";
+import { faDownload, faEdit, faFileExcel } from "@fortawesome/free-solid-svg-icons";
 import { downloadBB, downloadGCN } from "@/app/api/download/route";
 import Swal from "sweetalert2";
 import { TITLE_LUU_LUONG } from "@lib/system-constant";
+import Link from "next/link";
 
 const Loading = dynamic(() => import('@/components/Loading'), { ssr: false });
 interface DetailDongHoProps {
@@ -157,20 +158,24 @@ export default function DetailDongHo({ dongHo }: DetailDongHoProps) {
         return <Loading></Loading>;
     }
 
-    return <div className="w-100 m-0 p-2">
+    return <div className="container-fluid m-0 p-2">
         <title>{dongHo?.ten_dong_ho}</title>
         {dongHo ? (
-            <div className="w-100 m-0 my-3 p-0">
-                <div className="container bg-white px-3 px-md-5 py-3">
-
-                    <div className={`w-100 mb-4 mx-0 d-flex align-items-center justify-content-center justify-content-md-end p-0 ${ketQua ? '' : 'd-none'}`}>
-                        <span style={{ cursor: "unset" }} className="btn border-0 bg-lighter-grey rounded-start rounded-end-0"><FontAwesomeIcon icon={faDownload}></FontAwesomeIcon></span>
-                        <button aria-label="Tải biên bản kiểm định" className="btn bg-main-green rounded-0 border-0 text-white" onClick={handleDownloadBB}>
-                            <FontAwesomeIcon icon={faFileExcel} className="me-1"></FontAwesomeIcon> Biên bản
-                        </button>
-                        <button aria-label="Tải giấy chứng nhận kiểm định" className="btn border-start rounded-start-0 rounded-end border-top-0 border-bottom-0 bg-main-green text-white" onClick={handleDownloadGCN}>
-                            <FontAwesomeIcon icon={faFileExcel} className="me-1"></FontAwesomeIcon> Giấy chứng nhận
-                        </button>
+            <div className="w-100 container my-3 p-0">
+                <div className={`w-100 mb-3 mx-0 d-flex align-items-center justify-content-center justify-content-md-end p-0 ${ketQua ? '' : 'd-none'}`}>
+                    <span style={{ cursor: "unset" }} className="btn border-0 bg-lighter-grey rounded-start rounded-end-0"><FontAwesomeIcon icon={faDownload}></FontAwesomeIcon></span>
+                    <button aria-label="Tải biên bản kiểm định" className="btn bg-main-green rounded-0 border-0 text-white" onClick={handleDownloadBB}>
+                        <FontAwesomeIcon icon={faFileExcel} className="me-1"></FontAwesomeIcon> Biên bản
+                    </button>
+                    <button aria-label="Tải giấy chứng nhận kiểm định" className="btn border-start rounded-start-0 rounded-end border-top-0 border-bottom-0 bg-main-green text-white" onClick={handleDownloadGCN}>
+                        <FontAwesomeIcon icon={faFileExcel} className="me-1"></FontAwesomeIcon> Giấy chứng nhận
+                    </button>
+                </div>
+                <div className="w-100 bg-white px-3 px-md-5 py-3">
+                    <div className={`w-100 mb-3 mx-0 d-flex align-items-center justify-content-end p-0}`}>
+                        <Link href={""} aria-label="Chỉnh sửa đồng hồ" className="btn bg-warning text-white" onClick={handleDownloadGCN}>
+                            <FontAwesomeIcon icon={faEdit} className="me-1"></FontAwesomeIcon> Chỉnh sửa
+                        </Link>
                     </div>
                     <h4 className="fs-4 text-center text-uppercase">Chi tiết đồng hồ</h4>
                     <div className="row">

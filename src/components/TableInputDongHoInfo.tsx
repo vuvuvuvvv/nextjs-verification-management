@@ -171,13 +171,13 @@ const TableDongHoInfo: React.FC<TableDongHoInfoProps> = React.memo(({
             <table className={`table table-bordered table-hover ${c_tbIDHInf['process-table']}`}>
                 <thead className="shadow border">
                     <tr className={`${c_tbIDHInf['table-header']}`}>
-                        <th>
+                        {dongHoList.length > 1 && <th>
                             <div className={`${c_tbIDHInf['table-label']}`}>
                                 <span>
                                     Đồng hồ
                                 </span>
                             </div>
-                        </th>
+                        </th>}
                         <th>
                             <div className={`${c_tbIDHInf['table-label']}`}>
                                 <span>
@@ -247,7 +247,8 @@ const TableDongHoInfo: React.FC<TableDongHoInfoProps> = React.memo(({
 
                             rows.push(
                                 <tr key={index}>
-                                    <td>{index + 1}</td>
+                                    {dongHoList.length > 1 &&
+                                        <td>{index + 1}</td>}
                                     <td>
                                         <p className="m-0 p-0" style={{ width: "140px" }}>
                                             {status != null ?
