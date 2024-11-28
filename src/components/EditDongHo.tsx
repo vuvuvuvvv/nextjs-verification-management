@@ -75,7 +75,6 @@ export default function DongHoEditPage({ id, groupId }: DongHoEditPage) {
                                 setDongHoData(res?.data[0]);
                                 setDongHoList(res?.data);
                             }
-                            console.log(res?.data);
                         } else if (id) {
                             setDongHoData(res?.data);
                             setDongHoList([res?.data]);

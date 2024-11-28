@@ -64,7 +64,8 @@ export default function NhomDongHoNuocForm({ className, generalInfoDongHo, isEdi
         setDuLieuKiemDinhCacLuuLuong,
         setFormHieuSaiSo, setKetQua,
         initialFormHieuSaiSo,
-        initialDuLieuKiemDinhCacLuuLuong
+        initialDuLieuKiemDinhCacLuuLuong,
+        duLieuKiemDinhCacLuuLuong,
     } = useKiemDinh();
 
     const [isCollapsed, setIsCollapsed] = useState<boolean>(false);
@@ -408,11 +409,10 @@ export default function NhomDongHoNuocForm({ className, generalInfoDongHo, isEdi
 
     const getCurrentDongHo = (formHieuSaiSoProp?: { hss: number | null }[]) => {
         const checkQ3 = ((ccx && (ccx == "1" || ccx == "2")) || isDHDienTu);
-        const duLieuKiemDinhJSON = getDuLieuKiemDinhJSON(formHieuSaiSoProp);
 
         // TODO: check so_tem, sogcn hieu_luc_bb
         return {
-            id: isEditing ? (generalInfoDongHo?.id || null) : null,
+            id: isEditing ? dongHoList[selectedDongHoIndex].id : null,
             ten_dong_ho: tenDongHo || "",
             group_id: !isEditing
                 ? convertToUppercaseNonAccent(tenDongHo + dn + ccx + q3 + r + qn + (ngayThucHien ? dayjs(ngayThucHien).format('DDMMYYHHmmss') : ''))
@@ -510,17 +510,12 @@ export default function NhomDongHoNuocForm({ className, generalInfoDongHo, isEdi
 
         setLoading(true);
 
-        // Clear previous timeout if it exists
-        if (handler.current) {
-            clearTimeout(handler.current);
-        }
-
-        handler.current = setTimeout(() => {
-            const updatedDongHoList = [...dongHoList];
-            updatedDongHoList[selectedDongHoIndex] = getCurrentDongHo(newFormValues);
-            setDongHoList(updatedDongHoList);
-            setLoading(false);
-        }, 500);
+        // const updatedDongHoList = [...dongHoList];
+        // updatedDongHoList[selectedDongHoIndex] = getCurrentDongHo(newFormValues);
+        // console.log("onchange nee: ", getCurrentDongHo(newFormValues))
+        // console.log("onchange nee fhss: ", newFormValues)
+        // setDongHoList(updatedDongHoList);
+        setLoading(false);
     };
 
     const handler = useRef<NodeJS.Timeout | null>(null);
@@ -595,10 +590,20 @@ export default function NhomDongHoNuocForm({ className, generalInfoDongHo, isEdi
         updateDongHoSaved(dongHoSelected);
     }, [selectedDongHoIndex]);
 
+    useEffect(() => {
+        const handler = setTimeout(() => {
+            updateCurrentDongHo();
+        }, 500);
+
+        return () => {
+            clearTimeout(handler);
+        };
+    }, [duLieuKiemDinhCacLuuLuong])
+
     const updateCurrentDongHo = () => {
         const currentDongHo = getCurrentDongHo();
         if (currentDongHo != dongHoList[selectedDongHoIndex]) {
-            updateListDongHo(currentDongHo);
+            updateListDongHo(currentDongHo, selectedDongHoIndex);
         }
     }
 
@@ -629,7 +634,6 @@ export default function NhomDongHoNuocForm({ className, generalInfoDongHo, isEdi
     const handleSaveAllDongHo = () => {
         const dongHoChuaKiemDinh = getDongHoChuaKiemDinh(dongHoList);
         const dongHoDaKiemDinhCount = dongHoList.length - dongHoChuaKiemDinh.length;
-        console.log(dongHoList);
         if (dongHoChuaKiemDinh.length === 0) {
             // All dongHo are verified
             Swal.fire({
@@ -673,7 +677,6 @@ export default function NhomDongHoNuocForm({ className, generalInfoDongHo, isEdi
         } else if (dongHoList.length == savedDongHoList.length) {
 
         } else {
-            // Some dongHo are not verified
             Swal.fire({
                 title: 'Chú ý!',
                 text: 'Đồng hồ ' + (
@@ -681,29 +684,11 @@ export default function NhomDongHoNuocForm({ className, generalInfoDongHo, isEdi
                         ? dongHoChuaKiemDinh.slice(0, 3).map((dongHo, i) => (dongHoList.indexOf(dongHo) + 1)).join(', ') + ',...'
                         : dongHoChuaKiemDinh.map((dongHo, i) => (dongHoList.indexOf(dongHo) + 1)).join(', ')
                 ) + ' chưa kiểm định xong.'
-                // + ' Tiếp tục lưu?'
                 ,
                 icon: 'warning',
-                // showCancelButton: true,
-                // confirmButtonColor: '#3085d6',
                 cancelButtonColor: '#d33',
-                // cancelButtonText: 'Hủy',
-                // confirmButtonText: 'Lưu',
                 reverseButtons: true
-            }).then((rs) => {
-                // if (rs.isConfirmed) {
-                //     Swal.fire({
-                //         title: 'Đang lưu đồng hồ',
-                //         html: 'Đang chuẩn bị...',
-                //         allowOutsideClick: false,
-                //         didOpen: () => {
-                //             Swal.showLoading();
-                //             createListDongHo(getDongHoDaKiemDinh(dongHoList));
-                //             updateDongHoSaved(getCurrentDongHo())
-                //         }
-                //     });
-                // }
-            });
+            })
         }
     }
 

@@ -45,18 +45,6 @@ const TableDongHoInfo: React.FC<TableDongHoInfoProps> = React.memo(({
     const [errorsList, setErrorsList] = useState<InfoField[]>([]);
     const [debounceTimeout, setDebounceTimeout] = useState<NodeJS.Timeout | null>(null);
 
-    // useEffect(() => {
-    //     console.log(errorsList);
-    //     const hasError = errorsList.some(error => {
-    //         console.log(error);
-    //         Object.values(error).some(field => { console.log("f: ", field); return field !== "" })
-    //     }
-    //     );
-    //     console.log(hasError);
-    //     setIsErrorInfoExists(hasError);
-    //     prevErrorList.current = errorsList;
-    // }, [errorsList]);
-
     const handleInputChange = React.useCallback((
         index: number,
         field: "so_giay_chung_nhan" | "seri_sensor" | "seri_chi_thi" | "so_tem" | "hieu_luc_bien_ban" | "k_factor",
@@ -99,7 +87,6 @@ const TableDongHoInfo: React.FC<TableDongHoInfoProps> = React.memo(({
                         updatedErrors[index][field] = "Đã có lỗi xảy ra! Hãy thử lại sau.";
                     } finally {
                         setLoading(false);
-                        const hasError = updatedErrors.some(error => { Object.values(error).some(field => field !== "") });
                     }
 
                 } else {
@@ -117,14 +104,10 @@ const TableDongHoInfo: React.FC<TableDongHoInfoProps> = React.memo(({
 
                 updatedDongHoList[index][field] = value.toString();
                 setDongHoList(updatedDongHoList);
-
-                const hasError = errorsList.some(error => { Object.values(error).some(field => field !== "") });
                 setErrorsList(updatedErrors);
             }, 500);
 
             setDebounceTimeout(handler);
-
-            const hasError = errorsList.some(error => { Object.values(error).some(field => field !== "") });
             setErrorsList(updatedErrors);
         }
     },

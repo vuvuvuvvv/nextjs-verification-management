@@ -68,7 +68,6 @@ export default function ModalSelectDongHoToDownload({ dongHoList, show, handleCl
                 }}>
                     {dongHoList.map((dongHo, index) => {
                         const duLieuKiemDinh = dongHo.du_lieu_kiem_dinh as { ket_qua?: boolean } | null;
-                        console.log("aaa: ", duLieuKiemDinh, duLieuKiemDinh?.ket_qua, dongHo.so_tem, dongHo.so_giay_chung_nhan)
                         const isSelectable = duLieuKiemDinh && duLieuKiemDinh.ket_qua && dongHo.so_tem && dongHo.so_giay_chung_nhan;
                         if (isSelectable) {
                             if (!isDongHoSelectableExists) {

@@ -10,13 +10,11 @@ import { useKiemDinh } from './KiemDinh';
 
 interface DongHoListContextType {
     dongHoList: DongHo[];
-    dongHoSelected: DongHo | null;
-    setDongHoSelected: React.Dispatch<React.SetStateAction<DongHo | null>>;
     setDongHoList: React.Dispatch<React.SetStateAction<DongHo[]>>;
     setEditing: React.Dispatch<React.SetStateAction<boolean>>;
     setAmount: React.Dispatch<React.SetStateAction<number>>;
     addToListDongHo: (dongHo: DongHo) => void;
-    updateListDongHo: (updatedDongHo: DongHo) => void;
+    updateListDongHo: (updatedDongHo: DongHo, index:number) => void;
     // updateDongHoFieldsInList: (index: number, fields: Partial<DongHo>) => void;
     deleteDongHoInList: (index: number) => void;
     getDongHoChuaKiemDinh: (dongHoList: DongHo[]) => DongHo[];
@@ -150,7 +148,6 @@ export const DongHoListProvider = ({ children }: { children: ReactNode }) => {
         })
     }, [amount])
 
-    const [dongHoSelected, setDongHoSelected] = useState<DongHo | null>(dongHoList[0] || null);
     const [savedDongHoList, setSavedDongHoList] = useState<DongHo[]>([]);
 
     useEffect(() => {
@@ -221,41 +218,30 @@ export const DongHoListProvider = ({ children }: { children: ReactNode }) => {
                 }
             };
         }
-        console.log(dongHoList);
     }, [dongHoList]);
 
-    const updateListDongHo = (updatedDongHo: DongHo) => {
+    const updateListDongHo = (updatedDongHo: DongHo, index:number) => {
         setInitialization(false);
         setDongHoList(prevList => {
-            // const newList = prevList.map((item, i) => (i === index ? updatedDongHo : item));
-
             const generalInfo = getGeneralInfo(updatedDongHo);
+            setGeneralInfoDongHo(generalInfo);
 
-            if (JSON.stringify(generalInfoDongHo) !== JSON.stringify(generalInfo)) {
-                setGeneralInfoDongHo(generalInfo);
+            const newDHList = prevList.map(dongHo => ({
+                ...dongHo,
+                ...generalInfo,
+                id: dongHo.id
+            }));
 
-                return prevList.map(dongHo => ({
-                    ...dongHo,
-                    ...generalInfo
-                }));
+            if (newDHList[index] && newDHList[index].du_lieu_kiem_dinh) {
+                newDHList[index].du_lieu_kiem_dinh = updatedDongHo.du_lieu_kiem_dinh;
             }
-
-            return prevList;
+            return newDHList;
         });
     };
 
     const addToListDongHo = (dongHo: DongHo) => {
         setDongHoList(prevList => [...prevList, dongHo]);
     };
-
-    // // Update serial chi thi, sensor vaf kieu chi thi, sensor
-    // const updateDongHoFieldsInList = (index: number, fields: Partial<DongHo>) => {
-    //     setDongHoList(prevList =>
-    //         prevList.map((item, i) =>
-    //             i === index ? { ...item, ...fields } : item
-    //         )
-    //     );
-    // };
 
     const deleteDongHoInList = (index: number) => {
         setDongHoList(prevList => prevList.filter((_, i) => i !== index));
@@ -315,10 +301,8 @@ export const DongHoListProvider = ({ children }: { children: ReactNode }) => {
                     ((isEditing && typeof dongHo?.du_lieu_kiem_dinh != 'string') ?
                         dongHo?.du_lieu_kiem_dinh : JSON.parse(dongHo?.du_lieu_kiem_dinh)
                     ) : null;
-                console.log(duLieuKiemDinh);
                 return duLieuKiemDinh.ket_qua === null;
             } catch {
-                console.log("Loi convert")
                 return true; // Consider as incomplete if parsing fails
             }
         });
@@ -343,9 +327,7 @@ export const DongHoListProvider = ({ children }: { children: ReactNode }) => {
         <DongHoListContext.Provider value={{
             dongHoList,
             generalInfoDongHo,
-            dongHoSelected,
             setEditing,
-            setDongHoSelected,
             setDongHoList,
             setAmount,
             addToListDongHo,

@@ -28,7 +28,6 @@ export default function TinhSaiSoForm({ tabFormName, className, formValue, readO
     const [Tdh, setTdh] = useState<string>(formValue.Tdh ? formValue.Tdh.toString() : "0");
     const [Tc, setTc] = useState<string>(formValue.Tc ? formValue.Tc.toString() : "0");
     const [saiSo, setSaiSo] = useState<string>("0%");
-    const { dongHoSelected } = useDongHoList();
     const prevFormValuesRef = useRef(formValue);
 
     const handleEnterKey = (e: React.KeyboardEvent<HTMLInputElement>,
@@ -58,14 +57,6 @@ export default function TinhSaiSoForm({ tabFormName, className, formValue, readO
 
     useEffect(() => {
         if (prevFormValuesRef.current != formValue) {
-            // if (dongHoSelectedRef.current != dongHoSelected) {
-            //     dongHoSelectedRef.current = dongHoSelected;
-            //     setVc1(formValue.Vc1.toString());
-            //     setVc2(formValue.Vc2.toString());
-            // } else {
-            //     setVc1(Vc1);
-            //     setVc2(Vc2);
-            // }
             setVc1(formValue.Vc1.toString());
             setVc2(formValue.Vc2.toString());
 
