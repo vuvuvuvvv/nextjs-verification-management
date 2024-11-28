@@ -124,8 +124,8 @@ export const isDongHoDatTieuChuan = (formHieuSaiSo: { hss: number | null }[]) =>
 
 export const getLastDayOfMonthInFuture = (isDHDienTu: boolean | null, date?: Date | null): Date | null => {
     if (isDHDienTu != null) {
-        const years = isDHDienTu ? 3 : 5
-        const today = date ? date : new Date();
+        const years = isDHDienTu ? 3 : 5;
+        const today = date instanceof Date && !isNaN(date.getTime()) ? date : new Date(); // Ensure 'today' is a valid Date object
         const futureDate = new Date(today.getFullYear() + years, today.getMonth() + 1, 0);
         return futureDate;
     }

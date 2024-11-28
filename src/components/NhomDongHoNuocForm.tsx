@@ -43,11 +43,11 @@ import api from "@/app/api/route";
 interface NhomDongHoNuocFormProps {
     className?: string;
     generalInfoDongHo?: DongHo | null,
-    isEditable?:boolean
+    isEditing?: boolean
 }
 
 
-export default function NhomDongHoNuocForm({ className, generalInfoDongHo,isEditable }: NhomDongHoNuocFormProps) {
+export default function NhomDongHoNuocForm({ className, generalInfoDongHo, isEditing = false }: NhomDongHoNuocFormProps) {
     const { user, isAdmin } = useUser();
     const { dongHoList,
         createListDongHo,
@@ -126,8 +126,6 @@ export default function NhomDongHoNuocForm({ className, generalInfoDongHo,isEdit
     const [isFirstTabLL, setFirsttabLL] = useState<boolean>(false);
     const fetchCalled = useRef(false);
     const [CSSXOptions, setCSSXOptions] = useState<{ value: string, label: string }[]>([]);
-
-    const [isErrorInfoExists, setIsErrorInfoExists] = useState<boolean | null>(false);
 
     const [selectedDongHoIndex, setSelectedDongHoIndex] = useState<number>(0);
     const [loading, setLoading] = useState<boolean>(false);
@@ -244,45 +242,41 @@ export default function NhomDongHoNuocForm({ className, generalInfoDongHo,isEdit
 
     useEffect(() => {
         if (filterPDMRef.current !== filterPDM && !isExistsDHSaved) {
-            if (filterPDM.tenDongHo && filterPDM.dn && filterPDM.ccx && (filterPDM.kieuSensor || filterPDM.kieuChiThi) && ((filterPDM.q3 && filterPDM.r) || filterPDM.qn)) {
-                const ma_tim_dong_ho_pdm = convertToUppercaseNonAccent(filterPDM.tenDongHo + filterPDM.dn + filterPDM.ccx + filterPDM.kieuSensor + filterPDM.kieuChiThi + (isDHDienTu ? (filterPDM.q3 + filterPDM.r) : filterPDM.qn));
+            const ma_tim_dong_ho_pdm = convertToUppercaseNonAccent(filterPDM.tenDongHo + filterPDM.dn + filterPDM.ccx + filterPDM.kieuSensor + filterPDM.kieuChiThi + (isDHDienTu ? (filterPDM.q3 + filterPDM.r) : filterPDM.qn));
 
-                const handler = setTimeout(async () => {
-                    setLoading(true);
-                    try {
-                        const res = await getPDMByMaTimDongHoPDM(ma_tim_dong_ho_pdm);
-                        if (res.status == 200 || res.status == 201) {
-                            const pdm = res.data;
-                            const getDate = new Date(pdm.ngay_qd_pdm)
-                            setSoQDPDM(pdm.so_qd_pdm + (getDate.getFullYear() ? "-" + getDate.getFullYear() : ""));
-                            if (dayjs(pdm.ngay_het_han) < dayjs()) {
-                                setErrorPDM("Số quyết định PDM đã hết hạn.")
-                                setPhuongPhapThucHien("FMS - PP - 02")
-                                // setSoQDPDM("");
-                            }
-                            setCoSoSuDung(pdm.don_vi_pdm);
-                            setPhuongPhapThucHien("ĐNVN 17:2017");
-                        } else if (res.status == 404) {
-                            setErrorPDM("Không có số PDM phù hợp hoặc số PDM đã hết hạn.")
+            const handler = setTimeout(async () => {
+                setLoading(true);
+                try {
+                    const res = await getPDMByMaTimDongHoPDM(ma_tim_dong_ho_pdm);
+                    if (res.status == 200 || res.status == 201) {
+                        const pdm = res.data;
+                        const getDate = new Date(pdm.ngay_qd_pdm)
+                        setSoQDPDM(pdm.so_qd_pdm + (getDate.getFullYear() ? "-" + getDate.getFullYear() : ""));
+                        if (dayjs(pdm.ngay_het_han) < dayjs()) {
+                            setErrorPDM("Số quyết định PDM đã hết hạn.")
                             setPhuongPhapThucHien("FMS - PP - 02")
-                            // setErrorPDM("")
-                            setSoQDPDM("");
-                        } else {
-                            setErrorPDM("Có lỗi xảy ra khi lấy số quyết định PDM!")
-                            setSoQDPDM("");
                         }
-                    } catch (error) {
-                        setError("Đã có lỗi xảy ra! Hãy thử lại sau.");
-                    } finally {
-                        setLoading(false);
+                        setCoSoSuDung(pdm.don_vi_pdm);
+                        setPhuongPhapThucHien("ĐNVN 17:2017");
+                    } else if (res.status == 404) {
+                        setErrorPDM("Không có số PDM phù hợp hoặc số PDM đã hết hạn.")
+                        setPhuongPhapThucHien("FMS - PP - 02")
+                        setSoQDPDM("");
+                    } else {
+                        setErrorPDM("Có lỗi xảy ra khi lấy số quyết định PDM!")
+                        setSoQDPDM("");
                     }
-                }, 500);
+                } catch (error) {
+                    setError("Đã có lỗi xảy ra! Hãy thử lại sau.");
+                } finally {
+                    setLoading(false);
+                }
+            }, 500);
 
-                return () => {
-                    clearTimeout(handler);
-                };
+            return () => {
+                clearTimeout(handler);
+            };
 
-            }
             filterPDMRef.current = filterPDM;
         }
     }, [filterPDM]);
@@ -415,19 +409,26 @@ export default function NhomDongHoNuocForm({ className, generalInfoDongHo,isEdit
     const getCurrentDongHo = (formHieuSaiSoProp?: { hss: number | null }[]) => {
         const checkQ3 = ((ccx && (ccx == "1" || ccx == "2")) || isDHDienTu);
         const duLieuKiemDinhJSON = getDuLieuKiemDinhJSON(formHieuSaiSoProp);
-        const duLieuKiemDinh = duLieuKiemDinhJSON ? JSON.parse(duLieuKiemDinhJSON) : null;
-        const status = duLieuKiemDinh ? duLieuKiemDinh.ket_qua : null;
 
         // TODO: check so_tem, sogcn hieu_luc_bb
         return {
-            id: null,
+            id: isEditing ? (generalInfoDongHo?.id || null) : null,
             ten_dong_ho: tenDongHo || "",
-            group_id: convertToUppercaseNonAccent(tenDongHo + dn + ccx + q3 + r + qn + (ngayThucHien ? dayjs(ngayThucHien).format('DDMMYYHHmmss') : '')),
+            group_id: !isEditing
+                ? convertToUppercaseNonAccent(tenDongHo + dn + ccx + q3 + r + qn + (ngayThucHien ? dayjs(ngayThucHien).format('DDMMYYHHmmss') : ''))
+                : convertToUppercaseNonAccent(""
+                    + (generalInfoDongHo?.ten_dong_ho || "")
+                    + (generalInfoDongHo?.dn || "")
+                    + (generalInfoDongHo?.ccx || "")
+                    + (generalInfoDongHo?.q3 || "")
+                    + (generalInfoDongHo?.r || "")
+                    + (generalInfoDongHo?.qn || "")
+                    + (generalInfoDongHo?.ngay_thuc_hien ? dayjs(generalInfoDongHo.ngay_thuc_hien).format('DDMMYYHHmmss') : '')),
             phuong_tien_do: phuongTienDo,
             seri_chi_thi: '',
             seri_sensor: "",
             kieu_chi_thi: checkQ3 ? kieuChiThi : "",
-            kieu_sensor:  kieuSensor,
+            kieu_sensor: kieuSensor,
             kieu_thiet_bi: kieuThietBi,
             co_so_san_xuat: coSoSanXuat,
             so_tem: "",
@@ -459,46 +460,46 @@ export default function NhomDongHoNuocForm({ className, generalInfoDongHo,isEdit
     }
 
     // Func: Save dong ho
-    const handleSaveDongHo = async () => {
-        const currentDongHo = getCurrentDongHo();
-        setLoading(true);
-        try {
-            const response = await createDongHo(currentDongHo);
-            if (response.status == 201) {
-                Swal.fire({
-                    icon: "success",
-                    showClass: {
-                        popup: `
-                              animate__animated
-                              animate__fadeInUp
-                              animate__faster
-                            `
-                    },
-                    html: "Lưu Đồng hồ thành công!",
-                    timer: 1500,
-                    allowOutsideClick: false,
-                    allowEscapeKey: false,
-                    didOpen: () => {
-                        Swal.showLoading();
-                    },
-                }).then((result) => {
-                    setSavedDongHoList((prevState) => {
-                        return [
-                            ...prevState,
-                            currentDongHo
-                        ]
-                    })
-                });
-            } else {
-                // console.log(response)
-                setError(response.msg);
-            }
-        } catch (err) {
-            setError("Đã có lỗi xảy ra. Vui lòng thử lại!");
-        } finally {
-            setLoading(false);
-        }
-    }
+    // const handleSaveDongHo = async () => {
+    //     const currentDongHo = getCurrentDongHo();
+    //     setLoading(true);
+    //     try {
+    //         const response = await createDongHo(currentDongHo);
+    //         if (response.status == 201) {
+    //             Swal.fire({
+    //                 icon: "success",
+    //                 showClass: {
+    //                     popup: `
+    //                           animate__animated
+    //                           animate__fadeInUp
+    //                           animate__faster
+    //                         `
+    //                 },
+    //                 html: "Lưu Đồng hồ thành công!",
+    //                 timer: 1500,
+    //                 allowOutsideClick: false,
+    //                 allowEscapeKey: false,
+    //                 didOpen: () => {
+    //                     Swal.showLoading();
+    //                 },
+    //             }).then((result) => {
+    //                 setSavedDongHoList((prevState) => {
+    //                     return [
+    //                         ...prevState,
+    //                         currentDongHo
+    //                     ]
+    //                 })
+    //             });
+    //         } else {
+    //             // console.log(response)
+    //             setError(response.msg);
+    //         }
+    //     } catch (err) {
+    //         setError("Đã có lỗi xảy ra. Vui lòng thử lại!");
+    //     } finally {
+    //         setLoading(false);
+    //     }
+    // }
 
     const handleFormHSSChange = (index: number, value: number | null) => {
         const newFormValues = [...formHieuSaiSo];
@@ -580,7 +581,10 @@ export default function NhomDongHoNuocForm({ className, generalInfoDongHo,isEdit
         const duLieuKiemDinhJSON = dongHoSelected.du_lieu_kiem_dinh;
 
         if (duLieuKiemDinhJSON) {
-            const duLieuKiemDinh = JSON.parse(duLieuKiemDinhJSON);
+            const duLieuKiemDinh = duLieuKiemDinhJSON ?
+                ((isEditing && typeof duLieuKiemDinhJSON != 'string') ?
+                    duLieuKiemDinhJSON : JSON.parse(duLieuKiemDinhJSON)
+                ) : null;
             setDuLieuKiemDinhCacLuuLuong(duLieuKiemDinh.du_lieu || initialDuLieuKiemDinhCacLuuLuong);
             setFormHieuSaiSo(duLieuKiemDinh.hieu_sai_so || initialFormHieuSaiSo);
         } else {
@@ -625,7 +629,7 @@ export default function NhomDongHoNuocForm({ className, generalInfoDongHo,isEdit
     const handleSaveAllDongHo = () => {
         const dongHoChuaKiemDinh = getDongHoChuaKiemDinh(dongHoList);
         const dongHoDaKiemDinhCount = dongHoList.length - dongHoChuaKiemDinh.length;
-
+        console.log(dongHoList);
         if (dongHoChuaKiemDinh.length === 0) {
             // All dongHo are verified
             Swal.fire({
@@ -1272,7 +1276,7 @@ export default function NhomDongHoNuocForm({ className, generalInfoDongHo,isEdit
                 <div className={`m-0 mb-3 bg-white rounded shadow-sm w-100 position-relative`}>
                     <div className="w-100 m-0 mb-3 p-0 position-relative">
                         {/* Select Nav  */}
-                        <div className={`w-100 p-3 shadow-sm rounded-top bg-main-blue d-flex align-items-center sticky-top justify-content-center ${dongHoList.length <= 1 ? "d-none":""}`} style={{ top: "60px", zIndex: "900" }}>
+                        <div className={`w-100 p-3 shadow-sm rounded-top bg-main-blue d-flex align-items-center sticky-top justify-content-center ${dongHoList.length <= 1 ? "d-none" : ""}`} style={{ top: "60px", zIndex: "900" }}>
                             {/* <span className="fs-5 fw-bold mb-0 text-white me-2">Đồng hồ:</span> */}
                             <button aria-label="Đồng hồ trước" className="btn bg-white m-0 p-0 px-2 d-flex align-items-center justify-content-center" style={{ height: "42px", width: "42px" }} onClick={() => {
                                 handlePrevDongHo()
@@ -1409,7 +1413,7 @@ export default function NhomDongHoNuocForm({ className, generalInfoDongHo,isEdit
                         </div>
 
                         {/* Select Nav  */}
-                        <div className={`w-100 rounded-bottom p-3 bg-light-grey d-flex align-items-center justify-content-center ${dongHoList.length <= 1 ? "d-none":""}`}>
+                        <div className={`w-100 rounded-bottom p-3 bg-light-grey d-flex align-items-center justify-content-center ${dongHoList.length <= 1 ? "d-none" : ""}`}>
                             {/* <span className="fs-5 fw-bold mb-0 text-white me-2">Đồng hồ:</span> */}
                             <button aria-label="Đồng hồ trước" className="btn bg-white m-0 p-0 px-2 d-flex align-items-center justify-content-center" style={{ height: "42px", width: "42px" }}
                                 onClick={() => {
@@ -1488,17 +1492,17 @@ export default function NhomDongHoNuocForm({ className, generalInfoDongHo,isEdit
                         <>
                             <h4 className="w-100 text-uppercase text-center">Thông tin riêng</h4>
                             <TableDongHoInfo
+                                isEditing={isEditing}
                                 isDHDienTu={isDHDienTu}
-                                setIsErrorInfoExists={(value: boolean | null) => setIsErrorInfoExists(value)}
                                 setLoading={(value: boolean) => setLoading(value)} />
                         </>}
 
                     <div className={`w-100 px-2 px-md-3 d-flex gap-2 align-items-center justify-content-end ${savedDongHoList.length == dongHoList.length ? "d-none" : ""}`}>
-                        <button aria-label={dongHoList.length <= 1 ? "Lưu đồng hồ":"Lưu toàn bộ"} className="btn btn-success py-2 px-4" disabled={loading || !showFormTienTrinh} onClick={handleSaveAllDongHo}>
+                        <button aria-label={dongHoList.length <= 1 ? "Lưu đồng hồ" : "Lưu toàn bộ"} className="btn btn-success py-2 px-4" disabled={loading || !showFormTienTrinh} onClick={handleSaveAllDongHo}>
                             {loading ?
                                 <><span className="spinner-border spinner-border-sm me-2" aria-hidden="true"></span></> :
                                 <><FontAwesomeIcon icon={faSave} className="me-2"></FontAwesomeIcon></>
-                            } {dongHoList.length <= 1 ? "Lưu đồng hồ":"Lưu toàn bộ"}
+                            } {isEditing ? "Lưu thay đổi" : (dongHoList.length <= 1 ? "Lưu đồng hồ" : "Lưu toàn bộ")}
                         </button>
                     </div>
                 </div>

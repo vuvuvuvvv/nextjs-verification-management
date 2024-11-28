@@ -173,7 +173,7 @@ export default function DetailDongHo({ dongHo }: DetailDongHoProps) {
                 </div>
                 <div className="w-100 bg-white px-3 px-md-5 py-3">
                     <div className={`w-100 mb-3 mx-0 d-flex align-items-center justify-content-end p-0}`}>
-                        <Link href={ACCESS_LINKS.DHN_EDIT_DH.src  + "/" + dongHo.id} aria-label="Chỉnh sửa đồng hồ" className="btn bg-warning text-white" onClick={handleDownloadGCN}>
+                        <Link href={ACCESS_LINKS.DHN_EDIT_DH.src  + "/" + dongHo.id} aria-label="Chỉnh sửa đồng hồ" className="btn bg-warning text-white">
                             <FontAwesomeIcon icon={faEdit} className="me-1"></FontAwesomeIcon> Chỉnh sửa
                         </Link>
                     </div>

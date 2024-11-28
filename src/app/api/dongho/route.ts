@@ -319,6 +319,41 @@ export const createDongHo = async (dongho: DongHo) => {
     }
 };
 
+export const updateDongHo = async (dongho: DongHo) => {
+    try {
+        const response = await api.put(API_DONGHO_URL + "/" + dongho.id, dongho, { withCredentials: true });
+
+        if (response.status == 200) {
+            return {
+                "status": response.status,
+                "msg": response.data.msg || "Lưu Đồng hồ thành công!",
+                "data": response.data
+            }
+        } else {
+            return {
+                "status": response.status,
+                "msg": response.data.msg || "Có lỗi đã xảy ra. Hãy thử lại!",
+
+            }
+        }
+
+    } catch (error: any) {
+        // console.log("Error:", error);
+        if (error.response?.data) {
+            return {
+                "status": error.response.status,
+                "data": error.response.data,
+                "msg": "Error: " + error.response.data.msg || 'Error creating DongHo!'
+            };
+        } else {
+            return {
+                "status": error.response?.status || 500,
+                "msg": 'Đã có lỗi xảy ra. Hãy thử lại sau!'
+            };
+        }
+    }
+};
+
 export const deleteDongHo = async (serial_number: string) => {
     try {
         const response = await api.delete(`${API_DONGHO_URL}/${serial_number}`, { withCredentials: true });

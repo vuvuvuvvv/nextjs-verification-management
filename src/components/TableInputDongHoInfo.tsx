@@ -11,11 +11,10 @@ import DatePickerField from "./ui/DatePickerTBDHInfo";
 import InputField from "./ui/InputFieldTBDHInfo";
 
 interface TableDongHoInfoProps {
-    // dongHoList: DongHo[],
     className?: string,
-    setIsErrorInfoExists: (value: boolean | null) => void;
     setLoading: (value: boolean) => void;
     isDHDienTu: boolean;
+    isEditing: boolean;
 }
 
 const InfoFieldTitle = {
@@ -38,9 +37,9 @@ type InfoField = {
 
 const TableDongHoInfo: React.FC<TableDongHoInfoProps> = React.memo(({
     className,
-    setIsErrorInfoExists,
     setLoading,
-    isDHDienTu
+    isDHDienTu,
+    isEditing
 }) => {
     const { dongHoList, setDongHoList, savedDongHoList } = useDongHoList();
     const [errorsList, setErrorsList] = useState<InfoField[]>([]);
@@ -240,7 +239,10 @@ const TableDongHoInfo: React.FC<TableDongHoInfoProps> = React.memo(({
                             const dongHo = dongHoList[index];
 
                             const duLieuKiemDinhJSON = dongHo.du_lieu_kiem_dinh;
-                            const duLieuKiemDinh = duLieuKiemDinhJSON ? JSON.parse(duLieuKiemDinhJSON) : null;
+                            const duLieuKiemDinh = duLieuKiemDinhJSON ?
+                                ((isEditing && typeof duLieuKiemDinhJSON != 'string') ?
+                                    duLieuKiemDinhJSON : JSON.parse(duLieuKiemDinhJSON)
+                                ) : null;
                             const status = duLieuKiemDinh ? duLieuKiemDinh.ket_qua : null;
                             const objHss = duLieuKiemDinh ? duLieuKiemDinh.hieu_sai_so : null;
                             const isDHDienTu = Boolean((dongHo.ccx && ["1", "2"].includes(dongHo.ccx)) || dongHo.kieu_thiet_bi == "Điện tử");

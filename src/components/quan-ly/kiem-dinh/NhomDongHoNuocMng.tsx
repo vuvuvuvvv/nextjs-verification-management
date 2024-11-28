@@ -508,7 +508,9 @@ export default function NhomDongHoNuocManagement({ className }: NhomDongHoNuocMa
                                                 <td>{item.ten_khach_hang}</td>
                                                 <td>{item.nguoi_kiem_dinh}</td>
                                                 <td>{dayjs(item.ngay_thuc_hien).format('DD-MM-YYYY')}</td>
-                                                <td>
+                                                <td
+                                                    onClick={() => window.open(`${ACCESS_LINKS.DHN_EDIT_NDH.src + "/" + item.group_id}`, '_blank')}
+                                                >
                                                     {/* <Link target="_blank" aria-label="Xem chi tiết" href={ACCESS_LINKS.DHN_DETAIL.src + "/nhom/" + item.group_id} className={`btn w-100 text-blue`}>
                                                         <FontAwesomeIcon icon={faEye}></FontAwesomeIcon>
                                                     </Link> */}
