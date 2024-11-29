@@ -509,12 +509,12 @@ export default function NhomDongHoNuocManagement({ className }: NhomDongHoNuocMa
                                                 <td>{item.nguoi_kiem_dinh}</td>
                                                 <td>{dayjs(item.ngay_thuc_hien).format('DD-MM-YYYY')}</td>
                                                 <td
-                                                    onClick={() => window.open(`${ACCESS_LINKS.DHN_EDIT_NDH.src + "/" + item.group_id}`, '_blank')}
+                                                    onClick={() => window.open(`${ACCESS_LINKS.DHN_EDIT_NDH.src + "/" + item.group_id}`)}
                                                 >
                                                     {/* <Link target="_blank" aria-label="Xem chi tiết" href={ACCESS_LINKS.DHN_DETAIL.src + "/nhom/" + item.group_id} className={`btn w-100 text-blue`}>
                                                         <FontAwesomeIcon icon={faEye}></FontAwesomeIcon>
                                                     </Link> */}
-                                                    <Link target="_blank" aria-label="Chỉnh sửa" href={ACCESS_LINKS.DHN_EDIT_NDH.src + "/" + item.group_id} className={`btn w-100 text-blue shadow-0`}>
+                                                    <Link aria-label="Chỉnh sửa" href={ACCESS_LINKS.DHN_EDIT_NDH.src + "/" + item.group_id} className={`btn w-100 text-blue shadow-0`}>
                                                         <FontAwesomeIcon icon={faEdit}></FontAwesomeIcon>
                                                     </Link>
                                                 </td>

@@ -235,7 +235,7 @@ const TableDongHoInfo: React.FC<TableDongHoInfoProps> = React.memo(({
                                     {dongHoList.length > 1 &&
                                         <td>{index + 1}</td>}
                                     <td>
-                                        <p className="m-0 p-0" style={{ width: "140px" }}>
+                                        <p className="m-0 p-0 text-center w-100" style={{ minWidth: "140px" }}>
                                             {status != null ?
                                                 (status ? "Đạt" : "Không đạt") :
                                                 objHss ?

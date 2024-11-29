@@ -162,7 +162,7 @@ export default function DetailDongHo({ dongHo }: DetailDongHoProps) {
         <title>{dongHo?.ten_dong_ho}</title>
         {dongHo ? (
             <div className="w-100 container my-3 p-0">
-                <div className={`w-100 mb-3 mx-0 d-flex align-items-center justify-content-center justify-content-md-end p-0 ${ketQua ? '' : 'd-none'}`}>
+                <div className={`w-100 mb-3 mx-0 d-flex align-items-center justify-content-center justify-content-md-end p-0 ${ketQua == null || !dongHo.so_giay_chung_nhan ? 'd-none' : ''}`}>
                     <span style={{ cursor: "unset" }} className="btn border-0 bg-lighter-grey rounded-start rounded-end-0"><FontAwesomeIcon icon={faDownload}></FontAwesomeIcon></span>
                     <button aria-label="Tải biên bản kiểm định" className="btn bg-main-green rounded-0 border-0 text-white" onClick={handleDownloadBB}>
                         <FontAwesomeIcon icon={faFileExcel} className="me-1"></FontAwesomeIcon> Biên bản

@@ -7,10 +7,11 @@ import dynamic from "next/dynamic";
 import { DongHo, DuLieuChayDiemLuuLuong, DuLieuChayDongHo } from "@lib/types";
 import { Fragment, useEffect, useRef, useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faDownload, faFileExcel } from "@fortawesome/free-solid-svg-icons";
+import { faDownload, faEdit, faFileExcel } from "@fortawesome/free-solid-svg-icons";
 import Swal from "sweetalert2";
 import { downloadBB, downloadGCN } from "@/app/api/download/route";
-import { TITLE_LUU_LUONG } from "@lib/system-constant";
+import { ACCESS_LINKS, TITLE_LUU_LUONG } from "@lib/system-constant";
+import Link from "next/link";
 
 const Loading = dynamic(() => import('@/components/Loading'), { ssr: false });
 const ModalSelectDongHoToDownload = dynamic(() => import('@/components/ui/ModalSelectDongHoToDownload'), { ssr: false });
@@ -327,6 +328,11 @@ export default function DetailNhomDongHo({ nhomDongHo }: DetailNhomDongHoProps) 
                     </button>
                 </div>
                 <div className="container bg-white px-3 py-4 p-md-5">
+                    <div className={`w-100 mb-3 mx-0 d-flex align-items-center justify-content-end p-0}`}>
+                        <Link href={ACCESS_LINKS.DHN_EDIT_NDH.src  + "/" + generalInfo.group_id} aria-label="Chỉnh sửa đồng hồ" className="btn bg-warning text-white">
+                            <FontAwesomeIcon icon={faEdit} className="me-1"></FontAwesomeIcon> Chỉnh sửa
+                        </Link>
+                    </div>
                     <h4 className="text-center text-uppercase">Chi tiết nhóm đồng hồ</h4>
                     <p className="fs-5 text-uppercase fw-bold text-decoration-underline">I. Thông tin chung:</p>
                     <div className="row mb-3">

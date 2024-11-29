@@ -489,11 +489,13 @@ export default function WaterMeterManagement({ className, isBiggerThan15 = false
                                                 <td>
                                                     {processDuLieu(item.du_lieu_kiem_dinh as { du_lieu?: DuLieuChayDongHo })}
                                                 </td>
-                                                <td>
+                                                <td
+                                                    onClick={() => window.open(`${ACCESS_LINKS.DHN_EDIT_NDH.src + "/" + item.group_id}`)}
+                                                >
                                                     {/* <Link target="_blank" aria-label="Xem chi tiết" href={ACCESS_LINKS.DHN_DETAIL.src + "/" + item.id} className={`btn w-100 text-blue`}>
                                                         <FontAwesomeIcon icon={faEye}></FontAwesomeIcon>
                                                     </Link> */}
-                                                    <Link target="_blank" aria-label="Chỉnh sửa" href={ACCESS_LINKS.DHN_EDIT_DH.src + "/" + item.id} className={`btn w-100 text-blue shadow-0`}>
+                                                    <Link aria-label="Chỉnh sửa" href={ACCESS_LINKS.DHN_EDIT_DH.src + "/" + item.id} className={`btn w-100 text-blue shadow-0`}>
                                                         <FontAwesomeIcon icon={faEdit}></FontAwesomeIcon>
                                                     </Link>
 

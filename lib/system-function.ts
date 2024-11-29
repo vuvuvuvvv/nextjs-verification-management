@@ -209,7 +209,7 @@ export async function saveDongHoDataExistsToIndexedDB(username: string, data: Do
         const transaction = db.transaction(INDEXED_DB_DH_OBJ_NAME, "readwrite");
         const store = transaction.objectStore(INDEXED_DB_DH_OBJ_NAME);
 
-        const dataToStore = { id: username, dongHoList: data, saveDongHoList: savedData || [] };
+        const dataToStore = { id: username, dongHoList: data, savedDongHoList: (savedData && savedData.length != 0) ? savedData : []};
 
         const request = store.put(dataToStore);
 

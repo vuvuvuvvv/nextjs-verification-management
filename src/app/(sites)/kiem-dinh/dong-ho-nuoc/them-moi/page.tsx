@@ -21,6 +21,7 @@ export default function AddNewDongHoNuoc({ className }: AddNewDongHoNuocProps) {
     const { setAmount, setDongHoList } = useDongHoList();
 
     const [oldDongHoData, setOldDongHoData] = useState<DongHo[]>([]);
+    const [oldDongHoSavedData, setOldDongHoSavedData] = useState<DongHo[]>([]);
     const [qnt, setQnt] = useState<number | null>(null);
     const [isModalOpen, setModalOpen] = useState(true);
     const [error, setError] = useState<string | null>(null);
@@ -58,6 +59,7 @@ export default function AddNewDongHoNuoc({ className }: AddNewDongHoNuocProps) {
                     if (data) {
                         // console.log("data: ", data);
                         setOldDongHoData(data?.dongHoList || []);
+                        setOldDongHoSavedData(data?.savedDongHoList || [])
                     } else {
                         setOldDongHoData([]);
                     }

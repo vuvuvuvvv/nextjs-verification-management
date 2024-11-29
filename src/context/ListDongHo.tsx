@@ -14,7 +14,7 @@ interface DongHoListContextType {
     setEditing: React.Dispatch<React.SetStateAction<boolean>>;
     setAmount: React.Dispatch<React.SetStateAction<number>>;
     addToListDongHo: (dongHo: DongHo) => void;
-    updateListDongHo: (updatedDongHo: DongHo, index:number) => void;
+    updateListDongHo: (updatedDongHo: DongHo, index: number) => void;
     // updateDongHoFieldsInList: (index: number, fields: Partial<DongHo>) => void;
     deleteDongHoInList: (index: number) => void;
     getDongHoChuaKiemDinh: (dongHoList: DongHo[]) => DongHo[];
@@ -153,6 +153,10 @@ export const DongHoListProvider = ({ children }: { children: ReactNode }) => {
     useEffect(() => {
         if (savedDongHoList.length == dongHoList.length && user && user.username && !isEditing) {
             deleteDongHoDataFromIndexedDB(user.username);
+        } else {
+            if (user && user.username && !isInitialization && !isEditing) {
+                saveDongHoDataExistsToIndexedDB(user.username, dongHoList, savedDongHoList);
+            }
         }
     }, [savedDongHoList]);
 
@@ -220,7 +224,7 @@ export const DongHoListProvider = ({ children }: { children: ReactNode }) => {
         }
     }, [dongHoList]);
 
-    const updateListDongHo = (updatedDongHo: DongHo, index:number) => {
+    const updateListDongHo = (updatedDongHo: DongHo, index: number) => {
         setInitialization(false);
         setDongHoList(prevList => {
             const generalInfo = getGeneralInfo(updatedDongHo);
@@ -234,6 +238,10 @@ export const DongHoListProvider = ({ children }: { children: ReactNode }) => {
 
             if (newDHList[index] && newDHList[index].du_lieu_kiem_dinh) {
                 newDHList[index].du_lieu_kiem_dinh = updatedDongHo.du_lieu_kiem_dinh;
+            }
+
+            if (newDHList[dongHoList.length - 1] && newDHList[dongHoList.length - 1].id) {
+                newDHList[index].id = "1";
             }
             return newDHList;
         });

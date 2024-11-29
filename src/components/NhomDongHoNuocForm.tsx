@@ -123,7 +123,6 @@ export default function NhomDongHoNuocForm({ className, generalInfoDongHo, isEdi
     const router = useRouter();
 
     const [isDHSaved, setDHSaved] = useState<boolean | null>(null);
-    const [isExistsDHSaved, setExitsDHSaved] = useState<boolean>(false);
     const [isFirstTabLL, setFirsttabLL] = useState<boolean>(false);
     const fetchCalled = useRef(false);
     const [CSSXOptions, setCSSXOptions] = useState<{ value: string, label: string }[]>([]);
@@ -211,7 +210,6 @@ export default function NhomDongHoNuocForm({ className, generalInfoDongHo, isEdi
     // Func: Set saved
     useEffect(() => {
         if (savedDongHoList.length > 0) {
-            setExitsDHSaved(true);
             updateDongHoSaved(getCurrentDongHo())
         }
     }, [savedDongHoList]);
@@ -242,7 +240,7 @@ export default function NhomDongHoNuocForm({ className, generalInfoDongHo, isEdi
     const filterPDMRef = useRef(filterPDM);
 
     useEffect(() => {
-        if (filterPDMRef.current !== filterPDM && !isExistsDHSaved) {
+        if (filterPDMRef.current !== filterPDM && savedDongHoList.length == 0) {
             const ma_tim_dong_ho_pdm = convertToUppercaseNonAccent(filterPDM.tenDongHo + filterPDM.dn + filterPDM.ccx + filterPDM.kieuSensor + filterPDM.kieuChiThi + (isDHDienTu ? (filterPDM.q3 + filterPDM.r) : filterPDM.qn));
 
             const handler = setTimeout(async () => {
@@ -648,13 +646,14 @@ export default function NhomDongHoNuocForm({ className, generalInfoDongHo, isEdi
                 reverseButtons: true
             }).then((rs) => {
                 if (rs.isConfirmed) {
+                    const dongHoToSave = dongHoList.filter(dongHo => !savedDongHoList.some(dh => JSON.stringify(dh) == JSON.stringify(dongHo)));
                     Swal.fire({
                         title: 'Đang lưu đồng hồ',
                         html: 'Đang chuẩn bị...',
                         allowOutsideClick: false,
                         didOpen: () => {
                             Swal.showLoading();
-                            createListDongHo(dongHoList).then((isSuccessful) => {
+                            createListDongHo(dongHoToSave).then((isSuccessful) => {
                                 if (isSuccessful) {
                                     router.push(ACCESS_LINKS.DHN.src);
                                 }
@@ -731,7 +730,7 @@ export default function NhomDongHoNuocForm({ className, generalInfoDongHo, isEdi
                                 isClearable
                                 id="ten_dong_ho"
                                 value={selectedTenDHOption || null}
-                                isDisabled={isExistsDHSaved}
+                                isDisabled={savedDongHoList.length != 0}
                                 isSearchable
                                 onChange={(selectedOptions: any) => {
                                     if (selectedOptions) {
@@ -751,7 +750,7 @@ export default function NhomDongHoNuocForm({ className, generalInfoDongHo, isEdi
                                         minHeight: '42px',
                                         borderColor: '#dee2e6 !important',
                                         boxShadow: 'none !important',
-                                        backgroundColor: isExistsDHSaved ? "#e9ecef" : "white",
+                                        backgroundColor: savedDongHoList.length != 0 ? "#e9ecef" : "white",
                                     }),
                                     valueContainer: (provided) => ({
                                         ...provided,
@@ -799,7 +798,7 @@ export default function NhomDongHoNuocForm({ className, generalInfoDongHo, isEdi
                                         placeholder="-- Chọn kiểu --"
                                         classNamePrefix="select"
                                         isClearable
-                                        isDisabled={isExistsDHSaved}
+                                        isDisabled={savedDongHoList.length != 0}
                                         id="kieuThietBi"
                                         value={typeOptions.find(option => option.value === kieuThietBi) || null} // Kiểm tra giá trị
                                         onChange={(selectedOptions: any) => setKieuThietBi(selectedOptions ? selectedOptions.value : "")}
@@ -810,7 +809,7 @@ export default function NhomDongHoNuocForm({ className, generalInfoDongHo, isEdi
                                                 minHeight: '42px',
                                                 borderColor: '#dee2e6 !important',
                                                 boxShadow: 'none !important',
-                                                backgroundColor: isExistsDHSaved ? "#e9ecef" : "white",
+                                                backgroundColor: savedDongHoList.length != 0 ? "#e9ecef" : "white",
                                             }),
                                             valueContainer: (provided) => ({
                                                 ...provided,
@@ -846,7 +845,7 @@ export default function NhomDongHoNuocForm({ className, generalInfoDongHo, isEdi
                                         format="YYYY"
                                         minDate={dayjs('1900-01-01')}
                                         maxDate={dayjs().endOf('year')}
-                                        disabled={isExistsDHSaved}
+                                        disabled={savedDongHoList.length != 0}
                                         onChange={(newValue: Dayjs | null) => {
                                             if (newValue) {
 
@@ -856,7 +855,7 @@ export default function NhomDongHoNuocForm({ className, generalInfoDongHo, isEdi
                                             }
 
                                         }}
-                                        slotProps={{ textField: { fullWidth: true, style: { backgroundColor: isExistsDHSaved ? "#e9ecef" : "white" } } }}
+                                        slotProps={{ textField: { fullWidth: true, style: { backgroundColor: savedDongHoList.length != 0 ? "#e9ecef" : "white" } } }}
                                     />
                                 </div>
 
@@ -868,7 +867,7 @@ export default function NhomDongHoNuocForm({ className, generalInfoDongHo, isEdi
                                         placeholder="Cơ sở sản xuất"
                                         classNamePrefix="select"
                                         isClearable
-                                        isDisabled={isExistsDHSaved}
+                                        isDisabled={savedDongHoList.length != 0}
                                         id="noi_san_xuat"
                                         value={selectedCssxOption || null}
                                         isSearchable
@@ -890,7 +889,7 @@ export default function NhomDongHoNuocForm({ className, generalInfoDongHo, isEdi
                                                 minHeight: '42px',
                                                 borderColor: '#dee2e6 !important',
                                                 boxShadow: 'none !important',
-                                                backgroundColor: isExistsDHSaved ? "#e9ecef" : "white",
+                                                backgroundColor: savedDongHoList.length != 0 ? "#e9ecef" : "white",
                                             }),
                                             valueContainer: (provided) => ({
                                                 ...provided,
@@ -933,7 +932,7 @@ export default function NhomDongHoNuocForm({ className, generalInfoDongHo, isEdi
                                         type="text"
                                         className="form-control"
                                         id="kieu_sensor"
-                                        disabled={isExistsDHSaved}
+                                        disabled={savedDongHoList.length != 0}
                                         value={kieuSensor || ""}
                                         onChange={(e) => {
                                             setKieuSensor(e.target.value);
@@ -949,7 +948,7 @@ export default function NhomDongHoNuocForm({ className, generalInfoDongHo, isEdi
                                                 type="text"
                                                 className="form-control"
                                                 id="kieu_chi_thi"
-                                                disabled={isExistsDHSaved}
+                                                disabled={savedDongHoList.length != 0}
                                                 value={kieuChiThi || ""}
                                                 onChange={(e) => {
                                                     setKieuChiThi(e.target.value);
@@ -970,7 +969,7 @@ export default function NhomDongHoNuocForm({ className, generalInfoDongHo, isEdi
                                             id="dn"
                                             value={dn || ""}
                                             onChange={handleNumberChange(setDN)}
-                                            disabled={isExistsDHSaved}
+                                            disabled={savedDongHoList.length != 0}
 
                                         />
                                         <span className="input-group-text">mm</span>
@@ -984,7 +983,7 @@ export default function NhomDongHoNuocForm({ className, generalInfoDongHo, isEdi
                                         className="basic-multi-select"
                                         classNamePrefix="select"
                                         placeholder="-- Chọn cấp --"
-                                        isDisabled={isExistsDHSaved}
+                                        isDisabled={savedDongHoList.length != 0}
                                         isClearable
                                         value={ccxOptions.find(option => option.value === ccx) || null}
                                         onChange={(selectedOptions: any) => setCCX(selectedOptions ? selectedOptions.value : "")}
@@ -995,7 +994,7 @@ export default function NhomDongHoNuocForm({ className, generalInfoDongHo, isEdi
                                                 minHeight: '42px',
                                                 borderColor: '#dee2e6 !important',
                                                 boxShadow: 'none !important',
-                                                backgroundColor: isExistsDHSaved ? "#e9ecef" : "white",
+                                                backgroundColor: savedDongHoList.length != 0 ? "#e9ecef" : "white",
                                             }),
                                             valueContainer: (provided) => ({
                                                 ...provided,
@@ -1034,7 +1033,7 @@ export default function NhomDongHoNuocForm({ className, generalInfoDongHo, isEdi
                                                 value={q3 || ""}
                                                 onChange={handleNumberChange(setQ3)}
 
-                                                disabled={isExistsDHSaved}
+                                                disabled={savedDongHoList.length != 0}
                                             />
                                             <span className="input-group-text">m<sup>3</sup>/h</span>
                                         </div>
@@ -1047,7 +1046,7 @@ export default function NhomDongHoNuocForm({ className, generalInfoDongHo, isEdi
                                             id="r"
                                             value={r || ""}
                                             onChange={handleNumberChange(setR)}
-                                            disabled={isExistsDHSaved}
+                                            disabled={savedDongHoList.length != 0}
                                         />
                                     </div>
                                 </> : <>
@@ -1061,7 +1060,7 @@ export default function NhomDongHoNuocForm({ className, generalInfoDongHo, isEdi
                                                 id="qn"
                                                 value={qn || ""}
                                                 onChange={handleNumberChange(setQN)}
-                                                disabled={isExistsDHSaved}
+                                                disabled={savedDongHoList.length != 0}
                                             />
                                             <span className="input-group-text">m<sup>3</sup>/h</span>
                                         </div>
@@ -1075,7 +1074,7 @@ export default function NhomDongHoNuocForm({ className, generalInfoDongHo, isEdi
                                         id="d"
                                         value={d || ""}
                                         onChange={handleNumberChange(setD)}
-                                        disabled={isExistsDHSaved}
+                                        disabled={savedDongHoList.length != 0}
 
                                     />
                                 </div>
@@ -1085,7 +1084,7 @@ export default function NhomDongHoNuocForm({ className, generalInfoDongHo, isEdi
                                         type="text"
                                         className="form-control"
                                         id="so_qd_pdm"
-                                        disabled={isExistsDHSaved}
+                                        disabled={savedDongHoList.length != 0}
                                         value={soQDPDM || ""}
                                         onChange={(e) => setSoQDPDM(e.target.value)}
                                     />
@@ -1111,7 +1110,7 @@ export default function NhomDongHoNuocForm({ className, generalInfoDongHo, isEdi
                                         type="text"
                                         className="form-control"
                                         id="tenKhachHang"
-                                        disabled={isExistsDHSaved}
+                                        disabled={savedDongHoList.length != 0}
                                         value={tenKhachHang || ""}
                                         onChange={(e) => setTenKhachhang(e.target.value)}
                                     />
@@ -1122,7 +1121,7 @@ export default function NhomDongHoNuocForm({ className, generalInfoDongHo, isEdi
                                         type="text"
                                         className="form-control"
                                         id="coSoSuDung"
-                                        disabled={isExistsDHSaved}
+                                        disabled={savedDongHoList.length != 0}
                                         value={coSoSuDung || ""}
                                         onChange={(e) => setCoSoSuDung(e.target.value)}
                                     />
@@ -1133,7 +1132,7 @@ export default function NhomDongHoNuocForm({ className, generalInfoDongHo, isEdi
                                         type="text"
                                         className="form-control"
                                         id="noi_su_dung"
-                                        disabled={isExistsDHSaved}
+                                        disabled={savedDongHoList.length != 0}
                                         value={noiSuDung || ""}
                                         onChange={(e) => setNoiSuDung(e.target.value)}
                                     />
@@ -1144,7 +1143,7 @@ export default function NhomDongHoNuocForm({ className, generalInfoDongHo, isEdi
                                         type="text"
                                         className="form-control"
                                         id="viTri"
-                                        disabled={isExistsDHSaved}
+                                        disabled={savedDongHoList.length != 0}
                                         value={viTri || ""}
                                         onChange={(e) => setViTri(e.target.value)}
                                     />
@@ -1154,7 +1153,7 @@ export default function NhomDongHoNuocForm({ className, generalInfoDongHo, isEdi
                                     <input
                                         type="text"
                                         className="form-control"
-                                        disabled={isExistsDHSaved}
+                                        disabled={savedDongHoList.length != 0}
                                         id="phuongPhapThucHien"
                                         placeholder="Phương pháp thực hiện"
                                         value={phuongPhapThucHien || ""}
@@ -1167,7 +1166,7 @@ export default function NhomDongHoNuocForm({ className, generalInfoDongHo, isEdi
                                         type="text"
                                         className="form-control"
                                         id="chuanThietBiSuDung"
-                                        disabled={isExistsDHSaved}
+                                        disabled={savedDongHoList.length != 0}
                                         value={chuanThietBiSuDung || ""}
                                         onChange={(e) => setChuanThietBiSuDung(e.target.value)}
                                     />
@@ -1176,12 +1175,12 @@ export default function NhomDongHoNuocForm({ className, generalInfoDongHo, isEdi
                                     <label htmlFor="ngayThucHien" className="form-label">Ngày thực hiện:</label>
                                     <DatePicker
                                         className={`${ui_vfm['date-picker']}`}
-                                        disabled={isExistsDHSaved}
+                                        disabled={savedDongHoList.length != 0}
                                         value={dayjs(ngayThucHien) || null}
                                         format="DD-MM-YYYY"
                                         maxDate={dayjs().endOf('day')}
                                         onChange={(newValue: Dayjs | null) => setNgayThucHien(newValue ? newValue.toDate() : null)}
-                                        slotProps={{ textField: { fullWidth: true, style: { backgroundColor: isExistsDHSaved ? "#e9ecef" : "white" } } }}
+                                        slotProps={{ textField: { fullWidth: true, style: { backgroundColor: savedDongHoList.length != 0 ? "#e9ecef" : "white" } } }}
                                     />
                                 </div>
                                 <div className="mb-3 col-12 col-md-6">
@@ -1191,7 +1190,7 @@ export default function NhomDongHoNuocForm({ className, generalInfoDongHo, isEdi
                                         className="form-control"
                                         id="noi_thuc_hien"
                                         placeholder={DEFAULT_LOCATION}
-                                        disabled={isExistsDHSaved}
+                                        disabled={savedDongHoList.length != 0}
                                         value={noiThucHien || ""}
                                         onChange={(e) => setNoiThucHien(e.target.value)}
                                     />
@@ -1203,7 +1202,7 @@ export default function NhomDongHoNuocForm({ className, generalInfoDongHo, isEdi
                                             type="text"
                                             className="form-control"
                                             id="nhietDo"
-                                            disabled={isExistsDHSaved}
+                                            disabled={savedDongHoList.length != 0}
                                             value={nhietDo || ""}
                                             onChange={handleNumberChange(setNhietDo)}
                                         />
@@ -1217,7 +1216,7 @@ export default function NhomDongHoNuocForm({ className, generalInfoDongHo, isEdi
                                             type="text"
                                             className="form-control"
                                             id="doAm"
-                                            disabled={isExistsDHSaved}
+                                            disabled={savedDongHoList.length != 0}
                                             value={doAm || ""}
                                             onChange={handleNumberChange(setDoAm)}
                                         />
@@ -1230,7 +1229,7 @@ export default function NhomDongHoNuocForm({ className, generalInfoDongHo, isEdi
                                         type="text"
                                         className="form-control"
                                         id="nguoi_kiem_dinh"
-                                        disabled={isExistsDHSaved}
+                                        disabled={savedDongHoList.length != 0}
                                         value={nguoiKiemDinh || ""}
                                         onChange={(e) => setNguoiKiemDinh(e.target.value)}
                                     />
@@ -1241,7 +1240,7 @@ export default function NhomDongHoNuocForm({ className, generalInfoDongHo, isEdi
                                         type="text"
                                         className="form-control"
                                         id="nguoi_soat_lai"
-                                        disabled={isExistsDHSaved}
+                                        disabled={savedDongHoList.length != 0}
                                         value={nguoiSoatLai || ""}
                                         onChange={(e) => setNguoiSoatLai(e.target.value)}
                                     />
@@ -1291,7 +1290,6 @@ export default function NhomDongHoNuocForm({ className, generalInfoDongHo, isEdi
                                             minHeight: '42px',
                                             borderColor: '#dee2e6 !important',
                                             boxShadow: 'none !important',
-                                            backgroundColor: isExistsDHSaved ? "#e9ecef" : "white",
                                             overflow: "hidden"
                                         }),
                                         valueContainer: (provided) => ({
@@ -1349,7 +1347,7 @@ export default function NhomDongHoNuocForm({ className, generalInfoDongHo, isEdi
                                                 {
                                                     title: <>{isDHDienTu != null && isDHDienTu ? "0.3*" : ""}Q<sub>{isDHDienTu != null && isDHDienTu ? "3" : "n"}</sub></>,
                                                     content: <TinhSaiSoTab isDHDienTu={isDHDienTu} onFormHSSChange={(value: number | null) => handleFormHSSChange(0, value)}
-                                                        isDisable={isExistsDHSaved}
+                                                        isDisable={savedDongHoList.some(dh => JSON.stringify(dh) == JSON.stringify(dongHoList[selectedDongHoIndex]))}
                                                         d={d ? d : ""} q={{
                                                             title: isDHDienTu != null && isDHDienTu ? TITLE_LUU_LUONG.q3 : TITLE_LUU_LUONG.qn,
                                                             value: (q3) ? q3 : ((qn) ? qn : "")
@@ -1358,7 +1356,7 @@ export default function NhomDongHoNuocForm({ className, generalInfoDongHo, isEdi
                                                 {
                                                     title: <>Q<sub>{isDHDienTu != null && isDHDienTu ? "2" : "t"}</sub></>,
                                                     content: <TinhSaiSoTab onFormHSSChange={(value: number | null) => handleFormHSSChange(1, value)}
-                                                        isDisable={isExistsDHSaved}
+                                                        isDisable={savedDongHoList.some(dh => JSON.stringify(dh) == JSON.stringify(dongHoList[selectedDongHoIndex]))}
                                                         d={d ? d : ""} q={{
                                                             title: isDHDienTu != null && isDHDienTu ? TITLE_LUU_LUONG.q2 : TITLE_LUU_LUONG.qt,
                                                             value: (q2Ort) ? q2Ort.toString() : ""
@@ -1367,7 +1365,7 @@ export default function NhomDongHoNuocForm({ className, generalInfoDongHo, isEdi
                                                 {
                                                     title: <>Q<sub>{isDHDienTu != null && isDHDienTu ? "1" : "min"}</sub></>,
                                                     content: <TinhSaiSoTab onFormHSSChange={(value: number | null) => handleFormHSSChange(2, value)}
-                                                        isDisable={isExistsDHSaved}
+                                                        isDisable={savedDongHoList.some(dh => JSON.stringify(dh) == JSON.stringify(dongHoList[selectedDongHoIndex]))}
                                                         d={d ? d : ""} q={{
                                                             title: isDHDienTu != null && isDHDienTu ? TITLE_LUU_LUONG.q1 : TITLE_LUU_LUONG.qmin,
                                                             value: (q1Ormin) ? q1Ormin.toString() : ""
