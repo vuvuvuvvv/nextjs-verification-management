@@ -75,7 +75,7 @@ export async function downloadGCN(dongHo: DongHo): Promise<DownloadResponse> {
                 return { msg: "Id không hợp lệ!" };
             }
             if (error.response?.status === 500) {
-                return { msg: `Đã có lỗi xảy ra! Hãy thử lại sau."}` };
+                return { msg: `Đã có lỗi xảy ra! Hãy thử lại sau.` };
             }
             if (error.response?.status === 400) {
                 return { msg: `Có lỗi xảy ra khi trích xuất dữ liệu! Hãy thử lại.` };

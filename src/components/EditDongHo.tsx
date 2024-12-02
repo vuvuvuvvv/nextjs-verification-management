@@ -55,11 +55,11 @@ export default function DongHoEditPage({ id, groupId }: DongHoEditPage) {
 
         const fetchData = async () => {
             try {
-                if(!groupId && !id) {
+                if (!groupId && !id) {
                     fetchGetError("Id không hợp lệ!")
                 } else {
                     let res;
-                    if(groupId) {
+                    if (groupId) {
                         res = await getNhomDongHoByGroupId(groupId);
                     } else if (id) {
                         res = await getDongHoById(id);
@@ -68,7 +68,7 @@ export default function DongHoEditPage({ id, groupId }: DongHoEditPage) {
                         fetchGetError("Id không hợp lệ!")
                     } else if (res?.status == 200 || res?.status == 201) {
                         setEditing(true);
-                        if(groupId) {
+                        if (groupId) {
                             if (res?.data.length <= 0) {
                                 fetchGetError("Có lỗi xảy ra trong quá trình truy vấn! Hãy thử lại sau.")
                             } else {
@@ -101,6 +101,8 @@ export default function DongHoEditPage({ id, groupId }: DongHoEditPage) {
         return <></>;
     }
     return (
-        <NhomDongHoNuocForm generalInfoDongHo={dongHoData} isEditing={true} />
+        <>
+            <NhomDongHoNuocForm generalInfoDongHo={dongHoData} isEditing={true} />
+        </>
     );
 }

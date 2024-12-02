@@ -33,7 +33,7 @@ export const DongHoProvider = ({ children }: { children: ReactNode }) => {
         so_qd_pdm: "",
         ten_khach_hang: "",
         co_so_su_dung: "",
-        phuong_phap_thuc_hien: "ĐNVN 17:2017",
+        phuong_phap_thuc_hien: "ĐLVN 17 : 2017",
         chuan_thiet_bi_su_dung: "Đồng hồ chuẩn đo nước và Bình chuẩn",
         nguoi_kiem_dinh: "",
         nguoi_soat_lai:"",

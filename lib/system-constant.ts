@@ -37,7 +37,7 @@ export const ccxOptions = [
 ]
 
 export const limitOptions = [
-    { value: 5, label: 5 },
+    // { value: 5, label: 5 },
     { value: 10, label: 10 },
     { value: 15, label: 15 },
     { value: 20, label: 20 },
@@ -112,15 +112,19 @@ export const ACCESS_LINKS = {
     },
     DHN_EDIT_DH : {
         src: KD_DHN + "/chinh-sua",
-        title: ""
+        title: "Chỉnh sửa đồng hồ nước"
     },
     DHN_EDIT_NDH : {
         src: KD_DHN + "/chinh-sua/nhom",
-        title: ""
+        title: "Chỉnh sửa nhóm đồng hồ nước"
     },
-    DHN_DETAIL : {
+    DHN_DETAIL_DH : {
         src: KD_DHN + "/chi-tiet",
-        title: ""
+        title: "Chi tiết đồng hồ"
+    },
+    DHN_DETAIL_NDH : {
+        src: KD_DHN + "/chi-tiet/nhom",
+        title: "Chi tiết nhóm đồng hồ"
     },
     PDM : {
         src: KD_PDM,
@@ -128,7 +132,7 @@ export const ACCESS_LINKS = {
     },
     PDM_DETAIL : {
         src: KD_PDM + "/chi-tiet",
-        title: ""
+        title: "Chi tiết phê duyệt mẫu"
     },
     PDM_ADD : {
         src: KD_PDM + "/them-moi",

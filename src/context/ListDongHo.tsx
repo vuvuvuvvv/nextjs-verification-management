@@ -60,7 +60,7 @@ export const DongHoListProvider = ({ children }: { children: ReactNode }) => {
         co_so_su_dung: "",
         noi_thuc_hien: "",
         nguoi_soat_lai: "",
-        phuong_phap_thuc_hien: "ĐNVN 17:2017",
+        phuong_phap_thuc_hien: "ĐLVN 17 : 2017",
         chuan_thiet_bi_su_dung: "Đồng hồ chuẩn đo nước và Bình chuẩn",
         nguoi_kiem_dinh: "",
         ngay_thuc_hien: new Date(),
@@ -117,7 +117,7 @@ export const DongHoListProvider = ({ children }: { children: ReactNode }) => {
                 ten_khach_hang: "",
                 co_so_su_dung: "",
                 noi_thuc_hien: "",
-                phuong_phap_thuc_hien: "ĐNVN 17:2017",
+                phuong_phap_thuc_hien: "ĐLVN 17 : 2017",
                 chuan_thiet_bi_su_dung: "Đồng hồ chuẩn đo nước và Bình chuẩn",
                 nguoi_kiem_dinh: "",
                 nguoi_soat_lai: "",
@@ -238,10 +238,6 @@ export const DongHoListProvider = ({ children }: { children: ReactNode }) => {
 
             if (newDHList[index] && newDHList[index].du_lieu_kiem_dinh) {
                 newDHList[index].du_lieu_kiem_dinh = updatedDongHo.du_lieu_kiem_dinh;
-            }
-
-            if (newDHList[dongHoList.length - 1] && newDHList[dongHoList.length - 1].id) {
-                newDHList[index].id = "1";
             }
             return newDHList;
         });

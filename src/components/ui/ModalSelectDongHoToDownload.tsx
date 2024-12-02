@@ -94,6 +94,7 @@ export default function ModalSelectDongHoToDownload({ dongHoList, show, handleCl
                                                 <span style={{ color: 'black' }}>{"Đồng hồ số " + (index + 1)}</span>
                                             }
                                             checked={selectedDongHo.includes(dongHo)}
+                                            onClick={() => isSelectable && toggleSelectDongHo(dongHo)}
                                             onChange={() => isSelectable && toggleSelectDongHo(dongHo)}
                                         />
                                     </label>

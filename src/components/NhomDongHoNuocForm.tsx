@@ -241,8 +241,8 @@ export default function NhomDongHoNuocForm({ className, generalInfoDongHo, isEdi
 
     useEffect(() => {
         if (filterPDMRef.current !== filterPDM && savedDongHoList.length == 0) {
-            const ma_tim_dong_ho_pdm = convertToUppercaseNonAccent(filterPDM.tenDongHo + filterPDM.dn + filterPDM.ccx + filterPDM.kieuSensor + filterPDM.kieuChiThi + (isDHDienTu ? (filterPDM.q3 + filterPDM.r) : filterPDM.qn));
-
+            const ma_tim_dong_ho_pdm = convertToUppercaseNonAccent(filterPDM.tenDongHo + filterPDM.dn + filterPDM.ccx + filterPDM.kieuSensor + filterPDM.kieuChiThi + (["1","2"].includes(ccx) ? (filterPDM.q3 + filterPDM.r) : filterPDM.qn));
+            console.log(filterPDM, ma_tim_dong_ho_pdm);
             const handler = setTimeout(async () => {
                 setLoading(true);
                 try {
@@ -256,7 +256,7 @@ export default function NhomDongHoNuocForm({ className, generalInfoDongHo, isEdi
                             setPhuongPhapThucHien("FMS - PP - 02")
                         }
                         setCoSoSuDung(pdm.don_vi_pdm);
-                        setPhuongPhapThucHien("ĐNVN 17:2017");
+                        setPhuongPhapThucHien("ĐLVN 17 : 2017");
                     } else if (res.status == 404) {
                         setErrorPDM("Không có số PDM phù hợp hoặc số PDM đã hết hạn.")
                         setPhuongPhapThucHien("FMS - PP - 02")
@@ -334,10 +334,10 @@ export default function NhomDongHoNuocForm({ className, generalInfoDongHo, isEdi
         { value: tenKhachHang, setter: setTenKhachhang, id: "ten_khach_hang" },
         { value: coSoSuDung, setter: setCoSoSuDung, id: "co_so_su_dung" },
         { value: phuongPhapThucHien, setter: setPhuongPhapThucHien, id: "phuong_phap_thuc_hien" },
-        // { value: noiSuDung, setter: setNoiSuDung, id: "noi_su_dung" },
+        { value: noiSuDung, setter: setNoiSuDung, id: "noi_su_dung" },
         // { value: viTri, setter: setViTri, id: "vi_tri" },
-        // { value: nhietDo, setter: setNhietDo, id: "nhiet_do" },
-        // { value: doAm, setter: setDoAm, id: "do_am" },
+        { value: nhietDo, setter: setNhietDo, id: "nhiet_do" },
+        { value: doAm, setter: setDoAm, id: "do_am" },
     ];
 
     // TODO:

@@ -40,7 +40,7 @@ export default function PDMManagement({ data, className, listDHNamesExist }: PDM
     const [sortConfig, setSortConfig] = useState<{ key: string, direction: 'asc' | 'desc' | 'default' } | null>(null);
     const [selectedStatus, setSelectedStatus] = useState('');
     const [selectedTenDHOption, setSelectedTenDHOption] = useState('');
-    const [limit, setLimit] = useState(5);
+    // const [limit, setLimit] = useState(5);
     const [error, setError] = useState("");
     const [DHNameOptions, setDHNameOptions] = useState<{ value: string, label: string }[]>([]);
 
@@ -96,19 +96,19 @@ export default function PDMManagement({ data, className, listDHNamesExist }: PDM
     });
     const [currentPage, setCurrentPage] = useState(1);
 
-    const resetTotalPage = () => {
-        setCurrentPage(1);
-        if (rootData.length <= limit) {
-            return 1;
-        }
-        return Math.ceil(rootData.length / limit);
-    }
+    // const resetTotalPage = () => {
+    //     setCurrentPage(1);
+    //     if (rootData.length <= limit) {
+    //         return 1;
+    //     }
+    //     return Math.ceil(rootData.length / limit);
+    // }
 
-    const [totalPage, setTotalPage] = useState(resetTotalPage);
+    // const [totalPage, setTotalPage] = useState(resetTotalPage);
 
-    useEffect(() => {
-        setTotalPage(resetTotalPage);
-    }, [rootData, limit])
+    // useEffect(() => {
+    //     setTotalPage(resetTotalPage);
+    // }, [rootData, limit])
 
     const sortData = useCallback((key: string) => {
         if (!loading) {
@@ -179,11 +179,11 @@ export default function PDMManagement({ data, className, listDHNamesExist }: PDM
         setSelectedStatus("");
     }
 
-    const handlePageChange = (newPage: number) => {
-        setCurrentPage(newPage);
-    };
+    // const handlePageChange = (newPage: number) => {
+    //     setCurrentPage(newPage);
+    // };
 
-    const paginatedData = rootData.slice((currentPage - 1) * limit, currentPage * limit);
+    // const paginatedData = rootData.slice((currentPage - 1) * limit, currentPage * limit);
 
     return (
         <LocalizationProvider dateAdapter={AdapterDayjs} localeText={viVN.components.MuiLocalizationProvider.defaultProps.localeText}>
@@ -355,7 +355,7 @@ export default function PDMManagement({ data, className, listDHNamesExist }: PDM
                                     />
                                 </label>
                             </div>
-                            <div className="col-12 mb-3 col-md-6 col-xl-4">
+                            {/* <div className="col-12 mb-3 col-md-6 col-xl-4">
                                 <label className={`${c_vfml['form-label']}`}>
                                     Số lượng bản ghi:
                                     <Select
@@ -363,8 +363,8 @@ export default function PDMManagement({ data, className, listDHNamesExist }: PDM
                                         options={limitOptions as unknown as readonly GroupBase<never>[]}
                                         className="basic-multi-select"
                                         classNamePrefix="select"
-                                        value={limitOptions.find(option => option.value === limit) || 5}
-                                        onChange={(selectedOptions: any) => setLimit(selectedOptions ? selectedOptions.value : 5)}
+                                        value={limitOptions.find(option => option.value === limit) || 10}
+                                        onChange={(selectedOptions: any) => setLimit(selectedOptions ? selectedOptions.value : 10)}
                                         styles={{
                                             control: (provided) => ({
                                                 ...provided,
@@ -395,7 +395,7 @@ export default function PDMManagement({ data, className, listDHNamesExist }: PDM
                                         }}
                                     />
                                 </label>
-                            </div>
+                            </div> */}
                             <div className={`col-12 col-xl-8 mb-3 m-0 row p-0 ${c_vfml['search-created-date']}`}>
                                 <label className={`${c_vfml['form-label']} col-12`}>
                                     Ngày quyết định PDM:
@@ -450,7 +450,7 @@ export default function PDMManagement({ data, className, listDHNamesExist }: PDM
 
                         <div className={`m-0 p-0 w-100 w-100 mt-4 bg-white position-relative ${c_vfml['wrap-process-table']}`}>
                             {loading && <Loading />}
-                            {paginatedData.length > 0 ? (
+                            {rootData.length > 0 ? (
                                 <table className={`table table-striped table-bordered table-hover ${c_vfml['process-table']}`}>
                                     <thead>
                                         <tr className={`${c_vfml['table-header']}`}>
@@ -467,6 +467,9 @@ export default function PDMManagement({ data, className, listDHNamesExist }: PDM
                                                     )}
                                                 </div>
                                             </th> */}
+                                            <th>
+                                                STT
+                                            </th>
                                             <th>
                                                 <div className={`${c_vfml['table-label']}`}>
                                                     <span>
@@ -516,18 +519,20 @@ export default function PDMManagement({ data, className, listDHNamesExist }: PDM
                                                     </span>
                                                 </div>
                                             </th>
-                                            <th onClick={() => sortData('createdBy')}>
-                                                <div className={`${c_vfml['table-label']}`}>
-                                                    <span>
+                                            <th 
+                                            // onClick={() => sortData('createdBy')}
+                                            >
+                                                {/* <div className={`${c_vfml['table-label']}`}>
+                                                    <span> */}
                                                         Số QĐ-PDM
-                                                    </span>
+                                                    {/* </span>
                                                     {sortConfig && sortConfig.key === 'createdBy' && sortConfig.direction === 'asc' && (
                                                         <FontAwesomeIcon icon={faChevronUp}></FontAwesomeIcon>
                                                     )}
                                                     {sortConfig && sortConfig.key === 'createdBy' && sortConfig.direction === 'desc' && (
                                                         <FontAwesomeIcon icon={faChevronDown}></FontAwesomeIcon>
                                                     )}
-                                                </div>
+                                                </div> */}
                                             </th>
                                             <th>
                                                 <div className={`${c_vfml['table-label']}`}>
@@ -553,11 +558,11 @@ export default function PDMManagement({ data, className, listDHNamesExist }: PDM
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        {paginatedData.map((item, index) => (
+                                        {rootData.map((item, index) => (
                                             <tr key={index}
                                                 onClick={() => window.open(`${ACCESS_LINKS.PDM_DETAIL.src}/${item.ma_tim_dong_ho_pdm}`, '_blank')}
                                                 style={{ cursor: 'pointer' }} >
-                                                {/* <td>{item.id}</td> */}
+                                                <td className="text-center">{rootData.indexOf(item) + 1}</td>
                                                 <td>{item.ten_dong_ho}</td>
                                                 <td>{item.dn}</td>
                                                 <td>{item.ccx}</td>
@@ -583,8 +588,8 @@ export default function PDMManagement({ data, className, listDHNamesExist }: PDM
                             )}
                         </div>
 
-                        <div className="w-100 m-0 p-0 px-3 d-flex align-items-center justify-content-center">
-                            <Pagination currentPage={currentPage} totalPage={totalPage} handlePageChange={handlePageChange}></Pagination>
+                        <div className="w-100 m-0 p-3 d-flex align-items-center justify-content-center">
+                            {/* <Pagination currentPage={currentPage} totalPage={totalPage} handlePageChange={handlePageChange}></Pagination> */}
                         </div>
                     </div>
                 </div>

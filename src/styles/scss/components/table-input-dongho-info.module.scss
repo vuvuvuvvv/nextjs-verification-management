@@ -35,11 +35,12 @@
     .process-table {
         thead {
             position: sticky;
-            top: 0;
+            top: 0px;
             z-index: 9;
         }
 
         .table-header {
+            border-width: 0 !important;
 
             th {
                 background-color: $blue !important;

@@ -59,7 +59,7 @@ export default function NavTab({ className, classNameGroupTab, classNameContent,
                     })}
                 </div>
             </div>
-            <div className={`w-100 p-0 px-1 ${nt['wrap-process-tab']}`}>
+            <div className={`w-100 p-1 ${nt['wrap-process-tab']}`}>
                 <div className={`m-0 p-0 w-100 ${classNameContent ? classNameContent : ""}`} id={nt['process-tab-content']}>
                     {tabContent.map((val, index) => {
                         return (

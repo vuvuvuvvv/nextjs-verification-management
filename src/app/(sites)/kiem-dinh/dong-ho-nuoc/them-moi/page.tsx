@@ -18,7 +18,7 @@ interface AddNewDongHoNuocProps {
 
 export default function AddNewDongHoNuoc({ className }: AddNewDongHoNuocProps) {
     const { user } = useUser();
-    const { setAmount, setDongHoList } = useDongHoList();
+    const { setAmount, setDongHoList, setSavedDongHoList } = useDongHoList();
 
     const [oldDongHoData, setOldDongHoData] = useState<DongHo[]>([]);
     const [oldDongHoSavedData, setOldDongHoSavedData] = useState<DongHo[]>([]);
@@ -97,6 +97,7 @@ export default function AddNewDongHoNuoc({ className }: AddNewDongHoNuocProps) {
             }).then((result) => {
                 if (result.isConfirmed) {
                     setDongHoList(oldDongHoData);
+                    setSavedDongHoList(oldDongHoSavedData);
                     setModalOpen(false);
                 } else {
                     deleteOldData();

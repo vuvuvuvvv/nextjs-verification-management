@@ -43,7 +43,7 @@ interface GeneralInfo {
     nguoi_kiem_dinh: string | null;
     ngay_thuc_hien: Date | null;
     noi_su_dung: string | null;
-    noi_thuc_hien: string|null;
+    noi_thuc_hien: string | null;
     vi_tri: string | null;
     nhiet_do: string | null;
     do_am: string | null;
@@ -329,7 +329,7 @@ export default function DetailNhomDongHo({ nhomDongHo }: DetailNhomDongHoProps) 
                 </div>
                 <div className="container bg-white px-3 py-4 p-md-5">
                     <div className={`w-100 mb-3 mx-0 d-flex align-items-center justify-content-end p-0}`}>
-                        <Link href={ACCESS_LINKS.DHN_EDIT_NDH.src  + "/" + generalInfo.group_id} aria-label="Chỉnh sửa đồng hồ" className="btn bg-warning text-white">
+                        <Link href={ACCESS_LINKS.DHN_EDIT_NDH.src + "/" + generalInfo.group_id} aria-label="Chỉnh sửa đồng hồ" className="btn bg-warning text-white">
                             <FontAwesomeIcon icon={faEdit} className="me-1"></FontAwesomeIcon> Chỉnh sửa
                         </Link>
                     </div>
@@ -393,23 +393,37 @@ export default function DetailNhomDongHo({ nhomDongHo }: DetailNhomDongHoProps) 
 
                             <div className="w-100 mb-3 d-flex row mx-0 align-items-center justify-content-between">
                                 <h4 className="col-12 col-md-4 mb-md-0 p-0 text-center text-md-start text-uppercase text-decoration-underline fw-bold">Đồng hồ số {index + 1}:</h4>
-
-                                <div className={`col-12 px-0 col-md-8 ${dongHo.so_giay_chung_nhan ? "d-flex":"d-none"} align-items-center justify-content-center justify-content-md-end`}>
+                                {/* TODO: check dk tai xuong */}
+                                <div className={`col-12 px-0 col-md-8 d-flex align-items-center justify-content-center justify-content-md-end`}>
+                                    <Link href={ACCESS_LINKS.DHN_EDIT_DH.src + "/" + dongHo.id} aria-label="Chỉnh sửa đồng hồ" className="btn border-0 me-2 bg-warning">
+                                        <FontAwesomeIcon icon={faEdit}></FontAwesomeIcon>
+                                    </Link>
                                     <span style={{ cursor: "unset" }} className="btn border-0 bg-lighter-grey rounded-start rounded-end-0"><FontAwesomeIcon icon={faDownload}></FontAwesomeIcon></span>
-                                    <button aria-label="Tải biên bản kiểm định" className="btn bg-main-green rounded-0 text-white" onClick={() => handleDownloadBB(dongHo)}>
-                                        <FontAwesomeIcon icon={faFileExcel} className="me-1"></FontAwesomeIcon> Biên bản
+                                    <button aria-label="Tải biên bản kiểm định" className="btn border-top-0 border-bottom-0 bg-main-green rounded-0 text-white" onClick={() => handleDownloadBB(dongHo)}>
+                                        <span className="d-sm-none">
+                                            <FontAwesomeIcon icon={faFileExcel} className="me-1"></FontAwesomeIcon> BB
+                                        </span>
+                                        <span className="d-none d-sm-block">
+                                            <FontAwesomeIcon icon={faFileExcel} className="me-1"></FontAwesomeIcon> Biên bản
+                                        </span>
+
                                     </button>
-                                    <button aria-label="Tải giấy chứng nhận kiểm định" className="btn bg-main-green text-white border-start rounded-start-0 rounded-end" onClick={() => handleDownloadGCN(dongHo)}>
-                                        <FontAwesomeIcon icon={faFileExcel} className="me-1"></FontAwesomeIcon> Giấy chứng nhận
+                                    <button aria-label="Tải giấy chứng nhận kiểm định" className={`btn border-top-0 border-bottom-0 bg-main-green text-white border-start rounded-start-0 rounded-end ${dongHo.so_giay_chung_nhan ? "d-flex" : "d-none"}`} onClick={() => handleDownloadGCN(dongHo)}>
+                                        <span className="d-sm-none">
+                                            <FontAwesomeIcon icon={faFileExcel} className="me-1"></FontAwesomeIcon> GCN
+                                        </span>
+                                        <span className="d-none d-sm-block">
+                                            <FontAwesomeIcon icon={faFileExcel} className="me-1"></FontAwesomeIcon> Giấy chứng nhận
+                                        </span>
                                     </button>
                                 </div>
                             </div>
 
                             <div className="row px-3">
-                                <div className="col-12 col-md-6">
+                                <div className="col-12 m-0 p-0 col-md-6">
                                     <p>Số giấy chứng nhận: <b>{(dongHo.so_giay_chung_nhan) ? getFullSoGiayCN(dongHo.so_giay_chung_nhan, dongHo.ngay_thuc_hien || new Date) : "Không có số giấy chứng nhận"}</b></p>
                                 </div>
-                                <div className="col-12 col-md-6">
+                                <div className="col-12 m-0 p-0 col-md-6">
                                     <p>Số tem: <b>{dongHo.so_tem ? dongHo.so_tem : "Không có số tem"}</b></p>
                                 </div>
                                 {dongHo.seri_sensor && <div className="col-12">

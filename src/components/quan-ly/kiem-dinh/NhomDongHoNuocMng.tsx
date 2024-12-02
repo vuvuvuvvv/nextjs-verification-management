@@ -39,7 +39,7 @@ export default function NhomDongHoNuocManagement({ className }: NhomDongHoNuocMa
 
     const [filterLoading, setFilterLoading] = useState(true);
     const [sortConfig, setSortConfig] = useState<{ key: string, direction: 'asc' | 'desc' | 'default' } | null>(null);
-    const [limit, setLimit] = useState(5);
+    // const [limit, setLimit] = useState(10);
     const [error, setError] = useState("");
 
     const fetchDHNameCalled = useRef(false);
@@ -106,7 +106,7 @@ export default function NhomDongHoNuocManagement({ className }: NhomDongHoNuocMa
         ngay_kiem_dinh_from: null,
         ngay_kiem_dinh_to: null
     });
-    const [currentPage, setCurrentPage] = useState(1);
+    // const [currentPage, setCurrentPage] = useState(1);
 
     useEffect(() => {
         if (fetchCalled.current) return;
@@ -127,19 +127,19 @@ export default function NhomDongHoNuocManagement({ className }: NhomDongHoNuocMa
         fetchData();
     }, []);
 
-    const resetTotalPage = () => {
-        setCurrentPage(1);
-        if (!rootData || rootData.length <= limit) {
-            return 1;
-        }
-        return Math.ceil(rootData.length / limit);
-    }
+    // const resetTotalPage = () => {
+    //     setCurrentPage(1);
+    //     if (!rootData || rootData.length <= (limit ? limit : 1)) {
+    //         return 1;
+    //     }
+    //     return Math.ceil(rootData.length / (limit ? limit : 1));
+    // }
 
-    const [totalPage, setTotalPage] = useState(resetTotalPage);
+    // const [totalPage, setTotalPage] = useState(resetTotalPage);
 
-    useEffect(() => {
-        setTotalPage(resetTotalPage);
-    }, [rootData, limit])
+    // useEffect(() => {
+    //     setTotalPage(resetTotalPage);
+    // }, [rootData, limit])
 
     const sortData = useCallback((key: keyof NhomDongHo) => {
         if (!filterLoading) {
@@ -207,11 +207,11 @@ export default function NhomDongHoNuocManagement({ className }: NhomDongHoNuocMa
         });
     }
 
-    const handlePageChange = (newPage: number) => {
-        setCurrentPage(newPage);
-    };
+    // const handlePageChange = (newPage: number) => {
+    //     setCurrentPage(newPage);
+    // };
 
-    const paginatedData = rootData ? rootData.slice((currentPage - 1) * limit, currentPage * limit) : [];
+    // const paginatedData = rootData ? rootData.slice((currentPage - 1) * limit, currentPage * limit) : [];
 
     return (
         <LocalizationProvider dateAdapter={AdapterDayjs} localeText={viVN.components.MuiLocalizationProvider.defaultProps.localeText}>
@@ -219,7 +219,7 @@ export default function NhomDongHoNuocManagement({ className }: NhomDongHoNuocMa
                 <div className={`${c_vfml['wraper']} w-100`}>
 
 
-                    <div className="bg-white w-100 shadow-sm mb-3 rounded pb-2 pt-4">
+                    <div className="bg-white w-100 shadow-sm mb-2 rounded pb-2 pt-4">
                         <div className={`row m-0 px-md-3 w-100 mb-3 ${c_vfml['search-process']}`}>
                             {/* <div className="col-12 mb-3 col-md-6 col-xl-4 d-flex">
                             <label className={`${c_vfml['form-label']}`} htmlFor="process-id">
@@ -326,7 +326,7 @@ export default function NhomDongHoNuocManagement({ className }: NhomDongHoNuocMa
                                     />
                                 </label>
                             </div>
-                            <div className={`col-12 col-md-6 col-xl-4 mb-3 m-0 p-0 row`}>
+                            {/* <div className={`col-12 col-md-6 col-xl-4 mb-3 m-0 p-0 row`}>
                                 <label className={`${c_vfml['form-label']}`}>
                                     Số lượng bản ghi:
                                     <Select
@@ -334,8 +334,8 @@ export default function NhomDongHoNuocManagement({ className }: NhomDongHoNuocMa
                                         options={limitOptions as unknown as readonly GroupBase<never>[]}
                                         className="basic-multi-select"
                                         classNamePrefix="select"
-                                        value={limitOptions.find(option => option.value === limit) || 5}
-                                        onChange={(selectedOptions: any) => setLimit(selectedOptions ? selectedOptions.value : 5)}
+                                        value={limitOptions.find(option => option.value === limit) || 10}
+                                        onChange={(selectedOptions: any) => setLimit(selectedOptions ? selectedOptions.value : 10)}
                                         styles={{
                                             control: (provided) => ({
                                                 ...provided,
@@ -366,7 +366,7 @@ export default function NhomDongHoNuocManagement({ className }: NhomDongHoNuocMa
                                         }}
                                     />
                                 </label>
-                            </div>
+                            </div> */}
 
                             <div className={`col-12 col-xl-8 mb-3 m-0 row p-0 ${c_vfml['search-created-date']}`}>
                                 <label className={`${c_vfml['form-label']} col-12`}>
@@ -420,7 +420,8 @@ export default function NhomDongHoNuocManagement({ className }: NhomDongHoNuocMa
                     <div className="bg-white w-100 shadow-sm rounded overflow-hidden">
                         <div className={`m-0 p-0 w-100 w-100 position-relative ${c_vfml['wrap-process-table']}`}>
                             {filterLoading && <Loading />}
-                            {paginatedData.length > 0 ? (
+                            {/* {paginatedData.length > 0 ? ( */}
+                            {rootData.length > 0 ? (
                                 <table className={`table table-striped table-bordered table-hover ${c_vfml['process-table']}`}>
                                     <thead>
                                         <tr className={`${c_vfml['table-header']}`}>
@@ -433,10 +434,10 @@ export default function NhomDongHoNuocManagement({ className }: NhomDongHoNuocMa
                                                         Tên đồng hồ
                                                     </span>
                                                     {sortConfig && sortConfig.key === 'ten_dong_ho' && sortConfig.direction === 'asc' && (
-                                                        <FontAwesomeIcon icon={faChevronUp}></FontAwesomeIcon>
+                                                        <FontAwesomeIcon icon={faChevronDown}></FontAwesomeIcon>
                                                     )}
                                                     {sortConfig && sortConfig.key === 'ten_dong_ho' && sortConfig.direction === 'desc' && (
-                                                        <FontAwesomeIcon icon={faChevronDown}></FontAwesomeIcon>
+                                                        <FontAwesomeIcon icon={faChevronUp}></FontAwesomeIcon>
                                                     )}
                                                 </div>
                                             </th>
@@ -446,10 +447,10 @@ export default function NhomDongHoNuocManagement({ className }: NhomDongHoNuocMa
                                                         Số lượng
                                                     </span>
                                                     {sortConfig && sortConfig.key === 'so_luong' && sortConfig.direction === 'asc' && (
-                                                        <FontAwesomeIcon icon={faChevronUp}></FontAwesomeIcon>
+                                                        <FontAwesomeIcon icon={faChevronDown}></FontAwesomeIcon>
                                                     )}
                                                     {sortConfig && sortConfig.key === 'so_luong' && sortConfig.direction === 'desc' && (
-                                                        <FontAwesomeIcon icon={faChevronDown}></FontAwesomeIcon>
+                                                        <FontAwesomeIcon icon={faChevronUp}></FontAwesomeIcon>
                                                     )}
                                                 </div>
                                             </th>
@@ -459,10 +460,10 @@ export default function NhomDongHoNuocManagement({ className }: NhomDongHoNuocMa
                                                         Tên khách hàng
                                                     </span>
                                                     {sortConfig && sortConfig.key === 'ten_khach_hang' && sortConfig.direction === 'asc' && (
-                                                        <FontAwesomeIcon icon={faChevronUp}></FontAwesomeIcon>
+                                                        <FontAwesomeIcon icon={faChevronDown}></FontAwesomeIcon>
                                                     )}
                                                     {sortConfig && sortConfig.key === 'ten_khach_hang' && sortConfig.direction === 'desc' && (
-                                                        <FontAwesomeIcon icon={faChevronDown}></FontAwesomeIcon>
+                                                        <FontAwesomeIcon icon={faChevronUp}></FontAwesomeIcon>
                                                     )}
                                                 </div>
                                             </th>
@@ -472,10 +473,10 @@ export default function NhomDongHoNuocManagement({ className }: NhomDongHoNuocMa
                                                         Người kiểm định
                                                     </span>
                                                     {sortConfig && sortConfig.key === 'nguoi_kiem_dinh' && sortConfig.direction === 'asc' && (
-                                                        <FontAwesomeIcon icon={faChevronUp}></FontAwesomeIcon>
+                                                        <FontAwesomeIcon icon={faChevronDown}></FontAwesomeIcon>
                                                     )}
                                                     {sortConfig && sortConfig.key === 'nguoi_kiem_dinh' && sortConfig.direction === 'desc' && (
-                                                        <FontAwesomeIcon icon={faChevronDown}></FontAwesomeIcon>
+                                                        <FontAwesomeIcon icon={faChevronUp}></FontAwesomeIcon>
                                                     )}
                                                 </div>
                                             </th>
@@ -485,10 +486,10 @@ export default function NhomDongHoNuocManagement({ className }: NhomDongHoNuocMa
                                                         Ngày thực hiện
                                                     </span>
                                                     {sortConfig && sortConfig.key === 'ngay_thuc_hien' && sortConfig.direction === 'asc' && (
-                                                        <FontAwesomeIcon icon={faChevronUp}></FontAwesomeIcon>
+                                                        <FontAwesomeIcon icon={faChevronDown}></FontAwesomeIcon>
                                                     )}
                                                     {sortConfig && sortConfig.key === 'ngay_thuc_hien' && sortConfig.direction === 'desc' && (
-                                                        <FontAwesomeIcon icon={faChevronDown}></FontAwesomeIcon>
+                                                        <FontAwesomeIcon icon={faChevronUp}></FontAwesomeIcon>
                                                     )}
                                                 </div>
                                             </th>
@@ -496,13 +497,14 @@ export default function NhomDongHoNuocManagement({ className }: NhomDongHoNuocMa
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        {paginatedData.map((item, index) => (
+                                        {/* {paginatedData.map((item, index) => ( */}
+                                        {rootData.map((item, index) => (
                                             <tr
                                                 key={index}
-                                                onClick={() => window.open(`${ACCESS_LINKS.DHN_DETAIL.src}/nhom/${item.group_id}`, '_blank')}
+                                                onClick={() => window.open(`${ACCESS_LINKS.DHN_DETAIL_NDH.src}/${item.group_id}`)}
                                                 style={{ cursor: 'pointer' }}
                                             >
-                                                <td className="text-center">{index + 1}</td>
+                                                <td className="text-center">{rootData.indexOf(item) + 1}</td>
                                                 <td>{item.ten_dong_ho}</td>
                                                 <td>{item.so_luong}</td>
                                                 <td>{item.ten_khach_hang}</td>
@@ -511,7 +513,7 @@ export default function NhomDongHoNuocManagement({ className }: NhomDongHoNuocMa
                                                 <td
                                                     onClick={() => window.open(`${ACCESS_LINKS.DHN_EDIT_NDH.src + "/" + item.group_id}`)}
                                                 >
-                                                    {/* <Link target="_blank" aria-label="Xem chi tiết" href={ACCESS_LINKS.DHN_DETAIL.src + "/nhom/" + item.group_id} className={`btn w-100 text-blue`}>
+                                                    {/* <Link target="_blank" aria-label="Xem chi tiết" href={ACCESS_LINKS.DHN_DETAIL_NDH.src + "/nhom/" + item.group_id} className={`btn w-100 text-blue`}>
                                                         <FontAwesomeIcon icon={faEye}></FontAwesomeIcon>
                                                     </Link> */}
                                                     <Link aria-label="Chỉnh sửa" href={ACCESS_LINKS.DHN_EDIT_NDH.src + "/" + item.group_id} className={`btn w-100 text-blue shadow-0`}>
@@ -526,8 +528,8 @@ export default function NhomDongHoNuocManagement({ className }: NhomDongHoNuocMa
                                 <p className="text-center py-3 m-0 w-100">Không có dữ liệu</p>
                             )}
                         </div>
-                        <div className="w-100 m-0 p-0 px-3 d-flex align-items-center justify-content-center">
-                            <Pagination currentPage={currentPage} totalPage={totalPage} handlePageChange={handlePageChange}></Pagination>
+                        <div className="w-100 m-0 p-3 d-flex align-items-center justify-content-center">
+                            {/* <Pagination currentPage={currentPage} totalPage={totalPage} handlePageChange={handlePageChange}></Pagination> */}
                         </div>
                     </div>
                 </div>
