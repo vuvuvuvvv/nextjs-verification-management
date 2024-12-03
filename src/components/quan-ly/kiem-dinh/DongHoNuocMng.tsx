@@ -20,9 +20,10 @@ import { DongHo, DongHoFilterParameters, DuLieuChayDongHo } from "@lib/types";
 // import { usePathname } from "next/navigation";
 import Link from "next/link";
 
-import { ACCESS_LINKS,
+import {
+    ACCESS_LINKS,
     //  limitOptions 
-    } from "@lib/system-constant";
+} from "@lib/system-constant";
 import Swal from "sweetalert2";
 import { getAllDongHo, getDongHoByFilter } from "@/app/api/dongho/route";
 
@@ -254,7 +255,6 @@ export default function WaterMeterManagement({ className, isBiggerThan15 = false
             <div className={`${className ? className : ""} m-0 w-100`}>
                 <div className={`${c_vfml['wraper']} w-100`}>
 
-
                     <div className="bg-white w-100 shadow-sm mb-2 rounded pb-2 pt-4">
                         <div className={`row m-0 px-md-3 w-100 mb-3 ${c_vfml['search-process']}`}>
                             {/* <div className="col-12 mb-3 col-md-6 col-xl-4 d-flex">
@@ -401,9 +401,9 @@ export default function WaterMeterManagement({ className, isBiggerThan15 = false
                         </div>
                     </div>
 
-                    <div className="bg-white w-100 shadow-sm rounded overflow-hidden">
+                    <div className="bg-white w-100 shadow-sm position-relative rounded overflow-hidden">
+                        {filterLoading && <Loading />}
                         <div className={`m-0 p-0 w-100 w-100 position-relative ${c_vfml['wrap-process-table']}`}>
-                            {filterLoading && <Loading />}
                             {rootData.length > 0 ? (
                                 <table className={`table table-striped table-bordered table-hover ${c_vfml['process-table']}`}>
                                     <thead>
@@ -481,50 +481,60 @@ export default function WaterMeterManagement({ className, isBiggerThan15 = false
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        {rootData.map((item, index) => (
-                                            <tr
-                                                key={index}
-                                                onClick={() => window.open(`${ACCESS_LINKS.DHN_DETAIL_DH.src}/${item.id}`)}
-                                                style={{ cursor: 'pointer' }}
-                                            >
-                                                <td className="text-center">{rootData.indexOf(item) + 1}</td>
-                                                <td>{item.so_giay_chung_nhan}</td>
-                                                <td>{item.ten_khach_hang}</td>
-                                                <td>{item.nguoi_kiem_dinh}</td>
-                                                <td>{dayjs(item.ngay_thuc_hien).format('DD-MM-YYYY')}</td>
-                                                <td>
-                                                    {processDuLieu(item.du_lieu_kiem_dinh as { du_lieu?: DuLieuChayDongHo })}
-                                                </td>
-                                                <td
-                                                    onClick={() => window.open(`${ACCESS_LINKS.DHN_EDIT_NDH.src + "/" + item.group_id}`)}
-                                                >
-                                                    {/* <Link target="_blank" aria-label="Xem chi tiết" href={ACCESS_LINKS.DHN_DETAIL_DH.src + "/" + item.id} className={`btn w-100 text-blue`}>
-                                                        <FontAwesomeIcon icon={faEye}></FontAwesomeIcon>
-                                                    </Link> */}
-                                                    <Link aria-label="Chỉnh sửa" href={ACCESS_LINKS.DHN_EDIT_DH.src + "/" + item.id} className={`btn w-100 text-blue shadow-0`}>
-                                                        <FontAwesomeIcon icon={faEdit}></FontAwesomeIcon>
-                                                    </Link>
+                                        {rootData.map((dongHo, index) => {
+                                            const duLieuKiemDinhJSON = dongHo.du_lieu_kiem_dinh;
+                                            const duLieuKiemDinh = duLieuKiemDinhJSON ?
+                                                ((typeof duLieuKiemDinhJSON != 'string') ?
+                                                    duLieuKiemDinhJSON : JSON.parse(duLieuKiemDinhJSON)
+                                                ) : null;
+                                            const ketQua = duLieuKiemDinh?.ket_qua;
 
-                                                    {/* <div className={`dropdown ${c_vfml['action']}`}>
-                                                        <button aria-label="Lựa chọn" className={`${c_vfml['action-button']}`} type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                                            <FontAwesomeIcon icon={faEllipsisH}></FontAwesomeIcon>
-                                                        </button>
-                                                        <ul className={`dropdown-menu ${c_vfml['dropdown-menu']}`} style={{ zIndex: "777" }}>
-                                                            <li>
-                                                                <Link aria-label="Xem chi tiết" href={ACCESS_LINKS.DHN_DETAIL_DH.src + "/"+ item.serial_number} className={`btn w-100`}>
-                                                                    Xem chi tiết
-                                                                </Link>
-                                                            </li>
-                                                            <li>
-                                                                <button aria-label="Xóa" type="button" onClick={() => handleDelete(item.serial_number)} className={`btn w-100`}>
-                                                                    Xóa
-                                                                </button>
-                                                            </li>
-                                                        </ul>
-                                                    </div> */}
-                                                </td>
-                                            </tr>
-                                        ))}
+                                            return (
+                                                <tr
+                                                    key={index}
+                                                    onClick={() => window.open(`${ACCESS_LINKS.DHN_DETAIL_DH.src}/${dongHo.id}`)}
+                                                    style={{ cursor: 'pointer' }}
+                                                >
+                                                    <td className="text-center">{rootData.indexOf(dongHo) + 1}</td>
+                                                    <td>{dongHo.so_giay_chung_nhan}</td>
+                                                    <td>{dongHo.ten_khach_hang}</td>
+                                                    <td>{dongHo.nguoi_kiem_dinh}</td>
+                                                    <td>{dayjs(dongHo.ngay_thuc_hien).format('DD-MM-YYYY')}</td>
+                                                    <td>
+                                                        {/* {processDuLieu(dongHo.du_lieu_kiem_dinh as { du_lieu?: DuLieuChayDongHo })} */}
+                                                        {ketQua != null ? (ketQua ? "Đạt" : "Không đạt") : "Chưa kiểm định"}
+                                                    </td>
+                                                    <td
+                                                        onClick={() => window.open(`${ACCESS_LINKS.DHN_EDIT_NDH.src + "/" + dongHo.group_id}`)}
+                                                    >
+                                                        {/* <Link target="_blank" aria-label="Xem chi tiết" href={ACCESS_LINKS.DHN_DETAIL_DH.src + "/" + dongHo.id} className={`btn w-100 text-blue`}>
+                                                            <FontAwesomeIcon icon={faEye}></FontAwesomeIcon>
+                                                        </Link> */}
+                                                        <Link aria-label="Chỉnh sửa" href={ACCESS_LINKS.DHN_EDIT_DH.src + "/" + dongHo.id} className={`btn w-100 text-blue shadow-0`}>
+                                                            <FontAwesomeIcon icon={faEdit}></FontAwesomeIcon>
+                                                        </Link>
+
+                                                        {/* <div className={`dropdown ${c_vfml['action']}`}>
+                                                            <button aria-label="Lựa chọn" className={`${c_vfml['action-button']}`} type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                                                <FontAwesomeIcon icon={faEllipsisH}></FontAwesomeIcon>
+                                                            </button>
+                                                            <ul className={`dropdown-menu ${c_vfml['dropdown-menu']}`} style={{ zIndex: "777" }}>
+                                                                <li>
+                                                                    <Link aria-label="Xem chi tiết" href={ACCESS_LINKS.DHN_DETAIL_DH.src + "/"+ dongHo.serial_number} className={`btn w-100`}>
+                                                                        Xem chi tiết
+                                                                    </Link>
+                                                                </li>
+                                                                <li>
+                                                                    <button aria-label="Xóa" type="button" onClick={() => handleDelete(dongHo.serial_number)} className={`btn w-100`}>
+                                                                        Xóa
+                                                                    </button>
+                                                                </li>
+                                                            </ul>
+                                                        </div> */}
+                                                    </td>
+                                                </tr>
+                                            )
+                                        })}
                                     </tbody>
                                 </table>
                             ) : (

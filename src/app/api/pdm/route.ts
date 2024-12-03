@@ -33,6 +33,22 @@ export const getPDMByFilter = async (parameters?: PDMFilterParameters) => {
             url.searchParams.append('tinh_trang', parameters.tinh_trang.toString());
         }
 
+        if (parameters?.dn) {
+            url.searchParams.append('dn', parameters.dn.toString());
+        }
+
+        if (parameters?.ccx) {
+            url.searchParams.append('ccx', parameters.ccx.toString());
+        }
+
+        if (parameters?.kieu_sensor) {
+            url.searchParams.append('kieu_sensor', parameters.kieu_sensor.toString());
+        }
+
+        if (parameters?.transmitter) {
+            url.searchParams.append('transmitter', parameters.transmitter.toString());
+        }
+
         const response = await api.get(url.toString(), { withCredentials: true });
 
         return {

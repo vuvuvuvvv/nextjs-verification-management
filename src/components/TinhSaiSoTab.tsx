@@ -271,7 +271,7 @@ export default function TinhSaiSoTab({ className, tabIndex, d, q, Form, onFormHS
                                     type="text"
                                     className={`form-control text-start`}
                                     disabled
-                                    value={(getVToiThieu((q.title == TITLE_LUU_LUONG.q3 && isDHDienTu != null && isDHDienTu) ? parseFloat(q.value) * 0.3 : q.value, d)) || ""}
+                                    value={(getVToiThieu((q.title == TITLE_LUU_LUONG.q3 && isDHDienTu != null && isDHDienTu) ? parseFloat(Number(q.value).toString()) * 0.3 : q.value, d)) || ""}
                                 />
                                 <span className="input-group-text">lít</span>
                             </div>

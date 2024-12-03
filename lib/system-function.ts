@@ -5,7 +5,7 @@ import { INDEXED_DB_DH_OBJ_NAME, INDEXED_DB_NAME } from "./system-constant";
 
 export const getSaiSoDongHo = (formValue: DuLieuMotLanChay) => {
     if (formValue) {
-        if ((formValue.V2 == 0 && formValue.V1 == 0) || (formValue.V2 - formValue.V1 == 0)) {
+        if ((formValue.V2 == 0 && formValue.V1 == 0) || (formValue.V2 - formValue.V1 <= 0)) {
             return null;
         };
 
@@ -88,9 +88,9 @@ export const getVToiThieu = (q: string | number, d: string | number) => {
 
 export const getHieuSaiSo = (formValues: TinhSaiSoValueTabs) => {
     try {
-        const hasZeroValues = Object.values(formValues).some(({ V1, V2 }) => V1 === 0 && V2 === 0);
-        if (hasZeroValues) return null;
-
+        const hasErrorFormValues = Object.values(formValues).some(({ V1, V2 }) => (Number(V1) === 0 && Number(V2) === 0) || Number(V2) - Number(V1) <= 0);
+        if (hasErrorFormValues) return null;
+        console.log(formValues);
         const values = Object.values(formValues)
             .map(getSaiSoDongHo)
             .filter(value => value !== null);
@@ -209,7 +209,7 @@ export async function saveDongHoDataExistsToIndexedDB(username: string, data: Do
         const transaction = db.transaction(INDEXED_DB_DH_OBJ_NAME, "readwrite");
         const store = transaction.objectStore(INDEXED_DB_DH_OBJ_NAME);
 
-        const dataToStore = { id: username, dongHoList: data, savedDongHoList: (savedData && savedData.length != 0) ? savedData : []};
+        const dataToStore = { id: username, dongHoList: data, savedDongHoList: (savedData && savedData.length != 0) ? savedData : [] };
 
         const request = store.put(dataToStore);
 

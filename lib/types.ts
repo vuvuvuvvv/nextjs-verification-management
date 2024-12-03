@@ -67,6 +67,10 @@ export interface PDMFilterParameters {
     ngay_qd_pdm_from: Date | null,
     ngay_qd_pdm_to: Date | null,
     tinh_trang: string | null,
+    dn: string | null,
+    ccx?: string | null,
+    kieu_sensor?: string | null,
+    transmitter?: string | null,
 }
 
 export interface ReportData {
@@ -272,6 +276,7 @@ export interface NhomDongHo {
     co_so_su_dung: string | null;
     nguoi_kiem_dinh: string | null;
     ngay_thuc_hien: Date | null;
+    is_paid?: boolean | null;
 }
 
 export interface NhomDongHoFilterParameters {

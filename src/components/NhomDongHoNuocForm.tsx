@@ -241,7 +241,7 @@ export default function NhomDongHoNuocForm({ className, generalInfoDongHo, isEdi
 
     useEffect(() => {
         if (filterPDMRef.current !== filterPDM && savedDongHoList.length == 0) {
-            const ma_tim_dong_ho_pdm = convertToUppercaseNonAccent(filterPDM.tenDongHo + filterPDM.dn + filterPDM.ccx + filterPDM.kieuSensor + filterPDM.kieuChiThi + (["1","2"].includes(ccx) ? (filterPDM.q3 + filterPDM.r) : filterPDM.qn));
+            const ma_tim_dong_ho_pdm = convertToUppercaseNonAccent(filterPDM.tenDongHo + filterPDM.dn + filterPDM.ccx + filterPDM.kieuSensor + filterPDM.kieuChiThi + (ccx ? ((["1", "2"].includes(ccx) ? (filterPDM.q3 + filterPDM.r) : filterPDM.qn)) : ""));
             console.log(filterPDM, ma_tim_dong_ho_pdm);
             const handler = setTimeout(async () => {
                 setLoading(true);
@@ -547,7 +547,7 @@ export default function NhomDongHoNuocForm({ className, generalInfoDongHo, isEdi
     // Fumc: Get Q1, Q2
     useEffect(() => {
         if (ccx && ((q3 && r) || qn)) {
-            const { getQ1OrMin, getQ2OrQt } = getQ2OrQtAndQ1OrQMin(isDHDienTu, ccx, isDHDienTu ? q3 : qn, r);
+            const { getQ1OrMin, getQ2OrQt } = getQ2OrQtAndQ1OrQMin(isDHDienTu, ccx, isDHDienTu ? q3 : qn, isDHDienTu ? r : null);
             setQ2OrQmin(getQ1OrMin);
             setQ1OrQt(getQ2OrQt);
         }

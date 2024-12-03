@@ -30,20 +30,22 @@ export default function DetailDongHo({ dongHo }: DetailDongHoProps) {
     useEffect(() => {
         if (dongHo) {
             setListKeys(dongHo.q3 ? ["Q3", "Q2", "Q1"] : dongHo.qn ? ['Qn', "Qt", "Qmin"] : null);
+            const duLieuKiemDinhJSON = dongHo.du_lieu_kiem_dinh;
+            const duLieuKiemDinh = duLieuKiemDinhJSON ?
+                ((typeof duLieuKiemDinhJSON != 'string') ?
+                    duLieuKiemDinhJSON : JSON.parse(duLieuKiemDinhJSON)
+                ) : null;
 
-            const duLieuKiemDinh = dongHo.du_lieu_kiem_dinh as { du_lieu?: DuLieuChayDongHo };
             if (duLieuKiemDinh?.du_lieu) {
                 const dlKiemDinh = duLieuKiemDinh.du_lieu;
                 setDuLieuKiemDinhCacLuuLuong(dlKiemDinh);
             }
-            const duLieuHSS = dongHo.du_lieu_kiem_dinh as { hieu_sai_so?: { hss: number | null }[] };
-            if (duLieuHSS?.hieu_sai_so) {
-                setFormHieuSaiSo(duLieuHSS.hieu_sai_so);
+
+            if (duLieuKiemDinh?.hieu_sai_so) {
+                setFormHieuSaiSo(duLieuKiemDinh.hieu_sai_so);
             }
-            const duLieuKetQua = dongHo.du_lieu_kiem_dinh as { ket_qua?: boolean } | null;
-            if (duLieuKetQua?.ket_qua != null) {
-                setKetQua(duLieuKetQua.ket_qua);
-            }
+
+            setKetQua(duLieuKiemDinh.ket_qua);
         }
     }, [dongHo]);
 
@@ -67,12 +69,11 @@ export default function DetailDongHo({ dongHo }: DetailDongHoProps) {
                                     if (indexHead) {
                                         jsxStart = <>
                                             <td rowSpan={rowSpan}>
-                                                {key === TITLE_LUU_LUONG.q1
-                                                    ? "QI" : key === TITLE_LUU_LUONG.q2
-                                                        ? "QII" : key === TITLE_LUU_LUONG.q3
-                                                            ? "QIII" : key}
+                                                {(key === TITLE_LUU_LUONG.q1 || key === TITLE_LUU_LUONG.qmin)
+                                                    ? "I" : ((key === TITLE_LUU_LUONG.q2 || key === TITLE_LUU_LUONG.qt)
+                                                        ? "II" : "III")}
                                             </td>
-                                            <td rowSpan={rowSpan}>{value.value}</td>
+                                            <td rowSpan={rowSpan}>{key === TITLE_LUU_LUONG.q3 ? 0.3 * parseFloat(Number(value.value).toString()) : value.value}</td>
                                         </>;
                                         const hss = hieuSaiSo ? hieuSaiSo[
                                             [TITLE_LUU_LUONG.q1, TITLE_LUU_LUONG.qmin].includes(key)
@@ -162,21 +163,21 @@ export default function DetailDongHo({ dongHo }: DetailDongHoProps) {
         <title>{dongHo?.ten_dong_ho}</title>
         {dongHo ? (
             <div className="w-100 container my-3 p-0">
-                <div className={`w-100 mb-3 mx-0 d-flex align-items-center justify-content-center justify-content-md-end p-0 ${ketQua == null || !dongHo.so_giay_chung_nhan ? 'd-none' : ''}`}>
-                    <span style={{ cursor: "unset" }} className="btn border-0 bg-lighter-grey rounded-start rounded-end-0"><FontAwesomeIcon icon={faDownload}></FontAwesomeIcon></span>
-                    <button aria-label="Tải biên bản kiểm định" className="btn bg-main-green rounded-0 border-0 text-white" onClick={handleDownloadBB}>
-                        <FontAwesomeIcon icon={faFileExcel} className="me-1"></FontAwesomeIcon> Biên bản
-                    </button>
-                    <button aria-label="Tải giấy chứng nhận kiểm định" className="btn border-start rounded-start-0 rounded-end border-top-0 border-bottom-0 bg-main-green text-white" onClick={handleDownloadGCN}>
-                        <FontAwesomeIcon icon={faFileExcel} className="me-1"></FontAwesomeIcon> Giấy chứng nhận
-                    </button>
+                <div className={`w-100 mb-3 mx-0 d-flex align-items-center justify-content-center justify-content-md-end p-0`}>
+                    <Link href={ACCESS_LINKS.DHN_EDIT_DH.src + "/" + dongHo.id} aria-label="Chỉnh sửa đồng hồ" className="btn bg-warning me-2">
+                        <FontAwesomeIcon icon={faEdit}></FontAwesomeIcon> Edit
+                    </Link>
+                    {ketQua != null && <>
+                        <span style={{ cursor: "unset" }} className={`btn bg-grey text-white rounded-start rounded-end-0 ${(dongHo.so_giay_chung_nhan && ketQua == true) || (ketQua == false) ? "d-inline" : "d-none"}`}><FontAwesomeIcon icon={faDownload}></FontAwesomeIcon> Nhiều:</span>
+                        <button aria-label="Tải biên bản kiểm định" className={`btn bg-main-green rounded-0 ${(dongHo.so_giay_chung_nhan && ketQua == true) ? "" : "rounded-end"} text-white ${(dongHo.so_giay_chung_nhan && ketQua == true) || (ketQua == false) ? "d-inline" : "d-none"}`} onClick={handleDownloadBB}>
+                            <FontAwesomeIcon icon={faFileExcel} className="me-1"></FontAwesomeIcon> Biên bản
+                        </button>
+                        <button aria-label="Tải giấy chứng nhận kiểm định" className={`btn border-start rounded-start-0 rounded-end bg-main-green text-white ${(dongHo.so_giay_chung_nhan && ketQua == true) ? "d-inline" : "d-none"}`} onClick={handleDownloadGCN}>
+                            <FontAwesomeIcon icon={faFileExcel} className="me-1"></FontAwesomeIcon> Giấy chứng nhận
+                        </button>
+                    </>}
                 </div>
                 <div className="w-100 bg-white px-3 px-md-5 py-3">
-                    <div className={`w-100 mb-3 mx-0 d-flex align-items-center justify-content-end p-0}`}>
-                        <Link href={ACCESS_LINKS.DHN_EDIT_DH.src  + "/" + dongHo.id} aria-label="Chỉnh sửa đồng hồ" className="btn bg-warning text-white">
-                            <FontAwesomeIcon icon={faEdit} className="me-1"></FontAwesomeIcon> Chỉnh sửa
-                        </Link>
-                    </div>
                     <h4 className="fs-4 text-center text-uppercase">Chi tiết đồng hồ</h4>
                     <div className="row">
                         <div className="col-12">

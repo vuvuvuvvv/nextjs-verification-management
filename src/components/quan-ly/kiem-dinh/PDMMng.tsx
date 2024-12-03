@@ -93,8 +93,9 @@ export default function PDMManagement({ data, className, listDHNamesExist }: PDM
         tinh_trang: "",
         ngay_qd_pdm_from: null,
         ngay_qd_pdm_to: null,
+        dn: "",
     });
-    const [currentPage, setCurrentPage] = useState(1);
+    // const [currentPage, setCurrentPage] = useState(1);
 
     // const resetTotalPage = () => {
     //     setCurrentPage(1);
@@ -175,6 +176,7 @@ export default function PDMManagement({ data, className, listDHNamesExist }: PDM
             ngay_qd_pdm_from: null,
             ngay_qd_pdm_to: null,
             tinh_trang: "",
+            dn: "",
         });
         setSelectedStatus("");
     }
@@ -207,7 +209,7 @@ export default function PDMManagement({ data, className, listDHNamesExist }: PDM
                         </div> */}
 
                             <div className="col-12 mb-3 col-md-6 col-xl-4 d-flex">
-                                <label className={`${c_vfml['form-label']}`} htmlFor="ma_tim_dong_ho_pdm">
+                                <label className={`${c_vfml['form-label']}`} htmlFor="ten_dong_ho">
                                     Tên đồng hồ
                                     <Select
                                         options={DHNameOptions as unknown as readonly GroupBase<never>[]}
@@ -296,6 +298,20 @@ export default function PDMManagement({ data, className, listDHNamesExist }: PDM
                                         placeholder="Nhập số quyết định"
                                         value={filterForm.so_qd_pdm || ""}
                                         onChange={(e) => handleFilterChange('so_qd_pdm', e.target.value)}
+                                    />
+                                </label>
+                            </div>
+
+                            <div className="col-12 mb-3 col-md-6 col-xl-4 d-flex">
+                                <label className={`${c_vfml['form-label']}`} htmlFor="ma_tim_dong_ho_pdm">
+                                    DN:
+                                    <input
+                                        type="text"
+                                        id="ma_tim_dong_ho_pdm"
+                                        className="form-control"
+                                        placeholder="Nhập mã tìm đồng hồ"
+                                        value={filterForm.dn || ""}
+                                        onChange={(e) => handleFilterChange('dn', e.target.value)}
                                     />
                                 </label>
                             </div>
@@ -446,10 +462,9 @@ export default function PDMManagement({ data, className, listDHNamesExist }: PDM
                         </div>
                     </div>
 
-                    <div className="bg-white w-100 shadow-sm rounded overflow-hidden">
-
+                    <div className="bg-white w-100 shadow-sm rounded position-relative overflow-hidden">
+                        {loading && <Loading />}
                         <div className={`m-0 p-0 w-100 w-100 mt-4 bg-white position-relative ${c_vfml['wrap-process-table']}`}>
-                            {loading && <Loading />}
                             {rootData.length > 0 ? (
                                 <table className={`table table-striped table-bordered table-hover ${c_vfml['process-table']}`}>
                                     <thead>
@@ -519,13 +534,13 @@ export default function PDMManagement({ data, className, listDHNamesExist }: PDM
                                                     </span>
                                                 </div>
                                             </th>
-                                            <th 
+                                            <th
                                             // onClick={() => sortData('createdBy')}
                                             >
                                                 {/* <div className={`${c_vfml['table-label']}`}>
                                                     <span> */}
-                                                        Số QĐ-PDM
-                                                    {/* </span>
+                                                Số QĐ-PDM
+                                                {/* </span>
                                                     {sortConfig && sortConfig.key === 'createdBy' && sortConfig.direction === 'asc' && (
                                                         <FontAwesomeIcon icon={faChevronUp}></FontAwesomeIcon>
                                                     )}

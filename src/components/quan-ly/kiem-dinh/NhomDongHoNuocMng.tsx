@@ -22,9 +22,12 @@ import Link from "next/link";
 
 import { ACCESS_LINKS, BASE_API_URL, limitOptions } from "@lib/system-constant";
 import Swal from "sweetalert2";
-import { deleteNhomDongHo, getNhomDongHoByFilter } from "@/app/api/dongho/route";
+import { deleteNhomDongHo, getNhomDongHoByFilter, updatePaymentStatus } from "@/app/api/dongho/route";
 import api from "@/app/api/route";
 import dynamic from "next/dynamic";
+import { Form } from "react-bootstrap";
+import { useUser } from "@/context/AppContext";
+import { updatePDM } from "@/app/api/pdm/route";
 
 const Loading = dynamic(() => import("@/components/Loading"), { ssr: false });
 
@@ -34,6 +37,7 @@ interface NhomDongHoNuocManagementProps {
 }
 
 export default function NhomDongHoNuocManagement({ className }: NhomDongHoNuocManagementProps) {
+    const { user } = useUser();
     const [rootData, setRootData] = useState<NhomDongHo[]>([]);
     const fetchCalled = useRef(false);
 
@@ -64,6 +68,24 @@ export default function NhomDongHoNuocManagement({ className }: NhomDongHoNuocMa
                 ] : []);
             } catch (error) {
                 setError("Đã có lỗi xảy ra! Hãy thử lại sau.");
+            }
+        };
+
+        fetchData();
+    }, []);
+
+    useEffect(() => {
+        if (fetchCalled.current) return;
+        fetchCalled.current = true;
+
+        const fetchData = async () => {
+            try {
+                const res = await getNhomDongHoByFilter();
+                setRootData(res.data);
+            } catch (error) {
+                console.error("Error fetching data:", error);
+            } finally {
+                setFilterLoading(false);
             }
         };
 
@@ -108,25 +130,6 @@ export default function NhomDongHoNuocManagement({ className }: NhomDongHoNuocMa
     });
     // const [currentPage, setCurrentPage] = useState(1);
 
-    useEffect(() => {
-        if (fetchCalled.current) return;
-        fetchCalled.current = true;
-
-        const fetchData = async () => {
-            try {
-                const res = await getNhomDongHoByFilter();
-                // console.log("dataDongHo: ", res.data)
-                setRootData(res.data);
-            } catch (error) {
-                console.error("Error fetching data:", error);
-            } finally {
-                setFilterLoading(false);
-            }
-        };
-
-        fetchData();
-    }, []);
-
     // const resetTotalPage = () => {
     //     setCurrentPage(1);
     //     if (!rootData || rootData.length <= (limit ? limit : 1)) {
@@ -168,7 +171,7 @@ export default function NhomDongHoNuocManagement({ className }: NhomDongHoNuocMa
         }
     }, [rootData, sortConfig, filterLoading]);
 
-    useEffect(() => {
+    const _fetchNhomDongHo = () => {
         setFilterLoading(true);
         const debounce = setTimeout(async () => {
             try {
@@ -188,6 +191,10 @@ export default function NhomDongHoNuocManagement({ className }: NhomDongHoNuocMa
         }, 500);
 
         return () => clearTimeout(debounce);
+    }
+
+    useEffect(() => {
+        _fetchNhomDongHo();
     }, [filterForm]);
 
     const handleFilterChange = (key: keyof NhomDongHoFilterParameters, value: any) => {
@@ -205,6 +212,33 @@ export default function NhomDongHoNuocManagement({ className }: NhomDongHoNuocMa
             ngay_kiem_dinh_from: null,
             ngay_kiem_dinh_to: null
         });
+    }
+
+    const handleUpdatePaymentStatus = (group_id: string, current_payment_status: boolean) => {
+        if (group_id) {
+            Swal.fire({
+                title: `Xác nhận!`,
+                text: !current_payment_status ? "Đã hoàn tất thanh toán?" : "Chưa hoàn tất thanh toán?",
+                icon: "warning",
+                showCancelButton: true,
+                cancelButtonColor: "#d33",
+                confirmButtonText: "Xác nhận",
+                cancelButtonText: "Hủy",
+            }).then(async (result) => {
+                if (result.isConfirmed) {
+                    try {
+                        const res = await updatePaymentStatus(group_id, !current_payment_status, user?.fullname || "");
+                        if (res.status == 200 || res.status == 201) {
+                            _fetchNhomDongHo();
+                        } else {
+                            setError("Đã có lỗi xảy ra! Hãy thử lại sau.");
+                        }
+                    } catch (error) {
+                        setError("Đã có lỗi xảy ra! Hãy thử lại sau.");
+                    }
+                }
+            });
+        }
     }
 
     // const handlePageChange = (newPage: number) => {
@@ -417,9 +451,9 @@ export default function NhomDongHoNuocManagement({ className }: NhomDongHoNuocMa
                         </div>
                     </div>
 
-                    <div className="bg-white w-100 shadow-sm rounded overflow-hidden">
+                    <div className="bg-white w-100 shadow-sm rounded position-relative overflow-hidden">
+                        {filterLoading && <Loading />}
                         <div className={`m-0 p-0 w-100 w-100 position-relative ${c_vfml['wrap-process-table']}`}>
-                            {filterLoading && <Loading />}
                             {/* {paginatedData.length > 0 ? ( */}
                             {rootData.length > 0 ? (
                                 <table className={`table table-striped table-bordered table-hover ${c_vfml['process-table']}`}>
@@ -493,35 +527,55 @@ export default function NhomDongHoNuocManagement({ className }: NhomDongHoNuocMa
                                                     )}
                                                 </div>
                                             </th>
+                                            <th>
+                                                <div className={`${c_vfml['table-label']} p-0`} style={{ minWidth: "96px" }}>
+                                                    Đã thu tiền
+                                                </div>
+                                            </th>
                                             <th></th>
                                         </tr>
                                     </thead>
                                     <tbody>
                                         {/* {paginatedData.map((item, index) => ( */}
-                                        {rootData.map((item, index) => (
-                                            <tr
-                                                key={index}
-                                                onClick={() => window.open(`${ACCESS_LINKS.DHN_DETAIL_NDH.src}/${item.group_id}`)}
-                                                style={{ cursor: 'pointer' }}
-                                            >
-                                                <td className="text-center">{rootData.indexOf(item) + 1}</td>
-                                                <td>{item.ten_dong_ho}</td>
-                                                <td>{item.so_luong}</td>
-                                                <td>{item.ten_khach_hang}</td>
-                                                <td>{item.nguoi_kiem_dinh}</td>
-                                                <td>{dayjs(item.ngay_thuc_hien).format('DD-MM-YYYY')}</td>
-                                                <td
-                                                    onClick={() => window.open(`${ACCESS_LINKS.DHN_EDIT_NDH.src + "/" + item.group_id}`)}
+                                        {rootData.map((item, index) => {
+                                            const redirectLink = `${ACCESS_LINKS.DHN_DETAIL_NDH.src}/${item.group_id}`;
+                                            return (
+                                                <tr
+                                                    key={index}
+                                                    style={{ cursor: 'pointer' }}
                                                 >
-                                                    {/* <Link target="_blank" aria-label="Xem chi tiết" href={ACCESS_LINKS.DHN_DETAIL_NDH.src + "/nhom/" + item.group_id} className={`btn w-100 text-blue`}>
-                                                        <FontAwesomeIcon icon={faEye}></FontAwesomeIcon>
-                                                    </Link> */}
-                                                    <Link aria-label="Chỉnh sửa" href={ACCESS_LINKS.DHN_EDIT_NDH.src + "/" + item.group_id} className={`btn w-100 text-blue shadow-0`}>
-                                                        <FontAwesomeIcon icon={faEdit}></FontAwesomeIcon>
-                                                    </Link>
-                                                </td>
-                                            </tr>
-                                        ))}
+                                                    <td onClick={() => window.open(redirectLink)} className="text-center">{rootData.indexOf(item) + 1}</td>
+                                                    <td onClick={() => window.open(redirectLink)}>{item.ten_dong_ho}</td>
+                                                    <td onClick={() => window.open(redirectLink)}>{item.so_luong}</td>
+                                                    <td onClick={() => window.open(redirectLink)}>{item.ten_khach_hang}</td>
+                                                    <td onClick={() => window.open(redirectLink)}>{item.nguoi_kiem_dinh}</td>
+                                                    <td onClick={() => window.open(redirectLink)}>{dayjs(item.ngay_thuc_hien).format('DD-MM-YYYY')}</td>
+                                                    <td>
+                                                        <div className="w-100 d-flex justify-content-center" onClick={() => handleUpdatePaymentStatus(item?.group_id || "", item?.is_paid ?? false)}>
+                                                            <Form.Check
+                                                                type="checkbox"
+                                                                style={{ width: "100px" }}
+                                                                className="d-flex justify-content-center"
+                                                                label={
+                                                                    <span className="ms-1" style={{ color: 'black', cursor: 'pointer' }}>{(item?.is_paid ?? false) ? "Đã thu" : "Chưa thu"}</span>
+                                                                }
+                                                                checked={item?.is_paid ?? false}
+                                                            />
+                                                        </div>
+                                                    </td>
+                                                    <td
+                                                        onClick={() => window.open(`${ACCESS_LINKS.DHN_EDIT_NDH.src + "/" + item.group_id}`)}
+                                                    >
+                                                        {/* <Link target="_blank" aria-label="Xem chi tiết" href={ACCESS_LINKS.DHN_DETAIL_NDH.src + "/nhom/" + item.group_id} className={`btn w-100 text-blue`}>
+                                                            <FontAwesomeIcon icon={faEye}></FontAwesomeIcon>
+                                                        </Link> */}
+                                                        <Link aria-label="Chỉnh sửa" href={ACCESS_LINKS.DHN_EDIT_NDH.src + "/" + item.group_id} className={`btn w-100 text-blue shadow-0`}>
+                                                            <FontAwesomeIcon icon={faEdit}></FontAwesomeIcon>
+                                                        </Link>
+                                                    </td>
+                                                </tr>
+                                            )
+                                        })}
                                     </tbody>
                                 </table>
                             ) : (
