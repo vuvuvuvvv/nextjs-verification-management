@@ -228,6 +228,7 @@ const TableDongHoInfo: React.FC<TableDongHoInfoProps> = React.memo(({
                                 ) : null;
                             const status = duLieuKiemDinh ? duLieuKiemDinh.ket_qua : null;
                             const objHss = duLieuKiemDinh ? duLieuKiemDinh.hieu_sai_so : null;
+
                             const isDHDienTu = Boolean((dongHo.ccx && ["1", "2"].includes(dongHo.ccx)) || dongHo.kieu_thiet_bi == "Điện tử");
 
                             rows.push(

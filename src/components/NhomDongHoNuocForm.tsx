@@ -60,7 +60,7 @@ export default function NhomDongHoNuocForm({ className, generalInfoDongHo, isEdi
     } = useDongHoList();
     const {
         getDuLieuKiemDinhJSON,
-        ketQua, formHieuSaiSo,
+        formHieuSaiSo,
         setDuLieuKiemDinhCacLuuLuong,
         setFormHieuSaiSo, setKetQua,
         initialFormHieuSaiSo,
@@ -272,11 +272,11 @@ export default function NhomDongHoNuocForm({ className, generalInfoDongHo, isEdi
                 }
             }, 500);
 
+            filterPDMRef.current = filterPDM;
+
             return () => {
                 clearTimeout(handler);
             };
-
-            filterPDMRef.current = filterPDM;
         }
     }, [filterPDM]);
 
@@ -580,6 +580,8 @@ export default function NhomDongHoNuocForm({ className, generalInfoDongHo, isEdi
                 ) : null;
             setDuLieuKiemDinhCacLuuLuong(duLieuKiemDinh.du_lieu || initialDuLieuKiemDinhCacLuuLuong);
             setFormHieuSaiSo(duLieuKiemDinh.hieu_sai_so || initialFormHieuSaiSo);
+            const newKetQua = isDongHoDatTieuChuan(duLieuKiemDinh.hieu_sai_so);
+            setKetQua(newKetQua || null);
         } else {
             setFormHieuSaiSo(initialFormHieuSaiSo);
             setDuLieuKiemDinhCacLuuLuong(initialDuLieuKiemDinhCacLuuLuong);

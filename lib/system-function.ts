@@ -90,7 +90,6 @@ export const getHieuSaiSo = (formValues: TinhSaiSoValueTabs) => {
     try {
         const hasErrorFormValues = Object.values(formValues).some(({ V1, V2 }) => (Number(V1) === 0 && Number(V2) === 0) || Number(V2) - Number(V1) <= 0);
         if (hasErrorFormValues) return null;
-        console.log(formValues);
         const values = Object.values(formValues)
             .map(getSaiSoDongHo)
             .filter(value => value !== null);
