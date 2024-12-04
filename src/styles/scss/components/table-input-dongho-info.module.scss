@@ -35,11 +35,12 @@
     .process-table {
         thead {
             position: sticky;
-            top: 0;
+            top: 0px;
             z-index: 9;
         }
 
         .table-header {
+            border-width: 0 !important;
 
             th {
                 background-color: $blue !important;
@@ -64,16 +65,6 @@
                         right: 0px;
                         transform: translateY(-50%);
                     }
-                }
-            }
-
-
-            th:not(:last-child) {
-                cursor: pointer;
-                transition: 0.3s all ease;
-
-                &:hover {
-                    background-color: $dark_blue !important;
                 }
             }
         }

@@ -57,7 +57,7 @@
 //     const [soQDPDM, setSoQDPDM] = useState<string>("");
 //     const [tenKhachHang, setTenKhachhang] = useState<string>("");
 //     const [coSoSuDung, setCoSoSuDung] = useState<string>("");
-//     const [phuongPhapThucHien, setPhuongPhapThucHien] = useState<string>("ĐNVN 17:2017");
+//     const [phuongPhapThucHien, setPhuongPhapThucHien] = useState<string>("ĐLVN 17 : 2017");
 //     const [chuanThietBiSuDung, setChuanThietBiSuDung] = useState<string>("Đồng hồ chuẩn đo nước và Bình chuẩn");
 //     const [nguoiKiemDinh, setNguoiKiemDinh] = useState<string>(user?.fullname || "");
 //     const [ngayThucHien, setNgayThucHien] = useState<Date | null>(new Date());

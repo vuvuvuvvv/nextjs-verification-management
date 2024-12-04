@@ -1,27 +1,28 @@
-import { createDongHo } from '@/app/api/dongho/route';
-import { DEFAULT_LOCATION, TITLE_LUU_LUONG } from '@lib/system-constant';
-import { DongHo, DuLieuMotLanChay } from '@lib/types';
+import { createDongHo, updateDongHo } from '@/app/api/dongho/route';
+import { ACCESS_LINKS, DEFAULT_LOCATION, TITLE_LUU_LUONG } from '@lib/system-constant';
+import { DongHo, DuLieuMotLanChay, GeneralInfoDongHo } from '@lib/types';
 
 import React, { createContext, useState, useContext, ReactNode, useEffect, useRef } from 'react';
 import Swal from 'sweetalert2';
 import { useUser } from './AppContext';
-import { getDongHoDataExistsFromIndexedDB, saveDongHoDataExistsToIndexedDB } from '@lib/system-function';
+import { deleteDongHoDataFromIndexedDB, getDongHoDataExistsFromIndexedDB, saveDongHoDataExistsToIndexedDB } from '@lib/system-function';
 import { useKiemDinh } from './KiemDinh';
 
 interface DongHoListContextType {
     dongHoList: DongHo[];
-    dongHoSelected: DongHo | null;
-    setDongHoSelected: React.Dispatch<React.SetStateAction<DongHo | null>>;
     setDongHoList: React.Dispatch<React.SetStateAction<DongHo[]>>;
+    setEditing: React.Dispatch<React.SetStateAction<boolean>>;
     setAmount: React.Dispatch<React.SetStateAction<number>>;
     addToListDongHo: (dongHo: DongHo) => void;
-    updateListDongHo: (index: number, updatedDongHo: DongHo) => void;
-    updateDongHoFieldsInList: (index: number, fields: Partial<DongHo>) => void;
+    updateListDongHo: (updatedDongHo: DongHo, index: number) => void;
+    // updateDongHoFieldsInList: (index: number, fields: Partial<DongHo>) => void;
     deleteDongHoInList: (index: number) => void;
     getDongHoChuaKiemDinh: (dongHoList: DongHo[]) => DongHo[];
     getDongHoDaKiemDinh: (dongHoList: DongHo[]) => DongHo[];
-    createListDongHo: (listDongHo: DongHo[]) => Promise<void>;
+    createListDongHo: (listDongHo: DongHo[]) => Promise<boolean>;
     savedDongHoList: DongHo[];
+    // deleteOldData: () => void;
+    generalInfoDongHo: GeneralInfoDongHo;
     setSavedDongHoList: React.Dispatch<React.SetStateAction<DongHo[]>>;
 }
 
@@ -29,35 +30,8 @@ const DongHoListContext = createContext<DongHoListContextType | undefined>(undef
 
 export const DongHoListProvider = ({ children }: { children: ReactNode }) => {
     const { user } = useUser();
-    const { vChuanDongBoCacLL } = useKiemDinh();
-    const [oldDongHoData, setOldDongHoData] = useState<DongHo[]>([]);
+    const [isEditing, setEditing] = useState<boolean>(false);
     const [isInitialization, setInitialization] = useState(true);
-
-    useEffect(() => {
-        const fetchDongHoData = async () => {
-            if (user && user.username) {
-                try {
-                    const data = await getDongHoDataExistsFromIndexedDB(user.username) as DongHo[];
-                    if (data) {
-                        setOldDongHoData(data);
-                        saveDongHoDataExistsToIndexedDB(user.username, data);
-                    } else {
-                        setOldDongHoData([]);
-                    }
-                } catch (error) {
-                    console.error("Error fetching Dong Ho data:", error);
-                }
-            }
-        };
-
-        fetchDongHoData();
-    }, [user]);
-
-    // useEffect(() => {
-    //     if (oldDongHoData.length > 0) {
-    //         console.log("Old: ", oldDongHoData);
-    //     }
-    // }, [oldDongHoData]);
 
     const [amount, setAmount] = useState<number>(1)
 
@@ -86,7 +60,7 @@ export const DongHoListProvider = ({ children }: { children: ReactNode }) => {
         co_so_su_dung: "",
         noi_thuc_hien: "",
         nguoi_soat_lai: "",
-        phuong_phap_thuc_hien: "ĐNVN 17:2017",
+        phuong_phap_thuc_hien: "ĐLVN 17 : 2017",
         chuan_thiet_bi_su_dung: "Đồng hồ chuẩn đo nước và Bình chuẩn",
         nguoi_kiem_dinh: "",
         ngay_thuc_hien: new Date(),
@@ -143,7 +117,7 @@ export const DongHoListProvider = ({ children }: { children: ReactNode }) => {
                 ten_khach_hang: "",
                 co_so_su_dung: "",
                 noi_thuc_hien: "",
-                phuong_phap_thuc_hien: "ĐNVN 17:2017",
+                phuong_phap_thuc_hien: "ĐLVN 17 : 2017",
                 chuan_thiet_bi_su_dung: "Đồng hồ chuẩn đo nước và Bình chuẩn",
                 nguoi_kiem_dinh: "",
                 nguoi_soat_lai: "",
@@ -174,78 +148,98 @@ export const DongHoListProvider = ({ children }: { children: ReactNode }) => {
         })
     }, [amount])
 
-    const [dongHoSelected, setDongHoSelected] = useState<DongHo | null>(dongHoList[0] || null);
     const [savedDongHoList, setSavedDongHoList] = useState<DongHo[]>([]);
 
-    // useEffect(() => {
-    //     console.log("Saved: ", savedDongHoList);
-    // }, [savedDongHoList]);
+    useEffect(() => {
+        if (savedDongHoList.length == dongHoList.length && user && user.username && !isEditing) {
+            deleteDongHoDataFromIndexedDB(user.username);
+        } else {
+            if (user && user.username && !isInitialization && !isEditing) {
+                saveDongHoDataExistsToIndexedDB(user.username, dongHoList, savedDongHoList);
+            }
+        }
+    }, [savedDongHoList]);
 
-    const getGeneralInfo = (dongHo: DongHo) => {
+    const getGeneralInfo = (dongHo: DongHo): GeneralInfoDongHo => {
         return {
             group_id: dongHo.group_id,
+            kieu_thiet_bi: dongHo.kieu_thiet_bi,
+
             ten_dong_ho: dongHo.ten_dong_ho,
             phuong_tien_do: dongHo.phuong_tien_do,
-            kieu_thiet_bi: dongHo.kieu_thiet_bi,
+
             kieu_chi_thi: dongHo.kieu_chi_thi,
             kieu_sensor: dongHo.kieu_sensor,
             co_so_san_xuat: dongHo.co_so_san_xuat,
+
             nam_san_xuat: dongHo.nam_san_xuat,
             dn: dongHo.dn,
             d: dongHo.d,
+
             ccx: dongHo.ccx,
             q3: dongHo.q3,
             r: dongHo.r,
+
             qn: dongHo.qn,
             k_factor: dongHo.k_factor,
             so_qd_pdm: dongHo.so_qd_pdm,
+
             ten_khach_hang: dongHo.ten_khach_hang,
             co_so_su_dung: dongHo.co_so_su_dung,
             phuong_phap_thuc_hien: dongHo.phuong_phap_thuc_hien,
+
             chuan_thiet_bi_su_dung: dongHo.chuan_thiet_bi_su_dung,
             nguoi_kiem_dinh: dongHo.nguoi_kiem_dinh,
             ngay_thuc_hien: dongHo.ngay_thuc_hien,
+
             vi_tri: dongHo.vi_tri,
             nhiet_do: dongHo.nhiet_do,
             do_am: dongHo.do_am,
+
+            nguoi_soat_lai: dongHo.nguoi_soat_lai,
+            noi_thuc_hien: dongHo.noi_thuc_hien,
+            noi_su_dung: dongHo.noi_su_dung,
+
         }
     }
-    const [generalInfoDongHo, setGeneralInfoDongHo] = useState(getGeneralInfo(dongHoList[0]));
+    const [generalInfoDongHo, setGeneralInfoDongHo] = useState<GeneralInfoDongHo>(getGeneralInfo(dongHoList[0]));
+
+    const handler = useRef<NodeJS.Timeout | null>(null);
 
     useEffect(() => {
-        // TODO:
-        // if (user && user.username && !isInitialization) {
-        //     const handler = setTimeout(() => {
-        //         saveDongHoDataExistsToIndexedDB(user.username, dongHoList);
-        //     }, 500);
-
-        //     return () => {
-        //         clearTimeout(handler);
-        //     };
-        // }
-
-        // console.log(dongHoList);
-    }, [dongHoList]);
-
-    const updateListDongHo = (index: number, updatedDongHo: DongHo) => {
-        setDongHoList(prevList => {
-            const newList = prevList.map((item, i) => (i === index ? updatedDongHo : item));
-
-            // Get the general info of the updated dongHo
-            const generalInfo = getGeneralInfo(updatedDongHo);
-
-            // Check if the general info has changed
-            if (JSON.stringify(generalInfoDongHo) !== JSON.stringify(generalInfo)) {
-                setGeneralInfoDongHo(generalInfo);
-
-                // Update all items in the list with the new general info
-                return newList.map(dongHo => ({
-                    ...dongHo,
-                    ...generalInfo
-                }));
+        if (user && user.username && !isInitialization && savedDongHoList.length != dongHoList.length && !isEditing) {
+            if (handler.current) {
+                clearTimeout(handler.current);
             }
 
-            return newList;
+            handler.current = setTimeout(() => {
+                saveDongHoDataExistsToIndexedDB(user.username, dongHoList, savedDongHoList);
+            }, 1500);
+
+            return () => {
+                if (handler.current) {
+                    clearTimeout(handler.current);
+                }
+            };
+        }
+    }, [dongHoList]);
+
+    const updateListDongHo = (updatedDongHo: DongHo, index: number) => {
+        setInitialization(false);
+        setDongHoList(prevList => {
+            const generalInfo = getGeneralInfo(updatedDongHo);
+            setGeneralInfoDongHo(generalInfo);
+
+            const newDHList = prevList.map(dongHo => ({
+                ...dongHo,
+                ...generalInfo,
+                id: dongHo.id
+            }));
+
+            if (newDHList[index] && newDHList[index].du_lieu_kiem_dinh) {
+                newDHList[index].du_lieu_kiem_dinh = updatedDongHo.du_lieu_kiem_dinh;
+            }
+            return newDHList;
         });
     };
 
@@ -253,27 +247,18 @@ export const DongHoListProvider = ({ children }: { children: ReactNode }) => {
         setDongHoList(prevList => [...prevList, dongHo]);
     };
 
-    // Update serial chi thi, sensor vaf kieu chi thi, sensor
-    const updateDongHoFieldsInList = (index: number, fields: Partial<DongHo>) => {
-        setDongHoList(prevList =>
-            prevList.map((item, i) =>
-                i === index ? { ...item, ...fields } : item
-            )
-        );
-    };
-
     const deleteDongHoInList = (index: number) => {
         setDongHoList(prevList => prevList.filter((_, i) => i !== index));
     };
 
-    const createListDongHo = async (listDongHo: DongHo[]) => {
+    const createListDongHo = async (listDongHo: DongHo[]): Promise<boolean> => {
         let successMessages: string[] = [];
         let errorMessages: string[] = [];
 
         for (let i = 0; i < listDongHo.length; i++) {
             const dongHo = listDongHo[i];
             try {
-                const res = await createDongHo(dongHo);
+                const res = !isEditing ? await createDongHo(dongHo) : await updateDongHo(dongHo);
                 if (res.status === 201 || res.status === 200) {
                     successMessages.push(`ĐH${(dongHoList.indexOf(dongHo)) + 1}: Lưu thành công`);
                     setSavedDongHoList(prevList => [...prevList, dongHo]);
@@ -285,17 +270,19 @@ export const DongHoListProvider = ({ children }: { children: ReactNode }) => {
             }
 
             Swal.update({
-                html: `Đang tạo ${i + 1}/${listDongHo.length} đồng hồ...`,
+                html: `Đang lưu ${i + 1}/${listDongHo.length} đồng hồ...`,
             });
         }
 
         // Close Swal and show results
         Swal.close();
-        const resultMessages = [...successMessages, ...errorMessages];
-        Swal.fire({
+        const resultMessages = [...errorMessages];
+        return Swal.fire({
             title: 'Kết quả lưu đồng hồ',
             html: errorMessages.length > 0 ? resultMessages.join('<br>') : "Lưu thành công!",
             icon: errorMessages.length > 0 ? 'error' : 'success',
+        }).then((result) => {
+            return errorMessages.length === 0;
         });
     }
 
@@ -313,7 +300,11 @@ export const DongHoListProvider = ({ children }: { children: ReactNode }) => {
 
         return combinedList.filter(dongHo => {
             try {
-                const duLieuKiemDinh = JSON.parse(dongHo?.du_lieu_kiem_dinh || "{}");
+
+                const duLieuKiemDinh = dongHo?.du_lieu_kiem_dinh ?
+                    ((isEditing && typeof dongHo?.du_lieu_kiem_dinh != 'string') ?
+                        dongHo?.du_lieu_kiem_dinh : JSON.parse(dongHo?.du_lieu_kiem_dinh)
+                    ) : null;
                 return duLieuKiemDinh.ket_qua === null;
             } catch {
                 return true; // Consider as incomplete if parsing fails
@@ -339,17 +330,18 @@ export const DongHoListProvider = ({ children }: { children: ReactNode }) => {
     return (
         <DongHoListContext.Provider value={{
             dongHoList,
-            dongHoSelected,
-            setDongHoSelected,
+            generalInfoDongHo,
+            setEditing,
             setDongHoList,
             setAmount,
             addToListDongHo,
-            updateDongHoFieldsInList,
+            // updateDongHoFieldsInList,
             updateListDongHo,
             deleteDongHoInList,
             getDongHoChuaKiemDinh,
             getDongHoDaKiemDinh,
             createListDongHo,
+            // deleteOldData,
             savedDongHoList,
             setSavedDongHoList
         }}>

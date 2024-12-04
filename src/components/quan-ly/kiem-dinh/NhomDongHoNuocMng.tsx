@@ -10,7 +10,7 @@ import dayjs, { Dayjs } from "dayjs";
 import { viVN } from "@mui/x-date-pickers/locales";
 
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faChevronDown, faChevronUp, faEye } from "@fortawesome/free-solid-svg-icons";
+import { faChevronDown, faChevronUp, faEdit, faEye } from "@fortawesome/free-solid-svg-icons";
 import React from "react";
 
 import Select, { GroupBase } from 'react-select';
@@ -22,9 +22,12 @@ import Link from "next/link";
 
 import { ACCESS_LINKS, BASE_API_URL, limitOptions } from "@lib/system-constant";
 import Swal from "sweetalert2";
-import { deleteNhomDongHo, getNhomDongHoByFilter } from "@/app/api/dongho/route";
+import { deleteNhomDongHo, getNhomDongHoByFilter, updatePaymentStatus } from "@/app/api/dongho/route";
 import api from "@/app/api/route";
 import dynamic from "next/dynamic";
+import { Form } from "react-bootstrap";
+import { useUser } from "@/context/AppContext";
+import { updatePDM } from "@/app/api/pdm/route";
 
 const Loading = dynamic(() => import("@/components/Loading"), { ssr: false });
 
@@ -34,12 +37,13 @@ interface NhomDongHoNuocManagementProps {
 }
 
 export default function NhomDongHoNuocManagement({ className }: NhomDongHoNuocManagementProps) {
+    const { user } = useUser();
     const [rootData, setRootData] = useState<NhomDongHo[]>([]);
     const fetchCalled = useRef(false);
 
     const [filterLoading, setFilterLoading] = useState(true);
     const [sortConfig, setSortConfig] = useState<{ key: string, direction: 'asc' | 'desc' | 'default' } | null>(null);
-    const [limit, setLimit] = useState(5);
+    // const [limit, setLimit] = useState(10);
     const [error, setError] = useState("");
 
     const fetchDHNameCalled = useRef(false);
@@ -64,6 +68,24 @@ export default function NhomDongHoNuocManagement({ className }: NhomDongHoNuocMa
                 ] : []);
             } catch (error) {
                 setError("Đã có lỗi xảy ra! Hãy thử lại sau.");
+            }
+        };
+
+        fetchData();
+    }, []);
+
+    useEffect(() => {
+        if (fetchCalled.current) return;
+        fetchCalled.current = true;
+
+        const fetchData = async () => {
+            try {
+                const res = await getNhomDongHoByFilter();
+                setRootData(res.data);
+            } catch (error) {
+                console.error("Error fetching data:", error);
+            } finally {
+                setFilterLoading(false);
             }
         };
 
@@ -106,40 +128,21 @@ export default function NhomDongHoNuocManagement({ className }: NhomDongHoNuocMa
         ngay_kiem_dinh_from: null,
         ngay_kiem_dinh_to: null
     });
-    const [currentPage, setCurrentPage] = useState(1);
+    // const [currentPage, setCurrentPage] = useState(1);
 
-    useEffect(() => {
-        if (fetchCalled.current) return;
-        fetchCalled.current = true;
+    // const resetTotalPage = () => {
+    //     setCurrentPage(1);
+    //     if (!rootData || rootData.length <= (limit ? limit : 1)) {
+    //         return 1;
+    //     }
+    //     return Math.ceil(rootData.length / (limit ? limit : 1));
+    // }
 
-        const fetchData = async () => {
-            try {
-                const res = await getNhomDongHoByFilter();
-                // console.log("dataDongHo: ", res.data)
-                setRootData(res.data);
-            } catch (error) {
-                console.error("Error fetching data:", error);
-            } finally {
-                setFilterLoading(false);
-            }
-        };
+    // const [totalPage, setTotalPage] = useState(resetTotalPage);
 
-        fetchData();
-    }, []);
-
-    const resetTotalPage = () => {
-        setCurrentPage(1);
-        if (!rootData || rootData.length <= limit) {
-            return 1;
-        }
-        return Math.ceil(rootData.length / limit);
-    }
-
-    const [totalPage, setTotalPage] = useState(resetTotalPage);
-
-    useEffect(() => {
-        setTotalPage(resetTotalPage);
-    }, [rootData, limit])
+    // useEffect(() => {
+    //     setTotalPage(resetTotalPage);
+    // }, [rootData, limit])
 
     const sortData = useCallback((key: keyof NhomDongHo) => {
         if (!filterLoading) {
@@ -168,7 +171,7 @@ export default function NhomDongHoNuocManagement({ className }: NhomDongHoNuocMa
         }
     }, [rootData, sortConfig, filterLoading]);
 
-    useEffect(() => {
+    const _fetchNhomDongHo = () => {
         setFilterLoading(true);
         const debounce = setTimeout(async () => {
             try {
@@ -188,6 +191,10 @@ export default function NhomDongHoNuocManagement({ className }: NhomDongHoNuocMa
         }, 500);
 
         return () => clearTimeout(debounce);
+    }
+
+    useEffect(() => {
+        _fetchNhomDongHo();
     }, [filterForm]);
 
     const handleFilterChange = (key: keyof NhomDongHoFilterParameters, value: any) => {
@@ -207,11 +214,38 @@ export default function NhomDongHoNuocManagement({ className }: NhomDongHoNuocMa
         });
     }
 
-    const handlePageChange = (newPage: number) => {
-        setCurrentPage(newPage);
-    };
+    const handleUpdatePaymentStatus = (group_id: string, current_payment_status: boolean) => {
+        if (group_id) {
+            Swal.fire({
+                title: `Xác nhận!`,
+                text: !current_payment_status ? "Đã hoàn tất thanh toán?" : "Chưa hoàn tất thanh toán?",
+                icon: "warning",
+                showCancelButton: true,
+                cancelButtonColor: "#d33",
+                confirmButtonText: "Xác nhận",
+                cancelButtonText: "Hủy",
+            }).then(async (result) => {
+                if (result.isConfirmed) {
+                    try {
+                        const res = await updatePaymentStatus(group_id, !current_payment_status, user?.fullname || "");
+                        if (res.status == 200 || res.status == 201) {
+                            _fetchNhomDongHo();
+                        } else {
+                            setError("Đã có lỗi xảy ra! Hãy thử lại sau.");
+                        }
+                    } catch (error) {
+                        setError("Đã có lỗi xảy ra! Hãy thử lại sau.");
+                    }
+                }
+            });
+        }
+    }
 
-    const paginatedData = rootData ? rootData.slice((currentPage - 1) * limit, currentPage * limit) : [];
+    // const handlePageChange = (newPage: number) => {
+    //     setCurrentPage(newPage);
+    // };
+
+    // const paginatedData = rootData ? rootData.slice((currentPage - 1) * limit, currentPage * limit) : [];
 
     return (
         <LocalizationProvider dateAdapter={AdapterDayjs} localeText={viVN.components.MuiLocalizationProvider.defaultProps.localeText}>
@@ -219,7 +253,7 @@ export default function NhomDongHoNuocManagement({ className }: NhomDongHoNuocMa
                 <div className={`${c_vfml['wraper']} w-100`}>
 
 
-                    <div className="bg-white w-100 shadow-sm mb-3 rounded pb-2 pt-4">
+                    <div className="bg-white w-100 shadow-sm mb-2 rounded pb-2 pt-4">
                         <div className={`row m-0 px-md-3 w-100 mb-3 ${c_vfml['search-process']}`}>
                             {/* <div className="col-12 mb-3 col-md-6 col-xl-4 d-flex">
                             <label className={`${c_vfml['form-label']}`} htmlFor="process-id">
@@ -326,7 +360,7 @@ export default function NhomDongHoNuocManagement({ className }: NhomDongHoNuocMa
                                     />
                                 </label>
                             </div>
-                            <div className={`col-12 col-md-6 col-xl-4 mb-3 m-0 p-0 row`}>
+                            {/* <div className={`col-12 col-md-6 col-xl-4 mb-3 m-0 p-0 row`}>
                                 <label className={`${c_vfml['form-label']}`}>
                                     Số lượng bản ghi:
                                     <Select
@@ -334,8 +368,8 @@ export default function NhomDongHoNuocManagement({ className }: NhomDongHoNuocMa
                                         options={limitOptions as unknown as readonly GroupBase<never>[]}
                                         className="basic-multi-select"
                                         classNamePrefix="select"
-                                        value={limitOptions.find(option => option.value === limit) || 5}
-                                        onChange={(selectedOptions: any) => setLimit(selectedOptions ? selectedOptions.value : 5)}
+                                        value={limitOptions.find(option => option.value === limit) || 10}
+                                        onChange={(selectedOptions: any) => setLimit(selectedOptions ? selectedOptions.value : 10)}
                                         styles={{
                                             control: (provided) => ({
                                                 ...provided,
@@ -366,7 +400,7 @@ export default function NhomDongHoNuocManagement({ className }: NhomDongHoNuocMa
                                         }}
                                     />
                                 </label>
-                            </div>
+                            </div> */}
 
                             <div className={`col-12 col-xl-8 mb-3 m-0 row p-0 ${c_vfml['search-created-date']}`}>
                                 <label className={`${c_vfml['form-label']} col-12`}>
@@ -417,10 +451,11 @@ export default function NhomDongHoNuocManagement({ className }: NhomDongHoNuocMa
                         </div>
                     </div>
 
-                    <div className="bg-white w-100 shadow-sm rounded overflow-hidden">
+                    <div className="bg-white w-100 shadow-sm rounded position-relative overflow-hidden">
+                        {filterLoading && <Loading />}
                         <div className={`m-0 p-0 w-100 w-100 position-relative ${c_vfml['wrap-process-table']}`}>
-                            {filterLoading && <Loading />}
-                            {paginatedData.length > 0 ? (
+                            {/* {paginatedData.length > 0 ? ( */}
+                            {rootData.length > 0 ? (
                                 <table className={`table table-striped table-bordered table-hover ${c_vfml['process-table']}`}>
                                     <thead>
                                         <tr className={`${c_vfml['table-header']}`}>
@@ -433,10 +468,10 @@ export default function NhomDongHoNuocManagement({ className }: NhomDongHoNuocMa
                                                         Tên đồng hồ
                                                     </span>
                                                     {sortConfig && sortConfig.key === 'ten_dong_ho' && sortConfig.direction === 'asc' && (
-                                                        <FontAwesomeIcon icon={faChevronUp}></FontAwesomeIcon>
+                                                        <FontAwesomeIcon icon={faChevronDown}></FontAwesomeIcon>
                                                     )}
                                                     {sortConfig && sortConfig.key === 'ten_dong_ho' && sortConfig.direction === 'desc' && (
-                                                        <FontAwesomeIcon icon={faChevronDown}></FontAwesomeIcon>
+                                                        <FontAwesomeIcon icon={faChevronUp}></FontAwesomeIcon>
                                                     )}
                                                 </div>
                                             </th>
@@ -446,10 +481,10 @@ export default function NhomDongHoNuocManagement({ className }: NhomDongHoNuocMa
                                                         Số lượng
                                                     </span>
                                                     {sortConfig && sortConfig.key === 'so_luong' && sortConfig.direction === 'asc' && (
-                                                        <FontAwesomeIcon icon={faChevronUp}></FontAwesomeIcon>
+                                                        <FontAwesomeIcon icon={faChevronDown}></FontAwesomeIcon>
                                                     )}
                                                     {sortConfig && sortConfig.key === 'so_luong' && sortConfig.direction === 'desc' && (
-                                                        <FontAwesomeIcon icon={faChevronDown}></FontAwesomeIcon>
+                                                        <FontAwesomeIcon icon={faChevronUp}></FontAwesomeIcon>
                                                     )}
                                                 </div>
                                             </th>
@@ -459,10 +494,10 @@ export default function NhomDongHoNuocManagement({ className }: NhomDongHoNuocMa
                                                         Tên khách hàng
                                                     </span>
                                                     {sortConfig && sortConfig.key === 'ten_khach_hang' && sortConfig.direction === 'asc' && (
-                                                        <FontAwesomeIcon icon={faChevronUp}></FontAwesomeIcon>
+                                                        <FontAwesomeIcon icon={faChevronDown}></FontAwesomeIcon>
                                                     )}
                                                     {sortConfig && sortConfig.key === 'ten_khach_hang' && sortConfig.direction === 'desc' && (
-                                                        <FontAwesomeIcon icon={faChevronDown}></FontAwesomeIcon>
+                                                        <FontAwesomeIcon icon={faChevronUp}></FontAwesomeIcon>
                                                     )}
                                                 </div>
                                             </th>
@@ -472,10 +507,10 @@ export default function NhomDongHoNuocManagement({ className }: NhomDongHoNuocMa
                                                         Người kiểm định
                                                     </span>
                                                     {sortConfig && sortConfig.key === 'nguoi_kiem_dinh' && sortConfig.direction === 'asc' && (
-                                                        <FontAwesomeIcon icon={faChevronUp}></FontAwesomeIcon>
+                                                        <FontAwesomeIcon icon={faChevronDown}></FontAwesomeIcon>
                                                     )}
                                                     {sortConfig && sortConfig.key === 'nguoi_kiem_dinh' && sortConfig.direction === 'desc' && (
-                                                        <FontAwesomeIcon icon={faChevronDown}></FontAwesomeIcon>
+                                                        <FontAwesomeIcon icon={faChevronUp}></FontAwesomeIcon>
                                                     )}
                                                 </div>
                                             </th>
@@ -485,44 +520,70 @@ export default function NhomDongHoNuocManagement({ className }: NhomDongHoNuocMa
                                                         Ngày thực hiện
                                                     </span>
                                                     {sortConfig && sortConfig.key === 'ngay_thuc_hien' && sortConfig.direction === 'asc' && (
-                                                        <FontAwesomeIcon icon={faChevronUp}></FontAwesomeIcon>
-                                                    )}
-                                                    {sortConfig && sortConfig.key === 'ngay_thuc_hien' && sortConfig.direction === 'desc' && (
                                                         <FontAwesomeIcon icon={faChevronDown}></FontAwesomeIcon>
                                                     )}
+                                                    {sortConfig && sortConfig.key === 'ngay_thuc_hien' && sortConfig.direction === 'desc' && (
+                                                        <FontAwesomeIcon icon={faChevronUp}></FontAwesomeIcon>
+                                                    )}
+                                                </div>
+                                            </th>
+                                            <th>
+                                                <div className={`${c_vfml['table-label']} p-0`} style={{ minWidth: "96px" }}>
+                                                    Đã thu tiền
                                                 </div>
                                             </th>
                                             <th></th>
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        {paginatedData.map((item, index) => (
-                                            <tr
-                                                key={index}
-                                                onClick={() => window.open(`${ACCESS_LINKS.DHN_DETAIL.src}/nhom/${item.group_id}`, '_blank')}
-                                                style={{ cursor: 'pointer' }}
-                                            >
-                                                <td className="text-center">{index + 1}</td>
-                                                <td>{item.ten_dong_ho}</td>
-                                                <td>{item.so_luong}</td>
-                                                <td>{item.ten_khach_hang}</td>
-                                                <td>{item.nguoi_kiem_dinh}</td>
-                                                <td>{dayjs(item.ngay_thuc_hien).format('DD-MM-YYYY')}</td>
-                                                <td>
-                                                    <Link target="_blank" aria-label="Xem chi tiết" href={ACCESS_LINKS.DHN_DETAIL.src + "/nhom/" + item.group_id} className={`btn w-100 text-blue`}>
-                                                        <FontAwesomeIcon icon={faEye}></FontAwesomeIcon>
-                                                    </Link>
-                                                </td>
-                                            </tr>
-                                        ))}
+                                        {/* {paginatedData.map((item, index) => ( */}
+                                        {rootData.map((item, index) => {
+                                            const redirectLink = `${ACCESS_LINKS.DHN_DETAIL_NDH.src}/${item.group_id}`;
+                                            return (
+                                                <tr
+                                                    key={index}
+                                                    style={{ cursor: 'pointer' }}
+                                                >
+                                                    <td onClick={() => window.open(redirectLink)} className="text-center">{rootData.indexOf(item) + 1}</td>
+                                                    <td onClick={() => window.open(redirectLink)}>{item.ten_dong_ho}</td>
+                                                    <td onClick={() => window.open(redirectLink)}>{item.so_luong}</td>
+                                                    <td onClick={() => window.open(redirectLink)}>{item.ten_khach_hang}</td>
+                                                    <td onClick={() => window.open(redirectLink)}>{item.nguoi_kiem_dinh}</td>
+                                                    <td onClick={() => window.open(redirectLink)}>{dayjs(item.ngay_thuc_hien).format('DD-MM-YYYY')}</td>
+                                                    <td>
+                                                        <div className="w-100 d-flex justify-content-center" onClick={() => handleUpdatePaymentStatus(item?.group_id || "", item?.is_paid ?? false)}>
+                                                            <Form.Check
+                                                                type="checkbox"
+                                                                style={{ width: "100px" }}
+                                                                className="d-flex justify-content-center"
+                                                                label={
+                                                                    <span className="ms-1" style={{ color: 'black', cursor: 'pointer' }}>{(item?.is_paid ?? false) ? "Đã thu" : "Chưa thu"}</span>
+                                                                }
+                                                                checked={item?.is_paid ?? false}
+                                                            />
+                                                        </div>
+                                                    </td>
+                                                    <td
+                                                        onClick={() => window.open(`${ACCESS_LINKS.DHN_EDIT_NDH.src + "/" + item.group_id}`)}
+                                                    >
+                                                        {/* <Link target="_blank" aria-label="Xem chi tiết" href={ACCESS_LINKS.DHN_DETAIL_NDH.src + "/nhom/" + item.group_id} className={`btn w-100 text-blue`}>
+                                                            <FontAwesomeIcon icon={faEye}></FontAwesomeIcon>
+                                                        </Link> */}
+                                                        <Link aria-label="Chỉnh sửa" href={ACCESS_LINKS.DHN_EDIT_NDH.src + "/" + item.group_id} className={`btn w-100 text-blue shadow-0`}>
+                                                            <FontAwesomeIcon icon={faEdit}></FontAwesomeIcon>
+                                                        </Link>
+                                                    </td>
+                                                </tr>
+                                            )
+                                        })}
                                     </tbody>
                                 </table>
                             ) : (
                                 <p className="text-center py-3 m-0 w-100">Không có dữ liệu</p>
                             )}
                         </div>
-                        <div className="w-100 m-0 p-0 px-3 d-flex align-items-center justify-content-center">
-                            <Pagination currentPage={currentPage} totalPage={totalPage} handlePageChange={handlePageChange}></Pagination>
+                        <div className="w-100 m-0 p-3 d-flex align-items-center justify-content-center">
+                            {/* <Pagination currentPage={currentPage} totalPage={totalPage} handlePageChange={handlePageChange}></Pagination> */}
                         </div>
                     </div>
                 </div>

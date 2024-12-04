@@ -10,19 +10,22 @@ import dayjs, { Dayjs } from "dayjs";
 import { viVN } from "@mui/x-date-pickers/locales";
 
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faChevronDown, faChevronUp, faEye } from "@fortawesome/free-solid-svg-icons";
+import { faChevronDown, faChevronUp, faEdit, faEye } from "@fortawesome/free-solid-svg-icons";
 import React from "react";
 
 import Select, { GroupBase } from 'react-select';
 import Pagination from "@/components/Pagination";
 import { DongHo, DongHoFilterParameters, DuLieuChayDongHo } from "@lib/types";
 
-import { usePathname } from "next/navigation";
+// import { usePathname } from "next/navigation";
 import Link from "next/link";
 
-import {ACCESS_LINKS, limitOptions } from "@lib/system-constant";
+import {
+    ACCESS_LINKS,
+    //  limitOptions 
+} from "@lib/system-constant";
 import Swal from "sweetalert2";
-import { deleteDongHo, getAllDongHo, getDongHoByFilter } from "@/app/api/dongho/route";
+import { getAllDongHo, getDongHoByFilter } from "@/app/api/dongho/route";
 
 const Loading = React.lazy(() => import("@/components/Loading"));
 
@@ -38,7 +41,7 @@ export default function WaterMeterManagement({ className, isBiggerThan15 = false
 
     const [filterLoading, setFilterLoading] = useState(true);
     const [sortConfig, setSortConfig] = useState<{ key: string, direction: 'asc' | 'desc' | 'default' } | null>(null);
-    const [limit, setLimit] = useState(5);
+    // const [limit, setLimit] = useState(10);
     const [error, setError] = useState("");
 
     // Func: Set err
@@ -70,7 +73,7 @@ export default function WaterMeterManagement({ className, isBiggerThan15 = false
         }
     }, [error]);
 
-    const path = usePathname();
+    // const path = usePathname();
 
     const [filterForm, setFilterForm] = useState<DongHoFilterParameters>({
         is_bigger_than_15: isBiggerThan15,
@@ -84,7 +87,7 @@ export default function WaterMeterManagement({ className, isBiggerThan15 = false
         ngay_kiem_dinh_from: null,
         ngay_kiem_dinh_to: null
     });
-    const [currentPage, setCurrentPage] = useState(1);
+    // const [currentPage, setCurrentPage] = useState(1);
 
     useEffect(() => {
         if (fetchCalled.current) return;
@@ -105,19 +108,19 @@ export default function WaterMeterManagement({ className, isBiggerThan15 = false
         fetchData();
     }, []);
 
-    const resetTotalPage = () => {
-        setCurrentPage(1);
-        if (!rootData || rootData.length <= limit) {
-            return 1;
-        }
-        return Math.ceil(rootData.length / limit);
-    }
+    // const resetTotalPage = () => {
+    //     setCurrentPage(1);
+    //     if (!rootData || rootData.length <= limit) {
+    //         return 1;
+    //     }
+    //     return Math.ceil(rootData.length / limit);
+    // }
 
-    const [totalPage, setTotalPage] = useState(resetTotalPage);
+    // const [totalPage, setTotalPage] = useState(resetTotalPage);
 
-    useEffect(() => {
-        setTotalPage(resetTotalPage);
-    }, [rootData, limit])
+    // useEffect(() => {
+    //     setTotalPage(resetTotalPage);
+    // }, [rootData, limit])
 
     const sortData = useCallback((key: keyof DongHo) => {
         if (!filterLoading) {
@@ -175,42 +178,42 @@ export default function WaterMeterManagement({ className, isBiggerThan15 = false
         }));
     };
 
-    const handleDelete = (id: string | null) => {
-        if (id) {
-            Swal.fire({
-                title: "Xác nhận xóa?",
-                text: "Bạn sẽ không thể hoàn tác dữ liệu này!",
-                icon: "warning",
-                showCancelButton: true,
-                confirmButtonColor: "#3085d6",
-                cancelButtonColor: "#d33",
-                confirmButtonText: "Có",
-                cancelButtonText: "Không"
-            }).then(async (result) => {
-                if (result.isConfirmed) {
-                    setFilterLoading(true);
-                    try {
-                        const res = await deleteDongHo(id);
-                        if (res.status === 200 || res.status === 201) {
-                            setRootData(prevData => prevData ? prevData.filter(item => item.id !== id) : []);
-                            Swal.fire({
-                                text: "Xóa thành công!",
-                                icon: "success"
-                            });
-                        } else {
-                            console.error(res.msg);
-                            setError("Có lỗi đã xảy ra!");
-                        }
-                    } catch (error) {
-                        console.error('Error deleting PDM:', error);
-                        setError("Có lỗi đã xảy ra!");
-                    } finally {
-                        setFilterLoading(false);
-                    }
-                }
-            });
-        }
-    };
+    // const handleDelete = (id: string | null) => {
+    //     if (id) {
+    //         Swal.fire({
+    //             title: "Xác nhận xóa?",
+    //             text: "Bạn sẽ không thể hoàn tác dữ liệu này!",
+    //             icon: "warning",
+    //             showCancelButton: true,
+    //             confirmButtonColor: "#3085d6",
+    //             cancelButtonColor: "#d33",
+    //             confirmButtonText: "Có",
+    //             cancelButtonText: "Không"
+    //         }).then(async (result) => {
+    //             if (result.isConfirmed) {
+    //                 setFilterLoading(true);
+    //                 try {
+    //                     const res = await deleteDongHo(id);
+    //                     if (res.status === 200 || res.status === 201) {
+    //                         setRootData(prevData => prevData ? prevData.filter(item => item.id !== id) : []);
+    //                         Swal.fire({
+    //                             text: "Xóa thành công!",
+    //                             icon: "success"
+    //                         });
+    //                     } else {
+    //                         console.error(res.msg);
+    //                         setError("Có lỗi đã xảy ra!");
+    //                     }
+    //                 } catch (error) {
+    //                     console.error('Error deleting PDM:', error);
+    //                     setError("Có lỗi đã xảy ra!");
+    //                 } finally {
+    //                     setFilterLoading(false);
+    //                 }
+    //             }
+    //         });
+    //     }
+    // };
 
     const hanldeResetFilter = () => {
         setFilterForm({
@@ -226,9 +229,9 @@ export default function WaterMeterManagement({ className, isBiggerThan15 = false
         });
     }
 
-    const handlePageChange = (newPage: number) => {
-        setCurrentPage(newPage);
-    };
+    // const handlePageChange = (newPage: number) => {
+    //     setCurrentPage(newPage);
+    // };
 
     // Function to process du_lieu
     const processDuLieu = (data: { du_lieu?: DuLieuChayDongHo }): string => {
@@ -245,15 +248,14 @@ export default function WaterMeterManagement({ className, isBiggerThan15 = false
         return "";
     };
 
-    const paginatedData = rootData ? rootData.slice((currentPage - 1) * limit, currentPage * limit) : [];
+    // const paginatedData = rootData ? rootData.slice((currentPage - 1) * limit, currentPage * limit) : [];
 
     return (
         <LocalizationProvider dateAdapter={AdapterDayjs} localeText={viVN.components.MuiLocalizationProvider.defaultProps.localeText}>
             <div className={`${className ? className : ""} m-0 w-100`}>
                 <div className={`${c_vfml['wraper']} w-100`}>
 
-
-                    <div className="bg-white w-100 shadow-sm mb-3 rounded pb-2 pt-4">
+                    <div className="bg-white w-100 shadow-sm mb-2 rounded pb-2 pt-4">
                         <div className={`row m-0 px-md-3 w-100 mb-3 ${c_vfml['search-process']}`}>
                             {/* <div className="col-12 mb-3 col-md-6 col-xl-4 d-flex">
                             <label className={`${c_vfml['form-label']}`} htmlFor="process-id">
@@ -308,7 +310,7 @@ export default function WaterMeterManagement({ className, isBiggerThan15 = false
                                     />
                                 </label>
                             </div>
-                            <div className={`col-12 col-md-6 col-xl-4 mb-3 m-0 p-0 row`}>
+                            {/* <div className={`col-12 col-md-6 col-xl-4 mb-3 m-0 p-0 row`}>
                                 <label className={`${c_vfml['form-label']}`}>
                                     Số lượng bản ghi:
                                     <Select
@@ -316,8 +318,8 @@ export default function WaterMeterManagement({ className, isBiggerThan15 = false
                                         options={limitOptions as unknown as readonly GroupBase<never>[]}
                                         className="basic-multi-select"
                                         classNamePrefix="select"
-                                        value={limitOptions.find(option => option.value === limit) || 5}
-                                        onChange={(selectedOptions: any) => setLimit(selectedOptions ? selectedOptions.value : 5)}
+                                        value={limitOptions.find(option => option.value === limit) || 10}
+                                        onChange={(selectedOptions: any) => setLimit(selectedOptions ? selectedOptions.value : 10)}
                                         styles={{
                                             control: (provided) => ({
                                                 ...provided,
@@ -348,7 +350,7 @@ export default function WaterMeterManagement({ className, isBiggerThan15 = false
                                         }}
                                     />
                                 </label>
-                            </div>
+                            </div> */}
 
                             <div className={`col-12 col-xl-8 mb-3 m-0 row p-0 ${c_vfml['search-created-date']}`}>
                                 <label className={`${c_vfml['form-label']} col-12`}>
@@ -399,13 +401,16 @@ export default function WaterMeterManagement({ className, isBiggerThan15 = false
                         </div>
                     </div>
 
-                    <div className="bg-white w-100 shadow-sm rounded overflow-hidden">
+                    <div className="bg-white w-100 shadow-sm position-relative rounded overflow-hidden">
+                        {filterLoading && <Loading />}
                         <div className={`m-0 p-0 w-100 w-100 position-relative ${c_vfml['wrap-process-table']}`}>
-                            {filterLoading && <Loading />}
-                            {paginatedData.length > 0 ? (
+                            {rootData.length > 0 ? (
                                 <table className={`table table-striped table-bordered table-hover ${c_vfml['process-table']}`}>
                                     <thead>
                                         <tr className={`${c_vfml['table-header']}`}>
+                                            <th className="text-center">
+                                                STT
+                                            </th>
                                             <th>
                                                 <div className={`${c_vfml['table-label']}`}>
                                                     <span>
@@ -419,10 +424,10 @@ export default function WaterMeterManagement({ className, isBiggerThan15 = false
                                                         Tên khách hàng
                                                     </span>
                                                     {sortConfig && sortConfig.key === 'ten_khach_hang' && sortConfig.direction === 'asc' && (
-                                                        <FontAwesomeIcon icon={faChevronUp}></FontAwesomeIcon>
+                                                        <FontAwesomeIcon icon={faChevronDown}></FontAwesomeIcon>
                                                     )}
                                                     {sortConfig && sortConfig.key === 'ten_khach_hang' && sortConfig.direction === 'desc' && (
-                                                        <FontAwesomeIcon icon={faChevronDown}></FontAwesomeIcon>
+                                                        <FontAwesomeIcon icon={faChevronUp}></FontAwesomeIcon>
                                                     )}
                                                 </div>
                                             </th>
@@ -432,10 +437,10 @@ export default function WaterMeterManagement({ className, isBiggerThan15 = false
                                                         Người kiểm định
                                                     </span>
                                                     {sortConfig && sortConfig.key === 'nguoi_kiem_dinh' && sortConfig.direction === 'asc' && (
-                                                        <FontAwesomeIcon icon={faChevronUp}></FontAwesomeIcon>
+                                                        <FontAwesomeIcon icon={faChevronDown}></FontAwesomeIcon>
                                                     )}
                                                     {sortConfig && sortConfig.key === 'nguoi_kiem_dinh' && sortConfig.direction === 'desc' && (
-                                                        <FontAwesomeIcon icon={faChevronDown}></FontAwesomeIcon>
+                                                        <FontAwesomeIcon icon={faChevronUp}></FontAwesomeIcon>
                                                     )}
                                                 </div>
                                             </th>
@@ -445,26 +450,26 @@ export default function WaterMeterManagement({ className, isBiggerThan15 = false
                                                         Ngày thực hiện
                                                     </span>
                                                     {sortConfig && sortConfig.key === 'ngay_thuc_hien' && sortConfig.direction === 'asc' && (
-                                                        <FontAwesomeIcon icon={faChevronUp}></FontAwesomeIcon>
+                                                        <FontAwesomeIcon icon={faChevronDown}></FontAwesomeIcon>
                                                     )}
                                                     {sortConfig && sortConfig.key === 'ngay_thuc_hien' && sortConfig.direction === 'desc' && (
-                                                        <FontAwesomeIcon icon={faChevronDown}></FontAwesomeIcon>
+                                                        <FontAwesomeIcon icon={faChevronUp}></FontAwesomeIcon>
                                                     )}
                                                 </div>
                                             </th>
                                             {/* <th onClick={() => sortData('status')}>
-                                    <div className={`${c_vfml['table-label']}`}>
-                                        <span>
-                                            Trạng thái
-                                        </span>
-                                        {sortConfig && sortConfig.key === 'status' && sortConfig.direction === 'asc' && (
-                                            <FontAwesomeIcon icon={faChevronUp}></FontAwesomeIcon>
-                                        )}
-                                        {sortConfig && sortConfig.key === 'status' && sortConfig.direction === 'desc' && (
-                                            <FontAwesomeIcon icon={faChevronDown}></FontAwesomeIcon>
-                                        )}
-                                    </div>
-                                </th> */}
+                                                <div className={`${c_vfml['table-label']}`}>
+                                                    <span>
+                                                        Trạng thái
+                                                    </span>
+                                                    {sortConfig && sortConfig.key === 'status' && sortConfig.direction === 'asc' && (
+                                                        <FontAwesomeIcon icon={faChevronDown}></FontAwesomeIcon>
+                                                    )}
+                                                    {sortConfig && sortConfig.key === 'status' && sortConfig.direction === 'desc' && (
+                                                        <FontAwesomeIcon icon={faChevronUp}></FontAwesomeIcon>
+                                                    )}
+                                                </div>
+                                            </th> */}
                                             <th>
                                                 <div className={`${c_vfml['table-label']}`}>
                                                     <span>
@@ -476,51 +481,68 @@ export default function WaterMeterManagement({ className, isBiggerThan15 = false
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        {paginatedData.map((item, index) => (
-                                            <tr
-                                                key={index}
-                                                onClick={() => window.open(`${ACCESS_LINKS.DHN_DETAIL.src}/${item.id}`, '_blank')}
-                                                style={{ cursor: 'pointer' }} 
-                                            >
-                                                <td>{item.so_giay_chung_nhan}</td>
-                                                <td>{item.ten_khach_hang}</td>
-                                                <td>{item.nguoi_kiem_dinh}</td>
-                                                <td>{dayjs(item.ngay_thuc_hien).format('DD-MM-YYYY')}</td>
-                                                <td>
-                                                    {processDuLieu(item.du_lieu_kiem_dinh as { du_lieu?: DuLieuChayDongHo })}
-                                                </td>
-                                                <td>
-                                                    <Link target="_blank" aria-label="Xem chi tiết" href={ACCESS_LINKS.DHN_DETAIL.src + "/" + item.id} className={`btn w-100 text-blue`}>
-                                                        <FontAwesomeIcon icon={faEye}></FontAwesomeIcon>
-                                                    </Link>
-                                                    {/* <div className={`dropdown ${c_vfml['action']}`}>
-                                                        <button aria-label="Lựa chọn" className={`${c_vfml['action-button']}`} type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                                            <FontAwesomeIcon icon={faEllipsisH}></FontAwesomeIcon>
-                                                        </button>
-                                                        <ul className={`dropdown-menu ${c_vfml['dropdown-menu']}`} style={{ zIndex: "777" }}>
-                                                            <li>
-                                                                <Link aria-label="Xem chi tiết" href={ACCESS_LINKS.DHN_DETAIL.src + "/"+ item.serial_number} className={`btn w-100`}>
-                                                                    Xem chi tiết
-                                                                </Link>
-                                                            </li>
-                                                            <li>
-                                                                <button aria-label="Xóa" type="button" onClick={() => handleDelete(item.serial_number)} className={`btn w-100`}>
-                                                                    Xóa
-                                                                </button>
-                                                            </li>
-                                                        </ul>
-                                                    </div> */}
-                                                </td>
-                                            </tr>
-                                        ))}
+                                        {rootData.map((dongHo, index) => {
+                                            const duLieuKiemDinhJSON = dongHo.du_lieu_kiem_dinh;
+                                            const duLieuKiemDinh = duLieuKiemDinhJSON ?
+                                                ((typeof duLieuKiemDinhJSON != 'string') ?
+                                                    duLieuKiemDinhJSON : JSON.parse(duLieuKiemDinhJSON)
+                                                ) : null;
+                                            const ketQua = duLieuKiemDinh?.ket_qua;
+
+                                            return (
+                                                <tr
+                                                    key={index}
+                                                    onClick={() => window.open(`${ACCESS_LINKS.DHN_DETAIL_DH.src}/${dongHo.id}`)}
+                                                    style={{ cursor: 'pointer' }}
+                                                >
+                                                    <td className="text-center">{rootData.indexOf(dongHo) + 1}</td>
+                                                    <td>{dongHo.so_giay_chung_nhan}</td>
+                                                    <td>{dongHo.ten_khach_hang}</td>
+                                                    <td>{dongHo.nguoi_kiem_dinh}</td>
+                                                    <td>{dayjs(dongHo.ngay_thuc_hien).format('DD-MM-YYYY')}</td>
+                                                    <td>
+                                                        {/* {processDuLieu(dongHo.du_lieu_kiem_dinh as { du_lieu?: DuLieuChayDongHo })} */}
+                                                        {ketQua != null ? (ketQua ? "Đạt" : "Không đạt") : "Chưa kiểm định"}
+                                                    </td>
+                                                    <td
+                                                        onClick={() => window.open(`${ACCESS_LINKS.DHN_EDIT_NDH.src + "/" + dongHo.group_id}`)}
+                                                    >
+                                                        {/* <Link target="_blank" aria-label="Xem chi tiết" href={ACCESS_LINKS.DHN_DETAIL_DH.src + "/" + dongHo.id} className={`btn w-100 text-blue`}>
+                                                            <FontAwesomeIcon icon={faEye}></FontAwesomeIcon>
+                                                        </Link> */}
+                                                        <Link aria-label="Chỉnh sửa" href={ACCESS_LINKS.DHN_EDIT_DH.src + "/" + dongHo.id} className={`btn w-100 text-blue shadow-0`}>
+                                                            <FontAwesomeIcon icon={faEdit}></FontAwesomeIcon>
+                                                        </Link>
+
+                                                        {/* <div className={`dropdown ${c_vfml['action']}`}>
+                                                            <button aria-label="Lựa chọn" className={`${c_vfml['action-button']}`} type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                                                <FontAwesomeIcon icon={faEllipsisH}></FontAwesomeIcon>
+                                                            </button>
+                                                            <ul className={`dropdown-menu ${c_vfml['dropdown-menu']}`} style={{ zIndex: "777" }}>
+                                                                <li>
+                                                                    <Link aria-label="Xem chi tiết" href={ACCESS_LINKS.DHN_DETAIL_DH.src + "/"+ dongHo.serial_number} className={`btn w-100`}>
+                                                                        Xem chi tiết
+                                                                    </Link>
+                                                                </li>
+                                                                <li>
+                                                                    <button aria-label="Xóa" type="button" onClick={() => handleDelete(dongHo.serial_number)} className={`btn w-100`}>
+                                                                        Xóa
+                                                                    </button>
+                                                                </li>
+                                                            </ul>
+                                                        </div> */}
+                                                    </td>
+                                                </tr>
+                                            )
+                                        })}
                                     </tbody>
                                 </table>
                             ) : (
                                 <p className="text-center py-3 m-0 w-100">Không có dữ liệu</p>
                             )}
                         </div>
-                        <div className="w-100 m-0 p-0 px-3 d-flex align-items-center justify-content-center">
-                            <Pagination currentPage={currentPage} totalPage={totalPage} handlePageChange={handlePageChange}></Pagination>
+                        <div className="w-100 m-0 p-3 d-flex align-items-center justify-content-center">
+                            {/* <Pagination currentPage={currentPage} totalPage={totalPage} handlePageChange={handlePageChange}></Pagination> */}
                         </div>
                     </div>
                 </div>

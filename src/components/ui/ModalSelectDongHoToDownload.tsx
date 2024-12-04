@@ -10,11 +10,13 @@ interface ModalSelectDongHoToDownloadProps {
     show: boolean;
     handleClose: () => void;
     handleSelectedDongHo: React.Dispatch<React.SetStateAction<DongHo[]>>;
+    isDownloadGCN?:boolean
 }
 
-export default function ModalSelectDongHoToDownload({ dongHoList, show, handleClose, handleSelectedDongHo }: ModalSelectDongHoToDownloadProps) {
+export default function ModalSelectDongHoToDownload({ dongHoList, show, handleClose, handleSelectedDongHo,isDownloadGCN}: ModalSelectDongHoToDownloadProps) {
     const [selectedDongHo, setSelectedDongHo] = useState<DongHo[]>([]);
     const [isShow, setIsShow] = useState<boolean | null>(null);
+    const [isDongHoSelectableExists, setDongHoSelectableExits] = useState<boolean>(false);
 
     const toggleSelectDongHo = (dongHo: DongHo) => {
         setSelectedDongHo(prevSelected => {
@@ -60,7 +62,7 @@ export default function ModalSelectDongHoToDownload({ dongHoList, show, handleCl
                 <Modal.Title>Chọn đồng hồ</Modal.Title>
             </Modal.Header>
             <Modal.Body>
-                <ul className='w-100 list-unstyled px-1' style={{
+                <ul className='w-100 m-0 list-unstyled px-1' style={{
                     overflowY: 'auto',
                     maxHeight: '300px'
                 }}>
@@ -68,6 +70,9 @@ export default function ModalSelectDongHoToDownload({ dongHoList, show, handleCl
                         const duLieuKiemDinh = dongHo.du_lieu_kiem_dinh as { ket_qua?: boolean } | null;
                         const isSelectable = duLieuKiemDinh && duLieuKiemDinh.ket_qua && dongHo.so_tem && dongHo.so_giay_chung_nhan;
                         if (isSelectable) {
+                            if (!isDongHoSelectableExists) {
+                                setDongHoSelectableExits(true);
+                            }
                             return (
                                 <li
                                     key={index}
@@ -89,6 +94,7 @@ export default function ModalSelectDongHoToDownload({ dongHoList, show, handleCl
                                                 <span style={{ color: 'black' }}>{"Đồng hồ số " + (index + 1)}</span>
                                             }
                                             checked={selectedDongHo.includes(dongHo)}
+                                            onClick={() => isSelectable && toggleSelectDongHo(dongHo)}
                                             onChange={() => isSelectable && toggleSelectDongHo(dongHo)}
                                         />
                                     </label>
@@ -96,8 +102,9 @@ export default function ModalSelectDongHoToDownload({ dongHoList, show, handleCl
                             )
                         }
                     })}
+                    {!isDongHoSelectableExists && <p className='p-0 m-0 text-center'><i>Không có đồng hồ hợp lệ!</i></p>}
                 </ul>
-                <div className='d-flex align-items-center justify-content-between'>
+                <div className={`${!isDongHoSelectableExists ? "d-none" : "d-flex"} mt-2 align-items-center justify-content-between`}>
                     <small>Chọn <b>{selectedDongHo.length} / {dongHoList.length}</b> đồng hồ</small>
                     <div className='d-flex align-items-center gap-2'>
                         <Button variant={selectedDongHo.length === 0 ? 'secondary' : 'danger'} disabled={selectedDongHo.length === 0} onClick={deselectAllDongHo}>
@@ -109,13 +116,16 @@ export default function ModalSelectDongHoToDownload({ dongHoList, show, handleCl
                     </div>
                 </div>
             </Modal.Body>
-            <Modal.Footer className='d-flex align-items-center justify-content-between'>
+            <Modal.Footer className={`d-flex align-items-center ${isDongHoSelectableExists ? "justify-content-between" : "justify-content-end"}`}>
                 <Button variant="secondary" onClick={handleClose}>
                     Đóng
                 </Button>
-                <Button variant={selectedDongHo.length === 0 ? 'secondary' : 'success'} disabled={selectedDongHo.length === 0} onClick={handleDownload}>
-                    Tải xuống
-                </Button>
+                {isDongHoSelectableExists &&
+                    <Button variant={selectedDongHo.length === 0 ? 'secondary' : 'success'} disabled={selectedDongHo.length === 0} onClick={handleDownload}>
+                        Tải xuống
+                    </Button>
+                }
+
             </Modal.Footer>
         </Modal>
     );

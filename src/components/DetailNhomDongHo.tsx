@@ -7,10 +7,11 @@ import dynamic from "next/dynamic";
 import { DongHo, DuLieuChayDiemLuuLuong, DuLieuChayDongHo } from "@lib/types";
 import { Fragment, useEffect, useRef, useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faDownload, faFileExcel } from "@fortawesome/free-solid-svg-icons";
+import { faDownload, faEdit, faFileExcel } from "@fortawesome/free-solid-svg-icons";
 import Swal from "sweetalert2";
 import { downloadBB, downloadGCN } from "@/app/api/download/route";
-import { TITLE_LUU_LUONG } from "@lib/system-constant";
+import { ACCESS_LINKS, TITLE_LUU_LUONG } from "@lib/system-constant";
+import Link from "next/link";
 
 const Loading = dynamic(() => import('@/components/Loading'), { ssr: false });
 const ModalSelectDongHoToDownload = dynamic(() => import('@/components/ui/ModalSelectDongHoToDownload'), { ssr: false });
@@ -42,6 +43,7 @@ interface GeneralInfo {
     nguoi_kiem_dinh: string | null;
     ngay_thuc_hien: Date | null;
     noi_su_dung: string | null;
+    noi_thuc_hien: string | null;
     vi_tri: string | null;
     nhiet_do: string | null;
     do_am: string | null;
@@ -202,6 +204,7 @@ export default function DetailNhomDongHo({ nhomDongHo }: DetailNhomDongHoProps) 
                 vi_tri: dongHo.vi_tri,
                 nhiet_do: dongHo.nhiet_do,
                 do_am: dongHo.do_am,
+                noi_thuc_hien: dongHo.noi_thuc_hien
             })
 
             let tmpNhomDuLieuKiemDinh: DuLieuKiemDinh[] = []
@@ -255,12 +258,11 @@ export default function DetailNhomDongHo({ nhomDongHo }: DetailNhomDongHoProps) 
                                     if (indexHead) {
                                         jsxStart = <>
                                             <td rowSpan={rowSpan}>
-                                                {key === TITLE_LUU_LUONG.q1
-                                                    ? "QI" : key === TITLE_LUU_LUONG.q2
-                                                        ? "QII" : key === TITLE_LUU_LUONG.q3
-                                                            ? "QIII" : key}
+                                                {(key === TITLE_LUU_LUONG.q1 || key === TITLE_LUU_LUONG.qmin)
+                                                    ? "I" : ((key === TITLE_LUU_LUONG.q2 || key === TITLE_LUU_LUONG.qt)
+                                                        ? "II" : "III")}
                                             </td>
-                                            <td rowSpan={rowSpan}>{value.value}</td>
+                                            <td rowSpan={rowSpan}>{key === TITLE_LUU_LUONG.q3 ? 0.3 * parseFloat(Number(value.value).toString()) : value.value}</td>
                                         </>;
                                         const hss = hieuSaiSo ? hieuSaiSo[
                                             [TITLE_LUU_LUONG.q1, TITLE_LUU_LUONG.qmin].includes(key)
@@ -304,184 +306,223 @@ export default function DetailNhomDongHo({ nhomDongHo }: DetailNhomDongHoProps) 
         return <Loading></Loading>;
     }
 
-    return <div className="w-100 m-0 p-2">
+    return <div className="w-100 m-0 mb-4 p-2">
         <title>{"Nhóm đồng hồ " + generalInfo.ten_dong_ho || ""}</title>
         {generalInfo ? (
-            <div className="w-100 m-0 my-3 p-0">
+            <div className="w-100 m-0 p-0">
                 <ModalSelectDongHoToDownload
                     dongHoList={nhomDongHoData}
                     show={showModalSelectDongHoToDownload}
                     handleClose={handleCloseModal}
                     handleSelectedDongHo={setSelectedDongHo}
+                    isDownloadGCN={DOWNLOAD_TYPE.GCN == typeToDownload}
                 ></ModalSelectDongHoToDownload>
-                <div className={`container my-3 p-0 d-flex align-items-center`}>
-                    <span style={{ cursor: "unset" }} className="m-0 btn border-0 py-2 bg-main-blue text-white rounded-end-0">Chọn tải:</span>
+                <div className={`container my-3 p-0 d-flex align-items-center justify-content-end`}>
+                    <Link href={ACCESS_LINKS.DHN_EDIT_NDH.src + "/" + generalInfo.group_id} aria-label="Chỉnh sửa đồng hồ" className="btn bg-warning border border-warning me-2">
+                        <FontAwesomeIcon icon={faEdit}></FontAwesomeIcon> All
+                    </Link>
+                    <span style={{ cursor: "unset" }} className="m-0 btn border-0 py-2 bg-grey text-white rounded-end-0"><FontAwesomeIcon icon={faDownload}></FontAwesomeIcon> Nhiều:</span>
                     <button aria-label="Tải biên bản kiểm định" className="btn bg-main-green rounded-0 border-0 py-2 text-white" onClick={handleMultDownloadBB}>
-                        <FontAwesomeIcon icon={faFileExcel} className="me-1"></FontAwesomeIcon> BB kiểm định
+                        <span className="d-sm-none">
+                            <FontAwesomeIcon icon={faFileExcel} className="me-1"></FontAwesomeIcon> BB
+                        </span>
+                        <span className="d-none d-sm-block">
+                            <FontAwesomeIcon icon={faFileExcel} className="me-1"></FontAwesomeIcon> Biên bản
+                        </span>
                     </button>
                     <button aria-label="Tải giấy chứng nhận kiểm định" className="btn bg-main-green rounded-start-0 py-2 border-top-0 border-bottom-0 border-end-0 border-white text-white" onClick={handleMultDownloadGCN}>
-                        <FontAwesomeIcon icon={faFileExcel} className="me-1"></FontAwesomeIcon> GCN kiểm định
+                        <span className="d-sm-none">
+                            <FontAwesomeIcon icon={faFileExcel} className="me-1"></FontAwesomeIcon> GCN
+                        </span>
+                        <span className="d-none d-sm-block">
+                            <FontAwesomeIcon icon={faFileExcel} className="me-1"></FontAwesomeIcon> Giấy chứng nhận
+                        </span>
                     </button>
                 </div>
-                <div className="container bg-white px-3 py-4 p-md-5">
-                    <h4 className="text-center text-uppercase">Chi tiết nhóm đồng hồ</h4>
-                    <p className="fs-5 text-uppercase fw-bold text-decoration-underline">I. Thông tin chung:</p>
-                    <div className="row mb-3">
-                        <div className="col-12">
-                            <p>Tên đồng hồ: <b>{generalInfo.ten_dong_ho || "Chưa có tên đồng hồ"}</b></p>
-                        </div>
-                        <div className="col-12">
-                            <p>Tên phương tiện đo: <b>{generalInfo.phuong_tien_do || "Chưa có tên phương tiện đo"}</b></p>
-                        </div>
-                        <div className="col-12">
-                            <p>Nơi sản xuất: <b>{generalInfo.co_so_san_xuat || "Chưa có nơi sản xuất"}</b></p>
-                        </div>
-                        {(generalInfo.kieu_sensor || generalInfo.kieu_chi_thi) && <div className="col-12 mb-3">
-                            <p className="m-0">Kiểu sản xuất:</p>
-                            <div className="w-100 row m-0 px-3">
-                                <div className="col-12 col-md-6 m-0 p-0">{(generalInfo.kieu_sensor) && <>Kiểu sensor: <b>{generalInfo.kieu_sensor}</b></>}</div>
-                                <div className="col-12 col-md-6 m-0 p-0">{(generalInfo.kieu_chi_thi) && <>Kiểu chỉ thị: <b>{generalInfo.kieu_chi_thi}</b></>}</div>
+                <div className="container px-0 bg-white py-4">
+                    <div className="px-4 px-md-5">
+                        <h4 className="text-center text-uppercase">Chi tiết nhóm đồng hồ</h4>
+                        <div className="row mb-3">
+                            <div className="col-12">
+                                <p>Tên đồng hồ: <b>{generalInfo.ten_dong_ho || "Chưa có tên đồng hồ"}</b></p>
                             </div>
-                        </div>}
+                            <div className="col-12">
+                                <p>Tên phương tiện đo: <b>{generalInfo.phuong_tien_do || "Chưa có tên phương tiện đo"}</b></p>
+                            </div>
+                            <div className="col-12">
+                                <p>Nơi sản xuất: <b>{generalInfo.co_so_san_xuat || "Chưa có nơi sản xuất"}</b></p>
+                            </div>
+                            {(generalInfo.kieu_sensor || generalInfo.kieu_chi_thi) && <div className="col-12 mb-3">
+                                <p className="m-0">Kiểu sản xuất:</p>
+                                <div className="w-100 row m-0 px-3">
+                                    <div className="col-12 col-md-6 m-0 p-0">{(generalInfo.kieu_sensor) && <>Kiểu sensor: <b>{generalInfo.kieu_sensor}</b></>}</div>
+                                    <div className="col-12 col-md-6 m-0 p-0">{(generalInfo.kieu_chi_thi) && <>Kiểu chỉ thị: <b>{generalInfo.kieu_chi_thi}</b></>}</div>
+                                </div>
+                            </div>}
 
-                    </div>
-                    <div className="row mb-3">
-                        <div className="col-12 col-md-4">
-                            <p>Đặc trưng kỹ thuật đo lường:</p>
                         </div>
-                        <div className="col-12 col-md-8">
-                            <ul className="list-unstyled m-0 p-0">
-                                <li>- Đường kính danh định: <b>DN ={generalInfo.dn || 0}</b> mm</li>
-                                <li>- Lưu lượng danh định: {generalInfo.q3 ? <b>Q3= {generalInfo.q3 || 0}</b> : <b>Qn= {generalInfo.qn || 0}</b>} m<sup>3</sup>/h</li>
-                                <li>- Cấp chính xác: <b>{generalInfo.ccx || "Chưa có cấp chính xác"}</b></li>
-                                <li>- Ký hiệu PDM / Số quyết định: <b>{generalInfo.so_qd_pdm || "Chưa có số quyết định"}</b></li>
-                            </ul>
+                        <div className="row mb-3">
+                            <div className="col-12 col-md-4">
+                                <p>Đặc trưng kỹ thuật đo lường:</p>
+                            </div>
+                            <div className="col-12 col-md-8">
+                                <ul className="list-unstyled m-0 p-0">
+                                    <li>- Đường kính danh định: <b>DN ={generalInfo.dn || 0}</b> mm</li>
+                                    <li>- Lưu lượng danh định: {generalInfo.q3 ? <b>Q3= {generalInfo.q3 || 0}</b> : <b>Qn= {generalInfo.qn || 0}</b>} m<sup>3</sup>/h</li>
+                                    <li>- Cấp chính xác: <b>{generalInfo.ccx || "Chưa có cấp chính xác"}</b></li>
+                                    <li>- Ký hiệu PDM / Số quyết định: <b>{generalInfo.so_qd_pdm || "Chưa có số quyết định"}</b></li>
+                                </ul>
+                            </div>
                         </div>
-                    </div>
-                    <div className="row mb-3">
-                        <p>Cơ sở sử dụng: <b>{generalInfo.noi_su_dung || "Chưa có cơ sở sử dụng"}</b></p>
-                    </div>
-                    <div className="row mb-3">
-                        <p>Phương pháp thực hiện: <b>{generalInfo.phuong_phap_thuc_hien || "Chưa có phương pháp thực hiện"}</b></p>
-                        <p>Chuẩn được sử dụng: <b>{generalInfo.chuan_thiet_bi_su_dung || "Chưa có chuẩn thiết bị sử dụng"}</b></p>
-                    </div>
-                    <div className="row mb-3">
-                        <div className="col-6">
-                            <p>Người thực hiện: <b className="text-uppercase">{generalInfo.nguoi_kiem_dinh || "Chưa có người thực hiện"}</b></p>
+                        <div className="row mb-3">
+                            <p>Cơ sở sử dụng: <b>{generalInfo.noi_su_dung || "Chưa có cơ sở sử dụng"}</b></p>
                         </div>
-                        <div className="col-6">
-                            <p>Ngày thực hiện: <b>{dayjs(generalInfo.ngay_thuc_hien).format("DD/MM/YYYY")}</b></p>
+                        <div className="row mb-3">
+                            <p>Phương pháp thực hiện: <b>{generalInfo.phuong_phap_thuc_hien || "Chưa có phương pháp thực hiện"}</b></p>
+                            <p>Chuẩn được sử dụng: <b>{generalInfo.chuan_thiet_bi_su_dung || "Chưa có chuẩn thiết bị sử dụng"}</b></p>
                         </div>
-                        <div className="col-12">
-                            <p>Địa điểm thực hiện: <b>{generalInfo.co_so_su_dung || "Chưa có địa điểm thực hiện"}</b></p>
+                        <div className="row mb-3">
+                            <div className="col-6">
+                                <p>Người thực hiện: <b className="text-uppercase">{generalInfo.nguoi_kiem_dinh || "Chưa có người thực hiện"}</b></p>
+                            </div>
+                            <div className="col-6">
+                                <p>Ngày thực hiện: <b>{dayjs(generalInfo.ngay_thuc_hien).format("DD/MM/YYYY")}</b></p>
+                            </div>
+                            <div className="col-12">
+                                <p>Địa điểm thực hiện: <b>{generalInfo.noi_thuc_hien || "Chưa có địa điểm thực hiện"}</b></p>
+                            </div>
                         </div>
                     </div>
 
-                    <p className="fs-5 text-uppercase fw-bold text-decoration-underline">II. Chi tiết:</p>
                     {nhomDongHoData.map((dongHo, index) => {
                         const listKeys = dongHo.q3 ? ["Q3", "Q2", "Q1"] : dongHo.qn ? ['Qn', "Qt", "Qmin"] : null
-                        return <div key={index} className="py-3 px-2 mb-3">
 
-                            <div className="w-100 mb-3 d-flex row mx-0 align-items-center justify-content-between">
-                                <h4 className="col-12 col-md-4 mb-md-0 p-0 text-center text-md-start text-uppercase text-decoration-underline fw-bold">Đồng hồ số {index + 1}:</h4>
+                        const duLieuKiemDinhJSON = dongHo.du_lieu_kiem_dinh;
+                        const duLieuKiemDinh = duLieuKiemDinhJSON ?
+                            ((typeof duLieuKiemDinhJSON != 'string') ?
+                                duLieuKiemDinhJSON : JSON.parse(duLieuKiemDinhJSON)
+                            ) : null;
 
-                                <div className="col-12 px-0 col-md-8 d-flex align-items-center justify-content-center justify-content-md-end">
-                                    <span style={{ cursor: "unset" }} className="btn border-0 bg-lighter-grey rounded-start rounded-end-0"><FontAwesomeIcon icon={faDownload}></FontAwesomeIcon></span>
-                                    <button aria-label="Tải biên bản kiểm định" className="btn bg-main-green rounded-0 text-white" onClick={() => handleDownloadBB(dongHo)}>
-                                        <FontAwesomeIcon icon={faFileExcel} className="me-1"></FontAwesomeIcon> Biên bản
-                                    </button>
-                                    <button aria-label="Tải giấy chứng nhận kiểm định" className="btn bg-main-green text-white border-start rounded-start-0 rounded-end" onClick={() => handleDownloadGCN(dongHo)}>
-                                        <FontAwesomeIcon icon={faFileExcel} className="me-1"></FontAwesomeIcon> Giấy chứng nhận
-                                    </button>
+                        const ketQua = duLieuKiemDinh?.ket_qua;
+
+                        return <div key={index} className="py-3 mb-3">
+
+                            <div className="w-100 mb-3 p-3 px-md-4 bg-lighter-grey d-flex row mx-0 align-items-center justify-content-between">
+                                <h4 className="col-12 col-md-4 mb-md-0 p-0 text-center text-md-start text-uppercase fw-bold">Đồng hồ số {index + 1}:</h4>
+                                <div className={`col-12 px-0 col-md-8 d-flex align-items-center justify-content-center justify-content-md-end`}>
+                                    <Link href={ACCESS_LINKS.DHN_EDIT_DH.src + "/" + dongHo.id} aria-label="Chỉnh sửa đồng hồ" className="btn border-0 me-2 bg-warning">
+                                        <FontAwesomeIcon icon={faEdit}></FontAwesomeIcon>
+                                    </Link>
+                                    {ketQua != null && <>
+                                        <span style={{ cursor: "unset" }} className={`btn border-0 bg-grey text-white rounded-start rounded-end-0 ${(dongHo.so_giay_chung_nhan && ketQua == true) || (ketQua == false) ? "d-inline" : "d-none"}`}><FontAwesomeIcon icon={faDownload}></FontAwesomeIcon></span>
+                                        <button aria-label="Tải biên bản kiểm định" className={`btn border-top-0 border-bottom-0 bg-main-green rounded-0 ${(dongHo.so_giay_chung_nhan && ketQua == true) ? "" : "rounded-end"} text-white ${(dongHo.so_giay_chung_nhan && ketQua == true) || (ketQua == false) ? "d-inline" : "d-none"}`} onClick={() => handleDownloadBB(dongHo)}>
+                                            <span className="d-sm-none">
+                                                <FontAwesomeIcon icon={faFileExcel} className="me-1"></FontAwesomeIcon> BB
+                                            </span>
+                                            <span className="d-none d-sm-block">
+                                                <FontAwesomeIcon icon={faFileExcel} className="me-1"></FontAwesomeIcon> Biên bản
+                                            </span>
+
+                                        </button>
+                                        <button aria-label="Tải giấy chứng nhận kiểm định" className={`btn border-top-0 border-bottom-0 bg-main-green text-white border-start rounded-start-0 rounded-end ${(dongHo.so_giay_chung_nhan && ketQua == true) ? "d-inline" : "d-none"}`} onClick={() => handleDownloadGCN(dongHo)}>
+                                            <span className="d-sm-none">
+                                                <FontAwesomeIcon icon={faFileExcel} className="me-1"></FontAwesomeIcon> GCN
+                                            </span>
+                                            <span className="d-none d-sm-block">
+                                                <FontAwesomeIcon icon={faFileExcel} className="me-1"></FontAwesomeIcon> Giấy chứng nhận
+                                            </span>
+                                        </button>
+                                    </>}
                                 </div>
                             </div>
+                            <div className="px-3 px-md-5">
+                                <div className="row px-3">
+                                    <div className="col-12 m-0 p-0 col-md-6">
+                                        <p>Số giấy chứng nhận: <b>{(dongHo.so_giay_chung_nhan) ? getFullSoGiayCN(dongHo.so_giay_chung_nhan, dongHo.ngay_thuc_hien || new Date) : "Không có số giấy chứng nhận"}</b></p>
+                                    </div>
+                                    <div className="col-12 m-0 p-0 col-md-6">
+                                        <p>Số tem: <b>{dongHo.so_tem ? dongHo.so_tem : "Không có số tem"}</b></p>
+                                    </div>
+                                    {dongHo.seri_sensor && <div className="col-12">
+                                        <p>Serial sensor: <b>{dongHo.seri_sensor}</b></p>
+                                    </div>}
+                                    {dongHo.seri_chi_thi && <div className="col-12">
+                                        <p>Serial chỉ thị: <b>{dongHo.seri_chi_thi}</b></p>
+                                    </div>}
+                                </div>
+                                {nhomDuLieuKiemDinh ? (
 
-                            <div className="row px-3">
-                                {(dongHo.so_giay_chung_nhan && dongHo.ngay_thuc_hien) ? <div className="col-12 col-md-6">
-                                    <p>Số giấy chứng nhận: <b>{getFullSoGiayCN(dongHo.so_giay_chung_nhan, dongHo.ngay_thuc_hien) || "Không có số giấy chứng nhận"}</b></p>
-                                </div> : <div className="col-12 col-md-6"></div>}
-                                {dongHo.so_tem ? <div className="col-12 col-md-6">
-                                    <p>Số tem: <b>{dongHo.so_tem || "Không có số tem"}</b></p>
-                                </div> : <div className="col-12 col-md-6"></div>}
-                                {dongHo.seri_sensor && <div className="col-12">
-                                    <p>Serial sensor: <b>{dongHo.seri_sensor}</b></p>
-                                </div>}
-                                {dongHo.seri_chi_thi && <div className="col-12">
-                                    <p>Serial chỉ thị: <b>{dongHo.seri_chi_thi}</b></p>
-                                </div>}
-                            </div>
-                            {nhomDuLieuKiemDinh ? (
-
-                                <div className="row mb-3">
-                                    <div className="w-100 px-3">
-                                        <p className="fs-5 fw-bold text-center text-uppercase m-0">Kết quả kiểm tra</p>
-                                        <div className="w-100 m-0 p-0 row mb-3">
-                                            <div className="col-12 col-md-5 col-lg-4 col-xl-3 m-0 p-0">
-                                                <span>1. Kết quả kiểm tra bên ngoài:</span>
+                                    <div className="row mb-3">
+                                        <div className="w-100 px-3">
+                                            <p className="fs-5 fw-bold text-center text-uppercase m-0">Kết quả kiểm tra</p>
+                                            <div className="w-100 m-0 p-0 row mb-3">
+                                                <div className="col-12 col-md-5 col-lg-4 col-xl-3 m-0 p-0">
+                                                    <span>1. Kết quả kiểm tra bên ngoài:</span>
+                                                </div>
+                                                <div className="col-12 col-md-7 col-lg-8 col-xl-9 px-4">
+                                                    <ul className="list-unstyled m-0 p-0">
+                                                        <li>- Nhãn hiệu: <b>Đạt</b></li>
+                                                        <li>- Phụ kiện: <b>Đạt</b></li>
+                                                        <li>- Bộ phận chỉ thị: <b>Đạt</b></li>
+                                                    </ul>
+                                                </div>
                                             </div>
-                                            <div className="col-12 col-md-7 col-lg-8 col-xl-9 px-4">
+                                            <p className="m-0">2. Kết quả kiểm tra kỹ thuật:</p>
+                                            <div className="w-100 mb-3 px-4 px-md-5">
                                                 <ul className="list-unstyled m-0 p-0">
-                                                    <li>- Nhãn hiệu: <b>Đạt</b></li>
-                                                    <li>- Phụ kiện: <b>Đạt</b></li>
-                                                    <li>- Bộ phận chỉ thị: <b>Đạt</b></li>
+                                                    <li>- Kiểm tra khả năng hoạt động của hệ thống: <b>{ketQua ? "Đạt" : "Không đạt"}</b></li>
                                                 </ul>
                                             </div>
-                                        </div>
-                                        <p className="m-0">2. Kết quả kiểm tra kỹ thuật:</p>
-                                        <div className="w-100 mb-3 px-4 px-md-5">
-                                            <ul className="list-unstyled m-0 p-0">
-                                                <li>- Kiểm tra khả năng hoạt động của hệ thống: <b>{nhomDuLieuKiemDinh[index].ket_qua ? "Đạt" : "Không đạt"}</b></li>
-                                            </ul>
-                                        </div>
-                                        <p>3. Kết quả kiểm tra đo lường: </p>
-                                        <div className={`${dtp.wrapper} w-100`}>
-                                            <table>
-                                                <thead>
-                                                    <tr>
-                                                        <th colSpan={2} rowSpan={2}>Q</th>
-                                                        <th colSpan={4}>Số chỉ trên đồng hồ</th>
-                                                        <th colSpan={4}>Số chỉ trên chuẩn</th>
-                                                        <th rowSpan={2}>δ</th>
-                                                        <th rowSpan={2}>Hiệu sai số</th>
-                                                    </tr>
-                                                    <tr>
-                                                        <th>V<sub>1</sub></th>
-                                                        <th>V<sub>2</sub></th>
-                                                        <th>V<sub>đh</sub></th>
-                                                        <th>T</th>
-                                                        <th>V<sub>c1</sub></th>
-                                                        <th>V<sub>c2</sub></th>
-                                                        <th>V<sub>c</sub></th>
-                                                        <th>T</th>
-                                                    </tr>
-                                                    <tr>
-                                                        <td colSpan={2}>m<sup>3</sup>/h</td>
-                                                        <td>Lít</td>
-                                                        <td>Lít</td>
-                                                        <td>Lít</td>
-                                                        <td>°C</td>
-                                                        <td>Lít</td>
-                                                        <td>Lít</td>
-                                                        <td>Lít</td>
-                                                        <td>°C</td>
-                                                        <td>%</td>
-                                                        <td>%</td>
-                                                    </tr>
-                                                </thead>
-                                                <tbody>
-                                                    {nhomDuLieuKiemDinh[index].du_lieu && listKeys && nhomDuLieuKiemDinh[index].hieu_sai_so && (
-                                                        <>
-                                                            {
-                                                                renderDulieuLuuLuong(listKeys, nhomDuLieuKiemDinh[index].du_lieu, nhomDuLieuKiemDinh[index].hieu_sai_so)
-                                                            }
-                                                        </>
-                                                    )}
-                                                </tbody>
-                                            </table>
+                                            <p>3. Kết quả kiểm tra đo lường: </p>
+                                            <div className={`${dtp.wrapper} w-100`}>
+                                                <table>
+                                                    <thead>
+                                                        <tr>
+                                                            <th colSpan={2} rowSpan={2}>Q</th>
+                                                            <th colSpan={4}>Số chỉ trên đồng hồ</th>
+                                                            <th colSpan={4}>Số chỉ trên chuẩn</th>
+                                                            <th rowSpan={2}>δ</th>
+                                                            <th rowSpan={2}>Hiệu sai số</th>
+                                                        </tr>
+                                                        <tr>
+                                                            <th>V<sub>1</sub></th>
+                                                            <th>V<sub>2</sub></th>
+                                                            <th>V<sub>đh</sub></th>
+                                                            <th>T</th>
+                                                            <th>V<sub>c1</sub></th>
+                                                            <th>V<sub>c2</sub></th>
+                                                            <th>V<sub>c</sub></th>
+                                                            <th>T</th>
+                                                        </tr>
+                                                        <tr>
+                                                            <td colSpan={2}>m<sup>3</sup>/h</td>
+                                                            <td>Lít</td>
+                                                            <td>Lít</td>
+                                                            <td>Lít</td>
+                                                            <td>°C</td>
+                                                            <td>Lít</td>
+                                                            <td>Lít</td>
+                                                            <td>Lít</td>
+                                                            <td>°C</td>
+                                                            <td>%</td>
+                                                            <td>%</td>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        {nhomDuLieuKiemDinh[index].du_lieu && listKeys && nhomDuLieuKiemDinh[index].hieu_sai_so && (
+                                                            <>
+                                                                {
+                                                                    renderDulieuLuuLuong(listKeys, nhomDuLieuKiemDinh[index].du_lieu, nhomDuLieuKiemDinh[index].hieu_sai_so)
+                                                                }
+                                                            </>
+                                                        )}
+                                                    </tbody>
+                                                </table>
+                                            </div>
                                         </div>
                                     </div>
-                                </div>
-                            ) : (<i>- Không có dữ liệu kiểm định -</i>)}
+                                ) : (<i>- Không có dữ liệu kiểm định -</i>)}
+                            </div>
                         </div>;
                     })}
                 </div>

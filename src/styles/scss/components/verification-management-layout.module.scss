@@ -89,12 +89,19 @@
     }
 
     .wrap-process-table {
-        overflow-x: auto;
-        
+        max-height: 80vh !important;
+        overflow-y: auto;
+        border-bottom: 1px solid $light_grey;
+    
         .process-table {
-            // min-height: 150px !important;
+            thead {
+                position: sticky;
+                top: 0px;
+                z-index: 9;
+            }
 
             .table-header {
+                border-width: 0 !important;
 
                 th {
                     background-color: $blue !important;
