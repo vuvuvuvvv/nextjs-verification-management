@@ -10,10 +10,10 @@ interface ModalSelectDongHoToDownloadProps {
     show: boolean;
     handleClose: () => void;
     handleSelectedDongHo: React.Dispatch<React.SetStateAction<DongHo[]>>;
-    isDownloadGCN?:boolean
+    isDownloadGCN: boolean
 }
 
-export default function ModalSelectDongHoToDownload({ dongHoList, show, handleClose, handleSelectedDongHo,isDownloadGCN}: ModalSelectDongHoToDownloadProps) {
+export default function ModalSelectDongHoToDownload({ dongHoList, show, handleClose, handleSelectedDongHo, isDownloadGCN }: ModalSelectDongHoToDownloadProps) {
     const [selectedDongHo, setSelectedDongHo] = useState<DongHo[]>([]);
     const [isShow, setIsShow] = useState<boolean | null>(null);
     const [isDongHoSelectableExists, setDongHoSelectableExits] = useState<boolean>(false);
@@ -67,8 +67,17 @@ export default function ModalSelectDongHoToDownload({ dongHoList, show, handleCl
                     maxHeight: '300px'
                 }}>
                     {dongHoList.map((dongHo, index) => {
-                        const duLieuKiemDinh = dongHo.du_lieu_kiem_dinh as { ket_qua?: boolean } | null;
-                        const isSelectable = duLieuKiemDinh && duLieuKiemDinh.ket_qua && dongHo.so_tem && dongHo.so_giay_chung_nhan;
+                        const duLieuKiemDinhJSON = dongHo.du_lieu_kiem_dinh;
+                        const duLieuKiemDinh = duLieuKiemDinhJSON ?
+                            ((typeof duLieuKiemDinhJSON != 'string') ?
+                                duLieuKiemDinhJSON : JSON.parse(duLieuKiemDinhJSON)
+                            ) : null;
+
+                        const ketQua = duLieuKiemDinh?.ket_qua;
+
+                        const isSelectable = isDownloadGCN
+                            ? (dongHo.so_giay_chung_nhan && dongHo.so_tem && ketQua == true)
+                            : (dongHo.so_giay_chung_nhan && dongHo.so_tem && ketQua == true) || (ketQua == false);
                         if (isSelectable) {
                             if (!isDongHoSelectableExists) {
                                 setDongHoSelectableExits(true);

@@ -414,8 +414,8 @@ export default function DetailNhomDongHo({ nhomDongHo }: DetailNhomDongHoProps) 
                                         <FontAwesomeIcon icon={faEdit}></FontAwesomeIcon>
                                     </Link>
                                     {ketQua != null && <>
-                                        <span style={{ cursor: "unset" }} className={`btn border-0 bg-grey text-white rounded-start rounded-end-0 ${(dongHo.so_giay_chung_nhan && ketQua == true) || (ketQua == false) ? "d-inline" : "d-none"}`}><FontAwesomeIcon icon={faDownload}></FontAwesomeIcon></span>
-                                        <button aria-label="Tải biên bản kiểm định" className={`btn border-top-0 border-bottom-0 bg-main-green rounded-0 ${(dongHo.so_giay_chung_nhan && ketQua == true) ? "" : "rounded-end"} text-white ${(dongHo.so_giay_chung_nhan && ketQua == true) || (ketQua == false) ? "d-inline" : "d-none"}`} onClick={() => handleDownloadBB(dongHo)}>
+                                        <span style={{ cursor: "unset" }} className={`btn border-0 bg-grey text-white rounded-start rounded-end-0 ${(dongHo.so_giay_chung_nhan && dongHo.so_tem && ketQua == true) || (ketQua == false) ? "d-inline" : "d-none"}`}><FontAwesomeIcon icon={faDownload}></FontAwesomeIcon></span>
+                                        <button aria-label="Tải biên bản kiểm định" className={`btn border-top-0 border-bottom-0 bg-main-green rounded-0 ${(dongHo.so_giay_chung_nhan && dongHo.so_tem && ketQua == true) ? "" : "rounded-end"} text-white ${(dongHo.so_giay_chung_nhan && dongHo.so_tem && ketQua == true) || (ketQua == false) ? "d-inline" : "d-none"}`} onClick={() => handleDownloadBB(dongHo)}>
                                             <span className="d-sm-none">
                                                 <FontAwesomeIcon icon={faFileExcel} className="me-1"></FontAwesomeIcon> BB
                                             </span>
@@ -424,7 +424,7 @@ export default function DetailNhomDongHo({ nhomDongHo }: DetailNhomDongHoProps) 
                                             </span>
 
                                         </button>
-                                        <button aria-label="Tải giấy chứng nhận kiểm định" className={`btn border-top-0 border-bottom-0 bg-main-green text-white border-start rounded-start-0 rounded-end ${(dongHo.so_giay_chung_nhan && ketQua == true) ? "d-inline" : "d-none"}`} onClick={() => handleDownloadGCN(dongHo)}>
+                                        <button aria-label="Tải giấy chứng nhận kiểm định" className={`btn border-top-0 border-bottom-0 bg-main-green text-white border-start rounded-start-0 rounded-end ${(dongHo.so_giay_chung_nhan && dongHo.so_tem && ketQua == true) ? "d-inline" : "d-none"}`} onClick={() => handleDownloadGCN(dongHo)}>
                                             <span className="d-sm-none">
                                                 <FontAwesomeIcon icon={faFileExcel} className="me-1"></FontAwesomeIcon> GCN
                                             </span>
