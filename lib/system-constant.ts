@@ -54,6 +54,14 @@ export const TITLE_LUU_LUONG = {
     qmin: "Qmin"
 }
 
+export const PERMISSIONS = {
+    VIEWER: "Viewer",
+    MANAGER: "Manager",
+    DIRECTOR: "Director",
+    ADMIN: "Administrator",
+    SUPERADMIN: "SuperAdministrator",
+}
+
 export const DEFAULT_LOCATION = "Công ty Cổ phần Công nghệ và Thương mại FMS"
 export const INDEXED_DB_NAME = "FMS_VFM_DB"
 export const INDEXED_DB_DH_OBJ_NAME = "DongHo"
