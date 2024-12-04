@@ -560,6 +560,7 @@ export default function NhomDongHoNuocManagement({ className }: NhomDongHoNuocMa
                                                                     <span className="ms-1" style={{ color: 'black', cursor: 'pointer' }}>{(item?.is_paid ?? false) ? "Đã thu" : "Chưa thu"}</span>
                                                                 }
                                                                 checked={item?.is_paid ?? false}
+                                                                onChange={() => handleUpdatePaymentStatus(item?.group_id || "", item?.is_paid ?? false)}
                                                             />
                                                         </div>
                                                     </td>

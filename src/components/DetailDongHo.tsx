@@ -168,11 +168,11 @@ export default function DetailDongHo({ dongHo }: DetailDongHoProps) {
                         <FontAwesomeIcon icon={faEdit}></FontAwesomeIcon> Edit
                     </Link>
                     {ketQua != null && <>
-                        <span style={{ cursor: "unset" }} className={`btn bg-grey text-white rounded-start rounded-end-0 ${(dongHo.so_giay_chung_nhan && ketQua == true) || (ketQua == false) ? "d-inline" : "d-none"}`}><FontAwesomeIcon icon={faDownload}></FontAwesomeIcon> Nhiều:</span>
-                        <button aria-label="Tải biên bản kiểm định" className={`btn bg-main-green rounded-0 ${(dongHo.so_giay_chung_nhan && ketQua == true) ? "" : "rounded-end"} text-white ${(dongHo.so_giay_chung_nhan && ketQua == true) || (ketQua == false) ? "d-inline" : "d-none"}`} onClick={handleDownloadBB}>
+                        <span style={{ cursor: "unset" }} className={`btn bg-grey text-white rounded-start rounded-end-0 ${(dongHo.so_giay_chung_nhan && dongHo.so_tem && ketQua == true) || (ketQua == false) ? "d-inline" : "d-none"}`}><FontAwesomeIcon icon={faDownload}></FontAwesomeIcon> Nhiều:</span>
+                        <button aria-label="Tải biên bản kiểm định" className={`btn bg-main-green rounded-0 ${(dongHo.so_giay_chung_nhan && dongHo.so_tem && ketQua == true) ? "" : "rounded-end"} text-white ${(dongHo.so_giay_chung_nhan && dongHo.so_tem && ketQua == true) || (ketQua == false) ? "d-inline" : "d-none"}`} onClick={handleDownloadBB}>
                             <FontAwesomeIcon icon={faFileExcel} className="me-1"></FontAwesomeIcon> Biên bản
                         </button>
-                        <button aria-label="Tải giấy chứng nhận kiểm định" className={`btn border-start rounded-start-0 rounded-end bg-main-green text-white ${(dongHo.so_giay_chung_nhan && ketQua == true) ? "d-inline" : "d-none"}`} onClick={handleDownloadGCN}>
+                        <button aria-label="Tải giấy chứng nhận kiểm định" className={`btn border-start rounded-start-0 rounded-end bg-main-green text-white ${(dongHo.so_giay_chung_nhan && dongHo.so_tem && ketQua == true) ? "d-inline" : "d-none"}`} onClick={handleDownloadGCN}>
                             <FontAwesomeIcon icon={faFileExcel} className="me-1"></FontAwesomeIcon> Giấy chứng nhận
                         </button>
                     </>}
