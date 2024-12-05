@@ -53,7 +53,7 @@ const Navbar: React.FC<NavbarProps> = ({ className, title = "Trang kiểm địn
                         <div className={`dropdown ${layout["dD_account"]}`}>
                             <button aria-label="Tài khoản" className={`${layout["dD_button"]} btn dropdown-toggle`} type="button" data-bs-toggle="dropdown" aria-expanded="false">
                                 <FontAwesomeIcon icon={faUser} fontSize={24}></FontAwesomeIcon>
-                                <span className={`${layout['p_name']} d-none d-sm-block`}>{user?.username}</span>
+                                <span className={`${layout['p_name']} d-none d-sm-block`}>{user?.fullname || user?.username || "Unknown"}</span>
                             </button>
 
                             <div className={`${layout['dD_menu']} dropdown-menu border-0 shadow-sm`}>
@@ -64,23 +64,35 @@ const Navbar: React.FC<NavbarProps> = ({ className, title = "Trang kiểm địn
                                     <div className={`${layout['box-info']}`}>
                                         <table>
                                             <tbody>
+                                                {user?.fullname && 
                                                 <tr className="d-sm-none">
                                                     <th>Name:</th>
                                                     <td>
-                                                        <span className={`${layout['b_name']}`}>{user?.username}</span>
+                                                        <span className={`${layout['b_name']}`}>{user?.fullname}</span>
                                                     </td>
                                                 </tr>
-                                                <tr>
+                                                }
+                                                {user?.email && <tr>
                                                     <th>Email:</th>
                                                     <td>
                                                         <span className={`${layout['b_email']}`}>{user?.email}</span>
                                                     </td>
                                                 </tr>
-                                                <tr>
-                                                    <th>Role:</th>
+                                                }
+                                                {user?.username && <tr>
+                                                    <th>Username:</th>
                                                     <td>
-                                                        <span className={`${layout['b_role']}`}>{user?.role}</span></td>
+                                                        <span className={`${layout['b_username']}`}>{user?.username}</span>
+                                                    </td>
                                                 </tr>
+                                                }
+                                                {user?.role &&
+                                                    <tr>
+                                                        <th>Role:</th>
+                                                        <td>
+                                                            <span className={`${layout['b_role']}`}>{user?.role}</span></td>
+                                                    </tr>
+                                                }
                                             </tbody>
                                         </table>
                                     </div>

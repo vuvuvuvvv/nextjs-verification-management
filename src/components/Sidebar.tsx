@@ -111,12 +111,12 @@ export default function Sidebar({
     className,
     title
 }: SidebarProps) {
-    const { isAdmin } = useUser();
+    const { isViewer } = useUser();
     const [show, setShow] = useState(false);
     const sidebarRef = useRef<HTMLDivElement>(null);
     const [collapseState, setCollapseState] = useState<CollapseState>({});
     const pathname = usePathname();
-    const sideLinks = isAdmin ? [...siteSideLinks, ...adminSideLinks] : siteSideLinks;
+    const sideLinks = !isViewer ? [...siteSideLinks, ...adminSideLinks] : siteSideLinks;
 
     const toggleOpen = () => {
         setShow(!show);

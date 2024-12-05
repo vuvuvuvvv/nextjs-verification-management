@@ -37,9 +37,8 @@ interface NhomDongHoNuocManagementProps {
 }
 
 export default function NhomDongHoNuocManagement({ className }: NhomDongHoNuocManagementProps) {
-    const { user } = useUser();
+    const { user, isAdmin, isSuperAdmin } = useUser();
     const [rootData, setRootData] = useState<NhomDongHo[]>([]);
-    const fetchCalled = useRef(false);
 
     const [filterLoading, setFilterLoading] = useState(true);
     const [sortConfig, setSortConfig] = useState<{ key: string, direction: 'asc' | 'desc' | 'default' } | null>(null);
@@ -68,24 +67,6 @@ export default function NhomDongHoNuocManagement({ className }: NhomDongHoNuocMa
                 ] : []);
             } catch (error) {
                 setError("Đã có lỗi xảy ra! Hãy thử lại sau.");
-            }
-        };
-
-        fetchData();
-    }, []);
-
-    useEffect(() => {
-        if (fetchCalled.current) return;
-        fetchCalled.current = true;
-
-        const fetchData = async () => {
-            try {
-                const res = await getNhomDongHoByFilter();
-                setRootData(res.data);
-            } catch (error) {
-                console.error("Error fetching data:", error);
-            } finally {
-                setFilterLoading(false);
             }
         };
 
@@ -171,30 +152,30 @@ export default function NhomDongHoNuocManagement({ className }: NhomDongHoNuocMa
         }
     }, [rootData, sortConfig, filterLoading]);
 
-    const _fetchNhomDongHo = () => {
+    const _fetchNhomDongHo = async () => {
         setFilterLoading(true);
-        const debounce = setTimeout(async () => {
-            try {
-                const res = await getNhomDongHoByFilter(filterForm);
-                if (res.status === 200 || res.status === 201) {
-                    setRootData(res.data);
-                } else {
-                    console.error(res.msg);
-                    setError("Có lỗi đã xảy ra!");
-                }
-            } catch (error) {
-                console.error('Error fetching PDM data:', error);
+        try {
+            const res = await getNhomDongHoByFilter(filterForm);
+            if (res.status === 200 || res.status === 201) {
+                setRootData(res.data);
+            } else {
+                console.error(res.msg);
                 setError("Có lỗi đã xảy ra!");
-            } finally {
-                setFilterLoading(false);
             }
+        } catch (error) {
+            console.error('Error fetching PDM data:', error);
+            setError("Có lỗi đã xảy ra!");
+        } finally {
+            setFilterLoading(false);
+        }
+    };
+
+    useEffect(() => {
+        const debounce = setTimeout(() => {
+            _fetchNhomDongHo();
         }, 500);
 
         return () => clearTimeout(debounce);
-    }
-
-    useEffect(() => {
-        _fetchNhomDongHo();
     }, [filterForm]);
 
     const handleFilterChange = (key: keyof NhomDongHoFilterParameters, value: any) => {
@@ -218,7 +199,7 @@ export default function NhomDongHoNuocManagement({ className }: NhomDongHoNuocMa
         if (group_id) {
             Swal.fire({
                 title: `Xác nhận!`,
-                text: !current_payment_status ? "Đã hoàn tất thanh toán?" : "Chưa hoàn tất thanh toán?",
+                text: !current_payment_status ? "Đã hoàn tất thanh toán?" : "Hủy hoàn tất thanh toán?",
                 icon: "warning",
                 showCancelButton: true,
                 cancelButtonColor: "#d33",
@@ -527,11 +508,12 @@ export default function NhomDongHoNuocManagement({ className }: NhomDongHoNuocMa
                                                     )}
                                                 </div>
                                             </th>
-                                            <th>
+
+                                            {(isAdmin || isSuperAdmin) && <th>
                                                 <div className={`${c_vfml['table-label']} p-0`} style={{ minWidth: "96px" }}>
                                                     Đã thu tiền
                                                 </div>
-                                            </th>
+                                            </th>}
                                             <th></th>
                                         </tr>
                                     </thead>
@@ -550,7 +532,7 @@ export default function NhomDongHoNuocManagement({ className }: NhomDongHoNuocMa
                                                     <td onClick={() => window.open(redirectLink)}>{item.ten_khach_hang}</td>
                                                     <td onClick={() => window.open(redirectLink)}>{item.nguoi_kiem_dinh}</td>
                                                     <td onClick={() => window.open(redirectLink)}>{dayjs(item.ngay_thuc_hien).format('DD-MM-YYYY')}</td>
-                                                    <td>
+                                                    {(isAdmin || isSuperAdmin) && <td>
                                                         <div className="w-100 d-flex justify-content-center" onClick={() => handleUpdatePaymentStatus(item?.group_id || "", item?.is_paid ?? false)}>
                                                             <Form.Check
                                                                 type="checkbox"
@@ -563,7 +545,8 @@ export default function NhomDongHoNuocManagement({ className }: NhomDongHoNuocMa
                                                                 onChange={() => handleUpdatePaymentStatus(item?.group_id || "", item?.is_paid ?? false)}
                                                             />
                                                         </div>
-                                                    </td>
+                                                    </td>}
+
                                                     <td
                                                         onClick={() => window.open(`${ACCESS_LINKS.DHN_EDIT_NDH.src + "/" + item.group_id}`)}
                                                     >

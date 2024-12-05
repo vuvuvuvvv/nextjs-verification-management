@@ -6,7 +6,7 @@ const WaterMeterManagement = dynamic(() => import("@/components/quan-ly/kiem-din
 
 import vrfWm from "@styles/scss/ui/vfm.module.scss"
 
-import NavTab from "@/components/NavTab";
+import NavTab from "@/components/ui/NavTab";
 
 interface DongHoNuocPageProps {
     className?: string

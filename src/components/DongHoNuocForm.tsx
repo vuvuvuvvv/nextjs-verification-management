@@ -23,7 +23,7 @@
 // const FontAwesomeIcon = dynamic(() => import('@fortawesome/react-fontawesome').then(mod => mod.FontAwesomeIcon), { ssr: false });
 // const LocalizationProvider = dynamic(() => import('@mui/x-date-pickers/LocalizationProvider').then(mod => mod.LocalizationProvider), { ssr: false });
 // const DatePicker = dynamic(() => import('@mui/x-date-pickers/DatePicker').then(mod => mod.DatePicker), { ssr: false });
-// const NavTab = dynamic(() => import('@/components/NavTab'), { ssr: false });
+// const NavTab = dynamic(() => import('@/components/ui/NavTab'), { ssr: false });
 // const TinhSaiSoTab = dynamic(() => import('@/components/TinhSaiSoTab'), { ssr: false });
 // const TinhSaiSoForm = dynamic(() => import('@/components/TinhSaiSoForm'), { ssr: false });
 

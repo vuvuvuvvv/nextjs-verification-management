@@ -34,7 +34,7 @@ interface PDMManagementProps {
 }
 
 export default function PDMManagement({ data, className, listDHNamesExist }: PDMManagementProps) {
-    const { isAdmin } = useUser();
+    const { isViewer } = useUser();
     const [rootData, setRootData] = useState(data);
     const [loading, setLoading] = useState(false);
     const [sortConfig, setSortConfig] = useState<{ key: string, direction: 'asc' | 'desc' | 'default' } | null>(null);
@@ -454,7 +454,7 @@ export default function PDMManagement({ data, className, listDHNamesExist }: PDM
                                 <Link
                                     aria-label="Thêm mới"
                                     href={ACCESS_LINKS.PDM_ADD.src}
-                                    className={`btn bg-main-green text-white ${isAdmin ? "" : "d-none"}`}
+                                    className={`btn bg-main-green text-white ${!isViewer ? "" : "d-none"}`}
                                 >
                                     Thêm mới
                                 </Link>
