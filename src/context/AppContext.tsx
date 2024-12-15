@@ -3,7 +3,6 @@
 // context/user-context.tsx
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import Cookies from 'js-cookie';
-import { logout } from '@/app/api/auth/logout/route';
 import Swal from 'sweetalert2';
 import { User } from '@lib/types';
 import Loading from '@/components/Loading';
@@ -17,10 +16,12 @@ export type AppContextType = {
     loading: boolean;
     updateUser: (updatedUser: User | null) => void;
     logoutUser: () => void;
+    getCurrentRole: () => string;
     isSuperAdmin: boolean;
     isAdmin: boolean;
     isDirector: boolean;
     isManager: boolean;
+    isStaff: boolean;
     isViewer: boolean;
 };
 
@@ -34,13 +35,15 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
     const isSuperAdmin = user?.role === PERMISSIONS.SUPERADMIN;
 
-    const isAdmin = user?.role === PERMISSIONS.ADMIN;
+    const isAdmin = user?.role === PERMISSIONS.ADMIN || isSuperAdmin;
 
-    const isManager = user?.role === PERMISSIONS.MANAGER;
+    const isDirector = user?.role === PERMISSIONS.DIRECTOR || isAdmin;
 
-    const isDirector = user?.role === PERMISSIONS.DIRECTOR;
+    const isManager = user?.role === PERMISSIONS.MANAGER || isDirector;
 
-    const isViewer = user?.role === PERMISSIONS.VIEWER;
+    const isStaff = user?.role === PERMISSIONS.STAFF || (!isAdmin && !isSuperAdmin && !isDirector && !isManager);
+
+    const isViewer =  user?.role === PERMISSIONS.VIEWER || !isStaff;
 
     useEffect(() => {
         const getUserFromCookie = Cookies.get('user');
@@ -113,6 +116,10 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         window.location.href = ACCESS_LINKS.AUTH_LOGIN.src;
     };
 
+    const getCurrentRole = () => {
+        return user?.role || "";
+    };
+
     return (loading) ? (
         <Loading></Loading>
     ) : (
@@ -125,6 +132,8 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
             isAdmin,
             isDirector,
             isManager,
+            isStaff,
+            getCurrentRole,
             isViewer
         }}>
             {children}

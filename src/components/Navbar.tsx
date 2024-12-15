@@ -26,6 +26,7 @@ import { useUser } from "@/context/AppContext";
 import React from "react";
 import dynamic from "next/dynamic";
 import { ACCESS_LINKS } from "@lib/system-constant";
+import { getNameOfRole } from "@lib/system-function";
 
 interface NavbarProps {
     className?: string,
@@ -90,7 +91,7 @@ const Navbar: React.FC<NavbarProps> = ({ className, title = "Trang kiểm địn
                                                     <tr>
                                                         <th>Role:</th>
                                                         <td>
-                                                            <span className={`${layout['b_role']}`}>{user?.role}</span></td>
+                                                            <span className={`${layout['b_role']}`}>{getNameOfRole(user?.role)}</span></td>
                                                     </tr>
                                                 }
                                             </tbody>

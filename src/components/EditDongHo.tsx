@@ -1,7 +1,7 @@
 "use client"
 
 import { getDongHoById, getNhomDongHoByGroupId } from "@/app/api/dongho/route";
-const Loading = dynamic(() => import('@/components/Loading'), { ssr: false });
+const Loading = dynamic(() => import('@/components/Loading'));
 import { DongHo } from "@lib/types";
 import { useEffect, useRef, useState } from "react";
 import dynamic from "next/dynamic";

@@ -91,11 +91,11 @@ export default function TinhSaiSoForm({ tabFormName, className, formValue, readO
             let formattedValue = '';
 
             if (rawValue.length <= decimalPlaces) {
-                formattedValue = `0.${rawValue.padStart(decimalPlaces, '0')}`;
+                formattedValue = decimalPlaces ? `0.${rawValue.padStart(decimalPlaces, '0')}` : rawValue;
             } else {
                 const integerPart = rawValue.slice(0, rawValue.length - decimalPlaces);
                 const decimalPart = rawValue.slice(rawValue.length - decimalPlaces);
-                formattedValue = `${integerPart}.${decimalPart}`;
+                formattedValue = decimalPart ? `${integerPart}.${decimalPart}` : integerPart;
             }
 
             setter(formattedValue);

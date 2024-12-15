@@ -1,8 +1,8 @@
 import Loading from "@/components/Loading"
 import dynamic from "next/dynamic";
 
-const NhomDongHoNuocManagement = dynamic(() => import("@/components/quan-ly/kiem-dinh/NhomDongHoNuocMng"), { ssr: false })
-const WaterMeterManagement = dynamic(() => import("@/components/quan-ly/kiem-dinh/DongHoNuocMng"), { ssr: false, loading: () => <Loading /> })
+const NhomDongHoNuocManagement = dynamic(() => import("@/components/quan-ly/kiem-dinh/NhomDongHoNuocMng"))
+const WaterMeterManagement = dynamic(() => import("@/components/quan-ly/kiem-dinh/DongHoNuocMng"), { ssr: false })
 
 import vrfWm from "@styles/scss/ui/vfm.module.scss"
 

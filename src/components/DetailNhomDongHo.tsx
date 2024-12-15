@@ -13,7 +13,7 @@ import { downloadBB, downloadGCN } from "@/app/api/download/route";
 import { ACCESS_LINKS, TITLE_LUU_LUONG } from "@lib/system-constant";
 import Link from "next/link";
 
-const Loading = dynamic(() => import('@/components/Loading'), { ssr: false });
+const Loading = dynamic(() => import('@/components/Loading'));
 const ModalSelectDongHoToDownload = dynamic(() => import('@/components/ui/ModalSelectDongHoToDownload'), { ssr: false });
 interface DetailNhomDongHoProps {
     nhomDongHo: DongHo[];
@@ -343,6 +343,10 @@ export default function DetailNhomDongHo({ nhomDongHo }: DetailNhomDongHoProps) 
                     <div className="px-4 px-md-5">
                         <h4 className="text-center text-uppercase">Chi tiết nhóm đồng hồ</h4>
                         <div className="row mb-3">
+                            <div className="col-12">
+                                <p>Mã nhóm đồng hồ: <b>{generalInfo.group_id || "Không có mã nhóm"}</b>
+                                </p>
+                            </div>
                             <div className="col-12">
                                 <p>Tên đồng hồ: <b>{generalInfo.ten_dong_ho || "Chưa có tên đồng hồ"}</b></p>
                             </div>

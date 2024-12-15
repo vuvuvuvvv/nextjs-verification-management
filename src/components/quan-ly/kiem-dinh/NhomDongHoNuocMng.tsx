@@ -185,7 +185,7 @@ export default function NhomDongHoNuocManagement({ className }: NhomDongHoNuocMa
         }));
     };
 
-    const hanldeResetFilter = () => {
+    const handleResetFilter = () => {
         setFilterForm({
             ten_dong_ho: "",
             ten_khach_hang: "",
@@ -193,6 +193,7 @@ export default function NhomDongHoNuocManagement({ className }: NhomDongHoNuocMa
             ngay_kiem_dinh_from: null,
             ngay_kiem_dinh_to: null
         });
+        setSelectedTenDHOption("");
     }
 
     const handleUpdatePaymentStatus = (group_id: string, current_payment_status: boolean) => {
@@ -419,8 +420,8 @@ export default function NhomDongHoNuocManagement({ className }: NhomDongHoNuocMa
                             </div>
 
                             <div className={`col-12 m-0 my-2 d-flex align-items-center justify-content-between`}>
-                                <button aria-label="Xóa bộ lọc" type="button" className={`btn bg-main-blue text-white`} onClick={hanldeResetFilter}>
-                                    Xóa bộ lọc
+                                <button aria-label="Làm mới" type="button" className={`btn bg-main-blue text-white`} onClick={handleResetFilter}>
+                                    Làm mới
                                 </button>
                                 <Link
                                     href={ACCESS_LINKS.DHN_ADD.src}
@@ -436,12 +437,15 @@ export default function NhomDongHoNuocManagement({ className }: NhomDongHoNuocMa
                         {filterLoading && <Loading />}
                         <div className={`m-0 p-0 w-100 w-100 position-relative ${c_vfml['wrap-process-table']}`}>
                             {/* {paginatedData.length > 0 ? ( */}
-                            {rootData.length > 0 ? (
+                            {rootData && rootData.length > 0 ? (
                                 <table className={`table table-striped table-bordered table-hover ${c_vfml['process-table']}`}>
                                     <thead>
                                         <tr className={`${c_vfml['table-header']}`}>
                                             <th className="text-center">
                                                 STT
+                                            </th>
+                                            <th className="text-center">
+                                                Mã nhóm
                                             </th>
                                             <th onClick={() => sortData('ten_dong_ho')}>
                                                 <div className={`${c_vfml['table-label']}`}>
@@ -509,7 +513,7 @@ export default function NhomDongHoNuocManagement({ className }: NhomDongHoNuocMa
                                                 </div>
                                             </th>
 
-                                            {(isAdmin || isSuperAdmin) && <th>
+                                            {isAdmin && <th>
                                                 <div className={`${c_vfml['table-label']} p-0`} style={{ minWidth: "96px" }}>
                                                     Đã thu tiền
                                                 </div>
@@ -527,12 +531,13 @@ export default function NhomDongHoNuocManagement({ className }: NhomDongHoNuocMa
                                                     style={{ cursor: 'pointer' }}
                                                 >
                                                     <td onClick={() => window.open(redirectLink)} className="text-center">{rootData.indexOf(item) + 1}</td>
+                                                    <td onClick={() => window.open(redirectLink)}>{item.group_id}</td>
                                                     <td onClick={() => window.open(redirectLink)}>{item.ten_dong_ho}</td>
                                                     <td onClick={() => window.open(redirectLink)}>{item.so_luong}</td>
                                                     <td onClick={() => window.open(redirectLink)}>{item.ten_khach_hang}</td>
                                                     <td onClick={() => window.open(redirectLink)}>{item.nguoi_kiem_dinh}</td>
                                                     <td onClick={() => window.open(redirectLink)}>{dayjs(item.ngay_thuc_hien).format('DD-MM-YYYY')}</td>
-                                                    {(isAdmin || isSuperAdmin) && <td>
+                                                    {isAdmin && <td>
                                                         <div className="w-100 d-flex justify-content-center" onClick={() => handleUpdatePaymentStatus(item?.group_id || "", item?.is_paid ?? false)}>
                                                             <Form.Check
                                                                 type="checkbox"

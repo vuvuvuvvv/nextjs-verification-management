@@ -29,6 +29,76 @@ export const getAllDongHo = async () => {
     }
 };
 
+export const getUserPermissionWithDongHo = async (dongHo: DongHo) => {
+    try {
+        const response = await api.get(API_DONGHO_URL.toString() + "/user-permissions/" + dongHo.id);
+        // console.log("get dongho: ", response);
+        return {
+            "status": response.status,
+            "data": response.data,
+            "msg": "Thành công!"
+        };
+
+    } catch (error: any) {
+        if (error.response?.data?.msg) {
+            return {
+                "status": error.response.status,
+                "msg": 'Có lỗi xảy ra khi lấy dữ liệu đồng hồ!'
+            };
+        } else {
+            return {
+                "status": error.response?.status || 500,
+                "msg": 'Có lỗi xảy ra khi lấy dữ liệu đồng hồ!'
+            };
+        }
+    }
+};
+
+export const checkUserInfoForDongHoPermission = async (user_info: string, dongho: DongHo) => {
+    try {
+        const response = await api.get(`${API_DONGHO_URL}/user-info/${dongho.id}/${user_info}`);
+
+        return {
+            status: response.status,
+            data: response.data,
+            msg: response.data.msg
+        };
+
+    } catch (error: any) {
+        if (error.response) {
+            const { status, data } = error.response;
+
+            switch (status) {
+                case 404:
+                    return {
+                        status: 404,
+                        msg: data.msg || 'Thông tin người dùng hoặc đồng hồ không tồn tại!'
+                    };
+                case 409:
+                    return {
+                        status: 409,
+                        msg: data.msg || 'User đã được phân quyền cho đồng hồ này!',
+                    };
+                case 400:
+                    return {
+                        status: 400,
+                        msg: data.msg || 'Thông tin không hợp lệ!'
+                    };
+                default:
+                    return {
+                        status: status,
+                        msg: data.msg || 'Có lỗi xảy ra khi kiểm tra thông tin!'
+                    };
+            }
+        }
+
+        return {
+            status: 500,
+            msg: 'Có lỗi xảy ra khi kết nối với server!'
+        };
+    }
+};
+
 export const getAllDongHoNamesExist = async () => {
     try {
         const response = await api.get(API_DONGHO_URL.toString() + "/get-all-names-exist");
@@ -54,13 +124,15 @@ export const getAllDongHoNamesExist = async () => {
     }
 };
 
-export const getDongHoByFilter = async (parameters?: DongHoFilterParameters) => {
+export const getDongHoByFilter = async (parameters?: DongHoFilterParameters, withPermission?: boolean, username?: string) => {
     try {
-        const url = new URL(API_DONGHO_URL);
-        // url.searchParams.append('is_bigger_than_15', parameters?.is_bigger_than_15 ? '1' : '0');
-
+        const url = new URL(API_DONGHO_URL + ((withPermission && username) ? "/permissions/" + username : ""));
         if (parameters?.so_giay_chung_nhan) {
             url.searchParams.append('so_giay_chung_nhan', parameters.so_giay_chung_nhan.toString());
+        }
+
+        if (parameters?.seri_sensor) {
+            url.searchParams.append('seri_sensor', parameters.seri_sensor.toString());
         }
 
         if (parameters?.ten_khach_hang) {
@@ -438,6 +510,67 @@ export const deleteNhomDongHo = async (group_id: string) => {
                 "status": error.response?.status || 500,
                 "msg": 'Đã có lỗi xảy ra. Hãy thử lại sau!'
             };
+        }
+    }
+};
+
+export const createDongHoPermission = async (data: { id: string, user_info: string, permission: number, manager: string }) => {
+    try {
+        const response = await api.post(`${API_DONGHO_URL}/permission`, data, { withCredentials: true });
+
+        if (response.status == 201) {
+            return {
+                "status": response.status,
+                "msg": response.data.msg || "Lưu Đồng hồ thành công!",
+                "data": response.data
+            }
+        } else {
+            return {
+                "status": response.status,
+                "msg": response.data.msg || "Có lỗi đã xảy ra. Hãy thử lại!",
+
+            }
+        }
+
+    } catch (error: any) {
+        // console.log("Error:", error);
+        if (error.response?.data) {
+            return {
+                "status": error.response.status,
+                "data": error.response.data,
+                "msg": "Error: " + error.response.data.msg || 'Error creating DongHo!'
+            };
+        } else {
+            return {
+                "status": error.response?.status || 500,
+                "msg": 'Đã có lỗi xảy ra. Hãy thử lại sau!'
+            };
+        }
+    }
+};
+
+export const deleteDongHoPermission = async (id: string) => {
+    if (id) {
+        try {
+            const response = await api.delete(`${API_DONGHO_URL}/permission/${id}`, { withCredentials: true });
+
+            return {
+                "status": response.status,
+                "msg": response.data.msg || "DongHo deleted successfully!"
+            };
+
+        } catch (error: any) {
+            if (error.response?.data?.msg) {
+                return {
+                    "status": error.response.status,
+                    "msg": error.response.data.msg || 'Error deleting DongHo!'
+                };
+            } else {
+                return {
+                    "status": error.response?.status || 500,
+                    "msg": 'Đã có lỗi xảy ra. Hãy thử lại sau!'
+                };
+            }
         }
     }
 };

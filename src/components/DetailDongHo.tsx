@@ -13,7 +13,7 @@ import Swal from "sweetalert2";
 import { ACCESS_LINKS, TITLE_LUU_LUONG } from "@lib/system-constant";
 import Link from "next/link";
 
-const Loading = dynamic(() => import('@/components/Loading'), { ssr: false });
+const Loading = dynamic(() => import('@/components/Loading'));
 interface DetailDongHoProps {
     dongHo: DongHo;
 }
@@ -195,15 +195,17 @@ export default function DetailDongHo({ dongHo }: DetailDongHoProps) {
                         <div className="col-12">
                             <p>Nơi sản xuất: <b>{dongHo.co_so_san_xuat || "Chưa có nơi sản xuất"}</b></p>
                         </div>
-                        <div className="col-12 mb-3">
-                            <p className="m-0">Kiểu sản xuất:</p>
-                            <div className="w-100 row m-0 px-3">
-                                <div className="col-12 col-md-6 m-0 p-0">{(dongHo.kieu_sensor) && <>Kiểu sensor: <b>{dongHo.kieu_sensor}</b></>}</div>
-                                <div className="col-12 col-md-6 m-0 p-0">{(dongHo.seri_sensor) && <>Serial sensor: <b>{dongHo.seri_sensor}</b></>}</div>
-                                <div className="col-12 col-md-6 m-0 p-0">{(dongHo.kieu_chi_thi) && <>Kiểu chỉ thị: <b>{dongHo.kieu_chi_thi}</b></>}</div>
-                                <div className="col-12 col-md-6 m-0 p-0">{(dongHo.seri_chi_thi) && <>Serial chỉ thị: <b>{dongHo.seri_chi_thi}</b></>}</div>
+                        {(dongHo.kieu_sensor || dongHo.seri_sensor || dongHo.kieu_chi_thi || dongHo.seri_chi_thi)
+                            && <div className="col-12 mb-3">
+                                <p className="m-0">Kiểu sản xuất:</p>
+                                <div className="w-100 row m-0 px-3">
+                                    <div className="col-12 col-md-6 m-0 p-0">{(dongHo.kieu_sensor) && <>Kiểu sensor: <b>{dongHo.kieu_sensor}</b></>}</div>
+                                    <div className="col-12 col-md-6 m-0 p-0">{(dongHo.seri_sensor) && <>Serial sensor: <b>{dongHo.seri_sensor}</b></>}</div>
+                                    <div className="col-12 col-md-6 m-0 p-0">{(dongHo.kieu_chi_thi) && <>Kiểu chỉ thị: <b>{dongHo.kieu_chi_thi}</b></>}</div>
+                                    <div className="col-12 col-md-6 m-0 p-0">{(dongHo.seri_chi_thi) && <>Serial chỉ thị: <b>{dongHo.seri_chi_thi}</b></>}</div>
+                                </div>
                             </div>
-                        </div>
+                        }
                     </div>
                     <div className="row mb-3">
                         <div className="col-12 col-md-4">
