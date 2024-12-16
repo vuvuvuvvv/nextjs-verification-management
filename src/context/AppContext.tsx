@@ -7,6 +7,7 @@ import Swal from 'sweetalert2';
 import { User } from '@lib/types';
 import Loading from '@/components/Loading';
 import { ACCESS_LINKS, PERMISSIONS } from '@lib/system-constant';
+import { logout } from '@/app/api/auth/logout/route';
 
 // Define user type
 
@@ -109,10 +110,11 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     };
 
     const logoutUser = async () => {
-        const allCookies = Cookies.get();
-        for (let cookie in allCookies) {
-            Cookies.remove(cookie);
-        }
+        // const allCookies = Cookies.get();
+        // for (let cookie in allCookies) {
+        //     Cookies.remove(cookie);
+        // }
+        logout();
         window.location.href = ACCESS_LINKS.AUTH_LOGIN.src;
     };
 

@@ -8,7 +8,7 @@ import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { viVN } from "@mui/x-date-pickers/locales";
 
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faArrowLeft, faChevronDown, faChevronUp, faEdit, faTrash, faUserCog, faUserEdit } from "@fortawesome/free-solid-svg-icons";
+import { faArrowLeft, faChevronDown, faChevronUp, faTrash, faUserEdit } from "@fortawesome/free-solid-svg-icons";
 import React from "react";
 import { DongHo, DongHoPermission, User } from "@lib/types";
 
@@ -16,6 +16,7 @@ import Swal from "sweetalert2";
 import { deleteDongHoPermission, getUserPermissionWithDongHo } from "@/app/api/dongho/route";
 import { getAvailableRolesOptions, getFullSoGiayCN, getNameOfRole } from "@lib/system-function";
 import Select, { GroupBase } from 'react-select';
+import { useUser } from "@/context/AppContext";
 
 const Loading = React.lazy(() => import("@/components/Loading"));
 const NavTab = React.lazy(() => import("@/components/ui/NavTab"));
@@ -43,6 +44,7 @@ interface DongHoPermissionsFilterForm {
 }
 
 export default function DongHoPermissionsManagement({ className, dongHoSelected, setSelectedDongHo }: DongHoPermissionsManagementProps) {
+    const { isSuperAdmin, getCurrentRole } = useUser();
     const [data, setRootData] = useState<DongHoPermission[]>([]);
     const rootData = useRef<DongHoPermission[]>([]);
     const [filterLoading, setFilterLoading] = useState(true);
@@ -182,10 +184,10 @@ export default function DongHoPermissionsManagement({ className, dongHoSelected,
 
     const tabContent = [
         {
-            title: "Bộ lọc",
+            title: "Tìm kiếm",
             content:
                 <div className={`row m-0 pt-2 w-100 ${c_vfml['search-process']}`}>
-                    <div className="col-12 mb-3 col-md-6 col-xxl-4 d-flex">
+                    <div className="col-12 mb-3 col-md-6 col-xxl-3 d-flex">
                         <label className={`${c_vfml['form-label']}`} htmlFor="fullname">
                             Tên đầy đủ:
                             <input
@@ -199,7 +201,7 @@ export default function DongHoPermissionsManagement({ className, dongHoSelected,
                         </label>
                     </div>
 
-                    <div className="col-12 mb-3 col-md-6 col-xxl-4 d-flex">
+                    <div className="col-12 mb-3 col-md-6 col-xxl-3 d-flex">
                         <label className={`${c_vfml['form-label']}`} htmlFor="username">
                             Tên người dùng:
                             <input
@@ -213,7 +215,7 @@ export default function DongHoPermissionsManagement({ className, dongHoSelected,
                         </label>
                     </div>
 
-                    <div className="col-12 mb-3 col-md-6 col-xxl-4 d-flex">
+                    <div className="col-12 mb-3 col-md-6 col-xxl-3 d-flex">
                         <label className={`${c_vfml['form-label']}`} htmlFor="email">
                             Email:
                             <input
@@ -226,7 +228,7 @@ export default function DongHoPermissionsManagement({ className, dongHoSelected,
                             />
                         </label>
                     </div>
-                    <div className="col-12 mb-3 col-md-6 col-xxl-4">
+                    <div className="col-12 mb-3 col-md-6 col-xxl-3">
                         <label className={`${c_vfml['form-label']}`} htmlFor="role">
                             Vai trò:
                             <Select
@@ -292,13 +294,13 @@ export default function DongHoPermissionsManagement({ className, dongHoSelected,
                         </label>
                     </div>
 
-                    <div className={`col-12 col-xxl-4 pb-2 m-0 my-2 gap-1 d-flex align-items-end justify-content-between`}>
-                        <button aria-label="Làm mới" type="button" className={`btn bg-main-blue text-white w-50`} onClick={() => handleResetFilter()}>
-                            Làm mới
+                    <div className={`col-12 pb-2 m-0 my-2 gap-1 d-flex align-items-end justify-content-between`}>
+                        <button aria-label="Làm mới" type="button" className={`btn bg-main-blue text-white`} onClick={() => handleResetFilter()}>
+                            Xóa tìm kiếm
                         </button>
                         <button
                             onClick={() => handleAddPermission()}
-                            className="btn bg-main-green w-50 text-white"
+                            className="btn bg-main-green text-white"
                         >
                             Thêm mới
                         </button>
@@ -381,7 +383,7 @@ export default function DongHoPermissionsManagement({ className, dongHoSelected,
                 try {
                     const res = await deleteDongHoPermission(per?.id || "");
                     if (res?.status === 200) {
-                        if(dongHoSelected) getUserPermissions(dongHoSelected);
+                        if (dongHoSelected) getUserPermissions(dongHoSelected);
                         Swal.fire({
                             text: "Xóa thành công!",
                             icon: "success",
@@ -431,17 +433,17 @@ export default function DongHoPermissionsManagement({ className, dongHoSelected,
                     </div>
 
                     {/* TODO */}
-                    <div className="alert alert-warning alert-dismissible fade show shadow-sm mb-2 text-center" role="alert">
-                        <strong>Chú ý!</strong> Vai trò hiện tại của bạn: <strong>{getNameOfRole(dongHoSelected?.current_permission || "")}</strong>.
+                    <div className="alert alert-warning alert-dismissible shadow-sm mb-2 d-flex justify-content-end justify-content-sm-center position-relative px-3 px-md-4" role="alert">
+                        <button style={{top: "50%", left: "20px",transform:"translateY(-50%)"}} className={`btn m-0 py-0 px-0 text-blue position-absolute d-flex align-items-center gap-1 border-0 shadow-0`} onClick={() => handleBackPage()}>
+                            <FontAwesomeIcon icon={faArrowLeft} style={{ fontSize: "22px" }}></FontAwesomeIcon> Quay lại
+                        </button>
+                        <span>Vai trò: <strong>{getNameOfRole(isSuperAdmin ? getCurrentRole() : (dongHoSelected?.current_permission || ""))}</strong></span>
                     </div>
                     <div className="bg-white w-100 shadow-sm position-relative rounded overflow-hidden">
                         {filterLoading && <Loading />}
 
                         <div className={`m-0 p-0 w-100 position-relative ${c_vfml['wrap-process-table']}`}>
                             <div className={`w-100 p-2`}>
-                                <button className={`btn m-0 py-0 text-blue d-flex align-items-center gap-1 border-0 shadow-0`} onClick={() => handleBackPage()}>
-                                    <FontAwesomeIcon icon={faArrowLeft} style={{ fontSize: "22px" }}></FontAwesomeIcon> Quay lại
-                                </button>
                                 <p className="text-center fw-bold text-uppercase fs-5 m-0 w-100">BẢNG PHÂN QUYỀN</p>
                             </div>
                             {data && data.length > 0 ? (

@@ -45,8 +45,9 @@ export default function PhanQuyenPage() {
         }
     }, [error]);
 
+    
 
-    return <div className={`w-100 p-3`}>
+    return <div className={`w-100 p-3 position-relative`}>
         <DongHoPermissionsManagement className={dongHoSelected ? "show" : "d-none"} dongHoSelected={dongHoSelected} setSelectedDongHo={setDongHo} />
         <WaterMeterManagement className={dongHoSelected ? "d-none" : ""} setSelectedDongHo={setDongHo} isAutorizing={true} />
     </div>

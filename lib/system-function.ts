@@ -279,10 +279,10 @@ export function getNameOfRole(role: string | undefined) {
 export function getAvailableRolesOptions(current_role?: string): { value: string, label: string }[] {
     if (current_role) {
         const current_per_val = PERMISSION_VALUES[current_role];
-        if(current_per_val) {
+        if (current_per_val) {
             return Object.values(PERMISSIONS).filter(r => {
                 const per_val = PERMISSION_VALUES[r];
-                return (per_val || per_val == 0) && current_per_val > per_val;
+                return current_role == PERMISSIONS.SUPERADMIN || ((per_val || per_val == 0) && current_per_val > per_val);
             }).map(r => ({ value: r, label: getNameOfRole(r) }));
         }
         return [];

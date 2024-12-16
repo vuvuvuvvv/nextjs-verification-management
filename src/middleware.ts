@@ -5,7 +5,6 @@ import { logout } from './app/api/auth/logout/route';
 import { jwtVerify } from 'jose';
 import { ACCESS_LINKS } from '@lib/system-constant';
 
-const ADMIN_ROLE = 'ADMIN';
 const CUSTOM_404_PATH = '/error/404';
 const CUSTOM_500_PATH = '/error/500';
 const CUSTOM_AUTH_ERROR_TOKEN_PATH = '/error/error-token';
@@ -61,7 +60,7 @@ export async function middleware(req: NextRequest) {
     //     return NextResponse.redirect(new URL(CUSTOM_UNSUPPORTED_BROWSER, req.url));
     // }
 
-    const tokenCookie = req.cookies.get('accessToken')?.value;
+    const isConfirmed = req.cookies.get('confirmed')?.value;
     const refreshTokenCookie = req.cookies.get('refreshToken')?.value;
     const userCookie = req.cookies.get('user')?.value;
 
@@ -86,11 +85,10 @@ export async function middleware(req: NextRequest) {
     const redirectUrl = new URL(ACCESS_LINKS.AUTH_LOGIN.src, req.url);
     redirectUrl.searchParams.set('redirect', pathname + searchParams.toString());
 
-    if (!tokenCookie && !refreshTokenCookie && !userCookie) {
+    if (!refreshTokenCookie || !userCookie) {
         if (AUTH_PATHS.includes(pathname)) {
             return NextResponse.next();
         }
-        // logout();
         return NextResponse.redirect(redirectUrl);
     }
 
@@ -99,6 +97,7 @@ export async function middleware(req: NextRequest) {
         try {
             const { payload } = await jwtVerify(refreshTokenCookie, new TextEncoder().encode(process.env.NEXT_PUBLIC_JWT_SECRET));
             if (payload.exp && payload.exp * 1000 < Date.now()) {
+                console.log("logout call");
                 logout();
                 return NextResponse.redirect(redirectUrl);
             }
@@ -109,13 +108,13 @@ export async function middleware(req: NextRequest) {
             response.cookies.delete('user');
             return response;
         }
+    } else {
+        logout();
+        return NextResponse.redirect(redirectUrl);
     }
 
     // Let Appcontext catch user null
     const user = userCookie ? JSON.parse(userCookie) : null;
-    if (ADMIN_PATHS.includes(pathname) && user?.role !== ADMIN_ROLE) {
-        return NextResponse.redirect(redirectUrl);
-    }
 
     if (AUTH_PATHS.includes(pathname)) {
         return NextResponse.redirect(new URL(ACCESS_LINKS.HOME.src, req.url));

@@ -22,7 +22,11 @@
     }
 
     .search-process {
+
         // overflow: hidden;
+        button {
+            min-height: 42px;
+        }
 
         .form-label {
             // font-size: 16px;
@@ -92,7 +96,7 @@
         max-height: 80vh !important;
         overflow-y: auto;
         border-bottom: 1px solid $light_grey;
-    
+
         .process-table {
             thead {
                 position: sticky;
@@ -178,7 +182,9 @@
                 }
 
                 li {
-                    a, button {
+
+                    a,
+                    button {
                         display: flex;
                         justify-content: flex-start;
                         border-radius: 0px;

@@ -37,7 +37,7 @@ interface WaterMeterManagementProps {
 }
 
 export default function WaterMeterManagement({ className, isBiggerThan15 = false, isAutorizing = false, setSelectedDongHo }: WaterMeterManagementProps) {
-    const { user, isSuperAdmin } = useUser();
+    const { user, isSuperAdmin, getCurrentRole } = useUser();
     const [rootData, setRootData] = useState<DongHo[]>([]);
 
     const [filterLoading, setFilterLoading] = useState(true);
@@ -244,7 +244,7 @@ export default function WaterMeterManagement({ className, isBiggerThan15 = false
                     <div className="bg-white w-100 shadow-sm mb-2 rounded pb-2 pt-4">
                         <div className={`row m-0 px-md-3 w-100 mb-3 ${c_vfml['search-process']}`}>
                             {isAutorizing ?
-                                <div className="col-12 mb-3 col-md-6 col-xl-4 d-flex">
+                                <div className={`col-12 mb-3 col-md-6 col-xl-3 d-flex`}>
                                     <label className={`${c_vfml['form-label']}`} htmlFor="seri_sensor">
                                         Serial Sensor:
                                         <input
@@ -300,7 +300,7 @@ export default function WaterMeterManagement({ className, isBiggerThan15 = false
                                 </>
                             }
 
-                            <div className={`col-12 col-xl-8 mb-3 m-0 row p-0 ${c_vfml['search-created-date']}`}>
+                            <div className={`col-12 ${isAutorizing ? "col-xxl-6" : "col-xxl-8"} mb-3 m-0 row p-0 ${c_vfml['search-created-date']}`}>
                                 <label className={`${c_vfml['form-label']} col-12`}>
                                     Ngày kiểm định:
                                 </label>
@@ -334,7 +334,7 @@ export default function WaterMeterManagement({ className, isBiggerThan15 = false
                                     </div>
                                 </div>
                             </div>
-                            <div className={`col-12 m-0 my-2 d-flex align-items-center justify-content-between`}>
+                            <div className={`col-12 ${isAutorizing ? "col-xxl-3 align-items-end py-2" : "align-items-center"} m-0 my-2 d-flex justify-content-between`}>
                                 <button aria-label="Làm mới" type="button" className={`btn bg-main-blue text-white`} onClick={handleResetFilter}>
                                     Làm mới
                                 </button>
@@ -514,7 +514,7 @@ export default function WaterMeterManagement({ className, isBiggerThan15 = false
                                                             <td>{dongHo.q3 ? <>Q<sub>III</sub>= {dongHo.q3}</> : <>Q<sub>n</sub>= {dongHo.qn}</>}</td>
                                                             <td>{dongHo.r}</td>
                                                             <td>{dayjs(dongHo.ngay_thuc_hien).format('DD-MM-YYYY')}</td>
-                                                            <td>{getNameOfRole(dongHo?.current_permission || "")}</td>
+                                                            <td>{getNameOfRole(isSuperAdmin ? getCurrentRole() : (dongHo?.current_permission || ""))}</td>
                                                             <td>
                                                                 <button aria-label="Phân quyền" onClick={() => setSelectedDongHo?.(dongHo)} className={`btn border-0 w-100 text-blue shadow-0`}>
                                                                     <FontAwesomeIcon icon={faCircleArrowRight} style={{ fontSize: "26px" }}></FontAwesomeIcon>
