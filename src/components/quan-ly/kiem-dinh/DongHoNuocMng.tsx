@@ -370,7 +370,7 @@ export default function WaterMeterManagement({ className, isBiggerThan15 = false
                                                             </span>
                                                         </div>
                                                     </th>
-                                                    <th onClick={() => sortData('dn')}>
+                                                    {/* <th onClick={() => sortData('dn')}>
                                                         <div className={`${c_vfml['table-label']}`}>
                                                             <span>
                                                                 DN
@@ -414,7 +414,7 @@ export default function WaterMeterManagement({ className, isBiggerThan15 = false
                                                                 <FontAwesomeIcon icon={faChevronUp}></FontAwesomeIcon>
                                                             )}
                                                         </div>
-                                                    </th>
+                                                    </th> */}
                                                     <th onClick={() => sortData('ngay_thuc_hien')}>
                                                         <div className={`${c_vfml['table-label']}`}>
                                                             <span>
@@ -509,10 +509,10 @@ export default function WaterMeterManagement({ className, isBiggerThan15 = false
                                                     {isAutorizing ?
                                                         <>
                                                             <td>{dongHo.seri_sensor}</td>
-                                                            <td>{dongHo.dn}</td>
+                                                            {/* <td>{dongHo.dn}</td>
                                                             <td>{dongHo.ccx}</td>
                                                             <td>{dongHo.q3 ? <>Q<sub>III</sub>= {dongHo.q3}</> : <>Q<sub>n</sub>= {dongHo.qn}</>}</td>
-                                                            <td>{dongHo.r}</td>
+                                                            <td>{dongHo.r}</td> */}
                                                             <td>{dayjs(dongHo.ngay_thuc_hien).format('DD-MM-YYYY')}</td>
                                                             <td>{getNameOfRole(isSuperAdmin ? getCurrentRole() : (dongHo?.current_permission || ""))}</td>
                                                             <td>

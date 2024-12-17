@@ -4,29 +4,34 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 
 import layout from "@styles/scss/layouts/auth-layout.module.scss";
-
 import Link from 'next/link';
 import Swal from 'sweetalert2';
-import { requestPasswordResetToken } from '@/app/api/auth/request-password-reset-token/route';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faEnvelope, faSpinner } from '@fortawesome/free-solid-svg-icons';
-import { ACCESS_LINKS } from '@lib/system-constant';
-import { useUser } from '@/context/AppContext';
+import { faEnvelope, faLock } from '@fortawesome/free-solid-svg-icons';
 
-export default function ForgotPassword() {
-    const [email, setEmail] = useState('');
-    const { user } = useUser();
+import axios from 'axios';
+import { ACCESS_LINKS } from '@lib/system-constant';
+
+export default function VerifyPage({ params }: { params: { token: string } }) {
+    const [newPassword, setNewPassword] = useState('');
+    const [confirmPassword, setConfirmPassword] = useState('');
+
     const [error, setError] = useState("");
-    const [loading, setLoading] = useState(false);
-    const [success, setSuccess] = useState(false);
+    const [isPwInvalid, setPwInvalid] = useState(false);
+    const [isPwNotMatch, setPwNotMatch] = useState(false);
     const router = useRouter();
+
+    const handleChangeConfirmPassword = (e: React.ChangeEvent<HTMLInputElement>) => {
+        setConfirmPassword(e.currentTarget.value);
+        setPwNotMatch(newPassword != e.currentTarget.value);
+    };
 
     useEffect(() => {
         if (error) {
             Swal.fire({
                 icon: "error",
                 title: "Lỗi",
-                text: error,
+                text: "Mã thông báo đã hết hạn hoặc không hợp lệ. Vui lòng yêu cầu đặt lại mật khẩu.",
                 showClass: {
                     popup: `
                     animate__animated
@@ -45,20 +50,26 @@ export default function ForgotPassword() {
                 confirmButtonText: "OK"
             }).then(() => {
                 setError("");
+                router.push(ACCESS_LINKS.AUTH_FORGOT_PW.src);
             });
         }
     }, [error]);
 
-    const handleResendVericationEmail = async () => {
+    const handleSubmit = async (event: { preventDefault: () => void; }) => {
+
+        event.preventDefault();
         setError("");
-        setLoading(true);
+
         try {
-            const response = await requestPasswordResetToken(email);
+            const response = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/auth/verify`, {
+                headers: {
+                    Authorization: `Bearer ${params.token}`
+                }
+            });
             if (response?.status == 200 || response?.status == 201) {
-                setSuccess(true);
                 Swal.fire({
                     title: "Thành công",
-                    text: response?.msg,
+                    text: "Đặt lại mật khẩu thành công. Vui lòng đăng nhập lại.",
                     icon: "success",
                     showClass: {
                         popup: `
@@ -81,25 +92,13 @@ export default function ForgotPassword() {
                 });
 
             } else {
-                setError(response?.msg);
+                setError(response?.data?.msg);
             }
         } catch (err) {
             // console.log(err);
             setError("Có lỗi đã xảy ra. Hãy thử lại!");
-        } finally {
-            setLoading(false);
         }
     }
-
-
-    return <>
-        <div className='w-100 pt-4'>
-            <h5 className='text-center text-uppercase'>
-                Chưa xác thực
-            </h5>
-            <p>Xin chào{(" " + user?.fullname) || ""}, Bạn chưa xác nhận tài khoản của mình.</p>
-            <p>Chúng tôi đã gửi đến bạn email có chứa liên kết xác thực tài khoản. Hãy kiểm tra.</p>
-            <p>Cần một mã xác thực khác? <span className='btn bg-main-blue'>Gửi lại</span></p>
-        </div>
-    </>
+    return <div className='w-100'>
+    </div>
 }

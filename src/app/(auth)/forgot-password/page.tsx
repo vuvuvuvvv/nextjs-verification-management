@@ -7,7 +7,7 @@ import layout from "@styles/scss/layouts/auth-layout.module.scss";
 
 import Link from 'next/link';
 import Swal from 'sweetalert2';
-import { requestPasswordResetToken } from '@/app/api/auth/request-password-reset-token/route';
+import { requestPasswordResetToken } from '@/app/api/auth/request-token/route';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faEnvelope, faSpinner } from '@fortawesome/free-solid-svg-icons';
 import { ACCESS_LINKS } from '@lib/system-constant';

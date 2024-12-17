@@ -116,6 +116,10 @@ export const ACCESS_LINKS = {
         src: "/register",
         title: "Đăng ký"
     },
+    AUTH_UNVERIFIED : {
+        src: "/unverified",
+        title: "Yêu cầu xác thực"
+    },
     AUTH_RESET_PW : {
         src: "/reset-password",
         title: "Đặt lại mật khẩu"

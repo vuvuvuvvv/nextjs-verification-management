@@ -15,6 +15,7 @@ const AUTH_PATHS = [
     ACCESS_LINKS.AUTH_FORGOT_PW.src,
     ACCESS_LINKS.AUTH_LOGIN.src,
     ACCESS_LINKS.AUTH_REGISTER.src,
+    // ACCESS_LINKS.AUTH_UNVERIFIED.src,
 ];
 const PROTECTED_PATHS = [
     ACCESS_LINKS.CHANGE_EMAIL.src,
@@ -60,9 +61,11 @@ export async function middleware(req: NextRequest) {
     //     return NextResponse.redirect(new URL(CUSTOM_UNSUPPORTED_BROWSER, req.url));
     // }
 
-    const isConfirmed = req.cookies.get('confirmed')?.value;
+    const isConfirmed = (req.cookies.get('confirmed')?.value || "") == "1" ? true : false;
     const refreshTokenCookie = req.cookies.get('refreshToken')?.value;
     const userCookie = req.cookies.get('user')?.value;
+
+    console.log(isConfirmed);
 
     if (pathname.startsWith(ACCESS_LINKS.AUTH_RESET_PW.src)) {
         const token = pathname.split(ACCESS_LINKS.AUTH_RESET_PW.src + "/")[1];
@@ -113,16 +116,19 @@ export async function middleware(req: NextRequest) {
         return NextResponse.redirect(redirectUrl);
     }
 
-    // Let Appcontext catch user null
-    const user = userCookie ? JSON.parse(userCookie) : null;
-
     if (AUTH_PATHS.includes(pathname)) {
         return NextResponse.redirect(new URL(ACCESS_LINKS.HOME.src, req.url));
     }
 
-    if (!VALID_PATHS.some(path => pathname.includes(path) || pathname.startsWith(path))) {
-        return NextResponse.redirect(new URL(CUSTOM_404_PATH, req.url));
+    if (!isConfirmed) {
+        if (pathname.includes(ACCESS_LINKS.AUTH_UNVERIFIED.src)) {
+            console.log("000000")
+            return NextResponse.next();
+        }
+        console.log("111111")
+        return NextResponse.redirect(new URL(ACCESS_LINKS.AUTH_UNVERIFIED.src, req.url));
     }
+    console.log("222222")
 
     return NextResponse.next();
 }
