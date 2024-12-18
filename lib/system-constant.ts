@@ -116,6 +116,10 @@ export const ACCESS_LINKS = {
         src: "/register",
         title: "Đăng ký"
     },
+    AUTH_VERIFY: {
+        src: "/verify",
+        title: "Xác thực người dùng"
+    },
     AUTH_UNVERIFIED : {
         src: "/unverified",
         title: "Yêu cầu xác thực"

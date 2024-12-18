@@ -8,7 +8,6 @@ import { ACCESS_LINKS } from '@lib/system-constant';
 const CUSTOM_404_PATH = '/error/404';
 const CUSTOM_500_PATH = '/error/500';
 const CUSTOM_AUTH_ERROR_TOKEN_PATH = '/error/error-token';
-const CUSTOM_UNSUPPORTED_BROWSER = '/error/unsupported-error';
 
 const ADMIN_PATHS = ['/dashboard'];
 const AUTH_PATHS = [
@@ -61,11 +60,10 @@ export async function middleware(req: NextRequest) {
     //     return NextResponse.redirect(new URL(CUSTOM_UNSUPPORTED_BROWSER, req.url));
     // }
 
-    const isConfirmed = (req.cookies.get('confirmed')?.value || "") == "1" ? true : false;
     const refreshTokenCookie = req.cookies.get('refreshToken')?.value;
     const userCookie = req.cookies.get('user')?.value;
 
-    console.log(isConfirmed);
+    const isConfirmed = (userCookie ? JSON.parse(userCookie)?.confirmed : "") == "1" ? true : false;
 
     if (pathname.startsWith(ACCESS_LINKS.AUTH_RESET_PW.src)) {
         const token = pathname.split(ACCESS_LINKS.AUTH_RESET_PW.src + "/")[1];
@@ -100,7 +98,6 @@ export async function middleware(req: NextRequest) {
         try {
             const { payload } = await jwtVerify(refreshTokenCookie, new TextEncoder().encode(process.env.NEXT_PUBLIC_JWT_SECRET));
             if (payload.exp && payload.exp * 1000 < Date.now()) {
-                console.log("logout call");
                 logout();
                 return NextResponse.redirect(redirectUrl);
             }
@@ -116,19 +113,20 @@ export async function middleware(req: NextRequest) {
         return NextResponse.redirect(redirectUrl);
     }
 
-    if (AUTH_PATHS.includes(pathname)) {
+    if (AUTH_PATHS.some(authPath => pathname.includes(authPath))) {
         return NextResponse.redirect(new URL(ACCESS_LINKS.HOME.src, req.url));
     }
 
     if (!isConfirmed) {
-        if (pathname.includes(ACCESS_LINKS.AUTH_UNVERIFIED.src)) {
-            console.log("000000")
+        if (pathname.includes(ACCESS_LINKS.AUTH_UNVERIFIED.src) || pathname.includes(ACCESS_LINKS.AUTH_VERIFY.src)) {
             return NextResponse.next();
         }
-        console.log("111111")
         return NextResponse.redirect(new URL(ACCESS_LINKS.AUTH_UNVERIFIED.src, req.url));
+    } else {
+        if (pathname.includes(ACCESS_LINKS.AUTH_UNVERIFIED.src) || pathname.includes(ACCESS_LINKS.AUTH_VERIFY.src)) {
+            return NextResponse.redirect(new URL(ACCESS_LINKS.HOME.src, req.url));
+        }
     }
-    console.log("222222")
 
     return NextResponse.next();
 }
