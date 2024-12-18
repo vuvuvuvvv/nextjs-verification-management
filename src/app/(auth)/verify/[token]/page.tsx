@@ -87,5 +87,10 @@ export default function VerifyPage({ params }: { params: { token: string } }) {
 
     handleVerify();
 
-    return <></>;
+    return <div className='py-3 py-md-4 text-blue d-flex justify-content-center'>
+        <div className='d-flex align-items-center gap-2'>
+            <span className="spinner-border spinner-border-sm" aria-hidden="true"></span>
+            <span role="status ms-1">Đang xác thực...</span>
+        </div>
+    </div>;
 }

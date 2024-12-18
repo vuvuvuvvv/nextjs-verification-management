@@ -45,7 +45,7 @@ const Navbar: React.FC<NavbarProps> = ({ className, title = "Trang kiểm địn
 
                         <Link href={"/"} className={"btn m-0 p-0 border-0"}>
                             <div className={`${layout["nav-brand"]} ps-2 ps-xl-0`}>
-                                <img src="/images/logo.png" alt="profileImg" />
+                                <img src="/images/logo.png" alt="Kiểm định DHT" />
                             </div>
                         </Link>
                         <h5 className={`d-none d-sm-block fw-bold m-0 p-0 ms-2 ${layout['nav-title']}`}>{title}</h5>
@@ -60,7 +60,7 @@ const Navbar: React.FC<NavbarProps> = ({ className, title = "Trang kiểm địn
                             <div className={`${layout['dD_menu']} dropdown-menu border-0 shadow-sm`}>
                                 <div className={`${layout['dD_profile']}`}>
                                     <div className={`${layout['box-avt']}`}>
-                                        <img src="/images/logo.png" alt="profileImg" />
+                                        <img src="/images/logo.png" alt="Kiểm định DHT" />
                                     </div>
                                     <div className={`${layout['box-info']}`}>
                                         <table>

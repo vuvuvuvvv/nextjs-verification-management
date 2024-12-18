@@ -96,7 +96,7 @@ export default function UnverifiedPage() {
                 </div> : "Gửi email"}
         </button></div>
         <div className='w-100 d-flex justify-content-center'>
-            <button className='btn bg-light-grey text-white' onClick={logoutUser}>Đăng xuất</button>
+            <button className='btn bg-light-grey text-white' disabled={loading} onClick={logoutUser}>Đăng xuất</button>
         </div>
     </div>
 }

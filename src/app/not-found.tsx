@@ -7,7 +7,7 @@ const NotFound = () => {
     return <div className="container-fluid">
         <div className="row m-0 py-5">
             <div className="col-12 col-md-6 d-flex align-items-center justify-content-center justify-content-md-end m-0 p-0">
-                <img className="w-50" style={{ maxWidth: "200px" }} src="/images/logo.png" alt="profileImg" />
+                <img className="w-50" style={{ maxWidth: "200px" }} src="/images/logo.png" alt="Kiểm định DHT" />
             </div>
             <div className="col-12 col-md-6 d-flex align-items-center m-0 p-0">
                 <div className="w-100 d-flex d-md-block gap-3 align-items-center justify-content-center justify-content-md-start">
