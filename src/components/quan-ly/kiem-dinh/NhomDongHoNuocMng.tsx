@@ -10,33 +10,32 @@ import dayjs, { Dayjs } from "dayjs";
 import { viVN } from "@mui/x-date-pickers/locales";
 
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faChevronDown, faChevronUp, faEdit, faEye } from "@fortawesome/free-solid-svg-icons";
+import { faChevronDown, faChevronUp, faCircleArrowRight, faEdit } from "@fortawesome/free-solid-svg-icons";
 import React from "react";
 
 import Select, { GroupBase } from 'react-select';
-import Pagination from "@/components/Pagination";
 import { NhomDongHoFilterParameters, NhomDongHo, PDMData } from "@lib/types";
 
-import { usePathname } from "next/navigation";
 import Link from "next/link";
 
-import { ACCESS_LINKS, BASE_API_URL, limitOptions } from "@lib/system-constant";
+import { ACCESS_LINKS, BASE_API_URL } from "@lib/system-constant";
 import Swal from "sweetalert2";
-import { deleteNhomDongHo, getNhomDongHoByFilter, updatePaymentStatus } from "@/app/api/dongho/route";
+import { getNhomDongHoByFilter, updatePaymentStatus } from "@/app/api/dongho/route";
 import api from "@/app/api/route";
 import dynamic from "next/dynamic";
 import { Form } from "react-bootstrap";
 import { useUser } from "@/context/AppContext";
-import { updatePDM } from "@/app/api/pdm/route";
 
 const Loading = dynamic(() => import("@/components/Loading"), { ssr: false });
 
 
 interface NhomDongHoNuocManagementProps {
     className?: string,
+    isAuthorizing?: boolean,
+    setSelectedGroupId?: React.Dispatch<React.SetStateAction<string | null>>;
 }
 
-export default function NhomDongHoNuocManagement({ className }: NhomDongHoNuocManagementProps) {
+export default function NhomDongHoNuocManagement({ className, isAuthorizing, setSelectedGroupId }: NhomDongHoNuocManagementProps) {
     const { user, isAdmin, isSuperAdmin } = useUser();
     const [rootData, setRootData] = useState<NhomDongHo[]>([]);
 
@@ -473,36 +472,38 @@ export default function NhomDongHoNuocManagement({ className }: NhomDongHoNuocMa
                                                     )}
                                                 </div>
                                             </th>
-                                            <th onClick={() => sortData('ten_khach_hang')}>
-                                                <div className={`${c_vfml['table-label']}`}>
-                                                    <span>
-                                                        Tên khách hàng
-                                                    </span>
-                                                    {sortConfig && sortConfig.key === 'ten_khach_hang' && sortConfig.direction === 'asc' && (
-                                                        <FontAwesomeIcon icon={faChevronDown}></FontAwesomeIcon>
-                                                    )}
-                                                    {sortConfig && sortConfig.key === 'ten_khach_hang' && sortConfig.direction === 'desc' && (
-                                                        <FontAwesomeIcon icon={faChevronUp}></FontAwesomeIcon>
-                                                    )}
-                                                </div>
-                                            </th>
-                                            <th onClick={() => sortData('nguoi_kiem_dinh')}>
-                                                <div className={`${c_vfml['table-label']}`}>
-                                                    <span>
-                                                        Người kiểm định
-                                                    </span>
-                                                    {sortConfig && sortConfig.key === 'nguoi_kiem_dinh' && sortConfig.direction === 'asc' && (
-                                                        <FontAwesomeIcon icon={faChevronDown}></FontAwesomeIcon>
-                                                    )}
-                                                    {sortConfig && sortConfig.key === 'nguoi_kiem_dinh' && sortConfig.direction === 'desc' && (
-                                                        <FontAwesomeIcon icon={faChevronUp}></FontAwesomeIcon>
-                                                    )}
-                                                </div>
-                                            </th>
+                                            {!isAuthorizing && <>
+                                                <th onClick={() => sortData('ten_khach_hang')}>
+                                                    <div className={`${c_vfml['table-label']}`}>
+                                                        <span>
+                                                            Tên khách hàng
+                                                        </span>
+                                                        {sortConfig && sortConfig.key === 'ten_khach_hang' && sortConfig.direction === 'asc' && (
+                                                            <FontAwesomeIcon icon={faChevronDown}></FontAwesomeIcon>
+                                                        )}
+                                                        {sortConfig && sortConfig.key === 'ten_khach_hang' && sortConfig.direction === 'desc' && (
+                                                            <FontAwesomeIcon icon={faChevronUp}></FontAwesomeIcon>
+                                                        )}
+                                                    </div>
+                                                </th>
+                                                <th onClick={() => sortData('nguoi_kiem_dinh')}>
+                                                    <div className={`${c_vfml['table-label']}`}>
+                                                        <span>
+                                                            Người kiểm định
+                                                        </span>
+                                                        {sortConfig && sortConfig.key === 'nguoi_kiem_dinh' && sortConfig.direction === 'asc' && (
+                                                            <FontAwesomeIcon icon={faChevronDown}></FontAwesomeIcon>
+                                                        )}
+                                                        {sortConfig && sortConfig.key === 'nguoi_kiem_dinh' && sortConfig.direction === 'desc' && (
+                                                            <FontAwesomeIcon icon={faChevronUp}></FontAwesomeIcon>
+                                                        )}
+                                                    </div>
+                                                </th>
+                                            </>}
                                             <th onClick={() => sortData('ngay_thuc_hien')}>
                                                 <div className={`${c_vfml['table-label']}`}>
                                                     <span>
-                                                        Ngày thực hiện
+                                                        Ngày kiểm định
                                                     </span>
                                                     {sortConfig && sortConfig.key === 'ngay_thuc_hien' && sortConfig.direction === 'asc' && (
                                                         <FontAwesomeIcon icon={faChevronDown}></FontAwesomeIcon>
@@ -513,7 +514,7 @@ export default function NhomDongHoNuocManagement({ className }: NhomDongHoNuocMa
                                                 </div>
                                             </th>
 
-                                            {isAdmin && <th>
+                                            {(isAdmin && !isAuthorizing) && <th>
                                                 <div className={`${c_vfml['table-label']} p-0`} style={{ minWidth: "96px" }}>
                                                     Đã thu tiền
                                                 </div>
@@ -534,10 +535,12 @@ export default function NhomDongHoNuocManagement({ className }: NhomDongHoNuocMa
                                                     <td onClick={() => window.open(redirectLink)}>{item.group_id}</td>
                                                     <td onClick={() => window.open(redirectLink)}>{item.ten_dong_ho}</td>
                                                     <td onClick={() => window.open(redirectLink)}>{item.so_luong}</td>
-                                                    <td onClick={() => window.open(redirectLink)}>{item.ten_khach_hang}</td>
-                                                    <td onClick={() => window.open(redirectLink)}>{item.nguoi_kiem_dinh}</td>
+                                                    {!isAuthorizing && <>
+                                                        <td onClick={() => window.open(redirectLink)}>{item.ten_khach_hang}</td>
+                                                        <td onClick={() => window.open(redirectLink)}>{item.nguoi_kiem_dinh}</td>
+                                                    </>}
                                                     <td onClick={() => window.open(redirectLink)}>{dayjs(item.ngay_thuc_hien).format('DD-MM-YYYY')}</td>
-                                                    {isAdmin && <td>
+                                                    {(isAdmin && !isAuthorizing) && <td>
                                                         <div className="w-100 d-flex justify-content-center" onClick={() => handleUpdatePaymentStatus(item?.group_id || "", item?.is_paid ?? false)}>
                                                             <Form.Check
                                                                 type="checkbox"
@@ -552,16 +555,18 @@ export default function NhomDongHoNuocManagement({ className }: NhomDongHoNuocMa
                                                         </div>
                                                     </td>}
 
-                                                    <td
-                                                        onClick={() => window.open(`${ACCESS_LINKS.DHN_EDIT_NDH.src + "/" + item.group_id}`)}
-                                                    >
-                                                        {/* <Link target="_blank" aria-label="Xem chi tiết" href={ACCESS_LINKS.DHN_DETAIL_NDH.src + "/nhom/" + item.group_id} className={`btn w-100 text-blue`}>
-                                                            <FontAwesomeIcon icon={faEye}></FontAwesomeIcon>
-                                                        </Link> */}
-                                                        <Link aria-label="Chỉnh sửa" href={ACCESS_LINKS.DHN_EDIT_NDH.src + "/" + item.group_id} className={`btn w-100 text-blue shadow-0`}>
-                                                            <FontAwesomeIcon icon={faEdit}></FontAwesomeIcon>
-                                                        </Link>
-                                                    </td>
+                                                    {!isAuthorizing ?
+                                                        <td
+                                                            onClick={() => window.open(`${ACCESS_LINKS.DHN_EDIT_NDH.src + "/" + item.group_id}`)}
+                                                        >
+                                                            <Link aria-label="Chỉnh sửa" href={ACCESS_LINKS.DHN_EDIT_NDH.src + "/" + item.group_id} className={`btn w-100 text-blue shadow-0`}>
+                                                                <FontAwesomeIcon icon={faEdit}></FontAwesomeIcon>
+                                                            </Link>
+                                                        </td> : <td>
+                                                            <button aria-label="Phân quyền" onClick={() => setSelectedGroupId?.(item.group_id)} className={`btn border-0 w-100 text-blue shadow-0`}>
+                                                                <FontAwesomeIcon icon={faCircleArrowRight} style={{ fontSize: "26px" }}></FontAwesomeIcon>
+                                                            </button>
+                                                        </td>}
                                                 </tr>
                                             )
                                         })}

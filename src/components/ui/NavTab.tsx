@@ -13,7 +13,7 @@ interface NavTabProps {
         content: React.ReactNode,
     }[],
     buttonControl?: boolean,
-    gotoFirstTab?:boolean,
+    gotoFirstTab?: boolean,
 }
 
 interface TabState {
@@ -22,10 +22,10 @@ interface TabState {
 export default function NavTab({ className, classNameGroupTab, classNameContent, tabContent, buttonControl = false, gotoFirstTab = false }: NavTabProps) {
 
     useEffect(() => {
-        if(gotoFirstTab) {
+        if (gotoFirstTab) {
             setSelectedTab({ [1]: true });
         }
-    },[gotoFirstTab])
+    }, [gotoFirstTab])
 
     // Collapse tab
     const [selectedTab, setSelectedTab] = useState<TabState>({ [1]: true });
@@ -44,6 +44,8 @@ export default function NavTab({ className, classNameGroupTab, classNameContent,
             <div className={`m-0 w-100`} id={nt['process-tab']}>
                 <div className={`${nt['group-tab']} ${classNameGroupTab ? classNameGroupTab : ""}`}>
                     {tabContent.map((val, index) => {
+                        if (!val || !val.title) return null;
+
                         return (
                             <button aria-label={`Tab ${index + 1}`} type="button" style={{ minWidth: "80px" }} key={index + 1} className={`${nt['nav-link']} ${selectedTab[index + 1] ? nt['active'] : ''} fs-6 px-4`} onClick={() => toggleTab(index + 1)}>
                                 {val.title}
@@ -55,6 +57,7 @@ export default function NavTab({ className, classNameGroupTab, classNameContent,
             <div className={`w-100 p-1 ${nt['wrap-process-tab']} ${classNameContent ? classNameContent : ""}`}>
                 <div className={`m-0 p-0 w-100`} id={nt['process-tab-content']}>
                     {tabContent.map((val, index) => {
+                        if (!val || !val.content) return null;
                         return (
                             <div tabIndex={index + 1} key={index + 1} className={`m-0 p-0 ${selectedTab[index + 1] ? nt['show'] : 'd-none'}`}>
                                 {val.content}

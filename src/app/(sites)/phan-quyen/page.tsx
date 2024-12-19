@@ -2,20 +2,58 @@
 import Loading from "@/components/Loading"
 import dynamic from "next/dynamic";
 
-const WaterMeterManagement = dynamic(() => import("@/components/quan-ly/kiem-dinh/DongHoNuocMng"), { ssr: false, loading: () => <Loading /> })
+const NhomDongHoNuocManagement = dynamic(() => import("@/components/quan-ly/kiem-dinh/NhomDongHoNuocMng"), { ssr: false, loading: () => <Loading className="bg-transparent" /> })
+const WaterMeterManagement = dynamic(() => import("@/components/quan-ly/kiem-dinh/DongHoNuocMng"), { ssr: false, loading: () => <Loading className="bg-transparent" /> })
 const DongHoPermissionsManagement = dynamic(() => import("@/components/quan-ly/phan-quyen/DongHoPermissionsMng"), { ssr: false })
 
-import { useUser } from "@/context/AppContext"
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { DongHo } from "@lib/types";
 import Swal from "sweetalert2";
-import { getNameOfRole } from "@lib/system-function";
+import NavTab from "@/components/ui/NavTab";
+import { getNhomDongHoByGroupId } from "@/app/api/dongho/route";
 
 export default function PhanQuyenPage() {
-    const { user } = useUser();
     const [dongHoSelected, setDongHo] = useState<DongHo | null>(null);
+    const [groupIdSelected, setGroupId] = useState<string | null>(null);
     const [error, setError] = useState("");
+    const [loading, setLoading] = useState<boolean>(true);
+    const [dataListDongHo, setDataListDongHo] = useState<DongHo[]>([]);
+    const [isMounted, setIsMounted] = useState(false);
 
+    useEffect(() => {
+        setIsMounted(true);
+        return () => setIsMounted(false);
+    }, []);
+
+    const fetchData = async (groupId: string) => {
+        if (isMounted) {
+            try {
+                const res = await getNhomDongHoByGroupId(groupId);
+                setDataListDongHo(res?.data || []);
+            } catch (error) {
+                console.error("Error fetching data:", error);
+            } finally {
+                setLoading(false);
+            }
+        }
+    };
+
+    useEffect(() => {
+        if (groupIdSelected) {
+            fetchData(groupIdSelected);
+        }
+    }, [groupIdSelected])
+
+    const tabContent = [
+        dataListDongHo.length == 0 ? {
+            title: "Phần quyền nhóm",
+            content: <NhomDongHoNuocManagement setSelectedGroupId={setGroupId} isAuthorizing={true} />
+        } : { title: null, content: null },
+        {
+            title: "Phần quyền đồng hồ",
+            content: <WaterMeterManagement dataList={dataListDongHo} setDataList={setDataListDongHo} setSelectedDongHo={setDongHo} isAuthorizing={true} />
+        }
+    ]
     // Func: Set err
     useEffect(() => {
         if (error) {
@@ -45,10 +83,11 @@ export default function PhanQuyenPage() {
         }
     }, [error]);
 
-    
 
-    return <div className={`w-100 p-3 position-relative`} style={{minHeight: "80vh"}}>
+
+    return <div className={`w-100 p-3 position-relative`} style={{ minHeight: "80vh" }}>
         <DongHoPermissionsManagement className={dongHoSelected ? "show" : "d-none"} dongHoSelected={dongHoSelected} setSelectedDongHo={setDongHo} />
-        <WaterMeterManagement className={dongHoSelected ? "d-none" : ""} setSelectedDongHo={setDongHo} isAutorizing={true} />
+
+        <NavTab tabContent={tabContent} className={`${dongHoSelected ? "d-none" : ""} bg-white`} />
     </div>
 }

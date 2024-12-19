@@ -15,7 +15,6 @@ const TableDongHoInfo = dynamic(() => import('@/components/TableInputDongHoInfo'
 import { useKiemDinh } from "@/context/KiemDinh";
 import { useUser } from "@/context/AppContext";
 
-
 import CreatableSelect from 'react-select/creatable';
 import Select, { GroupBase } from 'react-select';
 import Link from "next/link";
@@ -31,7 +30,7 @@ import {
 } from "@lib/system-constant";
 
 // import { createDongHo, getDongHoExistsByInfo } from "@/app/api/dongho/route";
-import { faArrowLeft, faArrowRight, faSave, faTasks } from "@fortawesome/free-solid-svg-icons";
+import { faArrowLeft, faArrowRight, faSave } from "@fortawesome/free-solid-svg-icons";
 import { DongHo, PDMData } from "@lib/types";
 import { useDongHoList } from "@/context/ListDongHo";
 
