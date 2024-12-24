@@ -276,7 +276,7 @@ export function getNameOfRole(role: string | undefined) {
     return role ? (PERMISSION_TITLES[role] || role) : "Chưa rõ";
 }
 
-export function getAvailableRolesOptions(current_role?: string): { value: string, label: string }[] {
+export function getAvailableRolesOptions(current_role: string | null): { value: string, label: string }[] {
     if (current_role) {
         const current_per_val = PERMISSION_VALUES[current_role];
         if (current_per_val) {

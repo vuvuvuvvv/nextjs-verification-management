@@ -19,7 +19,7 @@ import Link from "next/link";
 import { convertToUppercaseNonAccent } from "@lib/system-function";
 
 export default function Page({ params }: { params: { ma_tim_dong_ho_pdm: string } }) {
-    const { isStaff } = useUser();
+    const { isManager } = useUser();
     const [pdmData, setPDMData] = useState<PDMData | null>(null);
     const [oldPdmData, setOldPDMData] = useState<PDMData | null>(null);
     const pdmDataPrev = useRef(pdmData);
@@ -601,7 +601,7 @@ export default function Page({ params }: { params: { ma_tim_dong_ho_pdm: string 
                             </div>
                             <div className="w-100 px-3 d-flex justify-content-end gap-3">
 
-                                {!isStaff && (
+                                {!isManager && (
                                     <button aria-label="Chỉnh sửa" type="button" onClick={() => setIsEditing(!isEditing)} className="btn text-white bg-warning">
                                         Chỉnh sửa
                                     </button>

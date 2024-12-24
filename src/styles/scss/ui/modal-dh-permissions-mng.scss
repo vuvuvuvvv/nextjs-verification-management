@@ -15,3 +15,29 @@
         overflow: unset !important;
     }
 }
+
+.wrap-mult-dh-per {
+    .modal-dialog {
+        max-width: 600px;
+    }
+
+    .wrap-roles-select-box {
+        height: max-content !important;
+        max-height: calc(100vh - 485px);
+
+        ul {
+            li {
+                border-radius: 0.225rem;
+            }
+        }
+
+        .dh-serial-sensor {
+            font-weight: bold;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            -webkit-line-clamp: 1;
+            display: block;
+        }
+    }
+}

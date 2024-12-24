@@ -98,7 +98,8 @@ export async function middleware(req: NextRequest) {
         try {
             const { payload } = await jwtVerify(refreshTokenCookie, new TextEncoder().encode(process.env.NEXT_PUBLIC_JWT_SECRET));
             if (payload.exp && payload.exp * 1000 < Date.now()) {
-                logout();
+                console.log("refreshTokenCookie")
+                // logout();
                 return NextResponse.redirect(redirectUrl);
             }
         } catch (error) {
@@ -109,7 +110,7 @@ export async function middleware(req: NextRequest) {
             return response;
         }
     } else {
-        logout();
+        console.log("!refreshTokenCookie")
         return NextResponse.redirect(redirectUrl);
     }
 

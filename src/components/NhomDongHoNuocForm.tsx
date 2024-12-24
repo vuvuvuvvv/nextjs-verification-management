@@ -47,7 +47,7 @@ interface NhomDongHoNuocFormProps {
 
 
 export default function NhomDongHoNuocForm({ className, generalInfoDongHo, isEditing = false }: NhomDongHoNuocFormProps) {
-    const { user, isStaff } = useUser();
+    const { user, isManager } = useUser();
     const { dongHoList,
         createListDongHo,
         getDongHoDaKiemDinh,
@@ -241,7 +241,7 @@ export default function NhomDongHoNuocForm({ className, generalInfoDongHo, isEdi
     useEffect(() => {
         if (filterPDMRef.current !== filterPDM && savedDongHoList.length == 0) {
             const ma_tim_dong_ho_pdm = convertToUppercaseNonAccent(filterPDM.tenDongHo + filterPDM.dn + filterPDM.ccx + filterPDM.kieuSensor + filterPDM.kieuChiThi + (ccx ? ((["1", "2"].includes(ccx) ? (filterPDM.q3 + filterPDM.r) : filterPDM.qn)) : ""));
-            console.log(filterPDM, ma_tim_dong_ho_pdm);
+            // console.log(filterPDM, ma_tim_dong_ho_pdm);
             const handler = setTimeout(async () => {
                 setLoading(true);
                 try {
@@ -1092,7 +1092,7 @@ export default function NhomDongHoNuocForm({ className, generalInfoDongHo, isEdi
                                     {errorPDM && <small className="text-danger">{errorPDM}</small>}
                                 </div>
 
-                                <div className={`mb-3 col-12 col-md-6 col-xxl-4 d-flex align-items-end ${!isStaff ? "" : "d-none"}`}>
+                                <div className={`mb-3 col-12 col-md-6 col-xxl-4 d-flex align-items-end ${!isManager ? "" : "d-none"}`}>
 
                                     <Link
                                         href={ACCESS_LINKS.PDM_ADD.src}

@@ -7,7 +7,7 @@ const API_AUTH_URL = `${BASE_API_URL}/auth`;
 let isRefreshing = false;
 let failedQueue: any[] = [];
 let retryCount = 0;
-const MAX_RETRY_COUNT = 1;
+const MAX_RETRY_COUNT = 3;
 
 const processQueue = (error: any, token: string | null = null) => {
     failedQueue.forEach(prom => {
@@ -72,7 +72,6 @@ api.interceptors.response.use(
                     resolve(axios(originalRequest));
                 }).catch((err) => {
                     processQueue(err, null);
-                    // logout();
                     reject(err);
                 }).finally(() => {
                     isRefreshing = false;

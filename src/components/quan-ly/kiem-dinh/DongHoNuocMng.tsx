@@ -10,9 +10,9 @@ import dayjs, { Dayjs } from "dayjs";
 import { viVN } from "@mui/x-date-pickers/locales";
 
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faChevronDown, faChevronUp, faEdit, faCircleArrowRight } from "@fortawesome/free-solid-svg-icons";
+import { faChevronDown, faChevronUp, faEdit, faCircleArrowRight, faArrowLeft } from "@fortawesome/free-solid-svg-icons";
 import React from "react";
-import { DongHo, DongHoFilterParameters, DuLieuChayDongHo } from "@lib/types";
+import { DongHo, DongHoFilterParameters, DongHoPermission, DuLieuChayDongHo } from "@lib/types";
 
 // import { usePathname } from "next/navigation";
 import Link from "next/link";
@@ -25,6 +25,8 @@ import Swal from "sweetalert2";
 import { getDongHoByFilter } from "@/app/api/dongho/route";
 import { getNameOfRole } from "@lib/system-function";
 import { useUser } from "@/context/AppContext";
+import { Button } from "react-bootstrap";
+import ModalMultDongHoPermissionMng from "@/components/ui/ModalMultDongHoPermissionMng";
 
 const Loading = React.lazy(() => import("@/components/Loading"));
 
@@ -34,11 +36,11 @@ interface WaterMeterManagementProps {
     isBiggerThan15?: boolean,
     isAuthorizing?: boolean,
     setSelectedDongHo?: React.Dispatch<React.SetStateAction<DongHo | null>>;
-    setDataList?: React.Dispatch<React.SetStateAction<DongHo[]>>;
+    clearNDHPropData?: () => void;
     dataList?: DongHo[]
 }
 
-export default function WaterMeterManagement({ className, isBiggerThan15 = false, isAuthorizing = false, setSelectedDongHo,setDataList, dataList = [] }: WaterMeterManagementProps) {
+export default function WaterMeterManagement({ className, isBiggerThan15 = false, isAuthorizing = false, setSelectedDongHo, clearNDHPropData, dataList = [] }: WaterMeterManagementProps) {
     const { user, isSuperAdmin, getCurrentRole } = useUser();
     const [data, setRootData] = useState<DongHo[]>([]);
     const rootData = useRef<DongHo[]>([]);
@@ -47,6 +49,9 @@ export default function WaterMeterManagement({ className, isBiggerThan15 = false
     // const [limit, setLimit] = useState(10);
     const [error, setError] = useState("");
     const fetchedRef = useRef(false);
+    const isEditing = useRef<boolean>(false);
+    // const perSelected = useRef<DongHoPermission | null>(null);
+    const [isShow, setIsShow] = useState<boolean | null>(null);
 
     // Func: Set err
     useEffect(() => {
@@ -142,6 +147,7 @@ export default function WaterMeterManagement({ className, isBiggerThan15 = false
         if (dataList.length > 0) {
             setRootData(dataList);
             rootData.current = dataList;
+            setFilterLoading(false);
         } else {
             try {
                 const res = await getDongHoByFilter(filterForm, (isSuperAdmin ? !isAuthorizing : isAuthorizing), (isAuthorizing ? (user?.username || "") : ""));
@@ -165,15 +171,6 @@ export default function WaterMeterManagement({ className, isBiggerThan15 = false
         fetchDongHo();
         fetchedRef.current = true;
     }
-
-    // useEffect(() => {
-    //     setFilterLoading(true);
-    //     const debounce = setTimeout(async () => {
-    //         fetchDongHo();
-    //     }, 500);
-
-    //     return () => clearTimeout(debounce);
-    // }, [filterForm]);
 
     useEffect(() => {
         const filteredData = rootData.current ? [...rootData.current].filter(_per => {
@@ -248,6 +245,15 @@ export default function WaterMeterManagement({ className, isBiggerThan15 = false
         fetchDongHo();
     }
 
+    const handleAddPermission = () => {
+        setIsShow(true);
+        isEditing.current = false;
+    }
+
+    const handleCloseModal = () => {
+        setIsShow(false);
+    }
+
     // const handlePageChange = (newPage: number) => {
     //     setCurrentPage(newPage);
     // };
@@ -256,13 +262,20 @@ export default function WaterMeterManagement({ className, isBiggerThan15 = false
 
     return (
         <LocalizationProvider dateAdapter={AdapterDayjs} localeText={viVN.components.MuiLocalizationProvider.defaultProps.localeText}>
+            {isAuthorizing && dataList.length > 0 &&
+                <ModalMultDongHoPermissionMng
+                    show={isShow != null ? isShow : false}
+                    dongHoList={dataList}
+                    handleClose={handleCloseModal}
+                ></ModalMultDongHoPermissionMng>
+            }
             <div className={`${className ? className : ""} m-0 w-100`}>
                 <div className={`${c_vfml['wraper']} w-100`}>
 
-                    <div className="bg-white w-100 shadow-sm mb-2 rounded pb-2 pt-4">
+                    <div className="bg-white w-100 shadow-sm mb-2 rounded pt-3 pb-1">
                         <div className={`row m-0 px-md-3 w-100 mb-3 ${c_vfml['search-process']}`}>
                             {isAuthorizing ?
-                                <div className={`col-12 mb-3 col-md-6 col-xl-3 d-flex`}>
+                                <div className={`col-12 mb-3 col-xl-4 d-flex ${isAuthorizing ? "col-md-4 col-lg-4" : "col-md-6"}`}>
                                     <label className={`${c_vfml['form-label']}`} htmlFor="seri_sensor">
                                         Serial Sensor:
                                         <input
@@ -318,7 +331,7 @@ export default function WaterMeterManagement({ className, isBiggerThan15 = false
                                 </>
                             }
 
-                            <div className={`col-12 ${isAuthorizing ? "col-xxl-6" : "col-xxl-8"} mb-3 m-0 row p-0 ${c_vfml['search-created-date']}`}>
+                            <div className={`col-12 ${isAuthorizing ? "col-md-8 col-lg-8" : "col-lg-8"} mb-3 m-0 row p-0 ${c_vfml['search-created-date']}`}>
                                 <label className={`${c_vfml['form-label']} col-12`}>
                                     Ngày kiểm định:
                                 </label>
@@ -352,22 +365,41 @@ export default function WaterMeterManagement({ className, isBiggerThan15 = false
                                     </div>
                                 </div>
                             </div>
-                            <div className={`col-12 ${isAuthorizing ? "col-xxl-3 align-items-end py-2" : "align-items-center"} m-0 my-2 d-flex justify-content-between`}>
+                            <div className={`col-12 align-items-end pb-2 ${isAuthorizing ? "col-lg-12" : "col-lg-4"} m-0 my-2 d-flex justify-content-between`}>
                                 <button aria-label="Làm mới" type="button" className={`btn bg-main-blue text-white`} onClick={handleResetFilter}>
                                     Làm mới
                                 </button>
                                 {!isAuthorizing &&
                                     <Link
+                                        style={{ minHeight: "42px" }}
                                         href={ACCESS_LINKS.DHN_ADD.src}
                                         className="btn bg-main-green text-white"
                                     >
                                         Thêm mới
                                     </Link>
                                 }
+                                {isAuthorizing && dataList.length > 0 &&
+                                    <button
+                                        className="btn bg-main-green text-white"
+                                        onClick={() => handleAddPermission()}
+                                    >
+                                        Thêm phân quyền
+                                    </button>
+                                }
                             </div>
 
                         </div>
                     </div>
+
+                    {dataList.length > 0 &&
+                        <div className="alert alert-warning alert-dismissible shadow-sm mb-2 d-flex justify-content-end justify-content-sm-center position-relative px-3 px-md-4" role="alert">
+                            <h5 className="m-0 text-center"></h5>
+                            <button style={{ top: "50%", left: "20px", transform: "translateY(-50%)" }} className={`btn m-0 py-0 px-0 text-blue position-absolute d-flex align-items-center gap-1 border-0 shadow-0`} onClick={() => clearNDHPropData?.()}>
+                                <FontAwesomeIcon icon={faArrowLeft} style={{ fontSize: "22px" }}></FontAwesomeIcon> Quay lại
+                            </button>
+                            <span className={`fs-5 fw-bold d-none d-sm-block`} style={{ maxWidth: "calc(100% - 195px)", overflow: "hidden", WebkitLineClamp: "1", whiteSpace: "no-wrap", textOverflow: "ellipsis" }}>{dataList[0].group_id}</span>
+                            <span className={`fs-5 fw-bold d-sm-none`} style={{ maxWidth: "calc(100% - 115px)", overflow: "hidden", WebkitLineClamp: "1", whiteSpace: "no-wrap", textOverflow: "ellipsis" }}>{dataList[0].group_id}</span>
+                        </div>}
 
                     <div className="bg-white w-100 shadow-sm position-relative rounded overflow-hidden">
                         {filterLoading && <Loading />}
@@ -388,51 +420,6 @@ export default function WaterMeterManagement({ className, isBiggerThan15 = false
                                                             </span>
                                                         </div>
                                                     </th>
-                                                    {/* <th onClick={() => sortData('dn')}>
-                                                        <div className={`${c_vfml['table-label']}`}>
-                                                            <span>
-                                                                DN
-                                                            </span>
-                                                            {sortConfig && sortConfig.key === 'dn' && sortConfig.direction === 'asc' && (
-                                                                <FontAwesomeIcon icon={faChevronDown}></FontAwesomeIcon>
-                                                            )}
-                                                            {sortConfig && sortConfig.key === 'dn' && sortConfig.direction === 'desc' && (
-                                                                <FontAwesomeIcon icon={faChevronUp}></FontAwesomeIcon>
-                                                            )}
-                                                        </div>
-                                                    </th>
-                                                    <th onClick={() => sortData('ccx')}>
-                                                        <div className={`${c_vfml['table-label']}`}>
-                                                            <span>
-                                                                CCX
-                                                            </span>
-                                                            {sortConfig && sortConfig.key === 'ccx' && sortConfig.direction === 'asc' && (
-                                                                <FontAwesomeIcon icon={faChevronDown}></FontAwesomeIcon>
-                                                            )}
-                                                            {sortConfig && sortConfig.key === 'ccx' && sortConfig.direction === 'desc' && (
-                                                                <FontAwesomeIcon icon={faChevronUp}></FontAwesomeIcon>
-                                                            )}
-                                                        </div>
-                                                    </th>
-                                                    <th>
-                                                        <div className={`${c_vfml['table-label']}`}>
-                                                            <span>
-                                                                Q
-                                                            </span>
-                                                        </div>
-                                                    </th>
-                                                    <th onClick={() => sortData('r')}>
-                                                        <div className={`${c_vfml['table-label']}`}>
-                                                            <span>R
-                                                            </span>
-                                                            {sortConfig && sortConfig.key === 'r' && sortConfig.direction === 'asc' && (
-                                                                <FontAwesomeIcon icon={faChevronDown}></FontAwesomeIcon>
-                                                            )}
-                                                            {sortConfig && sortConfig.key === 'r' && sortConfig.direction === 'desc' && (
-                                                                <FontAwesomeIcon icon={faChevronUp}></FontAwesomeIcon>
-                                                            )}
-                                                        </div>
-                                                    </th> */}
                                                     <th onClick={() => sortData('ngay_thuc_hien')}>
                                                         <div className={`${c_vfml['table-label']}`}>
                                                             <span>
@@ -526,13 +513,9 @@ export default function WaterMeterManagement({ className, isBiggerThan15 = false
                                                     <td className="text-center">{data.indexOf(dongHo) + 1}</td>
                                                     {isAuthorizing ?
                                                         <>
-                                                            <td>{dongHo.seri_sensor}</td>
-                                                            {/* <td>{dongHo.dn}</td>
-                                                            <td>{dongHo.ccx}</td>
-                                                            <td>{dongHo.q3 ? <>Q<sub>III</sub>= {dongHo.q3}</> : <>Q<sub>n</sub>= {dongHo.qn}</>}</td>
-                                                            <td>{dongHo.r}</td> */}
-                                                            <td>{dayjs(dongHo.ngay_thuc_hien).format('DD-MM-YYYY')}</td>
-                                                            <td>{getNameOfRole(isSuperAdmin ? getCurrentRole() : (dongHo?.current_permission || ""))}</td>
+                                                            <td onClick={() => setSelectedDongHo?.(dongHo)}>{dongHo.seri_sensor || "Không có serial sensor"}</td>
+                                                            <td onClick={() => setSelectedDongHo?.(dongHo)}>{dayjs(dongHo.ngay_thuc_hien).format('DD-MM-YYYY')}</td>
+                                                            <td onClick={() => setSelectedDongHo?.(dongHo)}>{getNameOfRole(isSuperAdmin ? getCurrentRole() : (dongHo?.current_permission || ""))}</td>
                                                             <td>
                                                                 <button aria-label="Phân quyền" onClick={() => setSelectedDongHo?.(dongHo)} className={`btn border-0 w-100 text-blue shadow-0`}>
                                                                     <FontAwesomeIcon icon={faCircleArrowRight} style={{ fontSize: "26px" }}></FontAwesomeIcon>

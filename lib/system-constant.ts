@@ -56,15 +56,13 @@ export const TITLE_LUU_LUONG = {
 
 export const PERMISSIONS = {
     VIEWER: "Viewer",
-    STAFF: "Staff",
     MANAGER: "Manager",
     DIRECTOR: "Director",
     ADMIN: "Administrator",
     SUPERADMIN: "SuperAdministrator",
 }
 export const PERMISSION_VALUES : Record<string, number> = {
-    "Viewer" : 0,
-    "Staff" : 1,
+    "Viewer" : 1,
     "Manager" : 2,
     "Director" : 3,
     "Administrator" : 4,
@@ -73,7 +71,6 @@ export const PERMISSION_VALUES : Record<string, number> = {
 
 export const PERMISSION_TITLES : Record<string, string> = {
     "Viewer" : "Người xem",
-    "Staff" : "Nhân viên",
     "Manager" : "Quản lý",
     "Director" : "Giám đốc",
     "Administrator" : "Quản trị viên",

@@ -22,7 +22,6 @@ export type AppContextType = {
     isAdmin: boolean;
     isDirector: boolean;
     isManager: boolean;
-    isStaff: boolean;
     isViewer: boolean;
 };
 
@@ -42,9 +41,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
     const isManager = user?.role === PERMISSIONS.MANAGER || isDirector;
 
-    const isStaff = user?.role === PERMISSIONS.STAFF || (!isAdmin && !isSuperAdmin && !isDirector && !isManager);
-
-    const isViewer =  user?.role === PERMISSIONS.VIEWER || !isStaff;
+    const isViewer =  user?.role === PERMISSIONS.VIEWER || !isManager;
 
     useEffect(() => {
         const getUserFromCookie = Cookies.get('user');
@@ -110,11 +107,11 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     };
 
     const logoutUser = async () => {
-        // const allCookies = Cookies.get();
-        // for (let cookie in allCookies) {
-        //     Cookies.remove(cookie);
-        // }
-        logout();
+        const allCookies = Cookies.get();
+        for (let cookie in allCookies) {
+            Cookies.remove(cookie);
+        }
+        // logout();
         window.location.href = ACCESS_LINKS.AUTH_LOGIN.src;
     };
 
@@ -134,7 +131,6 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
             isAdmin,
             isDirector,
             isManager,
-            isStaff,
             getCurrentRole,
             isViewer
         }}>

@@ -1,12 +1,12 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { Modal, Button } from 'react-bootstrap';
-import { DongHo, DongHoPermission } from '@lib/types';
+import { DongHo, DongHoPermission, RoleOption } from '@lib/types';
 import Swal from 'sweetalert2';
 import { getAvailableRolesOptions, getNameOfRole } from '@lib/system-function';
 import Select, { GroupBase } from 'react-select';
 import "@styles/scss/ui/modal-dh-permissions-mng.scss";
 import { useUser } from '@/context/AppContext';
-import { checkUserInfoForDongHoPermission, createDongHoPermission } from '@/app/api/dongho/route';
+import { checkDHPByUserInfoAndId, createDongHoPermission } from '@/app/api/dongho/route';
 import { PERMISSION_VALUES, PERMISSIONS } from '@lib/system-constant';
 
 
@@ -24,13 +24,7 @@ interface DongHoPermissionsMngForm {
     role: "",
 }
 
-interface RoleOption {
-    value: string;
-    label: string;
-}
-
 export default function ModalDongHoPermissionMng({ show, refreshData, handleClose, selectedDongHo, currentPer, isEditing = false }: ModalDongHoPermissionMngProps) {
-    const [isShow, setIsShow] = useState<boolean | null>(null);
     const [selectedRoleOption, setSelectedRoleOption] = useState<RoleOption | null>(null);
     const { user, getCurrentRole } = useUser();
     const availabelRoleOption = useRef(getAvailableRolesOptions(getCurrentRole()));
@@ -89,7 +83,7 @@ export default function ModalDongHoPermissionMng({ show, refreshData, handleClos
                 } else {
                     debounceFieldTimeoutRef.current = setTimeout(async () => {
                         try {
-                            const res = await checkUserInfoForDongHoPermission(value, selectedDongHo);
+                            const res = await checkDHPByUserInfoAndId(value, selectedDongHo);
                             if (res?.status == 200 || res?.status == 201) {
                                 setCansave(true);
                                 setErrorUserInfo("");
@@ -149,7 +143,7 @@ export default function ModalDongHoPermissionMng({ show, refreshData, handleClos
     };
 
     return (
-        <Modal show={isShow != null ? isShow : show} className={`pe-0 mt-5 pt-5 wrap-dh-per-mng-modal`} style={{ overflow: "unset" }} onHide={handleClose} scrollable
+        <Modal show={show} className={`pe-0 mt-5 pt-5 wrap-dh-per-mng-modal`} style={{ overflow: "unset"}} onHide={handleClose} scrollable
             backdrop="static">
             <Modal.Header closeButton>
                 <Modal.Title>{isEditing ? "Sửa" : "Thêm"} phân quyền</Modal.Title>
@@ -163,7 +157,7 @@ export default function ModalDongHoPermissionMng({ show, refreshData, handleClos
                                 type="text"
                                 id="seri_sensor"
                                 className="form-control w-100"
-                                value={selectedDongHo?.seri_sensor || ""}
+                                value={selectedDongHo?.seri_sensor || "Không có serial sensor"}
                                 disabled
                             />
                         </label>

@@ -302,7 +302,7 @@ export default function DongHoPermissionsManagement({ className, dongHoSelected,
                             onClick={() => handleAddPermission()}
                             className="btn bg-main-green text-white"
                         >
-                            Thêm mới
+                            Thêm phân quyền
                         </button>
                     </div>
 

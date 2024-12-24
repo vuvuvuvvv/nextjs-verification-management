@@ -298,5 +298,10 @@ export interface DongHoPermission {
     role: string,
 }
 
+export interface RoleOption {
+    value: string;
+    label: string;
+}
+
 type VChuanDongBo = Record<number, { Vc1?: string, Vc2?: string } | null>;
 export type VChuanDongBoCacLL = Record<string, VChuanDongBo | null>

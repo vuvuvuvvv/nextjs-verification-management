@@ -54,9 +54,9 @@ export const getUserPermissionWithDongHo = async (dongHo: DongHo) => {
     }
 };
 
-export const checkUserInfoForDongHoPermission = async (user_info: string, dongho: DongHo) => {
+export const checkDHPByUserInfoAndId = async (user_info: string, dongho: DongHo) => {
     try {
-        const response = await api.get(`${API_DONGHO_URL}/user-info/${dongho.id}/${user_info}`);
+        const response = await api.get(`${API_DONGHO_URL}/user-info/${user_info}/id/${dongho.id}`);
 
         return {
             status: response.status,
@@ -99,6 +99,44 @@ export const checkUserInfoForDongHoPermission = async (user_info: string, dongho
     }
 };
 
+export const checkDHPByUserInfoAndGroupId = async (user_info: string, group_id: string) => {
+    try {
+        const response = await api.get(`${API_DONGHO_URL}/user-info/${user_info}/group-id/${group_id}`);
+        if (response.status == 409) {
+            return {
+                status: 409,
+                data: response.data,
+            };
+        }
+        return {
+            status: response.status,
+            data: response.data,
+            msg: response.data.message || 'Hợp lệ để phân quyền.'
+        };
+    } catch (error: any) {
+        if (error.response) {
+            const { status, data } = error.response;
+            switch (status) {
+                case 404:
+                    return {
+                        status: 404,
+                        msg: data.error || 'Thông tin người dùng hoặc đồng hồ không tồn tại!'
+                    };
+                default:
+                    return {
+                        status: status,
+                        data: data || null,
+                        msg: data.error || 'Có lỗi xảy ra khi kiểm tra thông tin!'
+                    };
+            }
+        }
+        return {
+            status: 500,
+            msg: 'Có lỗi xảy ra khi kết nối với server!'
+        };
+    }
+};
+
 export const getAllDongHoNamesExist = async () => {
     try {
         const response = await api.get(API_DONGHO_URL.toString() + "/get-all-names-exist");
@@ -126,7 +164,7 @@ export const getAllDongHoNamesExist = async () => {
 
 export const getDongHoByFilter = async (parameters?: DongHoFilterParameters, withPermission?: boolean, username?: string) => {
     try {
-        const url = new URL(API_DONGHO_URL + ((withPermission && username) ? "/permissions/" + username : ""));
+        const url = new URL(API_DONGHO_URL + ((withPermission && username) ? "/permission/" + username : ""));
         if (parameters?.so_giay_chung_nhan) {
             url.searchParams.append('so_giay_chung_nhan', parameters.so_giay_chung_nhan.toString());
         }
@@ -174,9 +212,9 @@ export const getDongHoByFilter = async (parameters?: DongHoFilterParameters, wit
     }
 };
 
-export const getNhomDongHoByFilter = async (parameters?: NhomDongHoFilterParameters | null) => {
+export const getNhomDongHoByFilter = async (parameters?: NhomDongHoFilterParameters | null, withPermission?: boolean, username?: string) => {
     try {
-        const url = new URL(API_DONGHO_URL + "/group");
+        const url = new URL(API_DONGHO_URL + ((withPermission && username) ? "/permission/group/" + username : "/group"));
 
         if (parameters?.ten_dong_ho) {
             url.searchParams.append('ten_dong_ho', parameters.ten_dong_ho.toString());
@@ -293,7 +331,7 @@ export const getDongHoExistsByInfo = async (info: string) => {
     }
 };
 
-export const getNhomDongHoByGroupId = async (group_id: string) => {
+export const getDongHoByGroupId = async (group_id: string) => {
     try {
         const url = `${API_DONGHO_URL}/group_id/${group_id.toString()}`;
 
@@ -517,6 +555,41 @@ export const deleteNhomDongHo = async (group_id: string) => {
 export const createDongHoPermission = async (data: { id: string, user_info: string, permission: number, manager: string }) => {
     try {
         const response = await api.post(`${API_DONGHO_URL}/permission`, data, { withCredentials: true });
+
+        if (response.status == 201) {
+            return {
+                "status": response.status,
+                "msg": response.data.msg || "Lưu Đồng hồ thành công!",
+                "data": response.data
+            }
+        } else {
+            return {
+                "status": response.status,
+                "msg": response.data.msg || "Có lỗi đã xảy ra. Hãy thử lại!",
+
+            }
+        }
+
+    } catch (error: any) {
+        // console.log("Error:", error);
+        if (error.response?.data) {
+            return {
+                "status": error.response.status,
+                "data": error.response.data,
+                "msg": "Error: " + error.response.data.msg || 'Error creating DongHo!'
+            };
+        } else {
+            return {
+                "status": error.response?.status || 500,
+                "msg": 'Đã có lỗi xảy ra. Hãy thử lại sau!'
+            };
+        }
+    }
+};
+
+export const createMultDongHoPermission = async (data: {permissions: { id: string, permission: number}[], user_info: string}) => {
+    try {
+        const response = await api.post(`${API_DONGHO_URL}/permission/group`, data, { withCredentials: true });
 
         if (response.status == 201) {
             return {

@@ -37,7 +37,8 @@ interface NhomDongHoNuocManagementProps {
 
 export default function NhomDongHoNuocManagement({ className, isAuthorizing, setSelectedGroupId }: NhomDongHoNuocManagementProps) {
     const { user, isAdmin, isSuperAdmin } = useUser();
-    const [rootData, setRootData] = useState<NhomDongHo[]>([]);
+    const [data, setRootData] = useState<NhomDongHo[]>([]);
+    const rootData = useRef<NhomDongHo[]>([]);
 
     const [filterLoading, setFilterLoading] = useState(true);
     const [sortConfig, setSortConfig] = useState<{ key: string, direction: 'asc' | 'desc' | 'default' } | null>(null);
@@ -47,6 +48,7 @@ export default function NhomDongHoNuocManagement({ className, isAuthorizing, set
     const fetchDHNameCalled = useRef(false);
     const [selectedTenDHOption, setSelectedTenDHOption] = useState('');
     const [DHNameOptions, setDHNameOptions] = useState<{ value: string, label: string }[]>([]);
+    const fetchedRef = useRef(false);
 
     // Query dongho name
     useEffect(() => {
@@ -112,17 +114,17 @@ export default function NhomDongHoNuocManagement({ className, isAuthorizing, set
 
     // const resetTotalPage = () => {
     //     setCurrentPage(1);
-    //     if (!rootData || rootData.length <= (limit ? limit : 1)) {
+    //     if (!data || data.length <= (limit ? limit : 1)) {
     //         return 1;
     //     }
-    //     return Math.ceil(rootData.length / (limit ? limit : 1));
+    //     return Math.ceil(data.length / (limit ? limit : 1));
     // }
 
     // const [totalPage, setTotalPage] = useState(resetTotalPage);
 
     // useEffect(() => {
     //     setTotalPage(resetTotalPage);
-    // }, [rootData, limit])
+    // }, [data, limit])
 
     const sortData = useCallback((key: keyof NhomDongHo) => {
         if (!filterLoading) {
@@ -133,7 +135,7 @@ export default function NhomDongHoNuocManagement({ className, isAuthorizing, set
                 direction = sortConfig.direction === 'asc' ? 'desc' : 'asc';
             }
 
-            const sortedData = rootData ? [...rootData].sort((a, b) => {
+            const sortedData = data ? [...data].sort((a, b) => {
                 if (key === 'ngay_thuc_hien') {
                     const dateA = dayjs(a[key] as Date);
                     const dateB = dayjs(b[key] as Date);
@@ -149,14 +151,15 @@ export default function NhomDongHoNuocManagement({ className, isAuthorizing, set
             setSortConfig({ key, direction });
             setFilterLoading(false);
         }
-    }, [rootData, sortConfig, filterLoading]);
+    }, [data, sortConfig, filterLoading]);
 
     const _fetchNhomDongHo = async () => {
         setFilterLoading(true);
         try {
-            const res = await getNhomDongHoByFilter(filterForm);
+            const res = await getNhomDongHoByFilter(filterForm, (isSuperAdmin ? !isAuthorizing : isAuthorizing), (isAuthorizing ? (user?.username || "") : ""));
             if (res.status === 200 || res.status === 201) {
                 setRootData(res.data);
+                rootData.current = res.data;
             } else {
                 console.error(res.msg);
                 setError("Có lỗi đã xảy ra!");
@@ -169,13 +172,52 @@ export default function NhomDongHoNuocManagement({ className, isAuthorizing, set
         }
     };
 
-    useEffect(() => {
-        const debounce = setTimeout(() => {
-            _fetchNhomDongHo();
-        }, 500);
+    if (!fetchedRef.current) {
+        _fetchNhomDongHo();
+        fetchedRef.current = true;
+    }
 
-        return () => clearTimeout(debounce);
-    }, [filterForm]);
+    useEffect(() => {
+        const filteredData = rootData.current ? [...rootData.current].filter(_ndh => {
+            // Trim filter values once to avoid repeated operations
+            const trimmedFilters = {
+                ten_dong_ho: filterForm.ten_dong_ho?.trim().toLowerCase() || '',
+                ten_khach_hang: filterForm.ten_khach_hang?.trim().toLowerCase() || '',
+                nguoi_kiem_dinh: filterForm.nguoi_kiem_dinh?.trim().toLowerCase() || '',
+            };
+
+            // Skip filtering if all filter values are empty
+            if (!Object.values(trimmedFilters).some(value => value !== '') &&
+                !filterForm.ngay_kiem_dinh_from &&
+                !filterForm.ngay_kiem_dinh_to) {
+                return true;
+            }
+
+            const isSoGiayChungNhanMatch = !trimmedFilters.ten_dong_ho ||
+                (_ndh.ten_dong_ho?.trim().toLowerCase() || '').includes(trimmedFilters.ten_dong_ho);
+
+            const isTenKhachHangMatch = !trimmedFilters.ten_khach_hang ||
+                (_ndh.ten_khach_hang?.trim().toLowerCase() || '').includes(trimmedFilters.ten_khach_hang);
+
+            const isNguoiKiemDinhMatch = !trimmedFilters.nguoi_kiem_dinh ||
+                (_ndh.nguoi_kiem_dinh?.trim().toLowerCase() || '').includes(trimmedFilters.nguoi_kiem_dinh);
+
+            const isNgayKiemDinhFromMatch = !filterForm.ngay_kiem_dinh_from ||
+                (_ndh.ngay_thuc_hien && new Date(_ndh.ngay_thuc_hien) >= new Date(filterForm.ngay_kiem_dinh_from));
+
+            const isNgayKiemDinhToMatch = !filterForm.ngay_kiem_dinh_to ||
+                (_ndh.ngay_thuc_hien && new Date(_ndh.ngay_thuc_hien) <= new Date(filterForm.ngay_kiem_dinh_to));
+
+
+            return isSoGiayChungNhanMatch &&
+                isTenKhachHangMatch &&
+                isNguoiKiemDinhMatch &&
+                isNgayKiemDinhFromMatch &&
+                isNgayKiemDinhToMatch
+        }) : [];
+
+        setRootData(filteredData);
+    }, [filterForm, rootData]);
 
     const handleFilterChange = (key: keyof NhomDongHoFilterParameters, value: any) => {
         setFilterForm(prevForm => ({
@@ -193,6 +235,7 @@ export default function NhomDongHoNuocManagement({ className, isAuthorizing, set
             ngay_kiem_dinh_to: null
         });
         setSelectedTenDHOption("");
+        _fetchNhomDongHo();
     }
 
     const handleUpdatePaymentStatus = (group_id: string, current_payment_status: boolean) => {
@@ -226,7 +269,7 @@ export default function NhomDongHoNuocManagement({ className, isAuthorizing, set
     //     setCurrentPage(newPage);
     // };
 
-    // const paginatedData = rootData ? rootData.slice((currentPage - 1) * limit, currentPage * limit) : [];
+    // const paginatedData = data ? data.slice((currentPage - 1) * limit, currentPage * limit) : [];
 
     return (
         <LocalizationProvider dateAdapter={AdapterDayjs} localeText={viVN.components.MuiLocalizationProvider.defaultProps.localeText}>
@@ -250,7 +293,7 @@ export default function NhomDongHoNuocManagement({ className, isAuthorizing, set
                             </label>
                         </div> */}
 
-                            <div className="col-12 mb-3 col-md-6 col-xl-4 d-flex">
+                            <div className="col-12 col-sm-6 mb-3 col-lg-4 d-flex">
                                 <label className={`${c_vfml['form-label']}`} htmlFor="ten_dong_ho">
                                     Tên đồng hồ:
                                     <Select
@@ -315,7 +358,7 @@ export default function NhomDongHoNuocManagement({ className, isAuthorizing, set
                                     />
                                 </label>
                             </div>
-                            <div className="col-12 mb-3 col-md-6 col-xl-4">
+                            <div className="col-12 col-sm-6 mb-3 col-lg-4">
                                 <label className={`${c_vfml['form-label']}`} htmlFor="ten_khach_hang">
                                     Tên khách hàng:
                                     <input
@@ -328,20 +371,7 @@ export default function NhomDongHoNuocManagement({ className, isAuthorizing, set
                                     />
                                 </label>
                             </div>
-                            <div className="col-12 mb-3 col-md-6 col-xl-4">
-                                <label className={`${c_vfml['form-label']}`} htmlFor="nguoi_kiem_dinh">
-                                    Người kiểm định:
-                                    <input
-                                        type="text"
-                                        id="nguoi_kiem_dinh"
-                                        className="form-control"
-                                        placeholder="Nhập tên người kiểm định"
-                                        value={filterForm.nguoi_kiem_dinh}
-                                        onChange={(e) => handleFilterChange('nguoi_kiem_dinh', e.target.value)}
-                                    />
-                                </label>
-                            </div>
-                            {/* <div className={`col-12 col-md-6 col-xl-4 mb-3 m-0 p-0 row`}>
+                            {/* <div className={`col-12 col-sm-6 col-md-6 col-lg-4 mb-3 m-0 p-0 row`}>
                                 <label className={`${c_vfml['form-label']}`}>
                                     Số lượng bản ghi:
                                     <Select
@@ -383,12 +413,25 @@ export default function NhomDongHoNuocManagement({ className, isAuthorizing, set
                                 </label>
                             </div> */}
 
-                            <div className={`col-12 col-xl-8 mb-3 m-0 row p-0 ${c_vfml['search-created-date']}`}>
+                            <div className="col-12 col-sm-6 mb-3 col-lg-4 d-none d-lg-flex">
+                                <label className={`${c_vfml['form-label']}`} htmlFor="nguoi_kiem_dinh">
+                                    Người kiểm định:
+                                    <input
+                                        type="text"
+                                        id="nguoi_kiem_dinh"
+                                        className="form-control"
+                                        placeholder="Nhập tên người kiểm định"
+                                        value={filterForm.nguoi_kiem_dinh}
+                                        onChange={(e) => handleFilterChange('nguoi_kiem_dinh', e.target.value)}
+                                    />
+                                </label>
+                            </div>
+                            <div className={`col-12 col-lg-8 mb-3 m-0 row p-0 ${c_vfml['search-created-date']}`}>
                                 <label className={`${c_vfml['form-label']} col-12`}>
                                     Ngày kiểm định:
                                 </label>
                                 <div className={`col-12 row m-0 mt-2 p-0 ${c_vfml['pick-created-date']}`}>
-                                    <div className={`col-12 col-md-6 mb-3 mb-md-0 ${c_vfml['picker-field']}`}>
+                                    <div className={`col-12 col-sm-6 mb-3 mb-sm-0 ${c_vfml['picker-field']}`}>
                                         <label>Từ:</label>
 
                                         <DatePicker
@@ -402,7 +445,7 @@ export default function NhomDongHoNuocManagement({ className, isAuthorizing, set
                                         />
                                     </div>
 
-                                    <div className={`col-12 col-md-6 ${c_vfml['picker-field']}`}>
+                                    <div className={`col-12 col-sm-6 ${c_vfml['picker-field']}`}>
                                         <label>Đến:</label>
                                         <DatePicker
                                             className={`${c_vfml['date-picker']}`}
@@ -417,17 +460,32 @@ export default function NhomDongHoNuocManagement({ className, isAuthorizing, set
                                     </div>
                                 </div>
                             </div>
+                            <div className="col-12 col-sm-6 mb-3 col-lg-4 d-lg-none">
+                                <label className={`${c_vfml['form-label']}`} htmlFor="nguoi_kiem_dinh">
+                                    Người kiểm định:
+                                    <input
+                                        type="text"
+                                        id="nguoi_kiem_dinh"
+                                        className="form-control"
+                                        placeholder="Nhập tên người kiểm định"
+                                        value={filterForm.nguoi_kiem_dinh}
+                                        onChange={(e) => handleFilterChange('nguoi_kiem_dinh', e.target.value)}
+                                    />
+                                </label>
+                            </div>
 
-                            <div className={`col-12 m-0 my-2 d-flex align-items-center justify-content-between`}>
+                            <div className={`col-12 col-sm-6 col-lg-4 align-items-end pb-2 m-0 my-2 d-flex justify-content-between`}>
                                 <button aria-label="Làm mới" type="button" className={`btn bg-main-blue text-white`} onClick={handleResetFilter}>
                                     Làm mới
                                 </button>
-                                <Link
+                                {!isAuthorizing && <Link
+                                    style={{ minHeight: "42px" }}
                                     href={ACCESS_LINKS.DHN_ADD.src}
                                     className="btn bg-main-green text-white"
                                 >
                                     Thêm mới
-                                </Link>
+                                </Link>}
+
                             </div>
                         </div>
                     </div>
@@ -436,7 +494,7 @@ export default function NhomDongHoNuocManagement({ className, isAuthorizing, set
                         {filterLoading && <Loading />}
                         <div className={`m-0 p-0 w-100 w-100 position-relative ${c_vfml['wrap-process-table']}`}>
                             {/* {paginatedData.length > 0 ? ( */}
-                            {rootData && rootData.length > 0 ? (
+                            {data && data.length > 0 ? (
                                 <table className={`table table-striped table-bordered table-hover ${c_vfml['process-table']}`}>
                                     <thead>
                                         <tr className={`${c_vfml['table-header']}`}>
@@ -472,34 +530,34 @@ export default function NhomDongHoNuocManagement({ className, isAuthorizing, set
                                                     )}
                                                 </div>
                                             </th>
-                                            {!isAuthorizing && <>
-                                                <th onClick={() => sortData('ten_khach_hang')}>
-                                                    <div className={`${c_vfml['table-label']}`}>
-                                                        <span>
-                                                            Tên khách hàng
-                                                        </span>
-                                                        {sortConfig && sortConfig.key === 'ten_khach_hang' && sortConfig.direction === 'asc' && (
-                                                            <FontAwesomeIcon icon={faChevronDown}></FontAwesomeIcon>
-                                                        )}
-                                                        {sortConfig && sortConfig.key === 'ten_khach_hang' && sortConfig.direction === 'desc' && (
-                                                            <FontAwesomeIcon icon={faChevronUp}></FontAwesomeIcon>
-                                                        )}
-                                                    </div>
-                                                </th>
-                                                <th onClick={() => sortData('nguoi_kiem_dinh')}>
-                                                    <div className={`${c_vfml['table-label']}`}>
-                                                        <span>
-                                                            Người kiểm định
-                                                        </span>
-                                                        {sortConfig && sortConfig.key === 'nguoi_kiem_dinh' && sortConfig.direction === 'asc' && (
-                                                            <FontAwesomeIcon icon={faChevronDown}></FontAwesomeIcon>
-                                                        )}
-                                                        {sortConfig && sortConfig.key === 'nguoi_kiem_dinh' && sortConfig.direction === 'desc' && (
-                                                            <FontAwesomeIcon icon={faChevronUp}></FontAwesomeIcon>
-                                                        )}
-                                                    </div>
-                                                </th>
-                                            </>}
+                                            {/* {!isAuthorizing && <> */}
+                                            <th onClick={() => sortData('ten_khach_hang')}>
+                                                <div className={`${c_vfml['table-label']}`}>
+                                                    <span>
+                                                        Tên khách hàng
+                                                    </span>
+                                                    {sortConfig && sortConfig.key === 'ten_khach_hang' && sortConfig.direction === 'asc' && (
+                                                        <FontAwesomeIcon icon={faChevronDown}></FontAwesomeIcon>
+                                                    )}
+                                                    {sortConfig && sortConfig.key === 'ten_khach_hang' && sortConfig.direction === 'desc' && (
+                                                        <FontAwesomeIcon icon={faChevronUp}></FontAwesomeIcon>
+                                                    )}
+                                                </div>
+                                            </th>
+                                            <th onClick={() => sortData('nguoi_kiem_dinh')}>
+                                                <div className={`${c_vfml['table-label']}`}>
+                                                    <span>
+                                                        Người kiểm định
+                                                    </span>
+                                                    {sortConfig && sortConfig.key === 'nguoi_kiem_dinh' && sortConfig.direction === 'asc' && (
+                                                        <FontAwesomeIcon icon={faChevronDown}></FontAwesomeIcon>
+                                                    )}
+                                                    {sortConfig && sortConfig.key === 'nguoi_kiem_dinh' && sortConfig.direction === 'desc' && (
+                                                        <FontAwesomeIcon icon={faChevronUp}></FontAwesomeIcon>
+                                                    )}
+                                                </div>
+                                            </th>
+                                            {/* </>} */}
                                             <th onClick={() => sortData('ngay_thuc_hien')}>
                                                 <div className={`${c_vfml['table-label']}`}>
                                                     <span>
@@ -524,22 +582,25 @@ export default function NhomDongHoNuocManagement({ className, isAuthorizing, set
                                     </thead>
                                     <tbody>
                                         {/* {paginatedData.map((item, index) => ( */}
-                                        {rootData.map((item, index) => {
+                                        {data.map((item, index) => {
                                             const redirectLink = `${ACCESS_LINKS.DHN_DETAIL_NDH.src}/${item.group_id}`;
+
+                                            let handleClick = () => !isAuthorizing ? window.open(redirectLink) : setSelectedGroupId?.(item.group_id);
+
                                             return (
                                                 <tr
                                                     key={index}
                                                     style={{ cursor: 'pointer' }}
                                                 >
-                                                    <td onClick={() => window.open(redirectLink)} className="text-center">{rootData.indexOf(item) + 1}</td>
-                                                    <td onClick={() => window.open(redirectLink)}>{item.group_id}</td>
-                                                    <td onClick={() => window.open(redirectLink)}>{item.ten_dong_ho}</td>
-                                                    <td onClick={() => window.open(redirectLink)}>{item.so_luong}</td>
-                                                    {!isAuthorizing && <>
-                                                        <td onClick={() => window.open(redirectLink)}>{item.ten_khach_hang}</td>
-                                                        <td onClick={() => window.open(redirectLink)}>{item.nguoi_kiem_dinh}</td>
-                                                    </>}
-                                                    <td onClick={() => window.open(redirectLink)}>{dayjs(item.ngay_thuc_hien).format('DD-MM-YYYY')}</td>
+                                                    <td onClick={handleClick} className="text-center">{data.indexOf(item) + 1}</td>
+                                                    <td onClick={handleClick}>{item.group_id}</td>
+                                                    <td onClick={handleClick}>{item.ten_dong_ho}</td>
+                                                    <td onClick={handleClick}>{item.so_luong}</td>
+                                                    {/* {!isAuthorizing && <> */}
+                                                    <td onClick={handleClick}>{item.ten_khach_hang}</td>
+                                                    <td onClick={handleClick}>{item.nguoi_kiem_dinh}</td>
+                                                    {/* </>} */}
+                                                    <td onClick={handleClick}>{dayjs(item.ngay_thuc_hien).format('DD-MM-YYYY')}</td>
                                                     {(isAdmin && !isAuthorizing) && <td>
                                                         <div className="w-100 d-flex justify-content-center" onClick={() => handleUpdatePaymentStatus(item?.group_id || "", item?.is_paid ?? false)}>
                                                             <Form.Check

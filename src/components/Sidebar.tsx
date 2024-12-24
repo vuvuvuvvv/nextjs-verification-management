@@ -111,12 +111,12 @@ export default function Sidebar({
     className,
     title
 }: SidebarProps) {
-    const { isStaff } = useUser();
+    const { isManager } = useUser();
     const [show, setShow] = useState(false);
     const sidebarRef = useRef<HTMLDivElement>(null);
     const [collapseState, setCollapseState] = useState<CollapseState>({});
     const pathname = usePathname();
-    // const sideLinks = !isStaff ? [...siteSideLinks, ...adminSideLinks] : siteSideLinks;
+    // const sideLinks = !isManager ? [...siteSideLinks, ...adminSideLinks] : siteSideLinks;
     const sideLinks = [...siteSideLinks, ...adminSideLinks];
 
     const toggleOpen = () => {

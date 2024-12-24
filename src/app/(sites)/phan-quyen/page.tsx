@@ -10,31 +10,24 @@ import { useEffect, useRef, useState } from "react";
 import { DongHo } from "@lib/types";
 import Swal from "sweetalert2";
 import NavTab from "@/components/ui/NavTab";
-import { getNhomDongHoByGroupId } from "@/app/api/dongho/route";
+import { getDongHoByGroupId } from "@/app/api/dongho/route";
+import React from "react";
 
-export default function PhanQuyenPage() {
+const PhanQuyenPage = React.memo(() => {
     const [dongHoSelected, setDongHo] = useState<DongHo | null>(null);
     const [groupIdSelected, setGroupId] = useState<string | null>(null);
     const [error, setError] = useState("");
     const [loading, setLoading] = useState<boolean>(true);
     const [dataListDongHo, setDataListDongHo] = useState<DongHo[]>([]);
-    const [isMounted, setIsMounted] = useState(false);
-
-    useEffect(() => {
-        setIsMounted(true);
-        return () => setIsMounted(false);
-    }, []);
 
     const fetchData = async (groupId: string) => {
-        if (isMounted) {
-            try {
-                const res = await getNhomDongHoByGroupId(groupId);
-                setDataListDongHo(res?.data || []);
-            } catch (error) {
-                console.error("Error fetching data:", error);
-            } finally {
-                setLoading(false);
-            }
+        try {
+            const res = await getDongHoByGroupId(groupId);
+            setDataListDongHo(res?.data || []);
+        } catch (error) {
+            console.error("Error fetching data:", error);
+        } finally {
+            setLoading(false);
         }
     };
 
@@ -44,14 +37,24 @@ export default function PhanQuyenPage() {
         }
     }, [groupIdSelected])
 
+    const clearNDHData = () => {
+        setDataListDongHo([]);
+        setGroupId("");
+    }
+
     const tabContent = [
-        dataListDongHo.length == 0 ? {
+        {
             title: "Phần quyền nhóm",
-            content: <NhomDongHoNuocManagement setSelectedGroupId={setGroupId} isAuthorizing={true} />
-        } : { title: null, content: null },
+            content: <>
+                {dataListDongHo.length > 0 ?
+                    <WaterMeterManagement dataList={dataListDongHo} clearNDHPropData={clearNDHData} setSelectedDongHo={setDongHo} isAuthorizing={true} /> :
+                    <NhomDongHoNuocManagement setSelectedGroupId={setGroupId} isAuthorizing={true} />
+                }
+            </>
+        },
         {
             title: "Phần quyền đồng hồ",
-            content: <WaterMeterManagement dataList={dataListDongHo} setDataList={setDataListDongHo} setSelectedDongHo={setDongHo} isAuthorizing={true} />
+            content: <WaterMeterManagement setSelectedDongHo={setDongHo} isAuthorizing={true} />
         }
     ]
     // Func: Set err
@@ -83,11 +86,10 @@ export default function PhanQuyenPage() {
         }
     }, [error]);
 
-
-
     return <div className={`w-100 p-3 position-relative`} style={{ minHeight: "80vh" }}>
         <DongHoPermissionsManagement className={dongHoSelected ? "show" : "d-none"} dongHoSelected={dongHoSelected} setSelectedDongHo={setDongHo} />
 
         <NavTab tabContent={tabContent} className={`${dongHoSelected ? "d-none" : ""} bg-white`} />
     </div>
-}
+});
+export default PhanQuyenPage;
