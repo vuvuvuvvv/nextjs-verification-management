@@ -55,7 +55,7 @@ const TableDongHoInfo: React.FC<TableDongHoInfoProps> = React.memo(({
             const updatedDongHoList = [...dongHoList];
             updatedDongHoList[index].hieu_luc_bien_ban = dayjs(value, 'DD-MM-YYYY').isValid() ? dayjs(value, 'DD-MM-YYYY').toDate() : null;
             setDongHoList(updatedDongHoList);
-        } else if (field != "k_factor") {
+        } else if (!["k_factor", "seri_chi_thi"].includes(field)) {
             if (debounceTimeout) {
                 clearTimeout(debounceTimeout);
             }

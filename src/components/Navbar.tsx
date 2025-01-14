@@ -15,8 +15,7 @@ import {
     faKey,
     faMailBulk,
     faSignOut,
-    faUser,
-    faUsersCog
+    faUser
 }
     from '@fortawesome/free-solid-svg-icons';
 import Link from "next/link";
@@ -59,15 +58,12 @@ const Navbar: React.FC<NavbarProps> = ({ className, title = "Trang kiểm địn
 
                             <div className={`${layout['dD_menu']} dropdown-menu border-0 shadow-sm`}>
                                 <div className={`${layout['dD_profile']}`}>
-                                    <div className={`${layout['box-avt']}`}>
-                                        <img src="/images/logo.png" alt="Kiểm định DHT" />
-                                    </div>
                                     <div className={`${layout['box-info']}`}>
                                         <table>
                                             <tbody>
                                                 {user?.fullname && 
                                                 <tr className="d-sm-none">
-                                                    <th>Name:</th>
+                                                    <th>Tên:</th>
                                                     <td>
                                                         <span className={`${layout['b_name']}`}>{user?.fullname}</span>
                                                     </td>
@@ -81,7 +77,7 @@ const Navbar: React.FC<NavbarProps> = ({ className, title = "Trang kiểm địn
                                                 </tr>
                                                 }
                                                 {user?.username && <tr>
-                                                    <th>Username:</th>
+                                                    <th>Tài khoản:</th>
                                                     <td>
                                                         <span className={`${layout['b_username']}`}>{user?.username}</span>
                                                     </td>
@@ -89,7 +85,7 @@ const Navbar: React.FC<NavbarProps> = ({ className, title = "Trang kiểm địn
                                                 }
                                                 {user?.role &&
                                                     <tr>
-                                                        <th>Role:</th>
+                                                        <th>Vai trò:</th>
                                                         <td>
                                                             <span className={`${layout['b_role']}`}>{getNameOfRole(user?.role)}</span></td>
                                                     </tr>

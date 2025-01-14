@@ -10,7 +10,7 @@ import dayjs, { Dayjs } from "dayjs";
 import { viVN } from "@mui/x-date-pickers/locales";
 
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faChevronDown, faChevronUp, faCircleArrowRight, faEdit } from "@fortawesome/free-solid-svg-icons";
+import { faChevronDown, faChevronUp, faCircleArrowRight, faEdit, faRefresh, faSearch } from "@fortawesome/free-solid-svg-icons";
 import React from "react";
 
 import Select, { GroupBase } from 'react-select';
@@ -36,7 +36,7 @@ interface NhomDongHoNuocManagementProps {
 }
 
 export default function NhomDongHoNuocManagement({ className, isAuthorizing, setSelectedGroupId }: NhomDongHoNuocManagementProps) {
-    const { user, isAdmin, isSuperAdmin } = useUser();
+    const { user, isAdmin, isSuperAdmin, isViewer } = useUser();
     const [data, setRootData] = useState<NhomDongHo[]>([]);
     const rootData = useRef<NhomDongHo[]>([]);
 
@@ -156,7 +156,7 @@ export default function NhomDongHoNuocManagement({ className, isAuthorizing, set
     const _fetchNhomDongHo = async () => {
         setFilterLoading(true);
         try {
-            const res = await getNhomDongHoByFilter(filterForm, (isSuperAdmin ? !isAuthorizing : isAuthorizing), (isAuthorizing ? (user?.username || "") : ""));
+            const res = await getNhomDongHoByFilter(filterForm, !isSuperAdmin, (!isSuperAdmin ? (user?.username || "") : ""));
             if (res.status === 200 || res.status === 201) {
                 setRootData(res.data);
                 rootData.current = res.data;
@@ -475,10 +475,15 @@ export default function NhomDongHoNuocManagement({ className, isAuthorizing, set
                             </div>
 
                             <div className={`col-12 col-sm-6 col-lg-4 align-items-end pb-2 m-0 my-2 d-flex justify-content-between`}>
-                                <button aria-label="Làm mới" type="button" className={`btn bg-main-blue text-white`} onClick={handleResetFilter}>
-                                    Làm mới
-                                </button>
-                                {!isAuthorizing && <Link
+                                <div className="d-flex gap-2">
+                                    <button aria-label="Tìm kiếm" type="button" className={`btn bg-main-blue text-white`} onClick={handleResetFilter}>
+                                        <FontAwesomeIcon icon={faSearch}></FontAwesomeIcon> Tìm
+                                    </button>
+                                    <button aria-label="Làm mới" type="button" className={`btn bg-grey text-white`} onClick={handleResetFilter}>
+                                        <FontAwesomeIcon icon={faRefresh}></FontAwesomeIcon>
+                                    </button>
+                                </div>
+                                {!isViewer && !isAuthorizing && <Link
                                     style={{ minHeight: "42px" }}
                                     href={ACCESS_LINKS.DHN_ADD.src}
                                     className="btn bg-main-green text-white"
@@ -572,11 +577,11 @@ export default function NhomDongHoNuocManagement({ className, isAuthorizing, set
                                                 </div>
                                             </th>
 
-                                            {(isAdmin && !isAuthorizing) && <th>
+                                            {/* {(isAdmin && !isAuthorizing) && <th>
                                                 <div className={`${c_vfml['table-label']} p-0`} style={{ minWidth: "96px" }}>
                                                     Đã thu tiền
                                                 </div>
-                                            </th>}
+                                            </th>} */}
                                             <th></th>
                                         </tr>
                                     </thead>
@@ -601,7 +606,7 @@ export default function NhomDongHoNuocManagement({ className, isAuthorizing, set
                                                     <td onClick={handleClick}>{item.nguoi_kiem_dinh}</td>
                                                     {/* </>} */}
                                                     <td onClick={handleClick}>{dayjs(item.ngay_thuc_hien).format('DD-MM-YYYY')}</td>
-                                                    {(isAdmin && !isAuthorizing) && <td>
+                                                    {/* {(isAdmin && !isAuthorizing) && <td>
                                                         <div className="w-100 d-flex justify-content-center" onClick={() => handleUpdatePaymentStatus(item?.group_id || "", item?.is_paid ?? false)}>
                                                             <Form.Check
                                                                 type="checkbox"
@@ -614,7 +619,7 @@ export default function NhomDongHoNuocManagement({ className, isAuthorizing, set
                                                                 onChange={() => handleUpdatePaymentStatus(item?.group_id || "", item?.is_paid ?? false)}
                                                             />
                                                         </div>
-                                                    </td>}
+                                                    </td>} */}
 
                                                     {!isAuthorizing ?
                                                         <td

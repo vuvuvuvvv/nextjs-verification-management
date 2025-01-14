@@ -14,13 +14,13 @@ export default function VerifyPage({ params }: { params: { token: string } }) {
 
     const handleVerify = async () => {
         if (!fetchedRef.current) {
-            console.log(`Bearer ${params.token}`);
             try {
                 const response = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/auth/verify`, {}, {
                     headers: {
                         Authorization: `Bearer ${params.token}`
                     }
                 });
+                console.log(response);
                 if (response?.status == 200 || response?.status == 201) {
                     const user = response?.data.user;
                     if (user) {

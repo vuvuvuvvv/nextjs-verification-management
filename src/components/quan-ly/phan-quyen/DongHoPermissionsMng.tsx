@@ -232,7 +232,7 @@ export default function DongHoPermissionsManagement({ className, dongHoSelected,
                         <label className={`${c_vfml['form-label']}`} htmlFor="role">
                             Vai trò:
                             <Select
-                                options={getAvailableRolesOptions() as unknown as readonly GroupBase<never>[]}
+                                options={getAvailableRolesOptions(null) as unknown as readonly GroupBase<never>[]}
                                 className="basic-multi-select mt-2"
                                 placeholder="--"
                                 classNamePrefix="select"
@@ -273,11 +273,11 @@ export default function DongHoPermissionsManagement({ className, dongHoSelected,
                                     indicatorsContainer: (provided) => ({
                                         ...provided,
                                         height: '42px',
-                                        display: getAvailableRolesOptions().length == 0 ? "none" : "flex",
+                                        display: getAvailableRolesOptions(null).length == 0 ? "none" : "flex",
                                     }),
                                     menu: (provided) => ({
                                         ...provided,
-                                        display: getAvailableRolesOptions().length == 0 ? "none" : "",
+                                        display: getAvailableRolesOptions(null).length == 0 ? "none" : "",
                                         maxHeight: "250px",
                                         zIndex: 777
                                     }),

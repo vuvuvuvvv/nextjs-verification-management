@@ -10,10 +10,11 @@ import dayjs, { Dayjs } from "dayjs";
 import { viVN } from "@mui/x-date-pickers/locales";
 
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faChevronDown, faChevronUp, faEdit, faCircleArrowRight, faArrowLeft } from "@fortawesome/free-solid-svg-icons";
+import { faChevronDown, faChevronUp, faEdit, faCircleArrowRight, faArrowLeft, faSearch, faRefresh } from "@fortawesome/free-solid-svg-icons";
 import React from "react";
 import { DongHo, DongHoFilterParameters, DongHoPermission, DuLieuChayDongHo } from "@lib/types";
 
+import Pagination from "@/components/Pagination";
 // import { usePathname } from "next/navigation";
 import Link from "next/link";
 
@@ -41,12 +42,12 @@ interface WaterMeterManagementProps {
 }
 
 export default function WaterMeterManagement({ className, isBiggerThan15 = false, isAuthorizing = false, setSelectedDongHo, clearNDHPropData, dataList = [] }: WaterMeterManagementProps) {
-    const { user, isSuperAdmin, getCurrentRole } = useUser();
+    const { user, isViewer, isSuperAdmin, getCurrentRole } = useUser();
     const [data, setRootData] = useState<DongHo[]>([]);
     const rootData = useRef<DongHo[]>([]);
     const [filterLoading, setFilterLoading] = useState(true);
     const [sortConfig, setSortConfig] = useState<{ key: string, direction: 'asc' | 'desc' | 'default' } | null>(null);
-    // const [limit, setLimit] = useState(10);
+    const [limit, setLimit] = useState(10);
     const [error, setError] = useState("");
     const fetchedRef = useRef(false);
     const isEditing = useRef<boolean>(false);
@@ -94,23 +95,17 @@ export default function WaterMeterManagement({ className, isBiggerThan15 = false
         ten_khach_hang: "",
         status: "",
         ngay_kiem_dinh_from: null,
-        ngay_kiem_dinh_to: null
+        ngay_kiem_dinh_to: null,
+        limit: limit
     });
-    // const [currentPage, setCurrentPage] = useState(1);
+    const [currentPage, setCurrentPage] = useState(1);
 
-    // const resetTotalPage = () => {
-    //     setCurrentPage(1);
-    //     if (!data || data.length <= limit) {
-    //         return 1;
-    //     }
-    //     return Math.ceil(data.length / limit);
-    // }
+    const [totalPage, setTotalPage] = useState(1);
+    const totalPageRef = useRef(totalPage);
 
-    // const [totalPage, setTotalPage] = useState(resetTotalPage);
-
-    // useEffect(() => {
-    //     setTotalPage(resetTotalPage);
-    // }, [data, limit])
+    useEffect(() => {
+        // setTotalPage(resetTotalPage);
+    }, [data, limit])
 
     const sortData = useCallback((key: keyof DongHo) => {
         if (!filterLoading) {
@@ -144,16 +139,23 @@ export default function WaterMeterManagement({ className, isBiggerThan15 = false
     }, [data, sortConfig, filterLoading]);
 
     const fetchDongHo = async () => {
+        console.log("dat");
         if (dataList.length > 0) {
             setRootData(dataList);
             rootData.current = dataList;
             setFilterLoading(false);
         } else {
             try {
-                const res = await getDongHoByFilter(filterForm, (isSuperAdmin ? !isAuthorizing : isAuthorizing), (isAuthorizing ? (user?.username || "") : ""));
+                const res = await getDongHoByFilter(filterForm, !isSuperAdmin, (!isSuperAdmin ? (user?.username || "") : ""));
                 if (res.status === 200 || res.status === 201) {
-                    setRootData(res.data);
-                    rootData.current = res.data;
+                    console.log(res.data);
+                    setRootData(res.data.donghos || []);
+                    if (totalPageRef.current != res.data.total_page) {
+                        console.log("11111111111");
+                        setTotalPage(res.data.total_page)
+                        totalPageRef.current = res.data.total_page;
+                    }
+                    rootData.current = res.data.donghos || [];
                 } else {
                     console.error(res.msg);
                     setError("Có lỗi đã xảy ra!");
@@ -240,7 +242,9 @@ export default function WaterMeterManagement({ className, isBiggerThan15 = false
             ten_khach_hang: "",
             status: "",
             ngay_kiem_dinh_from: null,
-            ngay_kiem_dinh_to: null
+            ngay_kiem_dinh_to: null,
+            last_seen_id: "",
+            limit: limit
         });
         fetchDongHo();
     }
@@ -254,11 +258,11 @@ export default function WaterMeterManagement({ className, isBiggerThan15 = false
         setIsShow(false);
     }
 
-    // const handlePageChange = (newPage: number) => {
-    //     setCurrentPage(newPage);
-    // };
+    const handlePageChange = (newPage: number) => {
+        setCurrentPage(newPage);
+    };
 
-    // const paginatedData = data ? data.slice((currentPage - 1) * limit, currentPage * limit) : [];
+    const paginatedData = data ? data.slice((currentPage - 1) * limit, currentPage * limit) : [];
 
     return (
         <LocalizationProvider dateAdapter={AdapterDayjs} localeText={viVN.components.MuiLocalizationProvider.defaultProps.localeText}>
@@ -289,7 +293,7 @@ export default function WaterMeterManagement({ className, isBiggerThan15 = false
                                     </label>
                                 </div> : <>
 
-                                    <div className="col-12 mb-3 col-md-6 col-xl-4 d-flex">
+                                    <div className="col-12 mb-3 col-md-6 col-lg-4 d-flex">
                                         <label className={`${c_vfml['form-label']}`} htmlFor="so_giay_chung_nhan">
                                             Số giấy chứng nhận:
                                             <input
@@ -302,7 +306,7 @@ export default function WaterMeterManagement({ className, isBiggerThan15 = false
                                             />
                                         </label>
                                     </div>
-                                    <div className="col-12 mb-3 col-md-6 col-xl-4">
+                                    <div className="col-12 mb-3 col-md-6 col-lg-4">
                                         <label className={`${c_vfml['form-label']}`} htmlFor="ten_khach_hang">
                                             Tên khách hàng:
                                             <input
@@ -315,7 +319,7 @@ export default function WaterMeterManagement({ className, isBiggerThan15 = false
                                             />
                                         </label>
                                     </div>
-                                    <div className="col-12 mb-3 col-md-6 col-xl-4">
+                                    <div className="col-12 d-md-none d-lg-flex mb-3 col-md-6 col-lg-4">
                                         <label className={`${c_vfml['form-label']}`} htmlFor="nguoi_kiem_dinh">
                                             Người kiểm định:
                                             <input
@@ -365,11 +369,31 @@ export default function WaterMeterManagement({ className, isBiggerThan15 = false
                                     </div>
                                 </div>
                             </div>
-                            <div className={`col-12 align-items-end pb-2 ${isAuthorizing ? "col-lg-12" : "col-lg-4"} m-0 my-2 d-flex justify-content-between`}>
-                                <button aria-label="Làm mới" type="button" className={`btn bg-main-blue text-white`} onClick={handleResetFilter}>
-                                    Làm mới
-                                </button>
-                                {!isAuthorizing &&
+                            {!isAuthorizing &&
+                                <div className="col-12 d-none d-md-flex d-lg-none mb-3 col-md-6 col-lg-4">
+                                    <label className={`${c_vfml['form-label']}`} htmlFor="nguoi_kiem_dinh">
+                                        Người kiểm định:
+                                        <input
+                                            type="text"
+                                            id="nguoi_kiem_dinh"
+                                            className="form-control"
+                                            placeholder="Nhập tên người kiểm định"
+                                            value={filterForm.nguoi_kiem_dinh}
+                                            onChange={(e) => handleFilterChange('nguoi_kiem_dinh', e.target.value)}
+                                        />
+                                    </label>
+                                </div>
+                            }
+                            <div className={`col-12 align-items-end pb-2 ${isAuthorizing ? "col-lg-12" : "col-md-6 col-lg-4"} m-0 my-2 d-flex justify-content-between`}>
+                                <div className="d-flex gap-2">
+                                    <button aria-label="Tìm kiếm" type="button" className={`btn bg-main-blue text-white`} onClick={handleResetFilter}>
+                                        <FontAwesomeIcon icon={faSearch}></FontAwesomeIcon> Tìm
+                                    </button>
+                                    <button aria-label="Làm mới" type="button" className={`btn bg-grey text-white`} onClick={handleResetFilter}>
+                                        <FontAwesomeIcon icon={faRefresh}></FontAwesomeIcon>
+                                    </button>
+                                </div>
+                                {!isViewer && !isAuthorizing &&
                                     <Link
                                         style={{ minHeight: "42px" }}
                                         href={ACCESS_LINKS.DHN_ADD.src}
@@ -496,7 +520,8 @@ export default function WaterMeterManagement({ className, isBiggerThan15 = false
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        {data.map((dongHo, index) => {
+                                        {/* {data.map((dongHo, index) => { */}
+                                        {paginatedData.map((dongHo, index) => {
                                             const duLieuKiemDinhJSON = dongHo.du_lieu_kiem_dinh;
                                             const duLieuKiemDinh = duLieuKiemDinhJSON ?
                                                 ((typeof duLieuKiemDinhJSON != 'string') ?
@@ -549,7 +574,7 @@ export default function WaterMeterManagement({ className, isBiggerThan15 = false
                             )}
                         </div>
                         <div className="w-100 m-0 p-3 d-flex align-items-center justify-content-center">
-                            {/* <Pagination currentPage={currentPage} totalPage={totalPage} handlePageChange={handlePageChange}></Pagination> */}
+                            <Pagination currentPage={currentPage} totalPage={totalPage} handlePageChange={handlePageChange}></Pagination>
                         </div>
                     </div>
                 </div>

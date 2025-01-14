@@ -33,7 +33,7 @@ interface PDMManagementProps {
 }
 
 export default function PDMManagement({ className, listDHNamesExist }: PDMManagementProps) {
-    const { isManager } = useUser();
+    const { isViewer } = useUser();
     const [rootData, setRootData] = useState<PDMData[]>([]);
     const [loading, setLoading] = useState(false);
     const [sortConfig, setSortConfig] = useState<{ key: string, direction: 'asc' | 'desc' | 'default' } | null>(null);
@@ -158,7 +158,7 @@ export default function PDMManagement({ className, listDHNamesExist }: PDMManage
             } finally {
                 setLoading(false);
             }
-        }, 500);
+        }, 1000);
 
         return () => clearTimeout(debounce);
 
@@ -455,13 +455,14 @@ export default function PDMManagement({ className, listDHNamesExist }: PDMManage
                                 <button aria-label="Làm mới" type="button" className={`btn bg-main-blue text-white`} onClick={handleResetFilter}>
                                     Làm mới
                                 </button>
-                                <Link
+                                {!isViewer && <Link
                                     aria-label="Thêm mới"
                                     href={ACCESS_LINKS.PDM_ADD.src}
-                                    className={`btn bg-main-green text-white ${!isManager ? "" : "d-none"}`}
+                                    className={`btn bg-main-green text-white`}
                                 >
                                     Thêm mới
-                                </Link>
+                                </Link>}
+
                             </div>
                         </div>
                     </div>
