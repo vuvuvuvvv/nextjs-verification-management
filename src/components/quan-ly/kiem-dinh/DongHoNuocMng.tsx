@@ -24,7 +24,7 @@ import {
 } from "@lib/system-constant";
 import Swal from "sweetalert2";
 import { getDongHoByFilter } from "@/app/api/dongho/route";
-import { getNameOfRole } from "@lib/system-function";
+import { decode, getNameOfRole } from "@lib/system-function";
 import { useUser } from "@/context/AppContext";
 import { Button } from "react-bootstrap";
 import ModalMultDongHoPermissionMng from "@/components/ui/ModalMultDongHoPermissionMng";
@@ -96,10 +96,13 @@ export default function WaterMeterManagement({ className, isBiggerThan15 = false
         status: "",
         ngay_kiem_dinh_from: null,
         ngay_kiem_dinh_to: null,
-        limit: limit
+        limit: limit,
+        last_seen_id: ""
     });
     const [currentPage, setCurrentPage] = useState(1);
 
+    const [totalRecords, setTotalRecords] = useState(0);
+    const totalRecordsRef = useRef(totalRecords);
     const [totalPage, setTotalPage] = useState(1);
     const totalPageRef = useRef(totalPage);
 
@@ -138,22 +141,28 @@ export default function WaterMeterManagement({ className, isBiggerThan15 = false
         }
     }, [data, sortConfig, filterLoading]);
 
-    const fetchDongHo = async () => {
-        console.log("dat");
+    const fetchDongHo = async (filterFormProps?: DongHoFilterParameters) => {
+        console.log(filterFormProps);
         if (dataList.length > 0) {
             setRootData(dataList);
             rootData.current = dataList;
             setFilterLoading(false);
         } else {
             try {
-                const res = await getDongHoByFilter(filterForm, !isSuperAdmin, (!isSuperAdmin ? (user?.username || "") : ""));
+                const res = await getDongHoByFilter(filterFormProps ? filterFormProps : filterForm, !isSuperAdmin, (!isSuperAdmin ? (user?.username || "") : ""));
                 if (res.status === 200 || res.status === 201) {
                     console.log(res.data);
                     setRootData(res.data.donghos || []);
                     if (totalPageRef.current != res.data.total_page) {
-                        console.log("11111111111");
                         setTotalPage(res.data.total_page)
                         totalPageRef.current = res.data.total_page;
+                    }
+                    if (totalRecordsRef.current != res.data.total_records) {
+                        setTotalRecords(res.data.total_records)
+                        totalRecordsRef.current = res.data.total_records;
+                    }
+                    if(filterFormProps) {
+                        setFilterForm(filterFormProps);
                     }
                     rootData.current = res.data.donghos || [];
                 } else {
@@ -174,56 +183,56 @@ export default function WaterMeterManagement({ className, isBiggerThan15 = false
         fetchedRef.current = true;
     }
 
-    useEffect(() => {
-        const filteredData = rootData.current ? [...rootData.current].filter(_per => {
-            // Trim filter values once to avoid repeated operations
-            const trimmedFilters = {
-                so_giay_chung_nhan: filterForm.so_giay_chung_nhan?.trim().toLowerCase() || '',
-                seri_sensor: filterForm.seri_sensor?.trim().toLowerCase() || '',
-                ten_khach_hang: filterForm.ten_khach_hang?.trim().toLowerCase() || '',
-                nguoi_kiem_dinh: filterForm.nguoi_kiem_dinh?.trim().toLowerCase() || '',
-                ccx: filterForm.ccx?.trim().toLowerCase() || '',
-            };
+    // useEffect(() => {
+    //     const filteredData = rootData.current ? [...rootData.current].filter(_per => {
+    //         // Trim filter values once to avoid repeated operations
+    //         const trimmedFilters = {
+    //             so_giay_chung_nhan: filterForm.so_giay_chung_nhan?.trim().toLowerCase() || '',
+    //             seri_sensor: filterForm.seri_sensor?.trim().toLowerCase() || '',
+    //             ten_khach_hang: filterForm.ten_khach_hang?.trim().toLowerCase() || '',
+    //             nguoi_kiem_dinh: filterForm.nguoi_kiem_dinh?.trim().toLowerCase() || '',
+    //             ccx: filterForm.ccx?.trim().toLowerCase() || '',
+    //         };
 
-            // Skip filtering if all filter values are empty
-            if (!Object.values(trimmedFilters).some(value => value !== '') &&
-                !filterForm.ngay_kiem_dinh_from &&
-                !filterForm.ngay_kiem_dinh_to) {
-                return true;
-            }
+    //         // Skip filtering if all filter values are empty
+    //         if (!Object.values(trimmedFilters).some(value => value !== '') &&
+    //             !filterForm.ngay_kiem_dinh_from &&
+    //             !filterForm.ngay_kiem_dinh_to) {
+    //             return true;
+    //         }
 
-            const isSoGiayChungNhanMatch = !trimmedFilters.so_giay_chung_nhan ||
-                (_per.so_giay_chung_nhan?.trim().toLowerCase() || '').includes(trimmedFilters.so_giay_chung_nhan);
+    //         const isSoGiayChungNhanMatch = !trimmedFilters.so_giay_chung_nhan ||
+    //             (_per.so_giay_chung_nhan?.trim().toLowerCase() || '').includes(trimmedFilters.so_giay_chung_nhan);
 
-            const isSeriSensorMatch = !trimmedFilters.seri_sensor ||
-                (_per.seri_sensor?.trim().toLowerCase() || '').includes(trimmedFilters.seri_sensor);
+    //         const isSeriSensorMatch = !trimmedFilters.seri_sensor ||
+    //             (_per.seri_sensor?.trim().toLowerCase() || '').includes(trimmedFilters.seri_sensor);
 
-            const isTenKhachHangMatch = !trimmedFilters.ten_khach_hang ||
-                (_per.ten_khach_hang?.trim().toLowerCase() || '').includes(trimmedFilters.ten_khach_hang);
+    //         const isTenKhachHangMatch = !trimmedFilters.ten_khach_hang ||
+    //             (_per.ten_khach_hang?.trim().toLowerCase() || '').includes(trimmedFilters.ten_khach_hang);
 
-            const isNguoiKiemDinhMatch = !trimmedFilters.nguoi_kiem_dinh ||
-                (_per.nguoi_kiem_dinh?.trim().toLowerCase() || '').includes(trimmedFilters.nguoi_kiem_dinh);
+    //         const isNguoiKiemDinhMatch = !trimmedFilters.nguoi_kiem_dinh ||
+    //             (_per.nguoi_kiem_dinh?.trim().toLowerCase() || '').includes(trimmedFilters.nguoi_kiem_dinh);
 
-            const isNgayKiemDinhFromMatch = !filterForm.ngay_kiem_dinh_from ||
-                (_per.ngay_thuc_hien && new Date(_per.ngay_thuc_hien) >= new Date(filterForm.ngay_kiem_dinh_from));
+    //         const isNgayKiemDinhFromMatch = !filterForm.ngay_kiem_dinh_from ||
+    //             (_per.ngay_thuc_hien && new Date(_per.ngay_thuc_hien) >= new Date(filterForm.ngay_kiem_dinh_from));
 
-            const isNgayKiemDinhToMatch = !filterForm.ngay_kiem_dinh_to ||
-                (_per.ngay_thuc_hien && new Date(_per.ngay_thuc_hien) <= new Date(filterForm.ngay_kiem_dinh_to));
+    //         const isNgayKiemDinhToMatch = !filterForm.ngay_kiem_dinh_to ||
+    //             (_per.ngay_thuc_hien && new Date(_per.ngay_thuc_hien) <= new Date(filterForm.ngay_kiem_dinh_to));
 
-            const isCcxMatch = !trimmedFilters.ccx ||
-                (_per.ccx?.trim().toLowerCase() || '').includes(trimmedFilters.ccx);
+    //         const isCcxMatch = !trimmedFilters.ccx ||
+    //             (_per.ccx?.trim().toLowerCase() || '').includes(trimmedFilters.ccx);
 
-            return isSoGiayChungNhanMatch &&
-                isSeriSensorMatch &&
-                isTenKhachHangMatch &&
-                isNguoiKiemDinhMatch &&
-                isNgayKiemDinhFromMatch &&
-                isNgayKiemDinhToMatch &&
-                isCcxMatch;
-        }) : [];
+    //         return isSoGiayChungNhanMatch &&
+    //             isSeriSensorMatch &&
+    //             isTenKhachHangMatch &&
+    //             isNguoiKiemDinhMatch &&
+    //             isNgayKiemDinhFromMatch &&
+    //             isNgayKiemDinhToMatch &&
+    //             isCcxMatch;
+    //     }) : [];
 
-        setRootData(filteredData);
-    }, [filterForm, rootData]);
+    //     setRootData(filteredData);
+    // }, [filterForm, rootData]);
 
     const handleFilterChange = (key: keyof DongHoFilterParameters, value: any) => {
         setFilterForm(prevForm => ({
@@ -233,7 +242,7 @@ export default function WaterMeterManagement({ className, isBiggerThan15 = false
     };
 
     const handleResetFilter = () => {
-        setFilterForm({
+        const blankFilterForm: DongHoFilterParameters = {
             so_giay_chung_nhan: "",
             seri_sensor: "",
             type: "",
@@ -244,9 +253,13 @@ export default function WaterMeterManagement({ className, isBiggerThan15 = false
             ngay_kiem_dinh_from: null,
             ngay_kiem_dinh_to: null,
             last_seen_id: "",
+            next_id_from: "",
+            prev_id_from: "",
             limit: limit
-        });
-        fetchDongHo();
+        };
+        setFilterForm(blankFilterForm);
+        fetchDongHo(blankFilterForm);
+        setCurrentPage(1);
     }
 
     const handleAddPermission = () => {
@@ -259,10 +272,27 @@ export default function WaterMeterManagement({ className, isBiggerThan15 = false
     }
 
     const handlePageChange = (newPage: number) => {
+        if (currentPage > newPage) {
+            const newFilterForm: DongHoFilterParameters = {
+                ...filterForm,
+                last_seen_id: "",
+                prev_id_from: data[0].id || "",
+                next_id_from: ""
+            }
+            fetchDongHo(newFilterForm);
+        } else if (currentPage < newPage) {
+            const newFilterForm: DongHoFilterParameters = {
+                ...filterForm,
+                last_seen_id: "",
+                prev_id_from: "",
+                next_id_from: data[data.length - 1].id || ""
+            }
+            fetchDongHo(newFilterForm);
+        }
         setCurrentPage(newPage);
     };
 
-    const paginatedData = data ? data.slice((currentPage - 1) * limit, currentPage * limit) : [];
+    const paginatedData = data || [];
 
     return (
         <LocalizationProvider dateAdapter={AdapterDayjs} localeText={viVN.components.MuiLocalizationProvider.defaultProps.localeText}>
@@ -292,7 +322,6 @@ export default function WaterMeterManagement({ className, isBiggerThan15 = false
                                         />
                                     </label>
                                 </div> : <>
-
                                     <div className="col-12 mb-3 col-md-6 col-lg-4 d-flex">
                                         <label className={`${c_vfml['form-label']}`} htmlFor="so_giay_chung_nhan">
                                             Số giấy chứng nhận:
@@ -386,7 +415,7 @@ export default function WaterMeterManagement({ className, isBiggerThan15 = false
                             }
                             <div className={`col-12 align-items-end pb-2 ${isAuthorizing ? "col-lg-12" : "col-md-6 col-lg-4"} m-0 my-2 d-flex justify-content-between`}>
                                 <div className="d-flex gap-2">
-                                    <button aria-label="Tìm kiếm" type="button" className={`btn bg-main-blue text-white`} onClick={handleResetFilter}>
+                                    <button aria-label="Tìm kiếm" type="button" className={`btn bg-main-blue text-white`} onClick={() => fetchDongHo(filterForm)}>
                                         <FontAwesomeIcon icon={faSearch}></FontAwesomeIcon> Tìm
                                     </button>
                                     <button aria-label="Làm mới" type="button" className={`btn bg-grey text-white`} onClick={handleResetFilter}>
@@ -433,7 +462,7 @@ export default function WaterMeterManagement({ className, isBiggerThan15 = false
                                     <thead>
                                         <tr className={`${c_vfml['table-header']}`}>
                                             <th className="text-center">
-                                                STT
+                                                ID
                                             </th>
                                             {isAuthorizing ?
                                                 <>
@@ -535,7 +564,7 @@ export default function WaterMeterManagement({ className, isBiggerThan15 = false
                                                     key={index}
                                                     style={{ cursor: 'pointer' }}
                                                 >
-                                                    <td className="text-center">{data.indexOf(dongHo) + 1}</td>
+                                                    <td className="text-center">{decode(dongHo.id || "")}</td>
                                                     {isAuthorizing ?
                                                         <>
                                                             <td onClick={() => setSelectedDongHo?.(dongHo)}>{dongHo.seri_sensor || "Không có serial sensor"}</td>
@@ -574,7 +603,7 @@ export default function WaterMeterManagement({ className, isBiggerThan15 = false
                             )}
                         </div>
                         <div className="w-100 m-0 p-3 d-flex align-items-center justify-content-center">
-                            <Pagination currentPage={currentPage} totalPage={totalPage} handlePageChange={handlePageChange}></Pagination>
+                            <Pagination currentPage={currentPage} totalPage={totalPage} totalRecords={totalRecords} handlePageChange={handlePageChange}></Pagination>
                         </div>
                     </div>
                 </div>

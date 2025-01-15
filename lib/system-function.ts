@@ -290,3 +290,10 @@ export function getAvailableRolesOptions(current_role: string | null): { value: 
         return Object.values(PERMISSIONS).map(r => ({ value: r, label: getNameOfRole(r) }));
     }
 }
+
+export function decode(encodedString: string): string {
+    if(!encodedString) {
+        return "";
+    }
+    return decodeURIComponent(escape(atob(encodedString)));
+}

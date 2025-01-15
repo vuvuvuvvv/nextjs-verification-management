@@ -268,7 +268,9 @@ export interface DongHoFilterParameters {
     ngay_kiem_dinh_from: Date | null;
     ngay_kiem_dinh_to: Date | null;
     limit: number;  // x
-    last_seen_id?: string; // p => limit x offset x * (p-1)
+    last_seen_id: string; // p => limit x offset x * (p-1)
+    next_id_from?: string; 
+    prev_id_from?: string; 
 }
 
 export interface NhomDongHo {

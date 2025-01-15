@@ -89,6 +89,14 @@ export const getDongHoByFilter = async (parameters?: DongHoFilterParameters, wit
             url.searchParams.append('last_seen_id', parameters.last_seen_id.toString());
         }
 
+        if (parameters?.next_id_from) {
+            url.searchParams.append('next_id_from', parameters.next_id_from.toString());
+        }
+
+        if (parameters?.prev_id_from) {
+            url.searchParams.append('prev_id_from', parameters.prev_id_from.toString());
+        }
+
         const response = await api.get(url.toString(), { withCredentials: true });
 
         return {
