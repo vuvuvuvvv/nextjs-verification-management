@@ -364,9 +364,9 @@ export default function AddNewPDM({ className }: AddNewPDMProps) {
                         setCanSave(false);
                     } else if (res.status == 404) {
                         setErrorMaTimDHPDM("")
+                        setCanSave(true);
                     } else {
                         setErrorMaTimDHPDM("Có lỗi xảy ra khi lấy mã tìm đồng hồ PDM!")
-                        setSoQDPDM("");
                     }
                 }, 500);
 

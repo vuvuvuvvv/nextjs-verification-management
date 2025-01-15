@@ -72,7 +72,6 @@ api.interceptors.response.use(
                     resolve(axios(originalRequest));
                 }).catch((err) => {
                     processQueue(err, null);
-                    logout();
                     reject(err);
                 }).finally(() => {
                     isRefreshing = false;

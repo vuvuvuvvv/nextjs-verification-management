@@ -4,20 +4,16 @@ import ui_vfm from "@styles/scss/ui/vfm.module.scss"
 
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { viVN } from "@mui/x-date-pickers/locales";
-const FontAwesomeIcon = dynamic(() => import('@fortawesome/react-fontawesome').then(mod => mod.FontAwesomeIcon), { ssr: false });
-const LocalizationProvider = dynamic(() => import('@mui/x-date-pickers/LocalizationProvider').then(mod => mod.LocalizationProvider), { ssr: false });
-const DatePicker = dynamic(() => import('@mui/x-date-pickers/DatePicker').then(mod => mod.DatePicker), { ssr: false });
-const NavTab = dynamic(() => import('@/components/NavTab'), { ssr: false });
-const TinhSaiSoTab = dynamic(() => import('@/components/TinhSaiSoTab'), { ssr: false });
-const TinhSaiSoForm = dynamic(() => import('@/components/TinhSaiSoForm'), { ssr: false });
+const FontAwesomeIcon = dynamic(() => import('@fortawesome/react-fontawesome').then(mod => mod.FontAwesomeIcon));
+const LocalizationProvider = dynamic(() => import('@mui/x-date-pickers/LocalizationProvider').then(mod => mod.LocalizationProvider));
+const DatePicker = dynamic(() => import('@mui/x-date-pickers/DatePicker').then(mod => mod.DatePicker));
+const NavTab = dynamic(() => import('@/components/ui/NavTab'));
+const TinhSaiSoTab = dynamic(() => import('@/components/TinhSaiSoTab'));
+const TinhSaiSoForm = dynamic(() => import('@/components/TinhSaiSoForm'));
 const TableDongHoInfo = dynamic(() => import('@/components/TableInputDongHoInfo'));
-const Loading = dynamic(() => import("@/components/Loading"), { ssr: false });
-// const ModalSelectDongHoToSave = dynamic(() => import('@/components/ui/ModalSelectDongHoToSave'), { ssr: false });
 
 import { useKiemDinh } from "@/context/KiemDinh";
-import { useDongHo } from "@/context/DongHo";
 import { useUser } from "@/context/AppContext";
-
 
 import CreatableSelect from 'react-select/creatable';
 import Select, { GroupBase } from 'react-select';
@@ -27,11 +23,14 @@ import { useRouter } from "next/navigation";
 import dayjs, { Dayjs } from "dayjs";
 import { useEffect, useMemo, useRef, useState } from "react";
 
-import { convertToUppercaseNonAccent, getLastDayOfMonthInFuture, getQ2OrQtAndQ1OrQMin, isDongHoDatTieuChuan } from "@lib/system-function";
-import { ACCESS_LINKS, BASE_API_URL, ccxOptions, DEFAULT_LOCATION, phuongTienDoOptions, TITLE_LUU_LUONG, typeOptions } from "@lib/system-constant";
+import { convertToUppercaseNonAccent, getQ2OrQtAndQ1OrQMin, isDongHoDatTieuChuan } from "@lib/system-function";
+import {
+    ACCESS_LINKS, BASE_API_URL, ccxOptions, DEFAULT_LOCATION,
+    TITLE_LUU_LUONG, typeOptions
+} from "@lib/system-constant";
 
-import { createDongHo, getDongHoExistsByInfo } from "@/app/api/dongho/route";
-import { faArrowLeft, faArrowRight, faSave, faTasks } from "@fortawesome/free-solid-svg-icons";
+// import { createDongHo, getDongHoExistsByInfo } from "@/app/api/dongho/route";
+import { faArrowLeft, faArrowRight, faSave } from "@fortawesome/free-solid-svg-icons";
 import { DongHo, PDMData } from "@lib/types";
 import { useDongHoList } from "@/context/ListDongHo";
 
@@ -48,7 +47,7 @@ interface NhomDongHoNuocFormProps {
 
 
 export default function NhomDongHoNuocForm({ className, generalInfoDongHo, isEditing = false }: NhomDongHoNuocFormProps) {
-    const { user, isAdmin } = useUser();
+    const { user, isManager } = useUser();
     const { dongHoList,
         createListDongHo,
         getDongHoDaKiemDinh,
@@ -242,7 +241,7 @@ export default function NhomDongHoNuocForm({ className, generalInfoDongHo, isEdi
     useEffect(() => {
         if (filterPDMRef.current !== filterPDM && savedDongHoList.length == 0) {
             const ma_tim_dong_ho_pdm = convertToUppercaseNonAccent(filterPDM.tenDongHo + filterPDM.dn + filterPDM.ccx + filterPDM.kieuSensor + filterPDM.kieuChiThi + (ccx ? ((["1", "2"].includes(ccx) ? (filterPDM.q3 + filterPDM.r) : filterPDM.qn)) : ""));
-            console.log(filterPDM, ma_tim_dong_ho_pdm);
+            // console.log(filterPDM, ma_tim_dong_ho_pdm);
             const handler = setTimeout(async () => {
                 setLoading(true);
                 try {
@@ -536,9 +535,9 @@ export default function NhomDongHoNuocForm({ className, generalInfoDongHo, isEdi
 
     // TODO: Check cơ điện từ
     useEffect(() => {
-        setDHDienTu(Boolean((ccx && ["1", "2"].includes(ccx)) || kieuThietBi == "Điện tử"));
+        setDHDienTu(Boolean((ccx && ["1", "2"].includes(ccx)) || ["Điện tử", "Cơ - Điện từ"].includes(kieuThietBi)));
         if (kieuThietBi) {
-            setPhuongTienDo(kieuThietBi == "Điện tử" ? "Đồng hồ đo nước lạnh có cơ cấu điện tử" : "Đồng hồ đo nước lạnh cơ khí")
+            setPhuongTienDo(["Điện tử", "Cơ - Điện từ"].includes(kieuThietBi) ? "Đồng hồ đo nước lạnh có cơ cấu điện tử" : "Đồng hồ đo nước lạnh cơ khí")
         } else {
             setPhuongTienDo("");
         }
@@ -1093,7 +1092,7 @@ export default function NhomDongHoNuocForm({ className, generalInfoDongHo, isEdi
                                     {errorPDM && <small className="text-danger">{errorPDM}</small>}
                                 </div>
 
-                                <div className={`mb-3 col-12 col-md-6 col-xxl-4 d-flex align-items-end ${isAdmin ? "" : "d-none"}`}>
+                                <div className={`mb-3 col-12 col-md-6 col-xxl-4 d-flex align-items-end ${!isManager ? "" : "d-none"}`}>
 
                                     <Link
                                         href={ACCESS_LINKS.PDM_ADD.src}

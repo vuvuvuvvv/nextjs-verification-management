@@ -1,7 +1,7 @@
 "use client"
 
-import { getDongHoById, getNhomDongHoByGroupId } from "@/app/api/dongho/route";
-const Loading = dynamic(() => import('@/components/Loading'), { ssr: false });
+import { getDongHoById, getDongHoByGroupId } from "@/app/api/dongho/route";
+const Loading = dynamic(() => import('@/components/Loading'));
 import { DongHo } from "@lib/types";
 import { useEffect, useRef, useState } from "react";
 import dynamic from "next/dynamic";
@@ -60,7 +60,7 @@ export default function DongHoEditPage({ id, groupId }: DongHoEditPage) {
                 } else {
                     let res;
                     if (groupId) {
-                        res = await getNhomDongHoByGroupId(groupId);
+                        res = await getDongHoByGroupId(groupId);
                     } else if (id) {
                         res = await getDongHoById(id);
                     }

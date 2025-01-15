@@ -5,7 +5,7 @@ import { PDMData } from "@lib/types";
 import { useState, useEffect, useRef } from "react";
 import api from "@/app/api/route";
 import { BASE_API_URL } from "@lib/system-constant";
-const Loading = dynamic(() => import("@/components/Loading"), { ssr: false });
+const Loading = dynamic(() => import("@/components/Loading"));
 import Swal from "sweetalert2";
 
 const PDMManagement = dynamic(() => import("@/components/quan-ly/kiem-dinh/PDMMng"), { ssr: true });
@@ -15,7 +15,6 @@ interface PDMProps {
 }
 
 export default function PDM({ className }: PDMProps) {
-    const [reportData, setReportData] = useState<PDMData[]>([]);
     const [loading, setLoading] = useState<boolean>(true);
     const [listDHNamesExist, setDHNameOptions] = useState<string[]>([]);
     const fetchCalled = useRef(false);
@@ -61,7 +60,6 @@ export default function PDM({ className }: PDMProps) {
                 const uniqueNames = listNames.filter((value, index, self) => self.indexOf(value) === index);
                 const sortedNames = uniqueNames.sort((a, b) => a.localeCompare(b));
                 setDHNameOptions(sortedNames || []);
-                setReportData(res.data);
             } catch (error) {
                 setError("Đã có lỗi xảy ra! Hãy thử lại sau.");
             } finally {
@@ -78,7 +76,7 @@ export default function PDM({ className }: PDMProps) {
 
     return (
         <div className={`m-0 w-100 p-2`}>
-            <PDMManagement data={reportData} listDHNamesExist={listDHNamesExist}></PDMManagement>
+            <PDMManagement listDHNamesExist={listDHNamesExist}></PDMManagement>
         </div>
     );
 }

@@ -10,8 +10,6 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import '@lib/fontawesome';
 import '@fortawesome/fontawesome-svg-core/styles.css';
 import { config } from '@fortawesome/fontawesome-svg-core';
-import { useState } from "react";
-import { useEffect } from "react";
 config.autoAddCss = false;
 
 export default function RootLayout({
@@ -19,7 +17,6 @@ export default function RootLayout({
 }: Readonly<{
     children: React.ReactNode;
 }>) {
-
     return (
         <html lang="en">
             <head>

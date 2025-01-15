@@ -1,6 +1,6 @@
 "use client"
 
-import { deletePDM, getPDMByMaTimDongHoPDM, updatePDM } from "@/app/api/pdm/route";
+import { deletePDM, getPDMById, getPDMByMaTimDongHoPDM, updatePDM } from "@/app/api/pdm/route";
 import Loading from "@/components/Loading";
 import { PDM, PDMData } from "@lib/types";
 import { useEffect, useRef, useState } from "react";
@@ -18,8 +18,8 @@ import vrfWm from "@styles/scss/ui/vfm.module.scss";
 import Link from "next/link";
 import { convertToUppercaseNonAccent } from "@lib/system-function";
 
-export default function Page({ params }: { params: { ma_tim_dong_ho_pdm: string } }) {
-    const { isAdmin } = useUser();
+export default function Page({ params }: { params: { id: string } }) {
+    const { isManager } = useUser();
     const [pdmData, setPDMData] = useState<PDMData | null>(null);
     const [oldPdmData, setOldPDMData] = useState<PDMData | null>(null);
     const pdmDataPrev = useRef(pdmData);
@@ -121,7 +121,7 @@ export default function Page({ params }: { params: { ma_tim_dong_ho_pdm: string 
 
         const fetchData = async () => {
             try {
-                const res = await getPDMByMaTimDongHoPDM(params.ma_tim_dong_ho_pdm);
+                const res = await getPDMById(params.id);
                 setPDMData(res.data);
                 setOldPDMData(res.data)
                 const ma_tim_dong_ho_pdm = convertToUppercaseNonAccent(
@@ -144,19 +144,19 @@ export default function Page({ params }: { params: { ma_tim_dong_ho_pdm: string 
         };
 
         fetchData();
-    }, [params.ma_tim_dong_ho_pdm]);
+    }, [params.id]);
 
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value } = e.target;
-        setPDMData((prevData) => prevData ? { ...prevData, [name]: value } : null);
+        setPDMData((prevData) => prevData ? { ...prevData, ma_tim_dong_ho_pdm: maTimDongHoPDM, [name]: value } : null);
     };
 
     const handleSelectChange = (name: string, selectedOption: any) => {
-        setPDMData((prevData) => prevData ? { ...prevData, [name]: selectedOption ? selectedOption.value : "" } : null);
+        setPDMData((prevData) => prevData ? { ...prevData, ma_tim_dong_ho_pdm: maTimDongHoPDM, [name]: selectedOption ? selectedOption.value : "" } : null);
     };
 
     const handleDateChange = (name: string, newValue: Dayjs | null) => {
-        setPDMData((prevData) => prevData ? { ...prevData, [name]: newValue ? newValue.toDate() : null } : null);
+        setPDMData((prevData) => prevData ? { ...prevData, ma_tim_dong_ho_pdm: maTimDongHoPDM, [name]: newValue ? newValue.toDate() : null } : null);
     };
 
     const handleSubmit = async () => {
@@ -168,7 +168,7 @@ export default function Page({ params }: { params: { ma_tim_dong_ho_pdm: string 
                 Swal.fire({
                     icon: "success",
                     title: "Thành công!",
-                    text:  "Phê duyệt mẫu cập nhật thành công!",
+                    text: "Phê duyệt mẫu cập nhật thành công!",
                     confirmButtonText: "OK"
                 }).then(() => {
                     router.push(ACCESS_LINKS.PDM.src);
@@ -205,7 +205,7 @@ export default function Page({ params }: { params: { ma_tim_dong_ho_pdm: string 
             if (result.isConfirmed) {
                 setLoading(true);
                 try {
-                    const res = await deletePDM(params.ma_tim_dong_ho_pdm);
+                    const res = await deletePDM(params.id);
                     if (res.status === 200 || res.status === 201) {
                         Swal.fire({
                             text: "Xóa thành công!",
@@ -601,7 +601,7 @@ export default function Page({ params }: { params: { ma_tim_dong_ho_pdm: string 
                             </div>
                             <div className="w-100 px-3 d-flex justify-content-end gap-3">
 
-                                {isAdmin && (
+                                {isManager && (
                                     <button aria-label="Chỉnh sửa" type="button" onClick={() => setIsEditing(!isEditing)} className="btn text-white bg-warning">
                                         Chỉnh sửa
                                     </button>

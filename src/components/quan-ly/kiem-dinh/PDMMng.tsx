@@ -28,14 +28,13 @@ const Loading = React.lazy(() => import("@/components/Loading"));
 
 
 interface PDMManagementProps {
-    data: PDMData[],
     className?: string,
     listDHNamesExist?: string[]
 }
 
-export default function PDMManagement({ data, className, listDHNamesExist }: PDMManagementProps) {
-    const { isAdmin } = useUser();
-    const [rootData, setRootData] = useState(data);
+export default function PDMManagement({ className, listDHNamesExist }: PDMManagementProps) {
+    const { isViewer } = useUser();
+    const [rootData, setRootData] = useState<PDMData[]>([]);
     const [loading, setLoading] = useState(false);
     const [sortConfig, setSortConfig] = useState<{ key: string, direction: 'asc' | 'desc' | 'default' } | null>(null);
     const [selectedStatus, setSelectedStatus] = useState('');
@@ -125,6 +124,10 @@ export default function PDMManagement({ data, className, listDHNamesExist }: PDM
                     const dateA = dayjs(a[key as keyof typeof a], 'DD-MM-YYYY');
                     const dateB = dayjs(b[key as keyof typeof b], 'DD-MM-YYYY');
                     return direction === 'asc' ? dateA.diff(dateB) : dateB.diff(dateA);
+                } else if (key === 'dn' || key === 'r') {
+                    return direction === 'asc'
+                        ? Number(a[key] as string) < Number(b[key] as string) ? -1 : 1
+                        : Number(a[key] as string) > Number(b[key] as string) ? -1 : 1;
                 } else {
                     return direction === 'asc'
                         ? a[key as keyof typeof a] < b[key as keyof typeof a] ? -1 : 1
@@ -155,7 +158,7 @@ export default function PDMManagement({ data, className, listDHNamesExist }: PDM
             } finally {
                 setLoading(false);
             }
-        }, 500);
+        }, 1000);
 
         return () => clearTimeout(debounce);
 
@@ -168,7 +171,7 @@ export default function PDMManagement({ data, className, listDHNamesExist }: PDM
         }));
     };
 
-    const hanldeResetFilter = () => {
+    const handleResetFilter = () => {
         setFilterForm({
             // ma_tim_dong_ho_pdm: "",
             ten_dong_ho: "",
@@ -179,6 +182,7 @@ export default function PDMManagement({ data, className, listDHNamesExist }: PDM
             dn: "",
         });
         setSelectedStatus("");
+        setSelectedTenDHOption("");
     }
 
     // const handlePageChange = (newPage: number) => {
@@ -448,16 +452,17 @@ export default function PDMManagement({ data, className, listDHNamesExist }: PDM
                             </div>
 
                             <div className={`col-12 m-0 my-2 d-flex align-items-center justify-content-between`}>
-                                <button aria-label="Xóa bộ lọc" type="button" className={`btn bg-main-blue text-white`} onClick={hanldeResetFilter}>
-                                    Xóa bộ lọc
+                                <button aria-label="Làm mới" type="button" className={`btn bg-main-blue text-white`} onClick={handleResetFilter}>
+                                    Làm mới
                                 </button>
-                                <Link
+                                {!isViewer && <Link
                                     aria-label="Thêm mới"
                                     href={ACCESS_LINKS.PDM_ADD.src}
-                                    className={`btn bg-main-green text-white ${isAdmin ? "" : "d-none"}`}
+                                    className={`btn bg-main-green text-white`}
                                 >
                                     Thêm mới
-                                </Link>
+                                </Link>}
+
                             </div>
                         </div>
                     </div>
@@ -465,7 +470,7 @@ export default function PDMManagement({ data, className, listDHNamesExist }: PDM
                     <div className="bg-white w-100 shadow-sm rounded position-relative overflow-hidden">
                         {loading && <Loading />}
                         <div className={`m-0 p-0 w-100 w-100 mt-4 bg-white position-relative ${c_vfml['wrap-process-table']}`}>
-                            {rootData.length > 0 ? (
+                            {rootData && rootData.length > 0 ? (
                                 <table className={`table table-striped table-bordered table-hover ${c_vfml['process-table']}`}>
                                     <thead>
                                         <tr className={`${c_vfml['table-header']}`}>
@@ -492,18 +497,30 @@ export default function PDMManagement({ data, className, listDHNamesExist }: PDM
                                                     </span>
                                                 </div>
                                             </th>
-                                            <th>
+                                            <th onClick={() => sortData('dn')}>
                                                 <div className={`${c_vfml['table-label']}`}>
                                                     <span>
                                                         DN
                                                     </span>
+                                                    {sortConfig && sortConfig.key === 'dn' && sortConfig.direction === 'asc' && (
+                                                        <FontAwesomeIcon icon={faChevronDown}></FontAwesomeIcon>
+                                                    )}
+                                                    {sortConfig && sortConfig.key === 'dn' && sortConfig.direction === 'desc' && (
+                                                        <FontAwesomeIcon icon={faChevronUp}></FontAwesomeIcon>
+                                                    )}
                                                 </div>
                                             </th>
-                                            <th>
+                                            <th onClick={() => sortData('ccx')}>
                                                 <div className={`${c_vfml['table-label']}`}>
                                                     <span>
                                                         CCX
                                                     </span>
+                                                    {sortConfig && sortConfig.key === 'ccx' && sortConfig.direction === 'asc' && (
+                                                        <FontAwesomeIcon icon={faChevronDown}></FontAwesomeIcon>
+                                                    )}
+                                                    {sortConfig && sortConfig.key === 'ccx' && sortConfig.direction === 'desc' && (
+                                                        <FontAwesomeIcon icon={faChevronUp}></FontAwesomeIcon>
+                                                    )}
                                                 </div>
                                             </th>
                                             <th>
@@ -527,11 +544,16 @@ export default function PDMManagement({ data, className, listDHNamesExist }: PDM
                                                     </span>
                                                 </div>
                                             </th>
-                                            <th>
+                                            <th onClick={() => sortData('r')}>
                                                 <div className={`${c_vfml['table-label']}`}>
-                                                    <span>
-                                                        R
+                                                    <span>R
                                                     </span>
+                                                    {sortConfig && sortConfig.key === 'r' && sortConfig.direction === 'asc' && (
+                                                        <FontAwesomeIcon icon={faChevronDown}></FontAwesomeIcon>
+                                                    )}
+                                                    {sortConfig && sortConfig.key === 'r' && sortConfig.direction === 'desc' && (
+                                                        <FontAwesomeIcon icon={faChevronUp}></FontAwesomeIcon>
+                                                    )}
                                                 </div>
                                             </th>
                                             <th
@@ -575,7 +597,7 @@ export default function PDMManagement({ data, className, listDHNamesExist }: PDM
                                     <tbody>
                                         {rootData.map((item, index) => (
                                             <tr key={index}
-                                                onClick={() => window.open(`${ACCESS_LINKS.PDM_DETAIL.src}/${item.ma_tim_dong_ho_pdm}`, '_blank')}
+                                                onClick={() => window.open(`${ACCESS_LINKS.PDM_DETAIL.src}/${item.id}`, '_blank')}
                                                 style={{ cursor: 'pointer' }} >
                                                 <td className="text-center">{rootData.indexOf(item) + 1}</td>
                                                 <td>{item.ten_dong_ho}</td>
@@ -590,7 +612,7 @@ export default function PDMManagement({ data, className, listDHNamesExist }: PDM
                                                     {new Date(item.ngay_het_han) > new Date() ? 'Còn hiệu lực' : 'Hết hạn'}
                                                 </td>
                                                 <td>
-                                                    <Link target="_blank" aria-label="Xem chi tiết" href={ACCESS_LINKS.PDM_DETAIL.src + "/" + item.ma_tim_dong_ho_pdm} className={`btn border-0 shadow-0 w-100 text-blue`}>
+                                                    <Link target="_blank" aria-label="Xem chi tiết" href={ACCESS_LINKS.PDM_DETAIL.src + "/" + item.id} className={`btn border-0 shadow-0 w-100 text-blue`}>
                                                         <FontAwesomeIcon icon={faEye}></FontAwesomeIcon>
                                                     </Link>
                                                 </td>

@@ -1,0 +1,43 @@
+@import "@styles/scss/variables/global.variables.scss";
+
+.wrap-dh-per-mng-modal {
+
+    select,
+    input:not([type="checkbox"], [type="radio"]) {
+        height: 42px;
+        color: rgba(0, 0, 0, 0.87);
+        box-shadow: none !important;
+        border: 1px solid #dee2e6;
+        border-radius: 4PX !important;
+    }
+
+    .modal-dialog-scrollable .modal-content {
+        overflow: unset !important;
+    }
+}
+
+.wrap-mult-dh-per {
+    .modal-dialog {
+        max-width: 600px;
+    }
+
+    .wrap-roles-select-box {
+        height: max-content !important;
+        max-height: calc(100vh - 485px);
+
+        ul {
+            li {
+                border-radius: 0.225rem;
+            }
+        }
+
+        .dh-serial-sensor {
+            font-weight: bold;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            -webkit-line-clamp: 1;
+            display: block;
+        }
+    }
+}

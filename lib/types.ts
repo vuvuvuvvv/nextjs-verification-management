@@ -211,53 +211,55 @@ export interface DongHo {
     du_lieu_kiem_dinh: string | null;
     hieu_luc_bien_ban: Date | null;
     so_giay_chung_nhan: string | null;
+
+    current_permission?: string | null;
 }
 
 export interface GeneralInfoDongHo {
     group_id: string | null,
-    kieu_thiet_bi: string | null,          
+    kieu_thiet_bi: string | null,
 
-    ten_dong_ho: string | null,                    
-    phuong_tien_do: string | null,             
+    ten_dong_ho: string | null,
+    phuong_tien_do: string | null,
 
-    kieu_chi_thi: string | null,       
-    kieu_sensor: string | null,                
-    co_so_san_xuat: string | null,                     
+    kieu_chi_thi: string | null,
+    kieu_sensor: string | null,
+    co_so_san_xuat: string | null,
 
-    nam_san_xuat: Date | null,               
-    dn: string | null,                 
-    d: string | null,                  
+    nam_san_xuat: Date | null,
+    dn: string | null,
+    d: string | null,
 
-    ccx: string | null,        
-    q3: string | null,                 
-    r: string | null,                                      
+    ccx: string | null,
+    q3: string | null,
+    r: string | null,
 
-    qn: string | null,                                     
-    k_factor: string | null,                                           
-    so_qd_pdm: string | null,                                              
+    qn: string | null,
+    k_factor: string | null,
+    so_qd_pdm: string | null,
 
-    ten_khach_hang: string | null,                                                 
-    co_so_su_dung: string | null,                                                  
-    phuong_phap_thuc_hien: string | null,                                                          
+    ten_khach_hang: string | null,
+    co_so_su_dung: string | null,
+    phuong_phap_thuc_hien: string | null,
 
-    chuan_thiet_bi_su_dung: string | null,                                                         
-    nguoi_kiem_dinh: string | null,                                                    
-    ngay_thuc_hien: Date | null,                                                 
+    chuan_thiet_bi_su_dung: string | null,
+    nguoi_kiem_dinh: string | null,
+    ngay_thuc_hien: Date | null,
 
-    vi_tri: string | null,                                         
-    nhiet_do: string | null,                                           
-    do_am: string | null,                                          
+    vi_tri: string | null,
+    nhiet_do: string | null,
+    do_am: string | null,
 
-    nguoi_soat_lai: string | null,                                                 
-    noi_thuc_hien: string | null,                                                  
-    noi_su_dung: string | null,                                                
+    nguoi_soat_lai: string | null,
+    noi_thuc_hien: string | null,
+    noi_su_dung: string | null,
 
 }
 
 export interface DongHoFilterParameters {
     is_bigger_than_15?: boolean;
     so_giay_chung_nhan: string;
-    serial_number: string;
+    seri_sensor: string;
     type: string;
     ccx: string;
     nguoi_kiem_dinh: string;
@@ -265,6 +267,10 @@ export interface DongHoFilterParameters {
     status: string | number;
     ngay_kiem_dinh_from: Date | null;
     ngay_kiem_dinh_to: Date | null;
+    limit: number;  // x
+    last_seen_id: string; // p => limit x offset x * (p-1)
+    next_id_from?: string; 
+    prev_id_from?: string; 
 }
 
 export interface NhomDongHo {
@@ -286,6 +292,21 @@ export interface NhomDongHoFilterParameters {
     nguoi_kiem_dinh: string;
     ngay_kiem_dinh_from: Date | null;
     ngay_kiem_dinh_to: Date | null;
+    limit: number;  // x
+    page: number;   // p: => limit x offset x*(p-1)
+}
+
+export interface DongHoPermission {
+    id?: string,
+    username: string,
+    fullname: string,
+    email: string,
+    role: string,
+}
+
+export interface RoleOption {
+    value: string;
+    label: string;
 }
 
 type VChuanDongBo = Record<number, { Vc1?: string, Vc2?: string } | null>;

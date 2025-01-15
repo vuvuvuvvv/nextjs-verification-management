@@ -3,7 +3,6 @@
 .pagination {
     display: flex;
     align-items: center;
-    justify-content: center;
     gap: 5px;
 
     .active {
@@ -33,6 +32,8 @@
     }
 
     .btn {
+        font-weight: bold;
+
         &:hover:not([disabled]) {
             background-color: $light_blue;
         }

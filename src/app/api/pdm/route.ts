@@ -14,39 +14,39 @@ export const getPDMByFilter = async (parameters?: PDMFilterParameters) => {
         // }
 
         if (parameters?.ten_dong_ho) {
-            url.searchParams.append('ten_dong_ho', parameters.ten_dong_ho.toString());
+            url.searchParams.append('ten_dong_ho', parameters.ten_dong_ho.toString().replaceAll("/", "@gach_cheo"));
         }
 
         if (parameters?.so_qd_pdm) {
-            url.searchParams.append('so_qd_pdm', parameters.so_qd_pdm.toString());
+            url.searchParams.append('so_qd_pdm', parameters.so_qd_pdm.toString().replaceAll("/", "@gach_cheo"));
         }
 
         if (parameters?.ngay_qd_pdm_from) {
-            url.searchParams.append('ngay_qd_pdm_from', parameters.ngay_qd_pdm_from.toString());
+            url.searchParams.append('ngay_qd_pdm_from', parameters.ngay_qd_pdm_from.toString().replaceAll("/", "@gach_cheo"));
         }
 
         if (parameters?.ngay_qd_pdm_to) {
-            url.searchParams.append('ngay_qd_pdm_to', parameters.ngay_qd_pdm_to.toString());
+            url.searchParams.append('ngay_qd_pdm_to', parameters.ngay_qd_pdm_to.toString().replaceAll("/", "@gach_cheo"));
         }
 
         if (parameters?.tinh_trang) {
-            url.searchParams.append('tinh_trang', parameters.tinh_trang.toString());
+            url.searchParams.append('tinh_trang', parameters.tinh_trang.toString().replaceAll("/", "@gach_cheo"));
         }
 
         if (parameters?.dn) {
-            url.searchParams.append('dn', parameters.dn.toString());
+            url.searchParams.append('dn', parameters.dn.toString().replaceAll("/", "@gach_cheo"));
         }
 
         if (parameters?.ccx) {
-            url.searchParams.append('ccx', parameters.ccx.toString());
+            url.searchParams.append('ccx', parameters.ccx.toString().replaceAll("/", "@gach_cheo"));
         }
 
         if (parameters?.kieu_sensor) {
-            url.searchParams.append('kieu_sensor', parameters.kieu_sensor.toString());
+            url.searchParams.append('kieu_sensor', parameters.kieu_sensor.toString().replaceAll("/", "@gach_cheo"));
         }
 
         if (parameters?.transmitter) {
-            url.searchParams.append('transmitter', parameters.transmitter.toString());
+            url.searchParams.append('transmitter', parameters.transmitter.toString().replaceAll("/", "@gach_cheo"));
         }
 
         const response = await api.get(url.toString(), { withCredentials: true });
@@ -75,7 +75,7 @@ export const getPDMByFilter = async (parameters?: PDMFilterParameters) => {
 export const getPDMBySoQDPDM = async (so_qd_pdm: string) => {
 
     try {
-        const url = API_PDM_URL + "/so_qd_pdm/" + so_qd_pdm.toString();
+        const url = API_PDM_URL + "/so_qd_pdm/" + so_qd_pdm.toString().replaceAll("/", "@gach_cheo");
 
         const response = await api.get(url.toString(), { withCredentials: true });
 
@@ -101,10 +101,9 @@ export const getPDMBySoQDPDM = async (so_qd_pdm: string) => {
 };
 
 export const getPDMByMaTimDongHoPDM = async (ma_tim_dong_ho_pdm: string) => {
-
     try {
-        const url = API_PDM_URL + "/ma_tim_dong_ho_pdm/" + ma_tim_dong_ho_pdm.toString();
-
+        const url = API_PDM_URL + "/ma_tim_dong_ho_pdm/" + ma_tim_dong_ho_pdm.toString().replaceAll("/", "@gach_cheo");
+        console.log(url);
         const response = await api.get(url.toString(), { withCredentials: true });
 
         return {
@@ -114,14 +113,53 @@ export const getPDMByMaTimDongHoPDM = async (ma_tim_dong_ho_pdm: string) => {
         };
 
     } catch (error: any) {
-        if (error.response?.data?.msg) {
+        if (error.response) {
+            if (error.response.status === 404) {
+                return {
+                    "status": 404,
+                    "msg": 'PDM không tìm thấy!'
+                };
+            }
             return {
                 "status": error.response.status,
                 "msg": 'Có lỗi xảy ra khi lấy dữ liệu PDM!'
             };
         } else {
             return {
-                "status": error.response?.status || 500,
+                "status": 500,
+                "msg": 'Có lỗi đã xảy ra. Hãy thử lại!'
+            };
+        }
+    }
+};
+
+export const getPDMById = async (id: string) => {
+    try {
+        const url = API_PDM_URL + "/id/" + id.toString();
+        console.log(url);
+        const response = await api.get(url.toString(), { withCredentials: true });
+
+        return {
+            "status": response.status,
+            "data": response.data,
+            "msg": "Done!"
+        };
+
+    } catch (error: any) {
+        if (error.response) {
+            if (error.response.status === 404) {
+                return {
+                    "status": 404,
+                    "msg": 'PDM không tìm thấy!'
+                };
+            }
+            return {
+                "status": error.response.status,
+                "msg": 'Có lỗi xảy ra khi lấy dữ liệu PDM!'
+            };
+        } else {
+            return {
+                "status": 500,
                 "msg": 'Có lỗi đã xảy ra. Hãy thử lại!'
             };
         }
@@ -167,7 +205,7 @@ export const updatePDM = async (pdm: PDMData) => {
 
 export const deletePDM = async (ma_tim_dong_ho_pdm: string) => {
     try {
-        const response = await api.delete(`${API_PDM_URL}/ma_tim_dong_ho_pdm/${ma_tim_dong_ho_pdm}`, { withCredentials: true });
+        const response = await api.delete(`${API_PDM_URL}/ma_tim_dong_ho_pdm/${ma_tim_dong_ho_pdm.toString().replaceAll("/", "@gach_cheo")}`, { withCredentials: true });
 
         return {
             "status": response.status,

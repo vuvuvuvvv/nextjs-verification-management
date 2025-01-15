@@ -54,6 +54,29 @@ export const TITLE_LUU_LUONG = {
     qmin: "Qmin"
 }
 
+export const PERMISSIONS = {
+    VIEWER: "Viewer",
+    MANAGER: "Manager",
+    DIRECTOR: "Director",
+    ADMIN: "Administrator",
+    SUPERADMIN: "SuperAdministrator",
+}
+export const PERMISSION_VALUES : Record<string, number> = {
+    "Viewer" : 1,
+    "Manager" : 2,
+    "Director" : 3,
+    "Administrator" : 4,
+    "SuperAdministrator" : 5,
+}
+
+export const PERMISSION_TITLES : Record<string, string> = {
+    "Viewer" : "Người xem",
+    "Manager" : "Quản lý",
+    "Director" : "Giám đốc",
+    "Administrator" : "Quản trị viên",
+    "SuperAdministrator" : "Siêu quản trị viên",
+}
+
 export const DEFAULT_LOCATION = "Công ty Cổ phần Công nghệ và Thương mại FMS"
 export const INDEXED_DB_NAME = "FMS_VFM_DB"
 export const INDEXED_DB_DH_OBJ_NAME = "DongHo"
@@ -89,6 +112,14 @@ export const ACCESS_LINKS = {
     AUTH_REGISTER : {
         src: "/register",
         title: "Đăng ký"
+    },
+    AUTH_VERIFY: {
+        src: "/verify",
+        title: "Xác thực người dùng"
+    },
+    AUTH_UNVERIFIED : {
+        src: "/unverified",
+        title: "Yêu cầu xác thực"
     },
     AUTH_RESET_PW : {
         src: "/reset-password",

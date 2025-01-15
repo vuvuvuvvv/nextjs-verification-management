@@ -111,12 +111,13 @@ export default function Sidebar({
     className,
     title
 }: SidebarProps) {
-    const { isAdmin } = useUser();
+    const { isManager } = useUser();
     const [show, setShow] = useState(false);
     const sidebarRef = useRef<HTMLDivElement>(null);
     const [collapseState, setCollapseState] = useState<CollapseState>({});
     const pathname = usePathname();
-    const sideLinks = isAdmin ? [...siteSideLinks, ...adminSideLinks] : siteSideLinks;
+    // const sideLinks = !isManager ? [...siteSideLinks, ...adminSideLinks] : siteSideLinks;
+    const sideLinks = [...siteSideLinks, ...adminSideLinks];
 
     const toggleOpen = () => {
         setShow(!show);
@@ -155,7 +156,7 @@ export default function Sidebar({
         <div ref={sidebarRef} className={`${sb['wrap-sidebar']} p-0 ${className ? className : ""} ${show ? sb["sb-show"] : ""}`}>
             <div className={`${sb['sb-header']} py-3 border-bottom`}>
                 <Offcanvas.Title className={sb['sb-title']}>
-                    <img src="/images/logo.png" alt="profileImg" />
+                    <img src="/images/logo.png" alt="Kiểm định DHT" />
                     <h5 className='fw-bold m-0 p-0'>{title ? title : ""}</h5>
                 </Offcanvas.Title>
                 <button aria-label="Đóng" onClick={toggleOpen} className={`btn border-0 shadow-0 ${''}`}>

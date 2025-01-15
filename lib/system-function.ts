@@ -1,7 +1,7 @@
 import dayjs from "dayjs";
 import { DongHo, DuLieuMotLanChay, PDMData, TinhSaiSoValueTabs } from "./types";
 import { getAllDongHoNamesExist } from "@/app/api/dongho/route";
-import { INDEXED_DB_DH_OBJ_NAME, INDEXED_DB_NAME } from "./system-constant";
+import { INDEXED_DB_DH_OBJ_NAME, INDEXED_DB_NAME, PERMISSION_TITLES, PERMISSION_VALUES, PERMISSIONS } from "./system-constant";
 
 export const getSaiSoDongHo = (formValue: DuLieuMotLanChay) => {
     if (formValue) {
@@ -247,7 +247,6 @@ export async function getDongHoDataExistsFromIndexedDB(username: string): Promis
         request.onerror = (event) => {
             const target = event.target as IDBRequest;
             if (target && target.error) {
-                // console.error("Lỗi khi kiểm tra dữ liệu:", target.error);
                 reject(target.error);
             }
         };
@@ -263,14 +262,38 @@ export async function deleteDongHoDataFromIndexedDB(username: string): Promise<v
         const request = store.delete(username);
 
         request.onsuccess = () => {
-            // console.log(`Dữ liệu cho ${username} đã được xóa thành công.`);
             resolve();
         };
 
         request.onerror = (event) => {
             const error = (event.target as IDBRequest).error;
-            // console.error("Lỗi khi xóa dữ liệu:", error);
             reject(error);
         };
     });
+}
+
+export function getNameOfRole(role: string | undefined) {
+    return role ? (PERMISSION_TITLES[role] || role) : "Chưa rõ";
+}
+
+export function getAvailableRolesOptions(current_role: string | null): { value: string, label: string }[] {
+    if (current_role) {
+        const current_per_val = PERMISSION_VALUES[current_role];
+        if (current_per_val) {
+            return Object.values(PERMISSIONS).filter(r => {
+                const per_val = PERMISSION_VALUES[r];
+                return current_role == PERMISSIONS.SUPERADMIN || ((per_val || per_val == 0) && current_per_val > per_val);
+            }).map(r => ({ value: r, label: getNameOfRole(r) }));
+        }
+        return [];
+    } else {
+        return Object.values(PERMISSIONS).map(r => ({ value: r, label: getNameOfRole(r) }));
+    }
+}
+
+export function decode(encodedString: string): string {
+    if(!encodedString) {
+        return "";
+    }
+    return decodeURIComponent(escape(atob(encodedString)));
 }

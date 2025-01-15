@@ -10,13 +10,11 @@ import dayjs, { Dayjs } from "dayjs";
 import { viVN } from "@mui/x-date-pickers/locales";
 
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faChevronDown, faChevronUp, faEdit, faEye } from "@fortawesome/free-solid-svg-icons";
+import { faChevronDown, faChevronUp, faEdit, faCircleArrowRight, faArrowLeft, faSearch, faRefresh } from "@fortawesome/free-solid-svg-icons";
 import React from "react";
+import { DongHo, DongHoFilterParameters, DongHoPermission, DuLieuChayDongHo } from "@lib/types";
 
-import Select, { GroupBase } from 'react-select';
 import Pagination from "@/components/Pagination";
-import { DongHo, DongHoFilterParameters, DuLieuChayDongHo } from "@lib/types";
-
 // import { usePathname } from "next/navigation";
 import Link from "next/link";
 
@@ -25,24 +23,36 @@ import {
     //  limitOptions 
 } from "@lib/system-constant";
 import Swal from "sweetalert2";
-import { getAllDongHo, getDongHoByFilter } from "@/app/api/dongho/route";
+import { getDongHoByFilter } from "@/app/api/dongho/route";
+import { decode, getNameOfRole } from "@lib/system-function";
+import { useUser } from "@/context/AppContext";
+import { Button } from "react-bootstrap";
+import ModalMultDongHoPermissionMng from "@/components/ui/ModalMultDongHoPermissionMng";
 
 const Loading = React.lazy(() => import("@/components/Loading"));
 
 
 interface WaterMeterManagementProps {
     className?: string,
-    isBiggerThan15?: boolean
+    isBiggerThan15?: boolean,
+    isAuthorizing?: boolean,
+    setSelectedDongHo?: React.Dispatch<React.SetStateAction<DongHo | null>>;
+    clearNDHPropData?: () => void;
+    dataList?: DongHo[]
 }
 
-export default function WaterMeterManagement({ className, isBiggerThan15 = false }: WaterMeterManagementProps) {
-    const [rootData, setRootData] = useState<DongHo[]>([]);
-    const fetchCalled = useRef(false);
-
+export default function WaterMeterManagement({ className, isBiggerThan15 = false, isAuthorizing = false, setSelectedDongHo, clearNDHPropData, dataList = [] }: WaterMeterManagementProps) {
+    const { user, isViewer, isSuperAdmin, getCurrentRole } = useUser();
+    const [data, setRootData] = useState<DongHo[]>([]);
+    const rootData = useRef<DongHo[]>([]);
     const [filterLoading, setFilterLoading] = useState(true);
     const [sortConfig, setSortConfig] = useState<{ key: string, direction: 'asc' | 'desc' | 'default' } | null>(null);
-    // const [limit, setLimit] = useState(10);
+    const [limit, setLimit] = useState(10);
     const [error, setError] = useState("");
+    const fetchedRef = useRef(false);
+    const isEditing = useRef<boolean>(false);
+    // const perSelected = useRef<DongHoPermission | null>(null);
+    const [isShow, setIsShow] = useState<boolean | null>(null);
 
     // Func: Set err
     useEffect(() => {
@@ -78,49 +88,23 @@ export default function WaterMeterManagement({ className, isBiggerThan15 = false
     const [filterForm, setFilterForm] = useState<DongHoFilterParameters>({
         is_bigger_than_15: isBiggerThan15,
         so_giay_chung_nhan: "",
-        serial_number: "",
+        seri_sensor: "",
         type: "",
         ccx: "",
         nguoi_kiem_dinh: "",
         ten_khach_hang: "",
         status: "",
         ngay_kiem_dinh_from: null,
-        ngay_kiem_dinh_to: null
+        ngay_kiem_dinh_to: null,
+        limit: limit,
+        last_seen_id: ""
     });
-    // const [currentPage, setCurrentPage] = useState(1);
+    const [currentPage, setCurrentPage] = useState(1);
 
-    useEffect(() => {
-        if (fetchCalled.current) return;
-        fetchCalled.current = true;
-
-        const fetchData = async () => {
-            try {
-                const res = await getAllDongHo();
-                // console.log("dataDongHo: ", res.data)
-                setRootData(res.data);
-            } catch (error) {
-                console.error("Error fetching data:", error);
-            } finally {
-                setFilterLoading(false);
-            }
-        };
-
-        fetchData();
-    }, []);
-
-    // const resetTotalPage = () => {
-    //     setCurrentPage(1);
-    //     if (!rootData || rootData.length <= limit) {
-    //         return 1;
-    //     }
-    //     return Math.ceil(rootData.length / limit);
-    // }
-
-    // const [totalPage, setTotalPage] = useState(resetTotalPage);
-
-    // useEffect(() => {
-    //     setTotalPage(resetTotalPage);
-    // }, [rootData, limit])
+    const [totalRecords, setTotalRecords] = useState(0);
+    const totalRecordsRef = useRef(totalRecords);
+    const [totalPage, setTotalPage] = useState(1);
+    const totalPageRef = useRef(totalPage);
 
     const sortData = useCallback((key: keyof DongHo) => {
         if (!filterLoading) {
@@ -131,11 +115,15 @@ export default function WaterMeterManagement({ className, isBiggerThan15 = false
                 direction = sortConfig.direction === 'asc' ? 'desc' : 'asc';
             }
 
-            const sortedData = rootData ? [...rootData].sort((a, b) => {
+            const sortedData = data ? [...data].sort((a, b) => {
                 if (key === 'ngay_thuc_hien' || key === 'hieu_luc_bien_ban') {
                     const dateA = dayjs(a[key] as Date);
                     const dateB = dayjs(b[key] as Date);
                     return direction === 'asc' ? dateA.diff(dateB) : dateB.diff(dateA);
+                } else if (key === 'dn' || key === 'r') {
+                    return direction === 'asc'
+                        ? Number(a[key] as string) < Number(b[key] as string) ? -1 : 1
+                        : Number(a[key] as string) > Number(b[key] as string) ? -1 : 1;
                 } else {
                     return direction === 'asc'
                         ? (a[key] as string | number) < (b[key] as string | number) ? -1 : 1
@@ -147,15 +135,31 @@ export default function WaterMeterManagement({ className, isBiggerThan15 = false
             setSortConfig({ key, direction });
             setFilterLoading(false);
         }
-    }, [rootData, sortConfig, filterLoading]);
+    }, [data, sortConfig, filterLoading]);
 
-    useEffect(() => {
+    const _fetchDongHo = async (filterFormProps?: DongHoFilterParameters) => {
         setFilterLoading(true);
-        const debounce = setTimeout(async () => {
+        if (dataList.length > 0) {
+            setRootData(dataList);
+            rootData.current = dataList;
+            setFilterLoading(false);
+        } else {
             try {
-                const res = await getDongHoByFilter(filterForm);
+                const res = await getDongHoByFilter(filterFormProps ? filterFormProps : filterForm, !isSuperAdmin, (!isSuperAdmin ? (user?.username || "") : ""));
                 if (res.status === 200 || res.status === 201) {
-                    setRootData(res.data);
+                    setRootData(res.data.donghos || []);
+                    if (totalPageRef.current != res.data.total_page) {
+                        setTotalPage(res.data.total_page || 1)
+                        totalPageRef.current = res.data.total_page || 1;
+                    }
+                    if (totalRecordsRef.current != res.data.total_records) {
+                        setTotalRecords(res.data.total_records || 0)
+                        totalRecordsRef.current = res.data.total_records || 0;
+                    }
+                    if (filterFormProps) {
+                        setFilterForm(filterFormProps);
+                    }
+                    rootData.current = res.data.donghos || [];
                 } else {
                     console.error(res.msg);
                     setError("Có lỗi đã xảy ra!");
@@ -166,10 +170,64 @@ export default function WaterMeterManagement({ className, isBiggerThan15 = false
             } finally {
                 setFilterLoading(false);
             }
-        }, 500);
+        }
+    }
 
-        return () => clearTimeout(debounce);
-    }, [filterForm]);
+    if (!fetchedRef.current) {
+        _fetchDongHo();
+        fetchedRef.current = true;
+    }
+
+    // useEffect(() => {
+    //     const filteredData = rootData.current ? [...rootData.current].filter(_per => {
+    //         // Trim filter values once to avoid repeated operations
+    //         const trimmedFilters = {
+    //             so_giay_chung_nhan: filterForm.so_giay_chung_nhan?.trim().toLowerCase() || '',
+    //             seri_sensor: filterForm.seri_sensor?.trim().toLowerCase() || '',
+    //             ten_khach_hang: filterForm.ten_khach_hang?.trim().toLowerCase() || '',
+    //             nguoi_kiem_dinh: filterForm.nguoi_kiem_dinh?.trim().toLowerCase() || '',
+    //             ccx: filterForm.ccx?.trim().toLowerCase() || '',
+    //         };
+
+    //         // Skip filtering if all filter values are empty
+    //         if (!Object.values(trimmedFilters).some(value => value !== '') &&
+    //             !filterForm.ngay_kiem_dinh_from &&
+    //             !filterForm.ngay_kiem_dinh_to) {
+    //             return true;
+    //         }
+
+    //         const isSoGiayChungNhanMatch = !trimmedFilters.so_giay_chung_nhan ||
+    //             (_per.so_giay_chung_nhan?.trim().toLowerCase() || '').includes(trimmedFilters.so_giay_chung_nhan);
+
+    //         const isSeriSensorMatch = !trimmedFilters.seri_sensor ||
+    //             (_per.seri_sensor?.trim().toLowerCase() || '').includes(trimmedFilters.seri_sensor);
+
+    //         const isTenKhachHangMatch = !trimmedFilters.ten_khach_hang ||
+    //             (_per.ten_khach_hang?.trim().toLowerCase() || '').includes(trimmedFilters.ten_khach_hang);
+
+    //         const isNguoiKiemDinhMatch = !trimmedFilters.nguoi_kiem_dinh ||
+    //             (_per.nguoi_kiem_dinh?.trim().toLowerCase() || '').includes(trimmedFilters.nguoi_kiem_dinh);
+
+    //         const isNgayKiemDinhFromMatch = !filterForm.ngay_kiem_dinh_from ||
+    //             (_per.ngay_thuc_hien && new Date(_per.ngay_thuc_hien) >= new Date(filterForm.ngay_kiem_dinh_from));
+
+    //         const isNgayKiemDinhToMatch = !filterForm.ngay_kiem_dinh_to ||
+    //             (_per.ngay_thuc_hien && new Date(_per.ngay_thuc_hien) <= new Date(filterForm.ngay_kiem_dinh_to));
+
+    //         const isCcxMatch = !trimmedFilters.ccx ||
+    //             (_per.ccx?.trim().toLowerCase() || '').includes(trimmedFilters.ccx);
+
+    //         return isSoGiayChungNhanMatch &&
+    //             isSeriSensorMatch &&
+    //             isTenKhachHangMatch &&
+    //             isNguoiKiemDinhMatch &&
+    //             isNgayKiemDinhFromMatch &&
+    //             isNgayKiemDinhToMatch &&
+    //             isCcxMatch;
+    //     }) : [];
+
+    //     setRootData(filteredData);
+    // }, [filterForm, rootData]);
 
     const handleFilterChange = (key: keyof DongHoFilterParameters, value: any) => {
         setFilterForm(prevForm => ({
@@ -178,181 +236,134 @@ export default function WaterMeterManagement({ className, isBiggerThan15 = false
         }));
     };
 
-    // const handleDelete = (id: string | null) => {
-    //     if (id) {
-    //         Swal.fire({
-    //             title: "Xác nhận xóa?",
-    //             text: "Bạn sẽ không thể hoàn tác dữ liệu này!",
-    //             icon: "warning",
-    //             showCancelButton: true,
-    //             confirmButtonColor: "#3085d6",
-    //             cancelButtonColor: "#d33",
-    //             confirmButtonText: "Có",
-    //             cancelButtonText: "Không"
-    //         }).then(async (result) => {
-    //             if (result.isConfirmed) {
-    //                 setFilterLoading(true);
-    //                 try {
-    //                     const res = await deleteDongHo(id);
-    //                     if (res.status === 200 || res.status === 201) {
-    //                         setRootData(prevData => prevData ? prevData.filter(item => item.id !== id) : []);
-    //                         Swal.fire({
-    //                             text: "Xóa thành công!",
-    //                             icon: "success"
-    //                         });
-    //                     } else {
-    //                         console.error(res.msg);
-    //                         setError("Có lỗi đã xảy ra!");
-    //                     }
-    //                 } catch (error) {
-    //                     console.error('Error deleting PDM:', error);
-    //                     setError("Có lỗi đã xảy ra!");
-    //                 } finally {
-    //                     setFilterLoading(false);
-    //                 }
-    //             }
-    //         });
-    //     }
-    // };
-
-    const hanldeResetFilter = () => {
-        setFilterForm({
+    const handleResetFilter = () => {
+        const blankFilterForm: DongHoFilterParameters = {
             so_giay_chung_nhan: "",
-            serial_number: "",
+            seri_sensor: "",
             type: "",
             ccx: "",
             nguoi_kiem_dinh: "",
             ten_khach_hang: "",
             status: "",
             ngay_kiem_dinh_from: null,
-            ngay_kiem_dinh_to: null
-        });
+            ngay_kiem_dinh_to: null,
+            last_seen_id: "",
+            next_id_from: "",
+            prev_id_from: "",
+            limit: limit
+        };
+        _fetchDongHo(blankFilterForm);
+        setCurrentPage(1);
     }
 
-    // const handlePageChange = (newPage: number) => {
-    //     setCurrentPage(newPage);
-    // };
+    const handleAddPermission = () => {
+        setIsShow(true);
+        isEditing.current = false;
+    }
 
-    // Function to process du_lieu
-    const processDuLieu = (data: { du_lieu?: DuLieuChayDongHo }): string => {
-        if (data.du_lieu) {
-            let duLieuStr = "";
-            Object.entries(data.du_lieu).map(([key, value]) => {
-                if (value != null) {
-                    const lastKey = value.lan_chay ? Object.keys(value.lan_chay).pop() : null; // Get the last key
-                    duLieuStr += (lastKey ? `${key}: Lần ${lastKey}` : key) + ", ";
-                }
-            });
-            return duLieuStr.substring(0, duLieuStr.length - 2);
+    const handleCloseModal = () => {
+        setIsShow(false);
+    }
+
+    const handleSearch = () => {
+        setCurrentPage(1);
+        _fetchDongHo({ ...filterForm, last_seen_id: "", next_id_from: "", prev_id_from: "" })
+    }
+
+    const handlePageChange = (newPage: number) => {
+        if (currentPage > newPage) {
+            const newFilterForm: DongHoFilterParameters = {
+                ...filterForm,
+                last_seen_id: "",
+                prev_id_from: data && data[0].id ? data[0].id || "" : "",
+                next_id_from: ""
+            }
+            _fetchDongHo(newFilterForm);
+        } else if (currentPage < newPage) {
+            const newFilterForm: DongHoFilterParameters = {
+                ...filterForm,
+                last_seen_id: "",
+                prev_id_from: "",
+                next_id_from: data[data.length - 1] && data[data.length - 1].id ? data[data.length - 1].id || "" : ""
+            }
+            _fetchDongHo(newFilterForm);
         }
-        return "";
+        setCurrentPage(newPage);
     };
 
-    // const paginatedData = rootData ? rootData.slice((currentPage - 1) * limit, currentPage * limit) : [];
+    const paginatedData = data || [];
 
     return (
         <LocalizationProvider dateAdapter={AdapterDayjs} localeText={viVN.components.MuiLocalizationProvider.defaultProps.localeText}>
+            {isAuthorizing && dataList.length > 0 &&
+                <ModalMultDongHoPermissionMng
+                    show={isShow != null ? isShow : false}
+                    dongHoList={dataList}
+                    handleClose={handleCloseModal}
+                ></ModalMultDongHoPermissionMng>
+            }
             <div className={`${className ? className : ""} m-0 w-100`}>
                 <div className={`${c_vfml['wraper']} w-100`}>
 
-                    <div className="bg-white w-100 shadow-sm mb-2 rounded pb-2 pt-4">
+                    <div className="bg-white w-100 shadow-sm mb-2 rounded pt-3 pb-1">
                         <div className={`row m-0 px-md-3 w-100 mb-3 ${c_vfml['search-process']}`}>
-                            {/* <div className="col-12 mb-3 col-md-6 col-xl-4 d-flex">
-                            <label className={`${c_vfml['form-label']}`} htmlFor="process-id">
-                                ID:
-                                <input
-                                    type="text"
-                                    id="process-id"
-                                    className="form-control"
-                                    placeholder="Nhập ID"
-                                    value={filterForm.waterMeterId}
-                                    onChange={(e) => handleFilterChange('waterMeterId', e.target.value)}
-                                />
-                            </label>
-                        </div> */}
+                            {isAuthorizing ?
+                                <div className={`col-12 mb-3 col-xl-4 d-flex ${isAuthorizing ? "col-md-4 col-lg-4" : "col-md-6"}`}>
+                                    <label className={`${c_vfml['form-label']}`} htmlFor="seri_sensor">
+                                        Serial Sensor:
+                                        <input
+                                            type="text"
+                                            id="seri_sensor"
+                                            className="form-control"
+                                            placeholder="Nhập serial"
+                                            value={filterForm.seri_sensor}
+                                            onChange={(e) => handleFilterChange('seri_sensor', e.target.value)}
+                                        />
+                                    </label>
+                                </div> : <>
+                                    <div className="col-12 mb-3 col-md-6 col-lg-4 d-flex">
+                                        <label className={`${c_vfml['form-label']}`} htmlFor="so_giay_chung_nhan">
+                                            Số giấy chứng nhận:
+                                            <input
+                                                type="text"
+                                                id="so_giay_chung_nhan"
+                                                className="form-control"
+                                                placeholder="Nhập số giấy"
+                                                value={filterForm.so_giay_chung_nhan}
+                                                onChange={(e) => handleFilterChange('so_giay_chung_nhan', e.target.value)}
+                                            />
+                                        </label>
+                                    </div>
+                                    <div className="col-12 mb-3 col-md-6 col-lg-4">
+                                        <label className={`${c_vfml['form-label']}`} htmlFor="ten_khach_hang">
+                                            Tên khách hàng:
+                                            <input
+                                                type="text"
+                                                id="ten_khach_hang"
+                                                className="form-control"
+                                                placeholder="Nhập tên khách hàng"
+                                                value={filterForm.ten_khach_hang}
+                                                onChange={(e) => handleFilterChange('ten_khach_hang', e.target.value)}
+                                            />
+                                        </label>
+                                    </div>
+                                    <div className="col-12 d-md-none d-lg-flex mb-3 col-md-6 col-lg-4">
+                                        <label className={`${c_vfml['form-label']}`} htmlFor="nguoi_kiem_dinh">
+                                            Người kiểm định:
+                                            <input
+                                                type="text"
+                                                id="nguoi_kiem_dinh"
+                                                className="form-control"
+                                                placeholder="Nhập tên người kiểm định"
+                                                value={filterForm.nguoi_kiem_dinh}
+                                                onChange={(e) => handleFilterChange('nguoi_kiem_dinh', e.target.value)}
+                                            />
+                                        </label>
+                                    </div>
+                                </>
+                            }
 
-                            <div className="col-12 mb-3 col-md-6 col-xl-4 d-flex">
-                                <label className={`${c_vfml['form-label']}`} htmlFor="so_giay_chung_nhan">
-                                    Số giấy chứng nhận:
-                                    <input
-                                        type="text"
-                                        id="so_giay_chung_nhan"
-                                        className="form-control"
-                                        placeholder="Nhập số giấy"
-                                        value={filterForm.so_giay_chung_nhan}
-                                        onChange={(e) => handleFilterChange('so_giay_chung_nhan', e.target.value)}
-                                    />
-                                </label>
-                            </div>
-                            <div className="col-12 mb-3 col-md-6 col-xl-4">
-                                <label className={`${c_vfml['form-label']}`} htmlFor="ten_khach_hang">
-                                    Tên khách hàng:
-                                    <input
-                                        type="text"
-                                        id="ten_khach_hang"
-                                        className="form-control"
-                                        placeholder="Nhập tên khách hàng"
-                                        value={filterForm.ten_khach_hang}
-                                        onChange={(e) => handleFilterChange('ten_khach_hang', e.target.value)}
-                                    />
-                                </label>
-                            </div>
-                            <div className="col-12 mb-3 col-md-6 col-xl-4">
-                                <label className={`${c_vfml['form-label']}`} htmlFor="nguoi_kiem_dinh">
-                                    Người kiểm định:
-                                    <input
-                                        type="text"
-                                        id="nguoi_kiem_dinh"
-                                        className="form-control"
-                                        placeholder="Nhập tên người kiểm định"
-                                        value={filterForm.nguoi_kiem_dinh}
-                                        onChange={(e) => handleFilterChange('nguoi_kiem_dinh', e.target.value)}
-                                    />
-                                </label>
-                            </div>
-                            {/* <div className={`col-12 col-md-6 col-xl-4 mb-3 m-0 p-0 row`}>
-                                <label className={`${c_vfml['form-label']}`}>
-                                    Số lượng bản ghi:
-                                    <Select
-                                        name="limit"
-                                        options={limitOptions as unknown as readonly GroupBase<never>[]}
-                                        className="basic-multi-select"
-                                        classNamePrefix="select"
-                                        value={limitOptions.find(option => option.value === limit) || 10}
-                                        onChange={(selectedOptions: any) => setLimit(selectedOptions ? selectedOptions.value : 10)}
-                                        styles={{
-                                            control: (provided) => ({
-                                                ...provided,
-                                                height: '42px',
-                                                minHeight: '42px',
-                                                marginTop: '0.5rem',
-                                                borderColor: '#dee2e6 !important',
-                                                boxShadow: 'none !important'
-                                            }),
-                                            valueContainer: (provided) => ({
-                                                ...provided,
-                                                height: '42px',
-                                                padding: '0 8px'
-                                            }),
-                                            input: (provided) => ({
-                                                ...provided,
-                                                margin: '0',
-                                                padding: '0'
-                                            }),
-                                            menu: (provided) => ({
-                                                ...provided,
-                                                zIndex: 777
-                                            }),
-                                            indicatorsContainer: (provided) => ({
-                                                ...provided,
-                                                height: '42px'
-                                            })
-                                        }}
-                                    />
-                                </label>
-                            </div> */}
-
-                            <div className={`col-12 col-xl-8 mb-3 m-0 row p-0 ${c_vfml['search-created-date']}`}>
+                            <div className={`col-12 ${isAuthorizing ? "col-md-8 col-lg-8" : "col-lg-8"} mb-3 m-0 row p-0 ${c_vfml['search-created-date']}`}>
                                 <label className={`${c_vfml['form-label']} col-12`}>
                                     Ngày kiểm định:
                                 </label>
@@ -386,152 +397,201 @@ export default function WaterMeterManagement({ className, isBiggerThan15 = false
                                     </div>
                                 </div>
                             </div>
-
-                            <div className={`col-12 m-0 my-2 d-flex align-items-center justify-content-between`}>
-                                <button aria-label="Xóa bộ lọc" type="button" className={`btn bg-main-blue text-white`} onClick={hanldeResetFilter}>
-                                    Xóa bộ lọc
-                                </button>
-                                <Link
-                                    href={ACCESS_LINKS.DHN_ADD.src}
-                                    className="btn bg-main-green text-white"
-                                >
-                                    Thêm mới
-                                </Link>
+                            {!isAuthorizing &&
+                                <div className="col-12 d-none d-md-flex d-lg-none mb-3 col-md-6 col-lg-4">
+                                    <label className={`${c_vfml['form-label']}`} htmlFor="nguoi_kiem_dinh">
+                                        Người kiểm định:
+                                        <input
+                                            type="text"
+                                            id="nguoi_kiem_dinh"
+                                            className="form-control"
+                                            placeholder="Nhập tên người kiểm định"
+                                            value={filterForm.nguoi_kiem_dinh}
+                                            onChange={(e) => handleFilterChange('nguoi_kiem_dinh', e.target.value)}
+                                        />
+                                    </label>
+                                </div>
+                            }
+                            <div className={`col-12 align-items-end pb-2 ${isAuthorizing ? "col-lg-12" : "col-md-6 col-lg-4"} m-0 my-2 d-flex justify-content-between`}>
+                                <div className="d-flex gap-2">
+                                    <button aria-label="Tìm kiếm" type="button" className={`btn bg-main-blue text-white`} onClick={handleSearch}>
+                                        <FontAwesomeIcon icon={faSearch}></FontAwesomeIcon> Tìm
+                                    </button>
+                                    <button aria-label="Làm mới" type="button" className={`btn bg-grey text-white`} onClick={handleResetFilter}>
+                                        <FontAwesomeIcon icon={faRefresh}></FontAwesomeIcon>
+                                    </button>
+                                </div>
+                                {!isViewer && !isAuthorizing &&
+                                    <Link
+                                        style={{ minHeight: "42px" }}
+                                        href={ACCESS_LINKS.DHN_ADD.src}
+                                        className="btn bg-main-green text-white"
+                                    >
+                                        Thêm mới
+                                    </Link>
+                                }
+                                {isAuthorizing && dataList.length > 0 &&
+                                    <button
+                                        className="btn bg-main-green text-white"
+                                        onClick={() => handleAddPermission()}
+                                    >
+                                        Thêm phân quyền
+                                    </button>
+                                }
                             </div>
+
                         </div>
                     </div>
+
+                    {dataList.length > 0 &&
+                        <div className="alert alert-warning alert-dismissible shadow-sm mb-2 d-flex justify-content-end justify-content-sm-center position-relative px-3 px-md-4" role="alert">
+                            <h5 className="m-0 text-center"></h5>
+                            <button style={{ top: "50%", left: "20px", transform: "translateY(-50%)" }} className={`btn m-0 py-0 px-0 text-blue position-absolute d-flex align-items-center gap-1 border-0 shadow-0`} onClick={() => clearNDHPropData?.()}>
+                                <FontAwesomeIcon icon={faArrowLeft} style={{ fontSize: "22px" }}></FontAwesomeIcon> Quay lại
+                            </button>
+                            <span className={`fs-5 fw-bold d-none d-sm-block`} style={{ maxWidth: "calc(100% - 195px)", overflow: "hidden", WebkitLineClamp: "1", whiteSpace: "no-wrap", textOverflow: "ellipsis" }}>{dataList[0].group_id}</span>
+                            <span className={`fs-5 fw-bold d-sm-none`} style={{ maxWidth: "calc(100% - 115px)", overflow: "hidden", WebkitLineClamp: "1", whiteSpace: "no-wrap", textOverflow: "ellipsis" }}>{dataList[0].group_id}</span>
+                        </div>}
 
                     <div className="bg-white w-100 shadow-sm position-relative rounded overflow-hidden">
                         {filterLoading && <Loading />}
                         <div className={`m-0 p-0 w-100 w-100 position-relative ${c_vfml['wrap-process-table']}`}>
-                            {rootData.length > 0 ? (
+                            {data && data.length > 0 ? (
                                 <table className={`table table-striped table-bordered table-hover ${c_vfml['process-table']}`}>
                                     <thead>
                                         <tr className={`${c_vfml['table-header']}`}>
                                             <th className="text-center">
-                                                STT
+                                                ID
                                             </th>
-                                            <th>
-                                                <div className={`${c_vfml['table-label']}`}>
-                                                    <span>
-                                                        Số giấy CN
-                                                    </span>
-                                                </div>
-                                            </th>
-                                            <th onClick={() => sortData('ten_khach_hang')}>
-                                                <div className={`${c_vfml['table-label']}`}>
-                                                    <span>
-                                                        Tên khách hàng
-                                                    </span>
-                                                    {sortConfig && sortConfig.key === 'ten_khach_hang' && sortConfig.direction === 'asc' && (
-                                                        <FontAwesomeIcon icon={faChevronDown}></FontAwesomeIcon>
-                                                    )}
-                                                    {sortConfig && sortConfig.key === 'ten_khach_hang' && sortConfig.direction === 'desc' && (
-                                                        <FontAwesomeIcon icon={faChevronUp}></FontAwesomeIcon>
-                                                    )}
-                                                </div>
-                                            </th>
-                                            <th onClick={() => sortData('nguoi_kiem_dinh')}>
-                                                <div className={`${c_vfml['table-label']}`}>
-                                                    <span>
-                                                        Người kiểm định
-                                                    </span>
-                                                    {sortConfig && sortConfig.key === 'nguoi_kiem_dinh' && sortConfig.direction === 'asc' && (
-                                                        <FontAwesomeIcon icon={faChevronDown}></FontAwesomeIcon>
-                                                    )}
-                                                    {sortConfig && sortConfig.key === 'nguoi_kiem_dinh' && sortConfig.direction === 'desc' && (
-                                                        <FontAwesomeIcon icon={faChevronUp}></FontAwesomeIcon>
-                                                    )}
-                                                </div>
-                                            </th>
-                                            <th onClick={() => sortData('ngay_thuc_hien')}>
-                                                <div className={`${c_vfml['table-label']}`}>
-                                                    <span>
-                                                        Ngày thực hiện
-                                                    </span>
-                                                    {sortConfig && sortConfig.key === 'ngay_thuc_hien' && sortConfig.direction === 'asc' && (
-                                                        <FontAwesomeIcon icon={faChevronDown}></FontAwesomeIcon>
-                                                    )}
-                                                    {sortConfig && sortConfig.key === 'ngay_thuc_hien' && sortConfig.direction === 'desc' && (
-                                                        <FontAwesomeIcon icon={faChevronUp}></FontAwesomeIcon>
-                                                    )}
-                                                </div>
-                                            </th>
-                                            {/* <th onClick={() => sortData('status')}>
-                                                <div className={`${c_vfml['table-label']}`}>
-                                                    <span>
-                                                        Trạng thái
-                                                    </span>
-                                                    {sortConfig && sortConfig.key === 'status' && sortConfig.direction === 'asc' && (
-                                                        <FontAwesomeIcon icon={faChevronDown}></FontAwesomeIcon>
-                                                    )}
-                                                    {sortConfig && sortConfig.key === 'status' && sortConfig.direction === 'desc' && (
-                                                        <FontAwesomeIcon icon={faChevronUp}></FontAwesomeIcon>
-                                                    )}
-                                                </div>
-                                            </th> */}
-                                            <th>
-                                                <div className={`${c_vfml['table-label']}`}>
-                                                    <span>
-                                                        Trạng thái
-                                                    </span>
-                                                </div>
-                                            </th>
-                                            <th></th>
+                                            {isAuthorizing ?
+                                                <>
+                                                    <th>
+                                                        <div className={`${c_vfml['table-label']}`}>
+                                                            <span>
+                                                                Serial Sensor
+                                                            </span>
+                                                        </div>
+                                                    </th>
+                                                    <th onClick={() => sortData('ngay_thuc_hien')}>
+                                                        <div className={`${c_vfml['table-label']}`}>
+                                                            <span>
+                                                                Ngày thực hiện
+                                                            </span>
+                                                            {sortConfig && sortConfig.key === 'ngay_thuc_hien' && sortConfig.direction === 'asc' && (
+                                                                <FontAwesomeIcon icon={faChevronDown}></FontAwesomeIcon>
+                                                            )}
+                                                            {sortConfig && sortConfig.key === 'ngay_thuc_hien' && sortConfig.direction === 'desc' && (
+                                                                <FontAwesomeIcon icon={faChevronUp}></FontAwesomeIcon>
+                                                            )}
+                                                        </div>
+                                                    </th>
+                                                    <th>Vai trò của bạn</th>
+                                                    <th>Phân quyền</th>
+                                                </>
+                                                : <>
+                                                    <th>
+                                                        <div className={`${c_vfml['table-label']}`}>
+                                                            <span>
+                                                                Số giấy CN
+                                                            </span>
+                                                        </div>
+                                                    </th>
+                                                    <th onClick={() => sortData('ten_khach_hang')}>
+                                                        <div className={`${c_vfml['table-label']}`}>
+                                                            <span>
+                                                                Tên khách hàng
+                                                            </span>
+                                                            {sortConfig && sortConfig.key === 'ten_khach_hang' && sortConfig.direction === 'asc' && (
+                                                                <FontAwesomeIcon icon={faChevronDown}></FontAwesomeIcon>
+                                                            )}
+                                                            {sortConfig && sortConfig.key === 'ten_khach_hang' && sortConfig.direction === 'desc' && (
+                                                                <FontAwesomeIcon icon={faChevronUp}></FontAwesomeIcon>
+                                                            )}
+                                                        </div>
+                                                    </th>
+                                                    <th onClick={() => sortData('nguoi_kiem_dinh')}>
+                                                        <div className={`${c_vfml['table-label']}`}>
+                                                            <span>
+                                                                Người kiểm định
+                                                            </span>
+                                                            {sortConfig && sortConfig.key === 'nguoi_kiem_dinh' && sortConfig.direction === 'asc' && (
+                                                                <FontAwesomeIcon icon={faChevronDown}></FontAwesomeIcon>
+                                                            )}
+                                                            {sortConfig && sortConfig.key === 'nguoi_kiem_dinh' && sortConfig.direction === 'desc' && (
+                                                                <FontAwesomeIcon icon={faChevronUp}></FontAwesomeIcon>
+                                                            )}
+                                                        </div>
+                                                    </th>
+                                                    <th onClick={() => sortData('ngay_thuc_hien')}>
+                                                        <div className={`${c_vfml['table-label']}`}>
+                                                            <span>
+                                                                Ngày thực hiện
+                                                            </span>
+                                                            {sortConfig && sortConfig.key === 'ngay_thuc_hien' && sortConfig.direction === 'asc' && (
+                                                                <FontAwesomeIcon icon={faChevronDown}></FontAwesomeIcon>
+                                                            )}
+                                                            {sortConfig && sortConfig.key === 'ngay_thuc_hien' && sortConfig.direction === 'desc' && (
+                                                                <FontAwesomeIcon icon={faChevronUp}></FontAwesomeIcon>
+                                                            )}
+                                                        </div>
+                                                    </th>
+                                                    <th>
+                                                        <div className={`${c_vfml['table-label']}`}>
+                                                            <span>
+                                                                Trạng thái
+                                                            </span>
+                                                        </div>
+                                                    </th>
+                                                    <th></th>
+                                                </>
+                                            }
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        {rootData.map((dongHo, index) => {
+                                        {/* {data.map((dongHo, index) => { */}
+                                        {paginatedData.map((dongHo, index) => {
                                             const duLieuKiemDinhJSON = dongHo.du_lieu_kiem_dinh;
                                             const duLieuKiemDinh = duLieuKiemDinhJSON ?
                                                 ((typeof duLieuKiemDinhJSON != 'string') ?
                                                     duLieuKiemDinhJSON : JSON.parse(duLieuKiemDinhJSON)
                                                 ) : null;
                                             const ketQua = duLieuKiemDinh?.ket_qua;
+                                            const redirectLink = `${ACCESS_LINKS.DHN_DETAIL_DH.src}/${dongHo.id}`;
 
                                             return (
                                                 <tr
                                                     key={index}
-                                                    onClick={() => window.open(`${ACCESS_LINKS.DHN_DETAIL_DH.src}/${dongHo.id}`)}
                                                     style={{ cursor: 'pointer' }}
                                                 >
-                                                    <td className="text-center">{rootData.indexOf(dongHo) + 1}</td>
-                                                    <td>{dongHo.so_giay_chung_nhan}</td>
-                                                    <td>{dongHo.ten_khach_hang}</td>
-                                                    <td>{dongHo.nguoi_kiem_dinh}</td>
-                                                    <td>{dayjs(dongHo.ngay_thuc_hien).format('DD-MM-YYYY')}</td>
-                                                    <td>
-                                                        {/* {processDuLieu(dongHo.du_lieu_kiem_dinh as { du_lieu?: DuLieuChayDongHo })} */}
-                                                        {ketQua != null ? (ketQua ? "Đạt" : "Không đạt") : "Chưa kiểm định"}
-                                                    </td>
-                                                    <td
-                                                        onClick={() => window.open(`${ACCESS_LINKS.DHN_EDIT_NDH.src + "/" + dongHo.group_id}`)}
-                                                    >
-                                                        {/* <Link target="_blank" aria-label="Xem chi tiết" href={ACCESS_LINKS.DHN_DETAIL_DH.src + "/" + dongHo.id} className={`btn w-100 text-blue`}>
-                                                            <FontAwesomeIcon icon={faEye}></FontAwesomeIcon>
-                                                        </Link> */}
-                                                        <Link aria-label="Chỉnh sửa" href={ACCESS_LINKS.DHN_EDIT_DH.src + "/" + dongHo.id} className={`btn w-100 text-blue shadow-0`}>
-                                                            <FontAwesomeIcon icon={faEdit}></FontAwesomeIcon>
-                                                        </Link>
-
-                                                        {/* <div className={`dropdown ${c_vfml['action']}`}>
-                                                            <button aria-label="Lựa chọn" className={`${c_vfml['action-button']}`} type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                                                <FontAwesomeIcon icon={faEllipsisH}></FontAwesomeIcon>
-                                                            </button>
-                                                            <ul className={`dropdown-menu ${c_vfml['dropdown-menu']}`} style={{ zIndex: "777" }}>
-                                                                <li>
-                                                                    <Link aria-label="Xem chi tiết" href={ACCESS_LINKS.DHN_DETAIL_DH.src + "/"+ dongHo.serial_number} className={`btn w-100`}>
-                                                                        Xem chi tiết
-                                                                    </Link>
-                                                                </li>
-                                                                <li>
-                                                                    <button aria-label="Xóa" type="button" onClick={() => handleDelete(dongHo.serial_number)} className={`btn w-100`}>
-                                                                        Xóa
-                                                                    </button>
-                                                                </li>
-                                                            </ul>
-                                                        </div> */}
-                                                    </td>
+                                                    <td className="text-center">{decode(dongHo.id || "")}</td>
+                                                    {isAuthorizing ?
+                                                        <>
+                                                            <td onClick={() => setSelectedDongHo?.(dongHo)}>{dongHo.seri_sensor || "Không có serial sensor"}</td>
+                                                            <td onClick={() => setSelectedDongHo?.(dongHo)}>{dayjs(dongHo.ngay_thuc_hien).format('DD-MM-YYYY')}</td>
+                                                            <td onClick={() => setSelectedDongHo?.(dongHo)}>{getNameOfRole(isSuperAdmin ? getCurrentRole() : (dongHo?.current_permission || ""))}</td>
+                                                            <td>
+                                                                <button aria-label="Phân quyền" onClick={() => setSelectedDongHo?.(dongHo)} className={`btn border-0 w-100 text-blue shadow-0`}>
+                                                                    <FontAwesomeIcon icon={faCircleArrowRight} style={{ fontSize: "26px" }}></FontAwesomeIcon>
+                                                                </button>
+                                                            </td>
+                                                        </> :
+                                                        <>
+                                                            <td onClick={() => window.open(redirectLink)}>{dongHo.so_giay_chung_nhan}</td>
+                                                            <td onClick={() => window.open(redirectLink)}>{dongHo.ten_khach_hang}</td>
+                                                            <td onClick={() => window.open(redirectLink)}>{dongHo.nguoi_kiem_dinh}</td>
+                                                            <td onClick={() => window.open(redirectLink)}>{dayjs(dongHo.ngay_thuc_hien).format('DD-MM-YYYY')}</td>
+                                                            <td onClick={() => window.open(redirectLink)}>
+                                                                {ketQua != null ? (ketQua ? "Đạt" : "Không đạt") : "Chưa kiểm định"}
+                                                            </td>
+                                                            <td
+                                                                onClick={() => window.open(redirectLink)}
+                                                            >
+                                                                <Link aria-label="Chỉnh sửa" href={ACCESS_LINKS.DHN_EDIT_DH.src + "/" + dongHo.id} className={`btn w-100 text-blue shadow-0`}>
+                                                                    <FontAwesomeIcon icon={faEdit}></FontAwesomeIcon>
+                                                                </Link>
+                                                            </td>
+                                                        </>
+                                                    }
                                                 </tr>
                                             )
                                         })}
@@ -542,7 +602,7 @@ export default function WaterMeterManagement({ className, isBiggerThan15 = false
                             )}
                         </div>
                         <div className="w-100 m-0 p-3 d-flex align-items-center justify-content-center">
-                            {/* <Pagination currentPage={currentPage} totalPage={totalPage} handlePageChange={handlePageChange}></Pagination> */}
+                            <Pagination currentPage={currentPage} totalPage={totalPage} totalRecords={totalRecords} handlePageChange={handlePageChange}></Pagination>
                         </div>
                     </div>
                 </div>
