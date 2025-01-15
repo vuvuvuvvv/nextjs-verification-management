@@ -106,10 +106,6 @@ export default function WaterMeterManagement({ className, isBiggerThan15 = false
     const [totalPage, setTotalPage] = useState(1);
     const totalPageRef = useRef(totalPage);
 
-    useEffect(() => {
-        // setTotalPage(resetTotalPage);
-    }, [data, limit])
-
     const sortData = useCallback((key: keyof DongHo) => {
         if (!filterLoading) {
             setFilterLoading(true);
@@ -141,8 +137,8 @@ export default function WaterMeterManagement({ className, isBiggerThan15 = false
         }
     }, [data, sortConfig, filterLoading]);
 
-    const fetchDongHo = async (filterFormProps?: DongHoFilterParameters) => {
-        console.log(filterFormProps);
+    const _fetchDongHo = async (filterFormProps?: DongHoFilterParameters) => {
+        setFilterLoading(true);
         if (dataList.length > 0) {
             setRootData(dataList);
             rootData.current = dataList;
@@ -151,17 +147,16 @@ export default function WaterMeterManagement({ className, isBiggerThan15 = false
             try {
                 const res = await getDongHoByFilter(filterFormProps ? filterFormProps : filterForm, !isSuperAdmin, (!isSuperAdmin ? (user?.username || "") : ""));
                 if (res.status === 200 || res.status === 201) {
-                    console.log(res.data);
                     setRootData(res.data.donghos || []);
                     if (totalPageRef.current != res.data.total_page) {
-                        setTotalPage(res.data.total_page)
-                        totalPageRef.current = res.data.total_page;
+                        setTotalPage(res.data.total_page || 1)
+                        totalPageRef.current = res.data.total_page || 1;
                     }
                     if (totalRecordsRef.current != res.data.total_records) {
-                        setTotalRecords(res.data.total_records)
-                        totalRecordsRef.current = res.data.total_records;
+                        setTotalRecords(res.data.total_records || 0)
+                        totalRecordsRef.current = res.data.total_records || 0;
                     }
-                    if(filterFormProps) {
+                    if (filterFormProps) {
                         setFilterForm(filterFormProps);
                     }
                     rootData.current = res.data.donghos || [];
@@ -179,7 +174,7 @@ export default function WaterMeterManagement({ className, isBiggerThan15 = false
     }
 
     if (!fetchedRef.current) {
-        fetchDongHo();
+        _fetchDongHo();
         fetchedRef.current = true;
     }
 
@@ -257,8 +252,7 @@ export default function WaterMeterManagement({ className, isBiggerThan15 = false
             prev_id_from: "",
             limit: limit
         };
-        setFilterForm(blankFilterForm);
-        fetchDongHo(blankFilterForm);
+        _fetchDongHo(blankFilterForm);
         setCurrentPage(1);
     }
 
@@ -271,23 +265,28 @@ export default function WaterMeterManagement({ className, isBiggerThan15 = false
         setIsShow(false);
     }
 
+    const handleSearch = () => {
+        setCurrentPage(1);
+        _fetchDongHo({ ...filterForm, last_seen_id: "", next_id_from: "", prev_id_from: "" })
+    }
+
     const handlePageChange = (newPage: number) => {
         if (currentPage > newPage) {
             const newFilterForm: DongHoFilterParameters = {
                 ...filterForm,
                 last_seen_id: "",
-                prev_id_from: data[0].id || "",
+                prev_id_from: data && data[0].id ? data[0].id || "" : "",
                 next_id_from: ""
             }
-            fetchDongHo(newFilterForm);
+            _fetchDongHo(newFilterForm);
         } else if (currentPage < newPage) {
             const newFilterForm: DongHoFilterParameters = {
                 ...filterForm,
                 last_seen_id: "",
                 prev_id_from: "",
-                next_id_from: data[data.length - 1].id || ""
+                next_id_from: data[data.length - 1] && data[data.length - 1].id ? data[data.length - 1].id || "" : ""
             }
-            fetchDongHo(newFilterForm);
+            _fetchDongHo(newFilterForm);
         }
         setCurrentPage(newPage);
     };
@@ -415,7 +414,7 @@ export default function WaterMeterManagement({ className, isBiggerThan15 = false
                             }
                             <div className={`col-12 align-items-end pb-2 ${isAuthorizing ? "col-lg-12" : "col-md-6 col-lg-4"} m-0 my-2 d-flex justify-content-between`}>
                                 <div className="d-flex gap-2">
-                                    <button aria-label="Tìm kiếm" type="button" className={`btn bg-main-blue text-white`} onClick={() => fetchDongHo(filterForm)}>
+                                    <button aria-label="Tìm kiếm" type="button" className={`btn bg-main-blue text-white`} onClick={handleSearch}>
                                         <FontAwesomeIcon icon={faSearch}></FontAwesomeIcon> Tìm
                                     </button>
                                     <button aria-label="Làm mới" type="button" className={`btn bg-grey text-white`} onClick={handleResetFilter}>

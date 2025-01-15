@@ -292,6 +292,8 @@ export interface NhomDongHoFilterParameters {
     nguoi_kiem_dinh: string;
     ngay_kiem_dinh_from: Date | null;
     ngay_kiem_dinh_to: Date | null;
+    limit: number;  // x
+    page: number;   // p: => limit x offset x*(p-1)
 }
 
 export interface DongHoPermission {

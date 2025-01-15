@@ -597,7 +597,7 @@ export default function PDMManagement({ className, listDHNamesExist }: PDMManage
                                     <tbody>
                                         {rootData.map((item, index) => (
                                             <tr key={index}
-                                                onClick={() => window.open(`${ACCESS_LINKS.PDM_DETAIL.src}/${item.ma_tim_dong_ho_pdm}`, '_blank')}
+                                                onClick={() => window.open(`${ACCESS_LINKS.PDM_DETAIL.src}/${item.id}`, '_blank')}
                                                 style={{ cursor: 'pointer' }} >
                                                 <td className="text-center">{rootData.indexOf(item) + 1}</td>
                                                 <td>{item.ten_dong_ho}</td>
@@ -612,7 +612,7 @@ export default function PDMManagement({ className, listDHNamesExist }: PDMManage
                                                     {new Date(item.ngay_het_han) > new Date() ? 'Còn hiệu lực' : 'Hết hạn'}
                                                 </td>
                                                 <td>
-                                                    <Link target="_blank" aria-label="Xem chi tiết" href={ACCESS_LINKS.PDM_DETAIL.src + "/" + item.ma_tim_dong_ho_pdm} className={`btn border-0 shadow-0 w-100 text-blue`}>
+                                                    <Link target="_blank" aria-label="Xem chi tiết" href={ACCESS_LINKS.PDM_DETAIL.src + "/" + item.id} className={`btn border-0 shadow-0 w-100 text-blue`}>
                                                         <FontAwesomeIcon icon={faEye}></FontAwesomeIcon>
                                                     </Link>
                                                 </td>

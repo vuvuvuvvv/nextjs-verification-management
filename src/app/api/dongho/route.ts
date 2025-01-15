@@ -144,6 +144,14 @@ export const getNhomDongHoByFilter = async (parameters?: NhomDongHoFilterParamet
             url.searchParams.append('ngay_kiem_dinh_to', parameters.ngay_kiem_dinh_to.toString());
         }
 
+        if (parameters?.limit) {
+            url.searchParams.append('limit', parameters.limit.toString());
+        }
+
+        if (parameters?.page) {
+            url.searchParams.append('page', parameters.page.toString());
+        }
+
         const response = await api.get(url.toString(), { withCredentials: true });
 
         return {

@@ -12,7 +12,7 @@ interface PaginationProps {
 const Pagination: React.FC<PaginationProps> = ({ className, currentPage, totalPage, totalRecords, handlePageChange }) => {
     return (totalPage == 0) ? <></> : (
         <div className={`w-100 ${pg['pagination']} ${totalRecords > 0 ? "justify-content-between" : "justify-content-center"} ${className ? className : ''}`}>
-            {totalRecords > 0 && <small>{totalRecords} bản ghi</small>}
+            {totalRecords > 0 && <small className='text-secondary'>{totalRecords} bản ghi</small>}
             <div className='d-flex align-items-center gap-2'>
                 {/* <button aria-label="Trang đầu" type="button" className={`${pg['btn']}`} onClick={() => handlePageChange(1)} disabled={currentPage === 1}>
                 ❬❬

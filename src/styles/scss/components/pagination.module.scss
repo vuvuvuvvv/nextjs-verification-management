@@ -32,6 +32,8 @@
     }
 
     .btn {
+        font-weight: bold;
+
         &:hover:not([disabled]) {
             background-color: $light_blue;
         }

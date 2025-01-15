@@ -133,6 +133,39 @@ export const getPDMByMaTimDongHoPDM = async (ma_tim_dong_ho_pdm: string) => {
     }
 };
 
+export const getPDMById = async (id: string) => {
+    try {
+        const url = API_PDM_URL + "/id/" + id.toString();
+        console.log(url);
+        const response = await api.get(url.toString(), { withCredentials: true });
+
+        return {
+            "status": response.status,
+            "data": response.data,
+            "msg": "Done!"
+        };
+
+    } catch (error: any) {
+        if (error.response) {
+            if (error.response.status === 404) {
+                return {
+                    "status": 404,
+                    "msg": 'PDM không tìm thấy!'
+                };
+            }
+            return {
+                "status": error.response.status,
+                "msg": 'Có lỗi xảy ra khi lấy dữ liệu PDM!'
+            };
+        } else {
+            return {
+                "status": 500,
+                "msg": 'Có lỗi đã xảy ra. Hãy thử lại!'
+            };
+        }
+    }
+};
+
 
 export const createPDM = async (pdm: PDM) => {
     try {
