@@ -53,7 +53,6 @@ const siteSideLinks: SideLink[] = [
         icon: faEdit,
         children: [
             { title: ACCESS_LINKS.DHN.title, href: ACCESS_LINKS.DHN.src, icon: faClock },
-            { title: ACCESS_LINKS.PDM.title, href: ACCESS_LINKS.PDM.src, icon: faFileAlt },
         ]
     },
     {
@@ -65,6 +64,11 @@ const siteSideLinks: SideLink[] = [
             { title: "Thiết bị đo lưu lượng", href: "#", icon: faClock },
             { title: "Thiết bị đo áp suất", href: "#", icon: faWeight },
         ]
+    },
+    { 
+        title: ACCESS_LINKS.PDM.title, 
+        href: ACCESS_LINKS.PDM.src, 
+        icon: faFileAlt 
     },
     {
         title: "Quản lý chứng từ",
