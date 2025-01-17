@@ -150,8 +150,8 @@ export default function Sidebar({
     };
 
     return <Suspense fallback={<Loading />}>
-        <button aria-label="Menu" className={`bg-transparent px-3 ${sb['btn-toggle']}`} onClick={toggleOpen}>
-            <FontAwesomeIcon icon={faBars} fontSize={24}></FontAwesomeIcon>
+        <button aria-label="Menu" className={`bg-transparent px-3 me-1 ${sb['btn-toggle']}`} onClick={toggleOpen}>
+            <FontAwesomeIcon icon={faBars} className='fs-4'></FontAwesomeIcon>
         </button>
         {show && (
             <div className={`${sb['sb-backdrop']}`} onClick={() => setShow(!show)}></div>

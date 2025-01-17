@@ -58,7 +58,7 @@ const Navbar: React.FC<NavbarProps> = ({ className, title = "Trang kiểm địn
                                 <span className={`${layout['p_name']} d-none d-sm-block`}>{user?.fullname || user?.username || "Unknown"}</span>
                             </button>
 
-                            <div className={`${layout['dD_menu']} dropdown-menu border-0 shadow-sm`}>
+                            <div className={`${layout['dD_menu']} dropdown-menu border-0 shadow`}>
                                 <div className={`${layout['dD_profile']}`}>
                                     <div className={`${layout['box-info']}`}>
                                         <table>
