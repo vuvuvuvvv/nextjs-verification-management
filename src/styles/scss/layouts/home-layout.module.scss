@@ -11,9 +11,11 @@
         min-height: calc(100dvh - $nav_height);
     }
 
-    @media (min-width: $screen_break_point) {
-        .content {
-            margin-left: $sb_width;
+    @if $screen_break_point != null {
+        @media (min-width: $screen_break_point) {
+            .ml-sb-width {
+                margin-left: $sb_width;
+            }
         }
     }
 }

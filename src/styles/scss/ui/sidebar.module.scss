@@ -1,29 +1,31 @@
 @import "@styles/scss/variables/global.variables.scss";
 
-@media (max-width: $screen_break_point) {
-    .wrap-sidebar {
-        left: -$sb_width;
-        top: 0 !important;
-        height: calc($sb_height + $nav_height + $footer_height) !important;
+@if $screen_break_point !=null {
+    @media (max-width: $screen_break_point) {
+        .wrap-sidebar {
+            left: -$sb_width;
+            top: 0 !important;
+            height: calc($sb_height + $nav_height + $footer_height) !important;
 
-        .sb-body {
-            overflow-y: auto !important;
+            .sb-body {
+                overflow-y: auto !important;
+            }
         }
     }
-}
 
-@media (min-width: $screen_break_point) {
-    .wrap-sidebar {
-        left: 0%;
+    @media (min-width: $screen_break_point) {
+        .wrap-sidebar {
+            left: 0%;
 
-        .sb-header {
+            .sb-header {
+                display: none !important;
+            }
+        }
+
+        .sb-backdrop {
             display: none !important;
+            // background-color: #ffffff44;
         }
-    }
-
-    .sb-backdrop {
-        display: none !important;
-        // background-color: #ffffff44;
     }
 }
 
@@ -64,6 +66,7 @@
     color: $sb_text_color;
     position: fixed;
     top: $nav_height;
+    left: -$sb_width;
     padding: 10px 0;
     height: $sb_height;
     transition: 0.5s all ease;
@@ -201,32 +204,34 @@
                     }
                 }
 
-                @media (max-width: $screen_break_point) {
-                    .collapse {
-                        display: none;
-                        padding: 0 10px;
+                @if $screen_break_point !=null {
+                    @media (max-width: $screen_break_point) {
+                        .collapse {
+                            display: none;
+                            padding: 0 10px;
+                        }
+
+                        .show {
+                            display: block;
+                        }
                     }
 
-                    .show {
-                        display: block;
-                    }
-                }
+                    @media (min-width: $screen_break_point) {
+                        .collapse {
+                            position: absolute;
+                            top: 0;
+                            left: -100%;
+                            padding: 10px;
+                            border-radius: 6px;
+                            background-color: $sb_bg_color;
+                            box-shadow: $box_shadow;
+                            display: none;
+                        }
 
-                @media (min-width: $screen_break_point) {
-                    .collapse {
-                        position: absolute;
-                        top: 0;
-                        left: -100%;
-                        padding: 10px;
-                        border-radius: 6px;
-                        background-color: $sb_bg_color;
-                        box-shadow: $box_shadow;
-                        display: none;
-                    }
-
-                    .show {
-                        left: calc(100% + 10px);
-                        display: block;
+                        .show {
+                            left: calc(100% + 10px);
+                            display: block;
+                        }
                     }
                 }
 

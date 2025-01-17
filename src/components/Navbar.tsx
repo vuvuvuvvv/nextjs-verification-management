@@ -30,8 +30,10 @@ import { getNameOfRole } from "@lib/system-function";
 interface NavbarProps {
     className?: string,
     title?: string,
+    show: boolean,
+    setShowSB: React.Dispatch<React.SetStateAction<boolean>>;
 }
-const Navbar: React.FC<NavbarProps> = ({ className, title = "Trang kiểm định" }) => {
+const Navbar: React.FC<NavbarProps> = ({ className, title = "Trang kiểm định", show, setShowSB }) => {
     const { user, logoutUser } = useUser();
 
     return (
@@ -40,7 +42,7 @@ const Navbar: React.FC<NavbarProps> = ({ className, title = "Trang kiểm địn
                 <div className="row m-0 p-0 w-100 d-flex align-items-center justify-content-between">
                     <div className="col-9 d-flex align-items-center justify-content-start gap-1">
 
-                        <Sidebar title={title}></Sidebar>
+                        <Sidebar show={show} setShow={setShowSB} title={title}></Sidebar>
 
                         <Link href={"/"} className={"btn m-0 p-0 border-0"}>
                             <div className={`${layout["nav-brand"]} ps-2 ps-xl-0`}>
@@ -61,13 +63,13 @@ const Navbar: React.FC<NavbarProps> = ({ className, title = "Trang kiểm địn
                                     <div className={`${layout['box-info']}`}>
                                         <table>
                                             <tbody>
-                                                {user?.fullname && 
-                                                <tr className="d-sm-none">
-                                                    <th>Tên:</th>
-                                                    <td>
-                                                        <span className={`${layout['b_name']}`}>{user?.fullname}</span>
-                                                    </td>
-                                                </tr>
+                                                {user?.fullname &&
+                                                    <tr className="d-sm-none">
+                                                        <th>Tên:</th>
+                                                        <td>
+                                                            <span className={`${layout['b_name']}`}>{user?.fullname}</span>
+                                                        </td>
+                                                    </tr>
                                                 }
                                                 {user?.email && <tr>
                                                     <th>Email:</th>

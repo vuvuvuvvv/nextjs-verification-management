@@ -47,8 +47,6 @@
             color: $nav_text_color;
             gap: 6px;
 
-            @media (min-width: $screen_break_point) {}
-
             .p_name {
                 font-size: 14px;
                 text-align: start;

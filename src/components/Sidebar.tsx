@@ -34,6 +34,8 @@ interface SidebarProps {
     // "?" can be undefind
     className?: string;
     title?: string;
+    show: boolean;
+    setShow: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
 interface CollapseState {
@@ -109,10 +111,11 @@ const adminSideLinks: SideLink[] = [
 
 export default function Sidebar({
     className,
-    title
+    title,
+    show,
+    setShow
 }: SidebarProps) {
     const { isManager } = useUser();
-    const [show, setShow] = useState(false);
     const sidebarRef = useRef<HTMLDivElement>(null);
     const [collapseState, setCollapseState] = useState<CollapseState>({});
     const pathname = usePathname();
@@ -147,7 +150,7 @@ export default function Sidebar({
     };
 
     return <Suspense fallback={<Loading />}>
-        <button aria-label="Menu" className={`bg-transparent d-xl-none px-3 ${sb['btn-toggle']}`} onClick={toggleOpen}>
+        <button aria-label="Menu" className={`bg-transparent px-3 ${sb['btn-toggle']}`} onClick={toggleOpen}>
             <FontAwesomeIcon icon={faBars} fontSize={24}></FontAwesomeIcon>
         </button>
         {show && (

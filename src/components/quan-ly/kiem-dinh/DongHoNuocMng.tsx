@@ -10,7 +10,7 @@ import dayjs, { Dayjs } from "dayjs";
 import { viVN } from "@mui/x-date-pickers/locales";
 
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faChevronDown, faChevronUp, faEdit, faCircleArrowRight, faArrowLeft, faSearch, faRefresh } from "@fortawesome/free-solid-svg-icons";
+import { faChevronDown, faChevronUp, faEdit, faCircleArrowRight, faArrowLeft, faSearch, faRefresh, faEye } from "@fortawesome/free-solid-svg-icons";
 import React from "react";
 import { DongHo, DongHoFilterParameters, DongHoPermission, DuLieuChayDongHo } from "@lib/types";
 
@@ -466,23 +466,17 @@ export default function WaterMeterManagement({ className, isBiggerThan15 = false
                                             {isAuthorizing ?
                                                 <>
                                                     <th>
-                                                        <div className={`${c_vfml['table-label']}`}>
+                                                        <div>
                                                             <span>
                                                                 Serial Sensor
                                                             </span>
                                                         </div>
                                                     </th>
-                                                    <th onClick={() => sortData('ngay_thuc_hien')}>
-                                                        <div className={`${c_vfml['table-label']}`}>
+                                                    <th>
+                                                        <div>
                                                             <span>
                                                                 Ngày thực hiện
                                                             </span>
-                                                            {sortConfig && sortConfig.key === 'ngay_thuc_hien' && sortConfig.direction === 'asc' && (
-                                                                <FontAwesomeIcon icon={faChevronDown}></FontAwesomeIcon>
-                                                            )}
-                                                            {sortConfig && sortConfig.key === 'ngay_thuc_hien' && sortConfig.direction === 'desc' && (
-                                                                <FontAwesomeIcon icon={faChevronUp}></FontAwesomeIcon>
-                                                            )}
                                                         </div>
                                                     </th>
                                                     <th>Vai trò của bạn</th>
@@ -490,53 +484,35 @@ export default function WaterMeterManagement({ className, isBiggerThan15 = false
                                                 </>
                                                 : <>
                                                     <th>
-                                                        <div className={`${c_vfml['table-label']}`}>
+                                                        <div>
                                                             <span>
                                                                 Số giấy CN
                                                             </span>
                                                         </div>
                                                     </th>
-                                                    <th onClick={() => sortData('ten_khach_hang')}>
-                                                        <div className={`${c_vfml['table-label']}`}>
+                                                    <th>
+                                                        <div>
                                                             <span>
                                                                 Tên khách hàng
                                                             </span>
-                                                            {sortConfig && sortConfig.key === 'ten_khach_hang' && sortConfig.direction === 'asc' && (
-                                                                <FontAwesomeIcon icon={faChevronDown}></FontAwesomeIcon>
-                                                            )}
-                                                            {sortConfig && sortConfig.key === 'ten_khach_hang' && sortConfig.direction === 'desc' && (
-                                                                <FontAwesomeIcon icon={faChevronUp}></FontAwesomeIcon>
-                                                            )}
-                                                        </div>
-                                                    </th>
-                                                    <th onClick={() => sortData('nguoi_kiem_dinh')}>
-                                                        <div className={`${c_vfml['table-label']}`}>
-                                                            <span>
-                                                                Người kiểm định
-                                                            </span>
-                                                            {sortConfig && sortConfig.key === 'nguoi_kiem_dinh' && sortConfig.direction === 'asc' && (
-                                                                <FontAwesomeIcon icon={faChevronDown}></FontAwesomeIcon>
-                                                            )}
-                                                            {sortConfig && sortConfig.key === 'nguoi_kiem_dinh' && sortConfig.direction === 'desc' && (
-                                                                <FontAwesomeIcon icon={faChevronUp}></FontAwesomeIcon>
-                                                            )}
-                                                        </div>
-                                                    </th>
-                                                    <th onClick={() => sortData('ngay_thuc_hien')}>
-                                                        <div className={`${c_vfml['table-label']}`}>
-                                                            <span>
-                                                                Ngày thực hiện
-                                                            </span>
-                                                            {sortConfig && sortConfig.key === 'ngay_thuc_hien' && sortConfig.direction === 'asc' && (
-                                                                <FontAwesomeIcon icon={faChevronDown}></FontAwesomeIcon>
-                                                            )}
-                                                            {sortConfig && sortConfig.key === 'ngay_thuc_hien' && sortConfig.direction === 'desc' && (
-                                                                <FontAwesomeIcon icon={faChevronUp}></FontAwesomeIcon>
-                                                            )}
                                                         </div>
                                                     </th>
                                                     <th>
-                                                        <div className={`${c_vfml['table-label']}`}>
+                                                        <div>
+                                                            <span>
+                                                                Người kiểm định
+                                                            </span>
+                                                        </div>
+                                                    </th>
+                                                    <th>
+                                                        <div>
+                                                            <span>
+                                                                Ngày thực hiện
+                                                            </span>
+                                                        </div>
+                                                    </th>
+                                                    <th>
+                                                        <div>
                                                             <span>
                                                                 Trạng thái
                                                             </span>
@@ -576,19 +552,22 @@ export default function WaterMeterManagement({ className, isBiggerThan15 = false
                                                             </td>
                                                         </> :
                                                         <>
-                                                            <td onClick={() => window.open(redirectLink)}>{dongHo.so_giay_chung_nhan}</td>
-                                                            <td onClick={() => window.open(redirectLink)}>{dongHo.ten_khach_hang}</td>
-                                                            <td onClick={() => window.open(redirectLink)}>{dongHo.nguoi_kiem_dinh}</td>
-                                                            <td onClick={() => window.open(redirectLink)}>{dayjs(dongHo.ngay_thuc_hien).format('DD-MM-YYYY')}</td>
-                                                            <td onClick={() => window.open(redirectLink)}>
+                                                            <td>{dongHo.so_giay_chung_nhan}</td>
+                                                            <td>{dongHo.ten_khach_hang}</td>
+                                                            <td>{dongHo.nguoi_kiem_dinh}</td>
+                                                            <td>{dayjs(dongHo.ngay_thuc_hien).format('DD-MM-YYYY')}</td>
+                                                            <td>
                                                                 {ketQua != null ? (ketQua ? "Đạt" : "Không đạt") : "Chưa kiểm định"}
                                                             </td>
-                                                            <td
-                                                                onClick={() => window.open(redirectLink)}
-                                                            >
-                                                                <Link aria-label="Chỉnh sửa" href={ACCESS_LINKS.DHN_EDIT_DH.src + "/" + dongHo.id} className={`btn w-100 text-blue shadow-0`}>
-                                                                    <FontAwesomeIcon icon={faEdit}></FontAwesomeIcon>
-                                                                </Link>
+                                                            <td>
+                                                                <div className="w-100 m-0 p-0 d-flex align-items-center justify-content-center">
+                                                                    <Link aria-label="Xem" href={redirectLink} target="_blank" className={`btn p-1 w-100 text-blue shadow-0`}>
+                                                                        <FontAwesomeIcon icon={faEye}></FontAwesomeIcon>
+                                                                    </Link>
+                                                                    <Link aria-label="Chỉnh sửa" href={ACCESS_LINKS.DHN_EDIT_DH.src + "/" + dongHo.id} className={`btn p-1 w-100 text-blue shadow-0`}>
+                                                                        <FontAwesomeIcon icon={faEdit}></FontAwesomeIcon>
+                                                                    </Link>
+                                                                </div>
                                                             </td>
                                                         </>
                                                     }

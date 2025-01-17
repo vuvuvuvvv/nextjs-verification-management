@@ -20,25 +20,27 @@ import { usePathname } from "next/navigation";
 import dynamic from "next/dynamic";
 import Navbar from "@/components/Navbar";
 import { ACCESS_LINKS } from "@lib/system-constant";
+import { useState } from "react";
 
 const routeTitles: { [key: string]: string } = {
     ...Object.fromEntries(
         Object.entries(ACCESS_LINKS).map(([key, val]) => {
-            return [`${val.src}`, val.title]; 
+            return [`${val.src}`, val.title];
         })
     )
 };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode; }>) {
     const pathname = usePathname();
-    const title = routeTitles[pathname] || routeTitles[pathname.slice(0, pathname.lastIndexOf('/'))] || "Website Quản Lý Kiểm Định";
+    const [show, setShow] = useState(true);
+    const title = routeTitles[pathname] || routeTitles[pathname.slice(0, pathname.lastIndexOf('/'))] || "DHT - Quản Lý Kiểm Định";
     return (
         <>
             <title>{title}</title>
             <AppProvider >
-                <Navbar title={title} />
+                <Navbar show={show} setShowSB={setShow} title={title} />
                 <main className={layout["wraper"]}>
-                    <div className={`${layout['content']} position-relative p-0 pb-4`}>
+                    <div className={`${layout['content']} ${!show ? "" : layout['ml-sb-width']} position-relative p-0 pb-4`}>
                         {children}
                     </div>
                 </main>
