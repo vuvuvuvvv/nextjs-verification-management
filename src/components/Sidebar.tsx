@@ -53,7 +53,6 @@ const siteSideLinks: SideLink[] = [
         icon: faEdit,
         children: [
             { title: ACCESS_LINKS.DHN.title, href: ACCESS_LINKS.DHN.src, icon: faClock },
-            { title: ACCESS_LINKS.PDM.title, href: ACCESS_LINKS.PDM.src, icon: faFileAlt },
         ]
     },
     {
@@ -65,6 +64,11 @@ const siteSideLinks: SideLink[] = [
             { title: "Thiết bị đo lưu lượng", href: "#", icon: faClock },
             { title: "Thiết bị đo áp suất", href: "#", icon: faWeight },
         ]
+    },
+    {
+        title: ACCESS_LINKS.PDM.title,
+        href: ACCESS_LINKS.PDM.src,
+        icon: faFileAlt
     },
     {
         title: "Quản lý chứng từ",
@@ -212,7 +216,12 @@ export default function Sidebar({
                                                     </button>
                                                     <div className={`${sb['collapse-menu']} w-100 ${sb['collapse']} ${collapseState[index + "-" + childIndex] ? sb['show'] : ''}`}>
                                                         {child.children?.map((grandChild, grandChildIndex) => {
-                                                            return <Link href={grandChild.href || "#"} className={`btn ${sb['clp-link']}`} key={index + "-" + childIndex + "-" + grandChildIndex} onClick={toggleOpen}>
+                                                            return <Link href={grandChild.href || "#"}
+                                                                className={`btn ${sb['clp-link']}`}
+                                                                key={index + "-" + childIndex + "-" + grandChildIndex}
+                                                            // onClick={toggleOpen}
+                                                            // onClick={() => toggleCollapse(index + "-" + childIndex)}
+                                                            >
                                                                 <FontAwesomeIcon icon={grandChild.icon} className={`me-3`} />{grandChild.title}
                                                             </Link>
                                                         })}
@@ -220,7 +229,13 @@ export default function Sidebar({
                                                     </div>
                                                 </div>
                                             ) : (
-                                                <Link href={child.href || "#"} className={`btn ${sb['clp-link']}`} key={index + "-" + childIndex} onClick={toggleOpen}>
+                                                <Link
+                                                    href={child.href || "#"}
+                                                    className={`btn ${sb['clp-link']}`}
+                                                    key={index + "-" + childIndex}
+                                                    // onClick={toggleOpen}
+                                                    onClick={() => toggleCollapse(index)}
+                                                >
                                                     <FontAwesomeIcon icon={child.icon} className={`me-3 ms-1`} />{child.title}
                                                 </Link>
                                             )
@@ -228,7 +243,11 @@ export default function Sidebar({
                                     </div>
                                 </>
                             ) : (
-                                <Link href={item.href || "#"} className={`btn ${sb['nav-link']} ${item.href == pathname ? sb['active'] : ""}`} onClick={toggleOpen}>
+                                <Link
+                                    href={item.href || "#"}
+                                    className={`btn ${sb['nav-link']} ${item.href == pathname ? sb['active'] : ""}`}
+                                // onClick={toggleOpen}
+                                >
                                     <span className={`${sb['nl-icon']}`}>
                                         <FontAwesomeIcon icon={item.icon} />
                                     </span>

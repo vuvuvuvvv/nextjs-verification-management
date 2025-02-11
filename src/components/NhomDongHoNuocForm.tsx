@@ -70,19 +70,12 @@ export default function NhomDongHoNuocForm({ className, generalInfoDongHo, isEdi
     const [isCollapsed, setIsCollapsed] = useState<boolean>(false);
 
     const [tenDongHo, setTenDongHo] = useState<string>(generalInfoDongHo?.ten_dong_ho || "");
-    const [selectedTenDHOption, setSelectedTenDHOption] = useState<{ value: string, label: string } | null>(
-        generalInfoDongHo?.ten_dong_ho ? { value: generalInfoDongHo.ten_dong_ho, label: generalInfoDongHo.ten_dong_ho } : null
-    );
-
     const [phuongTienDo, setPhuongTienDo] = useState<string>(generalInfoDongHo?.phuong_tien_do || "");
     const [ccx, setCCX] = useState<string | null>(generalInfoDongHo?.ccx || null);
     const [kieuChiThi, setKieuChiThi] = useState<string>(generalInfoDongHo?.kieu_chi_thi || "");
     const [kieuSensor, setKieuSensor] = useState<string>(generalInfoDongHo?.kieu_sensor || "");
     const [kieuThietBi, setKieuThietBi] = useState<string>(generalInfoDongHo?.kieu_thiet_bi || "");
     const [coSoSanXuat, setCoSoSanXuat] = useState<string>(generalInfoDongHo?.co_so_san_xuat || "");
-    const [selectedCssxOption, setSelectedCssxOption] = useState<{ value: string, label: string } | null>(
-        generalInfoDongHo?.co_so_san_xuat ? { value: generalInfoDongHo.co_so_san_xuat, label: generalInfoDongHo.co_so_san_xuat } : null
-    );
     const [namSanXuat, setNamSanXuat] = useState<Date | null>(generalInfoDongHo?.nam_san_xuat || null);
     const [dn, setDN] = useState<string>(generalInfoDongHo?.dn || "");
     const [d, setD] = useState<string>(generalInfoDongHo?.d || "");
@@ -102,12 +95,20 @@ export default function NhomDongHoNuocForm({ className, generalInfoDongHo, isEdi
     const [viTri, setViTri] = useState<string>(generalInfoDongHo?.vi_tri || "");
     const [nhietDo, setNhietDo] = useState<string>(generalInfoDongHo?.nhiet_do || '');
     const [doAm, setDoAm] = useState<string>(generalInfoDongHo?.do_am || '');
+    const [q2Ort, setQ1OrQt] = useState<number | null>(null);
+    const [q1Ormin, setQ2OrQmin] = useState<number | null>(null);
+
+    const [selectedTenDHOption, setSelectedTenDHOption] = useState<{ value: string, label: string } | null>(
+        generalInfoDongHo?.ten_dong_ho ? { value: generalInfoDongHo.ten_dong_ho, label: generalInfoDongHo.ten_dong_ho } : null
+    );
+
+    const [selectedCssxOption, setSelectedCssxOption] = useState<{ value: string, label: string } | null>(
+        generalInfoDongHo?.co_so_san_xuat ? { value: generalInfoDongHo.co_so_san_xuat, label: generalInfoDongHo.co_so_san_xuat } : null
+    );
     const [DHNameOptions, setDHNameOptions] = useState<{ value: string, label: string }[]>([]);
 
     const [isDHDienTu, setDHDienTu] = useState<boolean>(false);
 
-    const [q2Ort, setQ1OrQt] = useState<number | null>(null);
-    const [q1Ormin, setQ2OrQmin] = useState<number | null>(null);
 
     const [debouncedFields, setDebouncedFields] = useState<Partial<DongHo>>({});
 
@@ -316,7 +317,7 @@ export default function NhomDongHoNuocForm({ className, generalInfoDongHo, isEdi
 
         // { value: seriChiThi, setter: setSeriChiThi, id: "seri_chi_thi" },
         // { value: seriSensor, setter: setSeriSensor, id: "seri_sensor" },
-        // { value: kieuChiThi, setter: setKieuChiThi, id: "kieu_chi_thi" },
+        // { value: kieuChiThi, setter: setKieuChiThi, id: "kieu_chi_thi" },                      
         // { value: kieuSensor, setter: setKieuSensor, id: "kieu_sensor" },
 
         // { value: soTem, setter: setSoTem, id: "so_tem" },
