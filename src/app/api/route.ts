@@ -30,6 +30,8 @@ api.interceptors.request.use(config => {
     const token = Cookies.get('accessToken');
     if (token) {
         config.headers.Authorization = `Bearer ${token}`;
+        config.headers['Content-Type'] = "application/json";
+        config.headers.Accept = "application/json";
     }
     return config;
 });
@@ -37,6 +39,8 @@ api.interceptors.request.use(config => {
 api.interceptors.response.use(
     response => response,
     async error => {
+        console.error("Response Error:", error.response?.status, error.response?.data);
+        
         const originalRequest = error.config;
         if (error.response.status === 401 && !originalRequest._retry) {
             if (retryCount >= MAX_RETRY_COUNT) {
