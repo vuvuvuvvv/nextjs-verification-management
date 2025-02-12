@@ -304,7 +304,6 @@
 //         if (canSave) {
 //             try {
 //                 const response = await createDongHo(dongHo);
-//                 // console.log(response)
 //                 if (response.status == 201) {
 //                     Swal.fire({
 //                         icon: "success",
@@ -329,7 +328,6 @@
 //                         }
 //                     });
 //                 } else {
-//                     // console.log(response)
 //                     setError(response.msg);
 //                 }
 //             } catch (err) {

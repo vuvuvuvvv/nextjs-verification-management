@@ -165,7 +165,6 @@ export default function NhomDongHoNuocManagement({ className, isAuthorizing, set
         try {
             const res = await getNhomDongHoByFilter(filterFormProps ? filterFormProps : filterForm, !isSuperAdmin, (!isSuperAdmin ? (user?.username || "") : ""));
             if (res.status === 200 || res.status === 201) {
-                console.log(res.data.groups);
                 setRootData(res.data.groups || []);
                 if (totalPageRef.current != res.data.total_page) {
                     setTotalPage(res.data.total_page || 1)

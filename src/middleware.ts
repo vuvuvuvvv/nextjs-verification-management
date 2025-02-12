@@ -41,25 +41,6 @@ const VALID_PATHS = [
 export async function middleware(req: NextRequest) {
     const { pathname, searchParams } = new URL(req.url);
 
-    // const userAgent = req.headers.get('user-agent') || '';
-    // console.log('User-Agent:', userAgent); // Ghi log user-agent để kiểm tra
-
-    // const isOldBrowser =
-    //     /MSIE \d|Trident.*rv:/.test(userAgent) || // Internet Explorer
-    //     /(Chrome\/[0-6][0-3]|Chrome\/[0-5]\d)/.test(userAgent) || // Chrome < 64
-    //     /(Edg\/[0-7][0-8]|Edg\/[0-7]\d|Edg\/[1-6]\d{2})/.test(userAgent) || // Edge < 79
-    //     /(Firefox\/[0-6][0-6]|Firefox\/[0-6]\d)/.test(userAgent) || // Firefox < 67
-    //     /(OPR\/[0-5][1]|OPR\/[0-5]\d|OPR\/[1-4]\d{2})/.test(userAgent) || // Opera < 51
-    //     /(Version\/[0-1][2]|Version\/[0-2]\d|Version\/[1-9]\d{2})/.test(userAgent); // Safari < 12
-
-
-    // if (isOldBrowser) {
-    //     if (CUSTOM_UNSUPPORTED_BROWSER.includes(pathname)) {
-    //         return NextResponse.next();
-    //     }
-    //     return NextResponse.redirect(new URL(CUSTOM_UNSUPPORTED_BROWSER, req.url));
-    // }
-
     const refreshTokenCookie = req.cookies.get('refreshToken')?.value;
     const userCookie = req.cookies.get('user')?.value;
 
@@ -98,7 +79,6 @@ export async function middleware(req: NextRequest) {
         try {
             const { payload } = await jwtVerify(refreshTokenCookie, new TextEncoder().encode(process.env.NEXT_PUBLIC_JWT_SECRET));
             if (payload.exp && payload.exp * 1000 < Date.now()) {
-                console.log("refreshTokenCookie")
                 // logout();
                 return NextResponse.redirect(redirectUrl);
             }
@@ -110,7 +90,6 @@ export async function middleware(req: NextRequest) {
             return response;
         }
     } else {
-        console.log("!refreshTokenCookie")
         return NextResponse.redirect(redirectUrl);
     }
 

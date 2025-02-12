@@ -34,8 +34,6 @@ export const requestVerificationToken = async (email: string) => {
             "email": email
         });
 
-        // console.log(response);
-
         if (response.status === 200 || response.status === 201) {
             return {
                 "status": 200,

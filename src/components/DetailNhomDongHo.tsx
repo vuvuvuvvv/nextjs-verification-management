@@ -238,7 +238,6 @@ export default function DetailNhomDongHo({ nhomDongHo }: DetailNhomDongHoProps) 
     }, [nhomDongHoData]);
 
     const renderDulieuLuuLuong = (listKeys: string[], duLieuKiemDinh: DuLieuChayDongHo, hieuSaiSo: { hss: number | null }[]) => {
-        console.log(duLieuKiemDinh)
         if (listKeys && duLieuKiemDinh) {
             return listKeys.map((key, index) => {
                 const value = duLieuKiemDinh[key] as DuLieuChayDiemLuuLuong;

@@ -82,7 +82,6 @@ export default function TinhSaiSoTab({ className, tabIndex, d, q, Form, onFormHS
 
     useEffect(() => {
         if (qRef.current.value != q.value) {
-            // console.log("Run by q!: ", q);
             updateLuuLuong(q, getDuLieuChayCuaLuuLuong(q) || lanChayMoi);
             qRef.current = q
         }

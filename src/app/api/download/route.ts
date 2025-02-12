@@ -69,7 +69,6 @@ export async function downloadGCN(dongHo: DongHo): Promise<DownloadResponse> {
             throw new Error("Unexpected response");
         }
     } catch (error: any) {
-        // console.log("Error: ", error);
         if (axios.isAxiosError(error)) {
             if (error.response?.status === 404) {
                 return { msg: "Id không hợp lệ!" };

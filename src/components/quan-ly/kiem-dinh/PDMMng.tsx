@@ -80,10 +80,6 @@ export default function PDMManagement({ className, listDHNamesExist }: PDMManage
         }
     }, [listDHNamesExist]);
 
-    // useEffect(() => {
-    //     console.log("dhnop: ", DHNameOptions)
-    // }, [DHNameOptions]);
-
 
     const [filterForm, setFilterForm] = useState<PDMFilterParameters>({
         // ma_tim_dong_ho_pdm: "",

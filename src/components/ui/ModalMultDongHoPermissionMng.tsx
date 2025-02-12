@@ -77,7 +77,6 @@ export default function ModalMultDongHoPermissionMng({ show, handleClose, dongHo
                                 Object.keys(res.data).map((key) => {
                                     delete newSelectedRoleOption[key];
                                 })
-                                console.log(newSelectedRoleOption);
                                 return newSelectedRoleOption;
                             });
                             setRoleErrMsgs(res.data || {});

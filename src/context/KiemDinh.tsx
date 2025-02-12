@@ -57,14 +57,6 @@ export const KiemDinhProvider = ({ children }: { children: ReactNode }) => {
     const [ketQua, setKetQua] = useState<boolean | null>(null);
     const [vChuanDongBoCacLL, setVChuanDongBoCacLL] = useState<VChuanDongBoCacLL>({})
 
-    // useEffect(() => {
-    //     console.log("vchuan: ", vChuanDongBoCacLL);
-    // }, [vChuanDongBoCacLL]);
-
-    // useEffect(() => {
-    //     console.log("dlkdcll: ", duLieuKiemDinhCacLuuLuong);
-    // }, [duLieuKiemDinhCacLuuLuong]);
-
     const setDuLieuKiemDinhChoMotLuuLuong = (tenLuuLuong: string, data: DuLieuChayDiemLuuLuong | null) => {
         if (previousDuLieuRef.current[tenLuuLuong] !== data) {
             setDuLieuKiemDinhCacLuuLuong(prevState => ({
@@ -152,7 +144,6 @@ export const KiemDinhProvider = ({ children }: { children: ReactNode }) => {
                 };
                 return acc;
             }, {})
-            // console.log("newDLKD: ", newDLKD);
             return newDLKD;
         }
 

@@ -7,7 +7,6 @@ const API_DONGHO_URL = `${BASE_API_URL}/dongho`;
 export const getUserPermissionWithDongHo = async (dongHo: DongHo) => {
     try {
         const response = await api.get(API_DONGHO_URL.toString() + "/user-permissions/" + dongHo.id);
-        // console.log("get dongho: ", response);
         return {
             "status": response.status,
             "data": response.data,
@@ -32,7 +31,6 @@ export const getUserPermissionWithDongHo = async (dongHo: DongHo) => {
 export const getAllDongHoNamesExist = async () => {
     try {
         const response = await api.get(API_DONGHO_URL.toString() + "/get-all-names-exist");
-        // console.log("get dongho: ", response);
         return {
             "status": response.status,
             "data": response.data,
@@ -329,7 +327,6 @@ export const createDongHo = async (dongho: DongHo) => {
         }
 
     } catch (error: any) {
-        // console.log("Error:", error);
         if (error.response?.data) {
             return {
                 "status": error.response.status,
@@ -364,7 +361,6 @@ export const createDongHoPermission = async (data: { id: string, user_info: stri
         }
 
     } catch (error: any) {
-        // console.log("Error:", error);
         if (error.response?.data) {
             return {
                 "status": error.response.status,
@@ -399,7 +395,6 @@ export const createMultDongHoPermission = async (data: {permissions: { id: strin
         }
 
     } catch (error: any) {
-        // console.log("Error:", error);
         if (error.response?.data) {
             return {
                 "status": error.response.status,
@@ -434,7 +429,6 @@ export const updateDongHo = async (dongho: DongHo) => {
         }
 
     } catch (error: any) {
-        // console.log("Error:", error);
         if (error.response?.data) {
             return {
                 "status": error.response.status,
@@ -474,7 +468,6 @@ export const updatePaymentStatus = async (group_id: string, new_payment_status: 
         }
 
     } catch (error: any) {
-        // console.log("Error:", error);
         if (error.response?.data) {
             return {
                 "status": error.response.status,

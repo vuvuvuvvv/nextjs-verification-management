@@ -242,7 +242,6 @@ export default function NhomDongHoNuocForm({ className, generalInfoDongHo, isEdi
     useEffect(() => {
         if (filterPDMRef.current !== filterPDM && savedDongHoList.length == 0) {
             const ma_tim_dong_ho_pdm = convertToUppercaseNonAccent(filterPDM.tenDongHo + filterPDM.dn + filterPDM.ccx + filterPDM.kieuSensor + filterPDM.kieuChiThi + (ccx ? ((["1", "2"].includes(ccx) ? (filterPDM.q3 + filterPDM.r) : filterPDM.qn)) : ""));
-            // console.log(filterPDM, ma_tim_dong_ho_pdm);
             const handler = setTimeout(async () => {
                 setLoading(true);
                 try {
@@ -489,7 +488,6 @@ export default function NhomDongHoNuocForm({ className, generalInfoDongHo, isEdi
     //                 })
     //             });
     //         } else {
-    //             // console.log(response)
     //             setError(response.msg);
     //         }
     //     } catch (err) {
@@ -510,8 +508,6 @@ export default function NhomDongHoNuocForm({ className, generalInfoDongHo, isEdi
 
         // const updatedDongHoList = [...dongHoList];
         // updatedDongHoList[selectedDongHoIndex] = getCurrentDongHo(newFormValues);
-        // console.log("onchange nee: ", getCurrentDongHo(newFormValues))
-        // console.log("onchange nee fhss: ", newFormValues)
         // setDongHoList(updatedDongHoList);
         setLoading(false);
     };

@@ -102,7 +102,6 @@ export const getHieuSaiSo = (formValues: TinhSaiSoValueTabs) => {
 
         return Number(result.toFixed(3));
     } catch (e) {
-        // console.log(e)
         return null;
     }
 }

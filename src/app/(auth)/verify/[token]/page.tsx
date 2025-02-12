@@ -20,7 +20,6 @@ export default function VerifyPage({ params }: { params: { token: string } }) {
                         Authorization: `Bearer ${params.token}`
                     }
                 });
-                console.log(response);
                 if (response?.status == 200 || response?.status == 201) {
                     const user = response?.data.user;
                     if (user) {

@@ -103,7 +103,6 @@ export const getPDMBySoQDPDM = async (so_qd_pdm: string) => {
 export const getPDMByMaTimDongHoPDM = async (ma_tim_dong_ho_pdm: string) => {
     try {
         const url = API_PDM_URL + "/ma_tim_dong_ho_pdm/" + ma_tim_dong_ho_pdm.toString().replaceAll("/", "@gach_cheo");
-        console.log(url);
         const response = await api.get(url.toString(), { withCredentials: true });
 
         return {
@@ -136,7 +135,6 @@ export const getPDMByMaTimDongHoPDM = async (ma_tim_dong_ho_pdm: string) => {
 export const getPDMById = async (id: string) => {
     try {
         const url = API_PDM_URL + "/id/" + id.toString();
-        console.log(url);
         const response = await api.get(url.toString(), { withCredentials: true });
 
         return {

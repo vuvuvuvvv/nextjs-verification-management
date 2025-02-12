@@ -57,7 +57,6 @@ export default function AddNewDongHoNuoc({ className }: AddNewDongHoNuocProps) {
                 try {
                     const data = await getDongHoDataExistsFromIndexedDB(user.username);
                     if (data) {
-                        // console.log("data: ", data);
                         setOldDongHoData(data?.dongHoList || []);
                         setOldDongHoSavedData(data?.savedDongHoList || [])
                     } else {
