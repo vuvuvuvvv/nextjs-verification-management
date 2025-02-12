@@ -1277,7 +1277,7 @@ export default function NhomDongHoNuocForm({ className, generalInfoDongHo, isEdi
                                     className="basic-multi-select"
                                     classNamePrefix="select"
                                     placeholder="- Chọn đồng hồ -"
-                                    value={{ value: selectedDongHoIndex, label: "Đồng hồ " + (selectedDongHoIndex + 1) + (isDHSaved != null && isDHSaved ? " (Đã lưu)" : "") } || null} // Đặt giá trị dựa trên state
+                                    value={selectedDongHoIndex !== null ? { value: selectedDongHoIndex, label: "Đồng hồ " + (selectedDongHoIndex + 1) + (isDHSaved ? " (Đã lưu)" : "") } : null} // Đặt giá trị dựa trên state
                                     onChange={(selectedOptions) => {
                                         if (selectedOptions) {
                                             handleDongHoChange(selectedOptions.value);
@@ -1414,7 +1414,7 @@ export default function NhomDongHoNuocForm({ className, generalInfoDongHo, isEdi
                                     className="basic-multi-select"
                                     classNamePrefix="select"
                                     placeholder="- Chọn đồng hồ -"
-                                    value={{ value: selectedDongHoIndex, label: "Đồng hồ " + (selectedDongHoIndex + 1) + (isDHSaved != null && isDHSaved ? " (Đã lưu)" : "") } || null}
+                                    value={selectedDongHoIndex !== null ? { value: selectedDongHoIndex, label: "Đồng hồ " + (selectedDongHoIndex + 1) + (isDHSaved != null && isDHSaved ? " (Đã lưu)" : "") } : null}
                                     onChange={(selectedOptions) => {
                                         if (selectedOptions) {
                                             handleDongHoChange(selectedOptions.value);
