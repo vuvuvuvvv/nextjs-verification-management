@@ -15,15 +15,14 @@ export default function VerifyPage({ params }: { params: { token: string } }) {
     const handleVerify = async () => {
         if (!fetchedRef.current) {
             try {
-                const response = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/auth/verify`, {}, {
-                    headers: {
-                        Authorization: `Bearer ${params.token}`
-                    }
-                });
+                const response = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/auth/verify`, {
+                    verification_token: params.token,
+                }, { withCredentials: true });
                 if (response?.status == 200 || response?.status == 201) {
                     const user = response?.data.user;
                     if (user) {
                         Cookies.set('user', JSON.stringify(user));
+
                         Swal.fire({
                             title: "Thành công",
                             text: "Xác thực thành công!",
