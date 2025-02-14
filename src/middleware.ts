@@ -14,7 +14,7 @@ const AUTH_PATHS = [
     ACCESS_LINKS.AUTH_FORGOT_PW.src,
     ACCESS_LINKS.AUTH_LOGIN.src,
     ACCESS_LINKS.AUTH_REGISTER.src,
-    // ACCESS_LINKS.AUTH_UNVERIFIED.src,
+    ACCESS_LINKS.AUTH_VERIFY.src,
 ];
 const PROTECTED_PATHS = [
     ACCESS_LINKS.CHANGE_EMAIL.src,
@@ -68,7 +68,7 @@ export async function middleware(req: NextRequest) {
     redirectUrl.searchParams.set('redirect', pathname + searchParams.toString());
 
     if (!refreshTokenCookie || !userCookie) {
-        if (AUTH_PATHS.includes(pathname)) {
+        if (AUTH_PATHS.some(authPath => pathname.includes(authPath))) {
             return NextResponse.next();
         }
         return NextResponse.redirect(redirectUrl);
@@ -99,14 +99,14 @@ export async function middleware(req: NextRequest) {
 
     if (!isConfirmed) {
         if (pathname.includes(ACCESS_LINKS.AUTH_UNVERIFIED.src)
-            // || pathname.includes(ACCESS_LINKS.AUTH_VERIFY.src)
+            || pathname.includes(ACCESS_LINKS.AUTH_VERIFY.src)
         ) {
             return NextResponse.next();
         }
         return NextResponse.redirect(new URL(ACCESS_LINKS.AUTH_UNVERIFIED.src, req.url));
     } else {
         if (pathname.includes(ACCESS_LINKS.AUTH_UNVERIFIED.src)
-            // || pathname.includes(ACCESS_LINKS.AUTH_VERIFY.src)
+            || pathname.includes(ACCESS_LINKS.AUTH_VERIFY.src)
         ) {
             return NextResponse.redirect(new URL(ACCESS_LINKS.HOME.src, req.url));
         }

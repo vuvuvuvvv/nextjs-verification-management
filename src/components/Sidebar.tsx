@@ -119,7 +119,6 @@ export default function Sidebar({
     show,
     setShow
 }: SidebarProps) {
-    const { isManager } = useUser();
     const sidebarRef = useRef<HTMLDivElement>(null);
     const [collapseState, setCollapseState] = useState<CollapseState>({});
     const pathname = usePathname();

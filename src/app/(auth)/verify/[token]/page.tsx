@@ -6,14 +6,14 @@ import Swal from 'sweetalert2';
 
 import axios from 'axios';
 import { ACCESS_LINKS } from '@lib/system-constant';
-import { useRef } from 'react';
+import { useEffect, useState } from 'react';
 
 export default function VerifyPage({ params }: { params: { token: string } }) {
-    const fetchedRef = useRef(false);
+    const [fetched, setFetched] = useState<boolean>(false);
     const router = useRouter();
 
     const handleVerify = async () => {
-        if (!fetchedRef.current) {
+        if (!fetched) {
             try {
                 const response = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/auth/verify`, {
                     verification_token: params.token,
@@ -22,7 +22,6 @@ export default function VerifyPage({ params }: { params: { token: string } }) {
                     const user = response?.data.user;
                     if (user) {
                         // Cookies.set('user', JSON.stringify(user));
-
                         Swal.fire({
                             title: "Thành công",
                             text: "Xác thực thành công!",
@@ -43,8 +42,10 @@ export default function VerifyPage({ params }: { params: { token: string } }) {
                             },
                             confirmButtonColor: "#0980de",
                             confirmButtonText: "Ok"
-                        }).then(() => {
-                            router.push(ACCESS_LINKS.HOME.src);
+                        }).then((result) => {
+                            if (result.isConfirmed) {
+                                router.push(ACCESS_LINKS.HOME.src);
+                            }
                         });
                     } else {
                         handleErr();
@@ -53,7 +54,7 @@ export default function VerifyPage({ params }: { params: { token: string } }) {
             } catch (err) {
                 handleErr();
             }
-            fetchedRef.current = true;
+            setFetched(true);
         }
     }
 
@@ -78,17 +79,21 @@ export default function VerifyPage({ params }: { params: { token: string } }) {
             },
             confirmButtonColor: "#0980de",
             confirmButtonText: "OK"
-        }).then(() => {
-            router.push("/error/error-token");
+        }).then((result) => {
+            if (result.isConfirmed) {
+                router.push(ACCESS_LINKS.HOME.src);
+            }
         });
     }
 
-    handleVerify();
+    useEffect(() => {
+        handleVerify();
+    }, []);
 
     return <div className='py-3 py-md-4 text-blue d-flex justify-content-center'>
         <div className='d-flex align-items-center gap-2'>
-            <span className="spinner-border spinner-border-sm" aria-hidden="true"></span>
-            <span role="status ms-1">Đang xác thực...</span>
+            <span className={`spinner-border ${!fetched && "spinner-border-sm"}`} aria-hidden="true"></span>
+            {!fetched && <span role="status ms-1">Đang xác thực...</span>}
         </div>
     </div>;
 }

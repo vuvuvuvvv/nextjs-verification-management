@@ -32,7 +32,7 @@ const routeTitles: { [key: string]: string } = {
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode; }>) {
     const pathname = usePathname();
-    const [show, setShow] = useState(true);
+    const [show, setShow] = useState(false     );
     const title = routeTitles[pathname] || routeTitles[pathname.slice(0, pathname.lastIndexOf('/'))] || "DHT - Quản Lý Kiểm Định";
     return (
         <>

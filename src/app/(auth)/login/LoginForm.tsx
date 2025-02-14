@@ -19,15 +19,15 @@ interface FormProps {
     className?: string
 }
 
-
 export default function LoginForm({ className }: FormProps) {
-    const [username, setUsername] = useState('');
-    const [password, setPassword] = useState('');
-    const [remember, setRemember] = useState(false);
-    
+    const [credentials, setCredentials] = useState<LoginCredentials>({
+        username: '',
+        password: '',
+        remember: false
+    });
+
     const searchParams = useSearchParams();
     const redirectUrl = searchParams.get('redirect') || '/';
-
 
     const [error, setError] = useState("");
     const router = useRouter();
@@ -64,13 +64,10 @@ export default function LoginForm({ className }: FormProps) {
         event.preventDefault();
         setError("");
 
-        const credentials: LoginCredentials = { username, password, remember };
-
         try {
             const response = await login(credentials);
             if (response.status == 200 || response.status == 201) {
                 Swal.fire({
-                    // title: "Auto close alert!",
                     icon: "success",
                     showClass: {
                         popup: `
@@ -80,18 +77,13 @@ export default function LoginForm({ className }: FormProps) {
                         `
                     },
                     html: "Đăng nhập thành công! Đang chuyển hướng...",
-                    timer: 1500,
                     allowOutsideClick: false,
                     allowEscapeKey: false,
                     didOpen: () => {
                         Swal.showLoading();
                     },
-                }).then((result) => {
-                    if (result.dismiss === Swal.DismissReason.timer) {
-                        Swal.showLoading();
-                        router.push(redirectUrl);
-                    }
-                });
+                })
+                window.location.href = redirectUrl;
             } else if (response.status == 401) {
                 setError("Thông tin đăng nhập không chính xác!");
             } else {
@@ -100,6 +92,14 @@ export default function LoginForm({ className }: FormProps) {
         } catch (err) {
             setError("Đã có lỗi xảy ra. Vui lòng thử lại!");
         }
+    };
+
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const { id, value, checked, type } = e.target;
+        setCredentials(prev => ({
+            ...prev,
+            [id]: type === 'checkbox' ? checked : value
+        }));
     };
 
     return (
@@ -112,8 +112,8 @@ export default function LoginForm({ className }: FormProps) {
                     id="username"
                     placeholder='Email hoặc tên đăng nhập'
                     spellCheck={false}
-                    value={username}
-                    onChange={(e) => setUsername(e.target.value)}
+                    value={credentials.username}
+                    onChange={handleChange}
                     required
                 />
                 <FontAwesomeIcon className={`${layout['placeholder-icon']}`} icon={faUser}></FontAwesomeIcon>
@@ -125,16 +125,16 @@ export default function LoginForm({ className }: FormProps) {
                     className="form-control py-2"
                     id="password"
                     placeholder='Nhập mật khẩu'
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
+                    value={credentials.password}
+                    onChange={handleChange}
                     required
                 />
                 <FontAwesomeIcon className={`${layout['placeholder-icon']}`} icon={faLock}></FontAwesomeIcon>
             </div>
             <div className="mb-3 d-flex align-items-center justify-content-between">
                 <div className="form-check">
-                    <input className="form-check-input" type="checkbox" value="" id="defaultCheck1" onChange={(e) => setRemember(e.target.checked)} />
-                    <label className="form-check-label" htmlFor="defaultCheck1">
+                    <input className="form-check-input" type="checkbox" id="remember" checked={credentials.remember} onChange={handleChange} />
+                    <label className="form-check-label" htmlFor="remember">
                         Nhớ tài khoản
                     </label>
                 </div>
