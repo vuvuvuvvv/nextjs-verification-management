@@ -98,12 +98,16 @@ export async function middleware(req: NextRequest) {
     }
 
     if (!isConfirmed) {
-        if (pathname.includes(ACCESS_LINKS.AUTH_UNVERIFIED.src) || pathname.includes(ACCESS_LINKS.AUTH_VERIFY.src)) {
+        if (pathname.includes(ACCESS_LINKS.AUTH_UNVERIFIED.src)
+            // || pathname.includes(ACCESS_LINKS.AUTH_VERIFY.src)
+        ) {
             return NextResponse.next();
         }
         return NextResponse.redirect(new URL(ACCESS_LINKS.AUTH_UNVERIFIED.src, req.url));
     } else {
-        if (pathname.includes(ACCESS_LINKS.AUTH_UNVERIFIED.src) || pathname.includes(ACCESS_LINKS.AUTH_VERIFY.src)) {
+        if (pathname.includes(ACCESS_LINKS.AUTH_UNVERIFIED.src)
+            // || pathname.includes(ACCESS_LINKS.AUTH_VERIFY.src)
+        ) {
             return NextResponse.redirect(new URL(ACCESS_LINKS.HOME.src, req.url));
         }
     }

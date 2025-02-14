@@ -21,7 +21,7 @@ export default function VerifyPage({ params }: { params: { token: string } }) {
                 if (response?.status == 200 || response?.status == 201) {
                     const user = response?.data.user;
                     if (user) {
-                        Cookies.set('user', JSON.stringify(user));
+                        // Cookies.set('user', JSON.stringify(user));
 
                         Swal.fire({
                             title: "Thành công",
