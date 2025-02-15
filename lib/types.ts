@@ -71,6 +71,11 @@ export interface PDMFilterParameters {
     ccx?: string | null,
     kieu_sensor?: string | null,
     transmitter?: string | null,
+    
+    limit: number;  // x
+    last_seen: string; // p => limit x offset x * (p-1)
+    next_from?: string; 
+    prev_from?: string; 
 }
 
 export interface ReportData {
@@ -267,10 +272,11 @@ export interface DongHoFilterParameters {
     status: string | number;
     ngay_kiem_dinh_from: Date | null;
     ngay_kiem_dinh_to: Date | null;
+
     limit: number;  // x
-    last_seen_id: string; // p => limit x offset x * (p-1)
-    next_id_from?: string; 
-    prev_id_from?: string; 
+    last_seen: string; // p => limit x offset x * (p-1)
+    next_from?: string; 
+    prev_from?: string; 
 }
 
 export interface NhomDongHo {

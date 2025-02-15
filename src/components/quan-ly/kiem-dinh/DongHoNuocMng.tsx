@@ -97,7 +97,7 @@ export default function WaterMeterManagement({ className, isBiggerThan15 = false
         ngay_kiem_dinh_from: null,
         ngay_kiem_dinh_to: null,
         limit: limit,
-        last_seen_id: ""
+        last_seen: ""
     });
     const [currentPage, setCurrentPage] = useState(1);
 
@@ -247,9 +247,9 @@ export default function WaterMeterManagement({ className, isBiggerThan15 = false
             status: "",
             ngay_kiem_dinh_from: null,
             ngay_kiem_dinh_to: null,
-            last_seen_id: "",
-            next_id_from: "",
-            prev_id_from: "",
+            last_seen: "",
+            next_from: "",
+            prev_from: "",
             limit: limit
         };
         _fetchDongHo(blankFilterForm);
@@ -267,24 +267,24 @@ export default function WaterMeterManagement({ className, isBiggerThan15 = false
 
     const handleSearch = () => {
         setCurrentPage(1);
-        _fetchDongHo({ ...filterForm, last_seen_id: "", next_id_from: "", prev_id_from: "" })
+        _fetchDongHo({ ...filterForm, last_seen: "", next_from: "", prev_from: "" })
     }
 
     const handlePageChange = (newPage: number) => {
         if (currentPage > newPage) {
             const newFilterForm: DongHoFilterParameters = {
                 ...filterForm,
-                last_seen_id: "",
-                prev_id_from: data && data[0].id ? data[0].id || "" : "",
-                next_id_from: ""
+                last_seen: "",
+                prev_from: data && data[0].id ? data[0].id || "" : "",
+                next_from: ""
             }
             _fetchDongHo(newFilterForm);
         } else if (currentPage < newPage) {
             const newFilterForm: DongHoFilterParameters = {
                 ...filterForm,
-                last_seen_id: "",
-                prev_id_from: "",
-                next_id_from: data[data.length - 1] && data[data.length - 1].id ? data[data.length - 1].id || "" : ""
+                last_seen: "",
+                prev_from: "",
+                next_from: data[data.length - 1] && data[data.length - 1].id ? data[data.length - 1].id || "" : ""
             }
             _fetchDongHo(newFilterForm);
         }

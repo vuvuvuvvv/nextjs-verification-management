@@ -49,6 +49,22 @@ export const getPDMByFilter = async (parameters?: PDMFilterParameters) => {
             url.searchParams.append('transmitter', parameters.transmitter.toString().replaceAll("/", "@gach_cheo"));
         }
 
+        if (parameters?.limit) {
+            url.searchParams.append('limit', parameters.limit.toString());
+        }
+
+        if (parameters?.last_seen) {
+            url.searchParams.append('last_seen', parameters.last_seen.toString());
+        }
+
+        if (parameters?.next_from) {
+            url.searchParams.append('next_from', parameters.next_from.toString());
+        }
+
+        if (parameters?.prev_from) {
+            url.searchParams.append('prev_from', parameters.prev_from.toString());
+        }
+
         const response = await api.get(url.toString(), { withCredentials: true });
 
         return {

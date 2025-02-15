@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useRef } from "react";
 import c_vfml from "@styles/scss/components/verification-management-layout.module.scss";
 
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
@@ -10,7 +10,7 @@ import dayjs, { Dayjs } from "dayjs";
 import { viVN } from "@mui/x-date-pickers/locales";
 
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faChevronDown, faChevronUp, faEye } from "@fortawesome/free-solid-svg-icons";
+import { faChevronDown, faChevronUp, faEye, faSearch, faRefresh } from "@fortawesome/free-solid-svg-icons";
 import React from "react";
 
 import Select, { GroupBase } from 'react-select';
@@ -34,14 +34,24 @@ interface PDMManagementProps {
 
 export default function PDMManagement({ className, listDHNamesExist }: PDMManagementProps) {
     const { isViewer } = useUser();
-    const [rootData, setRootData] = useState<PDMData[]>([]);
-    const [loading, setLoading] = useState(false);
+    const [data, setRootData] = useState<PDMData[]>([]);
+    const rootData = useRef<PDMData[]>([]);
+    const [loading, setFilterLoading] = useState(false);
     const [sortConfig, setSortConfig] = useState<{ key: string, direction: 'asc' | 'desc' | 'default' } | null>(null);
     const [selectedStatus, setSelectedStatus] = useState('');
     const [selectedTenDHOption, setSelectedTenDHOption] = useState('');
-    // const [limit, setLimit] = useState(5);
+    const [limit, setLimit] = useState(10);
+
     const [error, setError] = useState("");
     const [DHNameOptions, setDHNameOptions] = useState<{ value: string, label: string }[]>([]);
+
+    const [currentPage, setCurrentPage] = useState(1);
+
+    const [totalRecords, setTotalRecords] = useState(0);
+    const totalRecordsRef = useRef(totalRecords);
+    const [totalPage, setTotalPage] = useState(1);
+    const totalPageRef = useRef(totalPage);
+    const fetchedRef = useRef(false);
 
     useEffect(() => {
         if (error) {
@@ -89,6 +99,8 @@ export default function PDMManagement({ className, listDHNamesExist }: PDMManage
         ngay_qd_pdm_from: null,
         ngay_qd_pdm_to: null,
         dn: "",
+        limit: limit,
+        last_seen: ""
     });
     // const [currentPage, setCurrentPage] = useState(1);
 
@@ -106,59 +118,41 @@ export default function PDMManagement({ className, listDHNamesExist }: PDMManage
     //     setTotalPage(resetTotalPage);
     // }, [rootData, limit])
 
-    const sortData = useCallback((key: string) => {
-        if (!loading) {
-            setLoading(true);
-            let direction: 'asc' | 'desc' = 'asc';
-
-            if (sortConfig && sortConfig.key === key) {
-                direction = sortConfig.direction === 'asc' ? 'desc' : 'asc';
-            }
-
-            const sortedData = [...rootData].sort((a, b) => {
-                if (key === 'createdAt' || key === 'updatedAt') {
-                    const dateA = dayjs(a[key as keyof typeof a], 'DD-MM-YYYY');
-                    const dateB = dayjs(b[key as keyof typeof b], 'DD-MM-YYYY');
-                    return direction === 'asc' ? dateA.diff(dateB) : dateB.diff(dateA);
-                } else if (key === 'dn' || key === 'r') {
-                    return direction === 'asc'
-                        ? Number(a[key] as string) < Number(b[key] as string) ? -1 : 1
-                        : Number(a[key] as string) > Number(b[key] as string) ? -1 : 1;
-                } else {
-                    return direction === 'asc'
-                        ? a[key as keyof typeof a] < b[key as keyof typeof a] ? -1 : 1
-                        : a[key as keyof typeof a] > b[key as keyof typeof a] ? -1 : 1;
+    const _fetchPDM = async (filterFormProps?: PDMFilterParameters) => {
+        setFilterLoading(true);
+        try {
+            const res = await getPDMByFilter(filterFormProps ? filterFormProps : filterForm);
+            console.log(filterFormProps ?? filterForm);
+            if (res.status === 200 || res.status === 201) {
+                setRootData(res.data.data || []);
+                if (totalPageRef.current != res.data.total_page) {
+                    setTotalPage(res.data.total_page || 1)
+                    totalPageRef.current = res.data.total_page || 1;
                 }
-            });
-
-            setRootData(sortedData);
-            setSortConfig({ key, direction });
-            setLoading(false);
-        }
-    }, [rootData, sortConfig]);
-
-    useEffect(() => {
-        setLoading(true);
-        const debounce = setTimeout(async () => {
-            try {
-                const res = await getPDMByFilter(filterForm);
-                if (res.status === 200 || res.status === 201) {
-                    setRootData(res.data);
-                } else {
-                    console.error(res.msg);
-                    setError("Có lỗi đã xảy ra!");
+                if (totalRecordsRef.current != res.data.total_records) {
+                    setTotalRecords(res.data.total_records || 0)
+                    totalRecordsRef.current = res.data.total_records || 0;
                 }
-            } catch (error) {
-                console.error('Error fetching PDM data:', error);
+                if (filterFormProps) {
+                    setFilterForm(filterFormProps);
+                }
+                rootData.current = res.data.data || [];
+            } else {
+                console.error(res.msg);
                 setError("Có lỗi đã xảy ra!");
-            } finally {
-                setLoading(false);
             }
-        }, 1000);
+        } catch (error) {
+            console.error('Error fetching PDM data:', error);
+            setError("Có lỗi đã xảy ra!");
+        } finally {
+            setFilterLoading(false);
+        }
+    }
 
-        return () => clearTimeout(debounce);
-
-    }, [filterForm]);
+    if (!fetchedRef.current) {
+        _fetchPDM();
+        fetchedRef.current = true;
+    }
 
     const handleFilterChange = (key: keyof PDMFilterParameters, value: any) => {
         setFilterForm(prevForm => ({
@@ -168,24 +162,50 @@ export default function PDMManagement({ className, listDHNamesExist }: PDMManage
     };
 
     const handleResetFilter = () => {
-        setFilterForm({
-            // ma_tim_dong_ho_pdm: "",
+        const blankFilterForm: PDMFilterParameters = {
             ten_dong_ho: "",
             so_qd_pdm: "",
             ngay_qd_pdm_from: null,
             ngay_qd_pdm_to: null,
             tinh_trang: "",
             dn: "",
-        });
-        setSelectedStatus("");
+
+            limit: limit,
+            last_seen: ""
+        };
+        _fetchPDM(blankFilterForm);
         setSelectedTenDHOption("");
+        setCurrentPage(1);
     }
 
-    // const handlePageChange = (newPage: number) => {
-    //     setCurrentPage(newPage);
-    // };
+    const handleSearch = () => {
+        setCurrentPage(1);
+        _fetchPDM({ ...filterForm, last_seen: "", next_from: "", prev_from: "" })
+    }
 
-    // const paginatedData = rootData.slice((currentPage - 1) * limit, currentPage * limit);
+    const handlePageChange = (newPage: number) => {
+        if (currentPage > newPage) {
+            const newFilterForm: PDMFilterParameters = {
+                ...filterForm,
+                last_seen: "",
+                prev_from: data && data[0].id ? String(data[0].id) : "",
+                next_from: ""
+            }
+            _fetchPDM(newFilterForm);
+        } else if (currentPage < newPage) {
+            const newFilterForm: PDMFilterParameters = {
+                ...filterForm,
+                last_seen: "",
+                prev_from: "",
+                next_from: data[data.length - 1] && data[data.length - 1].id ? String(data[data.length - 1].id) : ""
+            }
+            _fetchPDM(newFilterForm);
+        }
+        setCurrentPage(newPage);
+    };
+
+    const paginatedData = data || [];
+
 
     return (
         <LocalizationProvider dateAdapter={AdapterDayjs} localeText={viVN.components.MuiLocalizationProvider.defaultProps.localeText}>
@@ -448,9 +468,14 @@ export default function PDMManagement({ className, listDHNamesExist }: PDMManage
                             </div>
 
                             <div className={`col-12 m-0 my-2 d-flex align-items-center justify-content-between`}>
-                                <button aria-label="Làm mới" type="button" className={`btn bg-main-blue text-white`} onClick={handleResetFilter}>
-                                    Làm mới
-                                </button>
+                                <div className="d-flex gap-2">
+                                    <button aria-label="Tìm kiếm" type="button" className={`btn bg-main-blue text-white`} onClick={handleSearch}>
+                                        <FontAwesomeIcon icon={faSearch}></FontAwesomeIcon> Tìm
+                                    </button>
+                                    <button aria-label="Làm mới" type="button" className={`btn bg-grey text-white`} onClick={handleResetFilter}>
+                                        <FontAwesomeIcon icon={faRefresh}></FontAwesomeIcon>
+                                    </button>
+                                </div>
                                 {!isViewer && <Link
                                     aria-label="Thêm mới"
                                     href={ACCESS_LINKS.PDM_ADD.src}
@@ -466,7 +491,7 @@ export default function PDMManagement({ className, listDHNamesExist }: PDMManage
                     <div className="bg-white w-100 shadow-sm rounded position-relative overflow-hidden">
                         {loading && <Loading />}
                         <div className={`m-0 p-0 w-100 w-100 mt-4 bg-white position-relative ${c_vfml['wrap-process-table']}`}>
-                            {rootData && rootData.length > 0 ? (
+                            {data && data.length > 0 ? (
                                 <table className={`table table-striped table-bordered table-hover ${c_vfml['process-table']}`}>
                                     <thead>
                                         <tr className={`${c_vfml['table-header']}`}>
@@ -484,7 +509,7 @@ export default function PDMManagement({ className, listDHNamesExist }: PDMManage
                                                 </div>
                                             </th> */}
                                             <th>
-                                                STT
+                                                ID
                                             </th>
                                             <th>
                                                 <div className={`${c_vfml['table-label']}`}>
@@ -493,7 +518,7 @@ export default function PDMManagement({ className, listDHNamesExist }: PDMManage
                                                     </span>
                                                 </div>
                                             </th>
-                                            <th onClick={() => sortData('dn')}>
+                                            <th>
                                                 <div className={`${c_vfml['table-label']}`}>
                                                     <span>
                                                         DN
@@ -506,7 +531,7 @@ export default function PDMManagement({ className, listDHNamesExist }: PDMManage
                                                     )}
                                                 </div>
                                             </th>
-                                            <th onClick={() => sortData('ccx')}>
+                                            <th>
                                                 <div className={`${c_vfml['table-label']}`}>
                                                     <span>
                                                         CCX
@@ -540,7 +565,7 @@ export default function PDMManagement({ className, listDHNamesExist }: PDMManage
                                                     </span>
                                                 </div>
                                             </th>
-                                            <th onClick={() => sortData('r')}>
+                                            <th>
                                                 <div className={`${c_vfml['table-label']}`}>
                                                     <span>R
                                                     </span>
@@ -591,11 +616,12 @@ export default function PDMManagement({ className, listDHNamesExist }: PDMManage
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        {rootData.map((item, index) => (
+                                        {data.map((item, index) => (
                                             <tr key={index}
                                                 onClick={() => window.open(`${ACCESS_LINKS.PDM_DETAIL.src}/${item.id}`, '_blank')}
                                                 style={{ cursor: 'pointer' }} >
-                                                <td className="text-center">{rootData.indexOf(item) + 1}</td>
+                                                {/* <td className="text-center">{data.indexOf(item) + 1}</td> */}
+                                                <td className="text-center">{item.id}</td>
                                                 <td>{item.ten_dong_ho}</td>
                                                 <td>{item.dn}</td>
                                                 <td>{item.ccx}</td>
@@ -620,9 +646,8 @@ export default function PDMManagement({ className, listDHNamesExist }: PDMManage
                                 <p className="text-center py-3 m-0 w-100">Không có dữ liệu</p>
                             )}
                         </div>
-
                         <div className="w-100 m-0 p-3 d-flex align-items-center justify-content-center">
-                            {/* <Pagination currentPage={currentPage} totalPage={totalPage} handlePageChange={handlePageChange}></Pagination> */}
+                            <Pagination currentPage={currentPage} totalPage={totalPage} totalRecords={totalRecords} handlePageChange={handlePageChange}></Pagination>
                         </div>
                     </div>
                 </div>
