@@ -1,7 +1,6 @@
 "use client"
 
 import dynamic from "next/dynamic";
-import { PDMData } from "@lib/types";
 import { useState, useEffect, useRef } from "react";
 import api from "@/app/api/route";
 import { BASE_API_URL } from "@lib/system-constant";
@@ -55,13 +54,13 @@ export default function PDM({ className }: PDMProps) {
 
         const fetchData = async () => {
             try {
-                const res = await api.get(`${BASE_API_URL}/pdm`);
-                const listNames: string[] = [...res.data.map((pdm: PDMData) => pdm["ten_dong_ho"])]
+                const res = await api.get(`${BASE_API_URL}/dongho/get-all-names-exist`);
+                const listNames: string[] = res.data
                 const uniqueNames = listNames.filter((value, index, self) => self.indexOf(value) === index);
                 const sortedNames = uniqueNames.sort((a, b) => a.localeCompare(b));
                 setDHNameOptions(sortedNames || []);
             } catch (error) {
-                setError("Đã có lỗi xảy ra! Hãy thử lại sau.");
+                setError("Có lỗi xảy ra khi lấy tên đồng hồ! Hãy thử lại sau.");
             } finally {
                 setLoading(false);
             }
@@ -73,7 +72,7 @@ export default function PDM({ className }: PDMProps) {
     if (loading) {
         return <Loading></Loading>;
     }
-
+    
     return (
         <div className={`m-0 w-100 p-2`}>
             <PDMManagement listDHNamesExist={listDHNamesExist}></PDMManagement>

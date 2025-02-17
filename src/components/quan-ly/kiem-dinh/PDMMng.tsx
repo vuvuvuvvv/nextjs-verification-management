@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState, useCallback, useRef } from "react";
+import { useEffect, useReducer, useCallback, useRef, useMemo } from "react";
 import c_vfml from "@styles/scss/components/verification-management-layout.module.scss";
 
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
@@ -26,39 +26,106 @@ import { useUser } from "@/context/AppContext";
 
 const Loading = React.lazy(() => import("@/components/Loading"));
 
-
 interface PDMManagementProps {
     className?: string,
     listDHNamesExist?: string[]
 }
 
-export default function PDMManagement({ className, listDHNamesExist }: PDMManagementProps) {
+type State = {
+    data: PDMData[];
+    loading: boolean;
+    sortConfig: { key: string, direction: 'asc' | 'desc' | 'default' } | null;
+    selectedStatus: string;
+    selectedTenDHOption: string;
+    limit: number;
+    error: string;
+    DHNameOptions: { value: string, label: string }[];
+    currentPage: number;
+    totalRecords: number;
+    totalPage: number;
+    filterForm: PDMFilterParameters;
+};
+
+type Action =
+    | { type: 'SET_DATA', payload: PDMData[] }
+    | { type: 'SET_LOADING', payload: boolean }
+    | { type: 'SET_SORT_CONFIG', payload: { key: string, direction: 'asc' | 'desc' | 'default' } | null }
+    | { type: 'SET_SELECTED_STATUS', payload: string }
+    | { type: 'SET_SELECTED_TEN_DH_OPTION', payload: string }
+    | { type: 'SET_LIMIT', payload: number }
+    | { type: 'SET_ERROR', payload: string }
+    | { type: 'SET_DH_NAME_OPTIONS', payload: { value: string, label: string }[] }
+    | { type: 'SET_CURRENT_PAGE', payload: number }
+    | { type: 'SET_TOTAL_RECORDS', payload: number }
+    | { type: 'SET_TOTAL_PAGE', payload: number }
+    | { type: 'SET_FILTER_FORM', payload: PDMFilterParameters };
+
+const initialState: State = {
+    data: [],
+    loading: false,
+    sortConfig: null,
+    selectedStatus: '',
+    selectedTenDHOption: '',
+    limit: 10,
+    error: '',
+    DHNameOptions: [],
+    currentPage: 1,
+    totalRecords: 0,
+    totalPage: 1,
+    filterForm: {
+        ten_dong_ho: "",
+        so_qd_pdm: "",
+        tinh_trang: "",
+        ngay_qd_pdm_from: null,
+        ngay_qd_pdm_to: null,
+        dn: "",
+        limit: 10,
+        last_seen: ""
+    }
+};
+
+function reducer(state: State, action: Action): State {
+    switch (action.type) {
+        case 'SET_DATA':
+            return { ...state, data: action.payload };
+        case 'SET_LOADING':
+            return { ...state, loading: action.payload };
+        case 'SET_SORT_CONFIG':
+            return { ...state, sortConfig: action.payload };
+        case 'SET_SELECTED_STATUS':
+            return { ...state, selectedStatus: action.payload };
+        case 'SET_SELECTED_TEN_DH_OPTION':
+            return { ...state, selectedTenDHOption: action.payload };
+        case 'SET_LIMIT':
+            return { ...state, limit: action.payload };
+        case 'SET_ERROR':
+            return { ...state, error: action.payload };
+        case 'SET_DH_NAME_OPTIONS':
+            return { ...state, DHNameOptions: action.payload };
+        case 'SET_CURRENT_PAGE':
+            return { ...state, currentPage: action.payload };
+        case 'SET_TOTAL_RECORDS':
+            return { ...state, totalRecords: action.payload };
+        case 'SET_TOTAL_PAGE':
+            return { ...state, totalPage: action.payload };
+        case 'SET_FILTER_FORM':
+            return { ...state, filterForm: action.payload };
+        default:
+            return state;
+    }
+}
+
+export default React.memo(function PDMManagement({ className, listDHNamesExist }: PDMManagementProps) {
     const { isViewer } = useUser();
-    const [data, setRootData] = useState<PDMData[]>([]);
-    const rootData = useRef<PDMData[]>([]);
-    const [loading, setFilterLoading] = useState(false);
-    const [sortConfig, setSortConfig] = useState<{ key: string, direction: 'asc' | 'desc' | 'default' } | null>(null);
-    const [selectedStatus, setSelectedStatus] = useState('');
-    const [selectedTenDHOption, setSelectedTenDHOption] = useState('');
-    const [limit, setLimit] = useState(10);
-
-    const [error, setError] = useState("");
-    const [DHNameOptions, setDHNameOptions] = useState<{ value: string, label: string }[]>([]);
-
-    const [currentPage, setCurrentPage] = useState(1);
-
-    const [totalRecords, setTotalRecords] = useState(0);
-    const totalRecordsRef = useRef(totalRecords);
-    const [totalPage, setTotalPage] = useState(1);
-    const totalPageRef = useRef(totalPage);
+    const [state, dispatch] = useReducer(reducer, initialState);
     const fetchedRef = useRef(false);
 
     useEffect(() => {
-        if (error) {
+        if (state.error) {
             Swal.fire({
                 icon: "error",
                 title: "Lỗi",
-                text: error,
+                text: state.error,
                 showClass: {
                     popup: `
                     animate__animated
@@ -76,78 +143,41 @@ export default function PDMManagement({ className, listDHNamesExist }: PDMManage
                 confirmButtonColor: "#0980de",
                 confirmButtonText: "OK"
             }).then(() => {
-                setError("");
+                dispatch({ type: 'SET_ERROR', payload: "" });
             });
         }
-    }, [error]);
+    }, [state.error]);
 
     useEffect(() => {
         if (listDHNamesExist && listDHNamesExist.length > 0) {
-            setDHNameOptions([
-                ...listDHNamesExist.filter(name => name && name.trim() !== "")
-                    .map((name) => ({ value: name, label: name }))
-            ]);
+            const options = listDHNamesExist.filter(name => name && name.trim() !== "")
+                .map((name) => ({ value: name, label: name }));
+            dispatch({ type: 'SET_DH_NAME_OPTIONS', payload: options });
         }
     }, [listDHNamesExist]);
 
-
-    const [filterForm, setFilterForm] = useState<PDMFilterParameters>({
-        // ma_tim_dong_ho_pdm: "",
-        ten_dong_ho: "",
-        so_qd_pdm: "",
-        tinh_trang: "",
-        ngay_qd_pdm_from: null,
-        ngay_qd_pdm_to: null,
-        dn: "",
-        limit: limit,
-        last_seen: ""
-    });
-    // const [currentPage, setCurrentPage] = useState(1);
-
-    // const resetTotalPage = () => {
-    //     setCurrentPage(1);
-    //     if (rootData.length <= limit) {
-    //         return 1;
-    //     }
-    //     return Math.ceil(rootData.length / limit);
-    // }
-
-    // const [totalPage, setTotalPage] = useState(resetTotalPage);
-
-    // useEffect(() => {
-    //     setTotalPage(resetTotalPage);
-    // }, [rootData, limit])
-
-    const _fetchPDM = async (filterFormProps?: PDMFilterParameters) => {
-        setFilterLoading(true);
+    const _fetchPDM = useCallback(async (filterFormProps?: PDMFilterParameters) => {
+        dispatch({ type: 'SET_LOADING', payload: true });
         try {
-            const res = await getPDMByFilter(filterFormProps ? filterFormProps : filterForm);
-            console.log(filterFormProps ?? filterForm);
+            const res = await getPDMByFilter(filterFormProps ? filterFormProps : state.filterForm);
             if (res.status === 200 || res.status === 201) {
-                setRootData(res.data.data || []);
-                if (totalPageRef.current != res.data.total_page) {
-                    setTotalPage(res.data.total_page || 1)
-                    totalPageRef.current = res.data.total_page || 1;
-                }
-                if (totalRecordsRef.current != res.data.total_records) {
-                    setTotalRecords(res.data.total_records || 0)
-                    totalRecordsRef.current = res.data.total_records || 0;
-                }
+                dispatch({ type: 'SET_DATA', payload: res.data.data || [] });
+                dispatch({ type: 'SET_TOTAL_PAGE', payload: res.data.total_page || 1 });
+                dispatch({ type: 'SET_TOTAL_RECORDS', payload: res.data.total_records || 0 });
                 if (filterFormProps) {
-                    setFilterForm(filterFormProps);
+                    dispatch({ type: 'SET_FILTER_FORM', payload: filterFormProps });
                 }
-                rootData.current = res.data.data || [];
             } else {
                 console.error(res.msg);
-                setError("Có lỗi đã xảy ra!");
+                dispatch({ type: 'SET_ERROR', payload: "Có lỗi đã xảy ra!" });
             }
         } catch (error) {
             console.error('Error fetching PDM data:', error);
-            setError("Có lỗi đã xảy ra!");
+            dispatch({ type: 'SET_ERROR', payload: "Có lỗi đã xảy ra!" });
         } finally {
-            setFilterLoading(false);
+            dispatch({ type: 'SET_LOADING', payload: false });
         }
-    }
+    }, [state.filterForm]);
 
     if (!fetchedRef.current) {
         _fetchPDM();
@@ -155,10 +185,10 @@ export default function PDMManagement({ className, listDHNamesExist }: PDMManage
     }
 
     const handleFilterChange = (key: keyof PDMFilterParameters, value: any) => {
-        setFilterForm(prevForm => ({
-            ...prevForm,
-            [key]: value
-        }));
+        dispatch({
+            type: 'SET_FILTER_FORM',
+            payload: { ...state.filterForm, [key]: value }
+        });
     };
 
     const handleResetFilter = () => {
@@ -169,43 +199,39 @@ export default function PDMManagement({ className, listDHNamesExist }: PDMManage
             ngay_qd_pdm_to: null,
             tinh_trang: "",
             dn: "",
-
-            limit: limit,
+            limit: state.limit,
             last_seen: ""
         };
         _fetchPDM(blankFilterForm);
-        setSelectedTenDHOption("");
-        setCurrentPage(1);
-    }
-
-    const handleSearch = () => {
-        setCurrentPage(1);
-        _fetchPDM({ ...filterForm, last_seen: "", next_from: "", prev_from: "" })
-    }
-
-    const handlePageChange = (newPage: number) => {
-        if (currentPage > newPage) {
-            const newFilterForm: PDMFilterParameters = {
-                ...filterForm,
-                last_seen: "",
-                prev_from: data && data[0].id ? String(data[0].id) : "",
-                next_from: ""
-            }
-            _fetchPDM(newFilterForm);
-        } else if (currentPage < newPage) {
-            const newFilterForm: PDMFilterParameters = {
-                ...filterForm,
-                last_seen: "",
-                prev_from: "",
-                next_from: data[data.length - 1] && data[data.length - 1].id ? String(data[data.length - 1].id) : ""
-            }
-            _fetchPDM(newFilterForm);
-        }
-        setCurrentPage(newPage);
+        dispatch({ type: 'SET_SELECTED_TEN_DH_OPTION', payload: "" });
+        dispatch({ type: 'SET_CURRENT_PAGE', payload: 1 });
     };
 
-    const paginatedData = data || [];
+    const handleSearch = () => {
+        dispatch({ type: 'SET_CURRENT_PAGE', payload: 1 });
+        _fetchPDM({ ...state.filterForm, last_seen: "", next_from: "", prev_from: "" });
+    };
 
+    const handlePageChange = (newPage: number) => {
+        if (state.currentPage > newPage) {
+            const newFilterForm: PDMFilterParameters = {
+                ...state.filterForm,
+                last_seen: "",
+                prev_from: state.data && state.data[0].id ? String(state.data[0].id) : "",
+                next_from: ""
+            };
+            _fetchPDM(newFilterForm);
+        } else if (state.currentPage < newPage) {
+            const newFilterForm: PDMFilterParameters = {
+                ...state.filterForm,
+                last_seen: "",
+                prev_from: "",
+                next_from: state.data && state.data[state.data.length - 1].id ? String(state.data[state.data.length - 1].id) : ""
+            };
+            _fetchPDM(newFilterForm);
+        }
+        dispatch({ type: 'SET_CURRENT_PAGE', payload: newPage });
+    };
 
     return (
         <LocalizationProvider dateAdapter={AdapterDayjs} localeText={viVN.components.MuiLocalizationProvider.defaultProps.localeText}>
@@ -232,22 +258,21 @@ export default function PDMManagement({ className, listDHNamesExist }: PDMManage
                                 <label className={`${c_vfml['form-label']}`} htmlFor="ten_dong_ho">
                                     Tên đồng hồ
                                     <Select
-                                        options={DHNameOptions as unknown as readonly GroupBase<never>[]}
+                                        options={state.DHNameOptions as unknown as readonly GroupBase<never>[]}
                                         className="basic-multi-select mt-2"
                                         placeholder="Tên đồng hồ"
                                         classNamePrefix="select"
                                         isClearable
                                         id="ten_dong_ho"
-                                        value={selectedTenDHOption}
+                                        value={state.DHNameOptions.find(option => option.value === state.selectedTenDHOption)}
                                         isSearchable
-                                        onChange={(selectedOptions: any) => {
-                                            if (selectedOptions) {
-                                                const values = selectedOptions.value;
-
-                                                setSelectedTenDHOption(selectedOptions);
-                                                handleFilterChange('ten_dong_ho', values);
+                                        onChange={(selectedOption: any) => {
+                                            if (selectedOption) {
+                                                const value = selectedOption.value;
+                                                dispatch({ type: 'SET_SELECTED_TEN_DH_OPTION', payload: value });
+                                                handleFilterChange('ten_dong_ho', value);
                                             } else {
-                                                setSelectedTenDHOption('');
+                                                dispatch({ type: 'SET_SELECTED_TEN_DH_OPTION', payload: '' });
                                                 handleFilterChange('ten_dong_ho', "");
                                             }
                                         }}
@@ -273,11 +298,11 @@ export default function PDMManagement({ className, listDHNamesExist }: PDMManage
                                             indicatorsContainer: (provided) => ({
                                                 ...provided,
                                                 height: '42px',
-                                                display: DHNameOptions.length == 0 ? "none" : "flex",
+                                                display: state.DHNameOptions.length === 0 ? "none" : "flex",
                                             }),
                                             menu: (provided) => ({
                                                 ...provided,
-                                                display: DHNameOptions.length == 0 ? "none" : "",
+                                                display: state.DHNameOptions.length === 0 ? "none" : "",
                                                 maxHeight: "250px",
                                                 zIndex: 777
                                             }),
@@ -316,7 +341,7 @@ export default function PDMManagement({ className, listDHNamesExist }: PDMManage
                                         id="so_qd_pdm"
                                         className="form-control"
                                         placeholder="Nhập số quyết định"
-                                        value={filterForm.so_qd_pdm || ""}
+                                        value={state.filterForm.so_qd_pdm || ""}
                                         onChange={(e) => handleFilterChange('so_qd_pdm', e.target.value)}
                                     />
                                 </label>
@@ -330,7 +355,7 @@ export default function PDMManagement({ className, listDHNamesExist }: PDMManage
                                         id="ma_tim_dong_ho_pdm"
                                         className="form-control"
                                         placeholder="Nhập mã tìm đồng hồ"
-                                        value={filterForm.dn || ""}
+                                        value={state.filterForm.dn || ""}
                                         onChange={(e) => handleFilterChange('dn', e.target.value)}
                                     />
                                 </label>
@@ -347,16 +372,16 @@ export default function PDMManagement({ className, listDHNamesExist }: PDMManage
                                         className="basic-multi-select"
                                         classNamePrefix="select"
                                         isClearable
-                                        value={selectedStatus}
+                                        value={state.selectedStatus}
                                         onChange={(selectedOptions: any) => {
                                             if (selectedOptions) {
                                                 // const values = selectedOptions.map((option: { value: string }) => option.value);
                                                 const values = selectedOptions.value;
 
-                                                setSelectedStatus(selectedOptions);
+                                                dispatch({ type: 'SET_SELECTED_STATUS', payload: values });
                                                 handleFilterChange('tinh_trang', values);
                                             } else {
-                                                setSelectedStatus('');
+                                                dispatch({ type: 'SET_SELECTED_STATUS', payload: '' });
                                                 handleFilterChange('tinh_trang', "");
                                             }
                                         }}
@@ -442,12 +467,12 @@ export default function PDMManagement({ className, listDHNamesExist }: PDMManage
 
                                         <DatePicker
                                             className={`${c_vfml['date-picker']}`}
-                                            value={filterForm.ngay_qd_pdm_from ? dayjs(filterForm.ngay_qd_pdm_from) : null}
+                                            value={state.filterForm.ngay_qd_pdm_from ? dayjs(state.filterForm.ngay_qd_pdm_from) : null}
                                             format="DD-MM-YYYY"
 
                                             onChange={(newValue: Dayjs | null) => handleFilterChange('ngay_qd_pdm_from', newValue ? newValue.format("YYYY-MM-DD HH:mm:ss") : null)}
                                             slotProps={{ textField: { fullWidth: true } }}
-                                            maxDate={filterForm.ngay_qd_pdm_to ? dayjs(filterForm.ngay_qd_pdm_to).subtract(1, 'day') : dayjs().endOf('day').subtract(1, 'day')}
+                                            maxDate={state.filterForm.ngay_qd_pdm_to ? dayjs(state.filterForm.ngay_qd_pdm_to).subtract(1, 'day') : dayjs().endOf('day').subtract(1, 'day')}
                                         />
                                     </div>
 
@@ -455,9 +480,9 @@ export default function PDMManagement({ className, listDHNamesExist }: PDMManage
                                         <label>Đến:</label>
                                         <DatePicker
                                             className={`${c_vfml['date-picker']}`}
-                                            value={filterForm.ngay_qd_pdm_to ? dayjs(filterForm.ngay_qd_pdm_to) : undefined}
+                                            value={state.filterForm.ngay_qd_pdm_to ? dayjs(state.filterForm.ngay_qd_pdm_to) : undefined}
                                             format="DD-MM-YYYY"
-                                            minDate={filterForm.ngay_qd_pdm_from ? dayjs(filterForm.ngay_qd_pdm_from).add(1, 'day') : undefined}
+                                            minDate={state.filterForm.ngay_qd_pdm_from ? dayjs(state.filterForm.ngay_qd_pdm_from).add(1, 'day') : undefined}
 
                                             maxDate={dayjs().endOf('day')}
                                             onChange={(newValue: Dayjs | null) => handleFilterChange('ngay_qd_pdm_to', newValue ? newValue.format("YYYY-MM-DD HH:mm:ss") : null)}
@@ -489,9 +514,9 @@ export default function PDMManagement({ className, listDHNamesExist }: PDMManage
                     </div>
 
                     <div className="bg-white w-100 shadow-sm rounded position-relative overflow-hidden">
-                        {loading && <Loading />}
+                        {state.loading && <Loading />}
                         <div className={`m-0 p-0 w-100 w-100 mt-4 bg-white position-relative ${c_vfml['wrap-process-table']}`}>
-                            {data && data.length > 0 ? (
+                            {state.data && state.data.length > 0 ? (
                                 <table className={`table table-striped table-bordered table-hover ${c_vfml['process-table']}`}>
                                     <thead>
                                         <tr className={`${c_vfml['table-header']}`}>
@@ -523,10 +548,10 @@ export default function PDMManagement({ className, listDHNamesExist }: PDMManage
                                                     <span>
                                                         DN
                                                     </span>
-                                                    {sortConfig && sortConfig.key === 'dn' && sortConfig.direction === 'asc' && (
+                                                    {state.sortConfig && state.sortConfig.key === 'dn' && state.sortConfig.direction === 'asc' && (
                                                         <FontAwesomeIcon icon={faChevronDown}></FontAwesomeIcon>
                                                     )}
-                                                    {sortConfig && sortConfig.key === 'dn' && sortConfig.direction === 'desc' && (
+                                                    {state.sortConfig && state.sortConfig.key === 'dn' && state.sortConfig.direction === 'desc' && (
                                                         <FontAwesomeIcon icon={faChevronUp}></FontAwesomeIcon>
                                                     )}
                                                 </div>
@@ -536,10 +561,10 @@ export default function PDMManagement({ className, listDHNamesExist }: PDMManage
                                                     <span>
                                                         CCX
                                                     </span>
-                                                    {sortConfig && sortConfig.key === 'ccx' && sortConfig.direction === 'asc' && (
+                                                    {state.sortConfig && state.sortConfig.key === 'ccx' && state.sortConfig.direction === 'asc' && (
                                                         <FontAwesomeIcon icon={faChevronDown}></FontAwesomeIcon>
                                                     )}
-                                                    {sortConfig && sortConfig.key === 'ccx' && sortConfig.direction === 'desc' && (
+                                                    {state.sortConfig && state.sortConfig.key === 'ccx' && state.sortConfig.direction === 'desc' && (
                                                         <FontAwesomeIcon icon={faChevronUp}></FontAwesomeIcon>
                                                     )}
                                                 </div>
@@ -569,10 +594,10 @@ export default function PDMManagement({ className, listDHNamesExist }: PDMManage
                                                 <div className={`${c_vfml['table-label']}`}>
                                                     <span>R
                                                     </span>
-                                                    {sortConfig && sortConfig.key === 'r' && sortConfig.direction === 'asc' && (
+                                                    {state.sortConfig && state.sortConfig.key === 'r' && state.sortConfig.direction === 'asc' && (
                                                         <FontAwesomeIcon icon={faChevronDown}></FontAwesomeIcon>
                                                     )}
-                                                    {sortConfig && sortConfig.key === 'r' && sortConfig.direction === 'desc' && (
+                                                    {state.sortConfig && state.sortConfig.key === 'r' && state.sortConfig.direction === 'desc' && (
                                                         <FontAwesomeIcon icon={faChevronUp}></FontAwesomeIcon>
                                                     )}
                                                 </div>
@@ -584,10 +609,10 @@ export default function PDMManagement({ className, listDHNamesExist }: PDMManage
                                                     <span> */}
                                                 Số QĐ-PDM
                                                 {/* </span>
-                                                    {sortConfig && sortConfig.key === 'createdBy' && sortConfig.direction === 'asc' && (
+                                                    {state.sortConfig && state.sortConfig.key === 'createdBy' && state.sortConfig.direction === 'asc' && (
                                                         <FontAwesomeIcon icon={faChevronUp}></FontAwesomeIcon>
                                                     )}
-                                                    {sortConfig && sortConfig.key === 'createdBy' && sortConfig.direction === 'desc' && (
+                                                    {state.sortConfig && state.sortConfig.key === 'createdBy' && state.sortConfig.direction === 'desc' && (
                                                         <FontAwesomeIcon icon={faChevronDown}></FontAwesomeIcon>
                                                     )}
                                                 </div> */}
@@ -604,10 +629,10 @@ export default function PDMManagement({ className, listDHNamesExist }: PDMManage
                                                 <span>
                                                     Cập nhật cuối
                                                 </span>
-                                                {sortConfig && sortConfig.key === 'updatedAt' && sortConfig.direction === 'asc' && (
+                                                {state.sortConfig && state.sortConfig.key === 'updatedAt' && state.sortConfig.direction === 'asc' && (
                                                     <FontAwesomeIcon icon={faChevronUp}></FontAwesomeIcon>
                                                 )}
-                                                {sortConfig && sortConfig.key === 'updatedAt' && sortConfig.direction === 'desc' && (
+                                                {state.sortConfig && state.sortConfig.key === 'updatedAt' && state.sortConfig.direction === 'desc' && (
                                                     <FontAwesomeIcon icon={faChevronDown}></FontAwesomeIcon>
                                                 )}
                                             </div>
@@ -616,7 +641,7 @@ export default function PDMManagement({ className, listDHNamesExist }: PDMManage
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        {data.map((item, index) => (
+                                        {state.data.map((item, index) => (
                                             <tr key={index}
                                                 onClick={() => window.open(`${ACCESS_LINKS.PDM_DETAIL.src}/${item.id}`, '_blank')}
                                                 style={{ cursor: 'pointer' }} >
@@ -647,11 +672,11 @@ export default function PDMManagement({ className, listDHNamesExist }: PDMManage
                             )}
                         </div>
                         <div className="w-100 m-0 p-3 d-flex align-items-center justify-content-center">
-                            <Pagination currentPage={currentPage} totalPage={totalPage} totalRecords={totalRecords} handlePageChange={handlePageChange}></Pagination>
+                            <Pagination currentPage={state.currentPage} totalPage={state.totalPage} totalRecords={state.totalRecords} handlePageChange={handlePageChange}></Pagination>
                         </div>
                     </div>
                 </div>
             </div>
         </LocalizationProvider>
     )
-}
+});
