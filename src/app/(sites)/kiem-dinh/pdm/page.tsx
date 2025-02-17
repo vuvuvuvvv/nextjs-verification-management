@@ -54,8 +54,9 @@ export default function PDM({ className }: PDMProps) {
 
         const fetchData = async () => {
             try {
-                const res = await api.get(`${BASE_API_URL}/dongho/get-all-names-exist`);
-                const listNames: string[] = res.data
+                const res = await api.get(`${BASE_API_URL}/dongho/get-distinct-names-and-locations`);
+                console.log(res);
+                const listNames: string[] = res.data.ten_dong_ho
                 const uniqueNames = listNames.filter((value, index, self) => self.indexOf(value) === index);
                 const sortedNames = uniqueNames.sort((a, b) => a.localeCompare(b));
                 setDHNameOptions(sortedNames || []);

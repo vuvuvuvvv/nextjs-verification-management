@@ -58,8 +58,8 @@ export default function NhomDongHoNuocManagement({ className, isAuthorizing, set
 
         const fetchData = async () => {
             try {
-                const res = await api.get(`${BASE_API_URL}/pdm`);
-                const listNames: string[] = [...res.data.map((pdm: PDMData) => pdm["ten_dong_ho"])]
+                const res = await api.get(`${BASE_API_URL}/dongho/get-distinct-names-and-locations`);
+                const listNames: string[] = res.data.ten_dong_ho ?? [];
                 const uniqueNames = listNames.filter((value, index, self) => self.indexOf(value) === index);
                 const sortedNames = uniqueNames.sort((a, b) => a.localeCompare(b));
                 setDHNameOptions(sortedNames && sortedNames.length > 0 ? [

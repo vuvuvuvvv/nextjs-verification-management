@@ -152,6 +152,10 @@ export default function Sidebar({
         });
     };
 
+    const closeAllCollapse = () => {
+        setCollapseState({});
+    };
+
     return <Suspense fallback={<Loading />}>
         <button aria-label="Menu" className={`bg-transparent px-3 me-1 ${sb['btn-toggle']}`} onClick={toggleOpen}>
             <FontAwesomeIcon icon={faBars} className='fs-4'></FontAwesomeIcon>
@@ -218,8 +222,7 @@ export default function Sidebar({
                                                             return <Link href={grandChild.href || "#"}
                                                                 className={`btn ${sb['clp-link']}`}
                                                                 key={index + "-" + childIndex + "-" + grandChildIndex}
-                                                            // onClick={toggleOpen}
-                                                            // onClick={() => toggleCollapse(index + "-" + childIndex)}
+                                                            // onClick={closeAllCollapse}
                                                             >
                                                                 <FontAwesomeIcon icon={grandChild.icon} className={`me-3`} />{grandChild.title}
                                                             </Link>
@@ -232,8 +235,7 @@ export default function Sidebar({
                                                     href={child.href || "#"}
                                                     className={`btn ${sb['clp-link']}`}
                                                     key={index + "-" + childIndex}
-                                                    // onClick={toggleOpen}
-                                                    onClick={() => toggleCollapse(index)}
+                                                    onClick={() => closeAllCollapse()}
                                                 >
                                                     <FontAwesomeIcon icon={child.icon} className={`me-3 ms-1`} />{child.title}
                                                 </Link>
@@ -245,7 +247,7 @@ export default function Sidebar({
                                 <Link
                                     href={item.href || "#"}
                                     className={`btn ${sb['nav-link']} ${item.href == pathname ? sb['active'] : ""}`}
-                                // onClick={toggleOpen}
+                                    onClick={closeAllCollapse}
                                 >
                                     <span className={`${sb['nl-icon']}`}>
                                         <FontAwesomeIcon icon={item.icon} />

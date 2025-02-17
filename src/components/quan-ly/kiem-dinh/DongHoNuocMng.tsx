@@ -106,37 +106,6 @@ export default function WaterMeterManagement({ className, isBiggerThan15 = false
     const [totalPage, setTotalPage] = useState(1);
     const totalPageRef = useRef(totalPage);
 
-    const sortData = useCallback((key: keyof DongHo) => {
-        if (!filterLoading) {
-            setFilterLoading(true);
-            let direction: 'asc' | 'desc' = 'asc';
-
-            if (sortConfig && sortConfig.key === key) {
-                direction = sortConfig.direction === 'asc' ? 'desc' : 'asc';
-            }
-
-            const sortedData = data ? [...data].sort((a, b) => {
-                if (key === 'ngay_thuc_hien' || key === 'hieu_luc_bien_ban') {
-                    const dateA = dayjs(a[key] as Date);
-                    const dateB = dayjs(b[key] as Date);
-                    return direction === 'asc' ? dateA.diff(dateB) : dateB.diff(dateA);
-                } else if (key === 'dn' || key === 'r') {
-                    return direction === 'asc'
-                        ? Number(a[key] as string) < Number(b[key] as string) ? -1 : 1
-                        : Number(a[key] as string) > Number(b[key] as string) ? -1 : 1;
-                } else {
-                    return direction === 'asc'
-                        ? (a[key] as string | number) < (b[key] as string | number) ? -1 : 1
-                        : (a[key] as string | number) > (b[key] as string | number) ? -1 : 1;
-                }
-            }) : [];
-
-            setRootData(sortedData);
-            setSortConfig({ key, direction });
-            setFilterLoading(false);
-        }
-    }, [data, sortConfig, filterLoading]);
-
     const _fetchDongHo = async (filterFormProps?: DongHoFilterParameters) => {
         setFilterLoading(true);
         if (dataList.length > 0) {
