@@ -45,8 +45,6 @@ interface NhomDongHoNuocFormProps {
     isEditing?: boolean
 }
 
-
-
 interface State {
     tenDongHo: string;
     phuongTienDo: string;
@@ -187,6 +185,10 @@ export default function NhomDongHoNuocForm({ className, generalInfoDongHo, isEdi
     const handleFieldChange = (field: keyof State, value: any) => {
         dispatch({ type: 'SET_FIELD', field, value });
     };
+
+    const handleMultFieldChange = (fields: Partial<State>) => {
+        dispatch({ type: 'SET_MULTIPLE_FIELDS', fields });
+    };
     //
 
 
@@ -289,6 +291,16 @@ export default function NhomDongHoNuocForm({ className, generalInfoDongHo, isEdi
 
     const scrollRef = useRef<HTMLDivElement | null>(null);
 
+    const soQDPDMRef = useRef(state.soQDPDM);
+
+    // Func: Set err
+    useEffect(() => {
+        if (soQDPDMRef.current != state.soQDPDM) {
+            setErrorPDM("");
+            soQDPDMRef.current = state.soQDPDM
+        }
+    }, [state.soQDPDM]);
+
     const filterPDM = useMemo(() => ({
         tenDongHo: state.tenDongHo,
         dn: state.dn,
@@ -300,16 +312,6 @@ export default function NhomDongHoNuocForm({ className, generalInfoDongHo, isEdi
         r: state.r
     }), [state.tenDongHo, state.dn, state.ccx, state.kieuSensor, state.kieuChiThi, state.qn, state.q3, state.r]);
 
-    const soQDPDMRef = useRef(state.soQDPDM);
-
-    // Func: Set err
-    useEffect(() => {
-        if (soQDPDMRef.current != state.soQDPDM) {
-            setErrorPDM("");
-            soQDPDMRef.current = state.soQDPDM
-        }
-    }, [state.soQDPDM]);
-
     const filterPDMRef = useRef(filterPDM);
 
     useEffect(() => {
@@ -319,20 +321,22 @@ export default function NhomDongHoNuocForm({ className, generalInfoDongHo, isEdi
                 setLoading(true);
                 try {
                     const res = await getPDMByMaTimDongHoPDM(ma_tim_dong_ho_pdm);
+                    let ppTHTmp = "ĐLVN 17 : 2017"
                     if (res.status == 200 || res.status == 201) {
                         const pdm = res.data;
                         const getDate = new Date(pdm.ngay_qd_pdm)
-                        handleFieldChange("soQDPDM", pdm.so_qd_pdm + (getDate.getFullYear() ? "-" + getDate.getFullYear() : ""));
                         if (dayjs(pdm.ngay_het_han) < dayjs()) {
-                            setErrorPDM("Số quyết định PDM đã hết hạn.")
-                            handleFieldChange("phuongPhapThucHien", "FMS - PP - 02")
+                            setErrorPDM("Số quyết định PDM đã hết hạn.");
+                            ppTHTmp = "FMS - PP - 02";
                         }
-                        handleFieldChange("coSoSuDung", pdm.don_vi_pdm);
-                        handleFieldChange("phuongPhapThucHien", "ĐLVN 17 : 2017");
+                        handleMultFieldChange({
+                            phuongPhapThucHien: ppTHTmp,
+                            soQDPDM: pdm.so_qd_pdm + (getDate.getFullYear() ? "-" + getDate.getFullYear() : ""),
+                            coSoSuDung: pdm.don_vi_pdm
+                        });
                     } else if (res.status == 404) {
                         setErrorPDM("Không có số PDM phù hợp hoặc số PDM đã hết hạn.")
-                        handleFieldChange("phuongPhapThucHien", "FMS - PP - 02")
-                        handleFieldChange("soQDPDM", "");
+                        handleMultFieldChange({ phuongPhapThucHien: "FMS - PP - 02", soQDPDM: "" });
                     } else {
                         setErrorPDM("Có lỗi xảy ra khi lấy số quyết định PDM!")
                         handleFieldChange("soQDPDM", "");

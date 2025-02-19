@@ -32,7 +32,7 @@ import ModalMultDongHoPermissionMng from "@/components/ui/ModalMultDongHoPermiss
 const Loading = React.lazy(() => import("@/components/Loading"));
 
 
-interface WaterMeterManagementProps {
+interface DongHoNuocMngProps {
     className?: string,
     isBiggerThan15?: boolean,
     isAuthorizing?: boolean,
@@ -41,7 +41,7 @@ interface WaterMeterManagementProps {
     dataList?: DongHo[]
 }
 
-export default function WaterMeterManagement({ className, isBiggerThan15 = false, isAuthorizing = false, setSelectedDongHo, clearNDHPropData, dataList = [] }: WaterMeterManagementProps) {
+export default function DongHoNuocMng({ className, isBiggerThan15 = false, isAuthorizing = false, setSelectedDongHo, clearNDHPropData, dataList = [] }: DongHoNuocMngProps) {
     const { user, isViewer, isSuperAdmin, getCurrentRole } = useUser();
     const [data, setRootData] = useState<DongHo[]>([]);
     const rootData = useRef<DongHo[]>([]);
@@ -141,10 +141,13 @@ export default function WaterMeterManagement({ className, isBiggerThan15 = false
         }
     }
 
-    if (!fetchedRef.current) {
-        _fetchDongHo();
-        fetchedRef.current = true;
-    }
+    useEffect(() => {
+        if (!fetchedRef.current) {
+            _fetchDongHo();
+            fetchedRef.current = true;
+        }
+    }, []);
+    
 
     // useEffect(() => {
     //     const filteredData = rootData.current ? [...rootData.current].filter(_per => {

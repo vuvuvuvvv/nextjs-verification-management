@@ -2,7 +2,7 @@ import Loading from "@/components/Loading"
 import dynamic from "next/dynamic";
 
 const NhomDongHoNuocManagement = dynamic(() => import("@/components/quan-ly/kiem-dinh/NhomDongHoNuocMng"))
-const WaterMeterManagement = dynamic(() => import("@/components/quan-ly/kiem-dinh/DongHoNuocMng"), { ssr: false })
+const DongHoNuocMng = dynamic(() => import("@/components/quan-ly/kiem-dinh/DongHoNuocMng"), { ssr: true })
 
 import vrfWm from "@styles/scss/ui/vfm.module.scss"
 
@@ -22,7 +22,7 @@ export default function DongHoNuocPage({ className }: DongHoNuocPageProps) {
         },
         {
             title: "Quản lý theo đồng hồ",
-            content: <WaterMeterManagement />
+            content: <DongHoNuocMng />
         }
     ]
 

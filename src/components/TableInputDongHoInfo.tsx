@@ -150,7 +150,7 @@ const TableDongHoInfo: React.FC<TableDongHoInfoProps> = React.memo(({
 
     return (
         <div className={`w-100 m-0 mb-3 p-0 ${c_tbIDHInf['wrap-process-table']} ${className ? className : ""}`}>
-            <table className={`table table-bordered table-hover ${c_tbIDHInf['process-table']}`}>
+            <table className={`table table-bordered mb-0 table-hover ${c_tbIDHInf['process-table']}`}>
                 <thead className="shadow border">
                     <tr className={`${c_tbIDHInf['table-header']}`}>
                         {dongHoList.length > 1 && <th>

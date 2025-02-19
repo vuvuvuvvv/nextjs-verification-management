@@ -3,7 +3,7 @@ import Loading from "@/components/Loading"
 import dynamic from "next/dynamic";
 
 const NhomDongHoNuocManagement = dynamic(() => import("@/components/quan-ly/kiem-dinh/NhomDongHoNuocMng"), { ssr: false, loading: () => <Loading className="bg-transparent" /> })
-const WaterMeterManagement = dynamic(() => import("@/components/quan-ly/kiem-dinh/DongHoNuocMng"), { ssr: false, loading: () => <Loading className="bg-transparent" /> })
+const DongHoNuocMng = dynamic(() => import("@/components/quan-ly/kiem-dinh/DongHoNuocMng"), { ssr: false, loading: () => <Loading className="bg-transparent" /> })
 const DongHoPermissionsManagement = dynamic(() => import("@/components/quan-ly/phan-quyen/DongHoPermissionsMng"), { ssr: false })
 
 import { useEffect, useRef, useState } from "react";
@@ -47,14 +47,14 @@ const PhanQuyenPage = React.memo(() => {
             title: "Phần quyền nhóm",
             content: <>
                 {dataListDongHo.length > 0 ?
-                    <WaterMeterManagement dataList={dataListDongHo} clearNDHPropData={clearNDHData} setSelectedDongHo={setDongHo} isAuthorizing={true} /> :
+                    <DongHoNuocMng dataList={dataListDongHo} clearNDHPropData={clearNDHData} setSelectedDongHo={setDongHo} isAuthorizing={true} /> :
                     <NhomDongHoNuocManagement setSelectedGroupId={setGroupId} isAuthorizing={true} />
                 }
             </>
         },
         {
             title: "Phần quyền đồng hồ",
-            content: <WaterMeterManagement setSelectedDongHo={setDongHo} isAuthorizing={true} />
+            content: <DongHoNuocMng setSelectedDongHo={setDongHo} isAuthorizing={true} />
         }
     ]
     // Func: Set err
