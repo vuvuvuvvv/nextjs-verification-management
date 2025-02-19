@@ -46,7 +46,6 @@ export default function WaterMeterManagement({ className, isBiggerThan15 = false
     const [data, setRootData] = useState<DongHo[]>([]);
     const rootData = useRef<DongHo[]>([]);
     const [filterLoading, setFilterLoading] = useState(true);
-    const [sortConfig, setSortConfig] = useState<{ key: string, direction: 'asc' | 'desc' | 'default' } | null>(null);
     const [limit, setLimit] = useState(10);
     const [error, setError] = useState("");
     const fetchedRef = useRef(false);
@@ -528,7 +527,7 @@ export default function WaterMeterManagement({ className, isBiggerThan15 = false
                                                             <td>
                                                                 {ketQua != null ? (ketQua ? "Đạt" : "Không đạt") : "Chưa kiểm định"}
                                                             </td>
-                                                            <td>
+                                                            <td style={{ width: "90px" }}>
                                                                 <div className="w-100 m-0 p-0 d-flex align-items-center justify-content-center">
                                                                     <Link aria-label="Xem" href={redirectLink} target="_blank" className={`btn p-1 w-100 text-blue shadow-0`}>
                                                                         <FontAwesomeIcon icon={faEye}></FontAwesomeIcon>

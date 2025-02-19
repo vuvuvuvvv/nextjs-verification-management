@@ -10,7 +10,7 @@ import dayjs, { Dayjs } from "dayjs";
 import { viVN } from "@mui/x-date-pickers/locales";
 
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faChevronDown, faChevronUp, faCircleArrowRight, faEdit, faRefresh, faSearch } from "@fortawesome/free-solid-svg-icons";
+import { faChevronDown, faChevronUp, faCircleArrowRight, faEdit, faEye, faRefresh, faSearch } from "@fortawesome/free-solid-svg-icons";
 import React from "react";
 
 import Select, { GroupBase } from 'react-select';
@@ -623,15 +623,15 @@ export default function NhomDongHoNuocManagement({ className, isAuthorizing, set
                                                     key={index}
                                                     style={{ cursor: 'pointer' }}
                                                 >
-                                                    <td onClick={handleClick} className="text-center">{(limit * (currentPage - 1)) + Number(data.indexOf(item) + 1)}</td>
-                                                    <td onClick={handleClick}>{item.group_id}</td>
-                                                    <td onClick={handleClick}>{item.ten_dong_ho}</td>
-                                                    <td onClick={handleClick}>{item.so_luong}</td>
+                                                    <td className="text-center">{(limit * (currentPage - 1)) + Number(data.indexOf(item) + 1)}</td>
+                                                    <td>{item.group_id}</td>
+                                                    <td>{item.ten_dong_ho}</td>
+                                                    <td>{item.so_luong}</td>
                                                     {/* {!isAuthorizing && <> */}
-                                                    <td onClick={handleClick}>{item.ten_khach_hang}</td>
-                                                    <td onClick={handleClick}>{item.nguoi_kiem_dinh}</td>
+                                                    <td>{item.ten_khach_hang}</td>
+                                                    <td>{item.nguoi_kiem_dinh}</td>
                                                     {/* </>} */}
-                                                    <td onClick={handleClick}>{dayjs(item.ngay_thuc_hien).format('DD-MM-YYYY')}</td>
+                                                    <td>{dayjs(item.ngay_thuc_hien).format('DD-MM-YYYY')}</td>
                                                     {/* {(isAdmin && !isAuthorizing) && <td>
                                                         <div className="w-100 d-flex justify-content-center" onClick={() => handleUpdatePaymentStatus(item?.group_id || "", item?.is_paid ?? false)}>
                                                             <Form.Check
@@ -648,12 +648,15 @@ export default function NhomDongHoNuocManagement({ className, isAuthorizing, set
                                                     </td>} */}
 
                                                     {!isAuthorizing ?
-                                                        <td
-                                                            onClick={() => window.open(`${ACCESS_LINKS.DHN_EDIT_NDH.src + "/" + item.group_id}`)}
-                                                        >
-                                                            <Link aria-label="Chỉnh sửa" href={ACCESS_LINKS.DHN_EDIT_NDH.src + "/" + item.group_id} className={`btn w-100 text-blue shadow-0`}>
-                                                                <FontAwesomeIcon icon={faEdit}></FontAwesomeIcon>
-                                                            </Link>
+                                                        <td style={{ width: "90px" }}>
+                                                            <div className="w-100 m-0 p-0 d-flex align-items-center justify-content-center">
+                                                                <button aria-label="Xem" onClick={handleClick} className={`btn p-1 w-100 text-blue shadow-0`}>
+                                                                    <FontAwesomeIcon icon={faEye}></FontAwesomeIcon>
+                                                                </button>
+                                                                <Link aria-label="Chỉnh sửa" href={ACCESS_LINKS.DHN_EDIT_NDH.src + "/" + item.group_id} className={`btn w-100 text-blue shadow-0`}>
+                                                                    <FontAwesomeIcon icon={faEdit}></FontAwesomeIcon>
+                                                                </Link>
+                                                            </div>
                                                         </td> : <td>
                                                             <button aria-label="Phân quyền" onClick={() => setSelectedGroupId?.(item.group_id)} className={`btn border-0 w-100 text-blue shadow-0`}>
                                                                 <FontAwesomeIcon icon={faCircleArrowRight} style={{ fontSize: "26px" }}></FontAwesomeIcon>

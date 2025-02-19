@@ -11,7 +11,7 @@
 // import { useRouter } from "next/navigation";
 // import dayjs, { Dayjs } from "dayjs";
 // import { useEffect, useRef, useMemo, useState } from "react";
-// import { convertToUppercaseNonAccent, getLastDayOfMonthInFuture, getQ2OrQtAndQ1OrQMin, isDongHoDatTieuChuan } from "@lib/system-function";
+// import { convertToUppercaseNonAccent, getLastDayOfMonthInFuture, getQ2OrtAndQ1OrQMin, isDongHoDatTieuChuan } from "@lib/system-function";
 // import { ACCESS_LINKS, ccxOptions, phuongTienDoOptions, TITLE_LUU_LUONG, typeOptions } from "@lib/system-constant";
 // import { createDongHo } from "@/app/api/dongho/route";
 // import { faFileAlt, faTasks } from "@fortawesome/free-solid-svg-icons";
@@ -375,9 +375,9 @@
 
 //     useEffect(() => {
 //         if (ccx && phuongTienDo && ((q3 && r) || qn)) {
-//             const { getQ1OrMin, getQ2OrQt } = getQ2OrQtAndQ1OrQMin(isDHDienTu, ccx, q3, r);
+//             const { getQ1OrMin, getQ2Ort } = getQ2OrtAndQ1OrQMin(isDHDienTu, ccx, q3, r);
 //             setQ2OrQmin(getQ1OrMin);
-//             setQ1OrQt(getQ2OrQt);
+//             setQ1OrQt(getQ2Ort);
 //         }
 //     }, [ccx, phuongTienDo, q3, qn, r]);
 

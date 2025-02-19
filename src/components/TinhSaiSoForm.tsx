@@ -19,20 +19,22 @@ interface CaculatorFormProps {
     isDisable?: boolean
     tabFormName: string;
 }
-
 export default function TinhSaiSoForm({ tabFormName, className, formValue, readOnly = false, onFormChange, d, isDisable }: CaculatorFormProps) {
-    const [V1, setV1] = useState<string>(formValue.V1.toString() || "0");
-    const [V2, setV2] = useState<string>(formValue.V2.toString() || "0");
-    const [Vc1, setVc1] = useState<string>(formValue.Vc1 ? formValue.Vc1.toString() : "0");
-    const [Vc2, setVc2] = useState<string>(formValue.Vc2 ? formValue.Vc2.toString() : "0");
-    const [Tdh, setTdh] = useState<string>(formValue.Tdh ? formValue.Tdh.toString() : "0");
-    const [Tc, setTc] = useState<string>(formValue.Tc ? formValue.Tc.toString() : "0");
+    const [formState, setFormState] = useState({
+        V1: formValue.V1.toString() || "0",
+        V2: formValue.V2.toString() || "0",
+        Vc1: formValue.Vc1 ? formValue.Vc1.toString() : "0",
+        Vc2: formValue.Vc2 ? formValue.Vc2.toString() : "0",
+        Tdh: formValue.Tdh ? formValue.Tdh.toString() : "0",
+        Tc: formValue.Tc ? formValue.Tc.toString() : "0",
+    });
     const [saiSo, setSaiSo] = useState<string>("0%");
     const prevFormValuesRef = useRef(formValue);
 
+
     const handleEnterKey = (e: React.KeyboardEvent<HTMLInputElement>,
         index: number,
-        name:string,
+        name: string,
     ) => {
         if (e.key === 'Enter') {
             if (e.shiftKey) {
@@ -55,22 +57,29 @@ export default function TinhSaiSoForm({ tabFormName, className, formValue, readO
         }
     };
 
+    const [numericInputTimeout, setNumericInputTimeout] = useState<NodeJS.Timeout | null>(null);
+
     useEffect(() => {
         if (prevFormValuesRef.current != formValue) {
-            setVc1(formValue.Vc1.toString());
-            setVc2(formValue.Vc2.toString());
-
-            setV1(formValue.V1.toString());
-            setV2(formValue.V2.toString());
-            setTdh(formValue.Tdh.toString());
-            setTc(formValue.Tc.toString());
-
-
+            setFormState({
+                V1: formValue.V1.toString(),
+                V2: formValue.V2.toString(),
+                Vc1: formValue.Vc1.toString(),
+                Vc2: formValue.Vc2.toString(),
+                Tdh: formValue.Tdh.toString(),
+                Tc: formValue.Tc.toString(),
+            });
             prevFormValuesRef.current = formValue;
         }
     }, [formValue]);
 
-    const [numericInputTimeout, setNumericInputTimeout] = useState<NodeJS.Timeout | null>(null);
+    const handleInputChange = (field: string, value: string) => {
+        setFormState((prevState) => ({
+            ...prevState,
+            [field]: value,
+        }));
+        onFormChange(field, value);
+    };
 
     const getDecimalPlaces = () => {
         if (!d) return null;
@@ -78,7 +87,7 @@ export default function TinhSaiSoForm({ tabFormName, className, formValue, readO
         return parts.length > 1 ? parts[1].length : 0;
     };
 
-    const handleNumericInput = (setter: (value: string) => void, field: string) => {
+    const handleNumericInput = (field: string) => {
         const decimalPlaces = getDecimalPlaces() || 0;
 
         return (e: React.FormEvent<HTMLInputElement>) => {
@@ -98,7 +107,7 @@ export default function TinhSaiSoForm({ tabFormName, className, formValue, readO
                 formattedValue = decimalPart ? `${integerPart}.${decimalPart}` : integerPart;
             }
 
-            setter(formattedValue);
+            handleInputChange(field, formattedValue);
 
             if (numericInputTimeout) {
                 clearTimeout(numericInputTimeout);
@@ -111,50 +120,26 @@ export default function TinhSaiSoForm({ tabFormName, className, formValue, readO
         };
     };
 
-    const [numberChangeTimeout, setNumberChangeTimeout] = useState<NodeJS.Timeout | null>(null);
-    const handleNumberChange = (setter: (value: string) => void, field: string) => {
+    const handleNumberChange = (field: string) => {
         return (e: React.ChangeEvent<HTMLInputElement>) => {
             let value = e.target.value;
-            value = value.replace(/,/g, '.');
-            if (/^\d*\.?\d*$/.test(value)) {
-                if (value.includes('.')) {
-                    value = value.replace(/^0+(?=\d)/, '');
-                } else {
-                    value = value.replace(/^0+/, '');
-                }
-
-                if (value === "") {
-                    value = "0";
-                }
-                setter(value);
-
-                if (numberChangeTimeout) {
-                    clearTimeout(numberChangeTimeout);
-                }
-                const timeout = setTimeout(() => onFormChange(field, value), 500);
-                setNumberChangeTimeout(timeout);
-            }
+            // ... existing code ...
+            handleInputChange(field, value);
         };
     };
 
     const handleReset = () => {
-        onFormChange("V1", "0");
-        onFormChange("V2", "0");
-        onFormChange("Vc1", "0");
-        onFormChange("Vc2", "0");
-        onFormChange("Tdh", "0");
-        onFormChange("Tc", "0");
-        setV1("0");
-        setV2("0");
-        setVc1("0");
-        setVc2("0");
-        setTdh("0");
-        setTc("0");
+        const resetValues = {
+            V1: "0",
+            V2: "0",
+            Vc1: "0",
+            Vc2: "0",
+            Tdh: "0",
+            Tc: "0",
+        };
+        setFormState(resetValues);
+        Object.keys(resetValues).forEach((key) => onFormChange(key, "0"));
     };
-
-    useEffect(() => {
-        setSaiSo(getSaiSoDongHo(formValue) || getSaiSoDongHo(formValue) == 0 ? getSaiSoDongHo(formValue)?.toString() + "%" : "--%");
-    }, [formValue.Vc2, formValue.V2, formValue.Vc1, formValue.V1]);
 
     return (
         <div className={`${className ? className : ""}`}>
@@ -170,8 +155,8 @@ export default function TinhSaiSoForm({ tabFormName, className, formValue, readO
                             type="text"
                             className="form-control"
                             id="firstNum"
-                            value={V1 || "0"}
-                            onChange={handleNumericInput(setV1, "V1")}
+                            value={formState.V1 || "0"}
+                            onChange={handleNumericInput("V1")}
                             disabled={isDisable}
                             autoComplete="off"
                             name={tabFormName + "-1"}
@@ -187,8 +172,8 @@ export default function TinhSaiSoForm({ tabFormName, className, formValue, readO
                             type="text"
                             className="form-control"
                             id="lastNum"
-                            value={V2 || "0"}
-                            onChange={handleNumericInput(setV2, "V2")}
+                            value={formState.V2 || "0"}
+                            onChange={handleNumericInput("V2")}
                             disabled={isDisable}
                             autoComplete="off"
                             name={tabFormName + "-2"}
@@ -204,8 +189,8 @@ export default function TinhSaiSoForm({ tabFormName, className, formValue, readO
                             type="text"
                             className="form-control"
                             id="tdh"
-                            value={Tdh || "0"}
-                            onChange={handleNumberChange(setTdh, "Tdh")}
+                            value={formState.Tdh || "0"}
+                            onChange={handleNumberChange("Tdh")}
                             disabled={isDisable}
                             autoComplete="off"
                             name={tabFormName + "-3"}
@@ -224,8 +209,8 @@ export default function TinhSaiSoForm({ tabFormName, className, formValue, readO
                             type="text"
                             className="form-control"
                             id="firstNum"
-                            value={Vc1 || "0"}
-                            onChange={handleNumberChange(setVc1, "Vc1")}
+                            value={formState.Vc1 || "0"}
+                            onChange={handleNumberChange("Vc1")}
                             disabled={isDisable}
                             autoComplete="off"
                             name={tabFormName + "-c-1"}
@@ -240,8 +225,8 @@ export default function TinhSaiSoForm({ tabFormName, className, formValue, readO
                             type="text"
                             className="form-control"
                             id="lastNum"
-                            value={Vc2 || "0"}
-                            onChange={handleNumberChange(setVc2, "Vc2")}
+                            value={formState.Vc2 || "0"}
+                            onChange={handleNumberChange("Vc2")}
                             disabled={isDisable}
                             autoComplete="off"
                             name={tabFormName + "-c-2"}
@@ -257,8 +242,8 @@ export default function TinhSaiSoForm({ tabFormName, className, formValue, readO
                             type="text"
                             className="form-control"
                             id="tc"
-                            value={Tc || "0"}
-                            onChange={handleNumberChange(setTc, "Tc")}
+                            value={formState.Tc || "0"}
+                            onChange={handleNumberChange("Tc")}
                             disabled={isDisable}
                             autoComplete="off"
                             name={tabFormName + "-c-3"}

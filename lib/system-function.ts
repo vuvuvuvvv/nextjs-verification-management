@@ -23,7 +23,7 @@ export const getFullSoGiayCN = (soGiayCN: string, ngayThucHien: Date) => {
     return "FMS.KĐ." + (soGiayCN || "-----") + "." + dayjs(ngayThucHien).format("YY");
 }
 
-export const getQ2OrQtAndQ1OrQMin = (isDHDienTu: boolean, ccx: string | null, q: string | null, r: string | null) => {
+export const getQ2OrtAndQ1OrQMin = (isDHDienTu: boolean, ccx: string | null, q: string | null, r: string | null) => {
     if (isDHDienTu != null && ccx && q) {
         const heso = {
             "A": {
@@ -48,7 +48,7 @@ export const getQ2OrQtAndQ1OrQMin = (isDHDienTu: boolean, ccx: string | null, q:
             const qt = 1.6 * qmin;
             return {
                 getQ1OrMin: parseFloat(qmin.toFixed(3)),
-                getQ2OrQt: parseFloat(qt.toFixed(3))
+                getQ2Ort: parseFloat(qt.toFixed(3))
             };
         } else {
             if (ccx && heso.hasOwnProperty(ccx)) {
@@ -56,14 +56,14 @@ export const getQ2OrQtAndQ1OrQMin = (isDHDienTu: boolean, ccx: string | null, q:
                 const heso_qmin = heso[ccx as keyof typeof heso].qmin;
                 return {
                     getQ1OrMin: (heso_qmin) ? parseFloat(q) * heso_qmin : null,
-                    getQ2OrQt: (heso_qt) ? parseFloat(q) * heso_qt : null,
+                    getQ2Ort: (heso_qt) ? parseFloat(q) * heso_qt : null,
                 };
             }
         }
     }
     return {
         getQ1OrMin: null,
-        getQ2OrQt: null,
+        getQ2Ort: null,
     };
 };
 

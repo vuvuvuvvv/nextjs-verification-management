@@ -123,7 +123,6 @@ export const KiemDinhProvider = ({ children }: { children: ReactNode }) => {
         }
     };
 
-
     const removeKiemDinh = (id: string) => {
         setDuLieuKiemDinhCacLuuLuong(prevState => {
             const newState = { ...prevState };
