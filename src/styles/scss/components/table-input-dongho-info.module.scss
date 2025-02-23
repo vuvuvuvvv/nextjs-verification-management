@@ -76,6 +76,22 @@
 
                     &:nth-child(1) {
                         background-color: $light_blue !important;
+                        span {
+                            transition: 0.3ms;
+                        }
+
+                        span:nth-child(2) {
+                            display: none;
+                        }
+
+                        &:hover {
+                            span:nth-child(1) {
+                                display: none;
+                            }
+                            span:nth-child(2) {
+                                display: block;
+                            }
+                        }
                     }
                 }
             }

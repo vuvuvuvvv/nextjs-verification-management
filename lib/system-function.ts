@@ -1,7 +1,7 @@
 import dayjs from "dayjs";
 import { DongHo, DuLieuMotLanChay, PDMData, TinhSaiSoValueTabs } from "./types";
 import { getAllDongHoNamesExist } from "@/app/api/dongho/route";
-import { INDEXED_DB_DH_OBJ_NAME, INDEXED_DB_NAME, PERMISSION_TITLES, PERMISSION_VALUES, PERMISSIONS } from "./system-constant";
+import { INDEXED_DB_DH_OBJ_NAME, INDEXED_DB_NAME, PERMISSION_TITLES, PERMISSION_VALUES, PERMISSIONS, TITLE_LUU_LUONG } from "./system-constant";
 
 export const getSaiSoDongHo = (formValue: DuLieuMotLanChay) => {
     if (formValue) {
@@ -46,24 +46,44 @@ export const getQ2OrtAndQ1OrQMin = (isDHDienTu: boolean, ccx: string | null, q: 
         if (isDHDienTu && q && r) {
             const qmin = parseFloat(q) / parseFloat(r);
             const qt = 1.6 * qmin;
+                
             return {
-                getQ1OrMin: parseFloat(qmin.toFixed(3)),
-                getQ2Ort: parseFloat(qt.toFixed(3))
+                getQ1OrMin: {
+                    title: isDHDienTu != null && isDHDienTu ? TITLE_LUU_LUONG.q1 : TITLE_LUU_LUONG.qmin,
+                    value: parseFloat(qmin.toFixed(3))
+                },
+                getQ2Ort: {
+                    title: isDHDienTu != null && isDHDienTu ? TITLE_LUU_LUONG.q1 : TITLE_LUU_LUONG.qmin,
+                    value: parseFloat(qt.toFixed(3))
+                },
             };
         } else {
             if (ccx && heso.hasOwnProperty(ccx)) {
                 const heso_qt = heso[ccx as keyof typeof heso].qt;
                 const heso_qmin = heso[ccx as keyof typeof heso].qmin;
+
                 return {
-                    getQ1OrMin: (heso_qmin) ? parseFloat(q) * heso_qmin : null,
-                    getQ2Ort: (heso_qt) ? parseFloat(q) * heso_qt : null,
+                    getQ1OrMin: {
+                        title: isDHDienTu != null && isDHDienTu ? TITLE_LUU_LUONG.q1 : TITLE_LUU_LUONG.qmin,
+                        value: (heso_qmin) ? parseFloat(q) * heso_qmin : null
+                    },
+                    getQ2Ort: {
+                        title: isDHDienTu != null && isDHDienTu ? TITLE_LUU_LUONG.q1 : TITLE_LUU_LUONG.qmin,
+                        value: (heso_qt) ? parseFloat(q) * heso_qt : null
+                    },
                 };
             }
         }
     }
     return {
-        getQ1OrMin: null,
-        getQ2Ort: null,
+        getQ1OrMin: {
+            title: "",
+            value: 0
+        },
+        getQ2Ort: {
+            title: "",
+            value: 0
+        },
     };
 };
 

@@ -180,6 +180,11 @@ export type DuLieuChayDiemLuuLuong = {
 export type DuLieuChayDongHo = Record<string, DuLieuChayDiemLuuLuong | null>;
 
 export interface DongHo {
+
+    ket_qua_check_vo_ngoai: boolean,
+    ghi_chu_vo_ngoai: string | null,
+    index: number | null,
+
     group_id: string | null;
     ten_dong_ho: string | null;
     phuong_tien_do: string | null;

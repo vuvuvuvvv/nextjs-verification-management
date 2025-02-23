@@ -120,11 +120,29 @@ export default function TinhSaiSoForm({ tabFormName, className, formValue, readO
         };
     };
 
+    const [numberChangeTimeout, setNumberChangeTimeout] = useState<NodeJS.Timeout | null>(null);
     const handleNumberChange = (field: string) => {
         return (e: React.ChangeEvent<HTMLInputElement>) => {
             let value = e.target.value;
-            // ... existing code ...
-            handleInputChange(field, value);
+            value = value.replace(/,/g, '.');
+            if (/^\d*\.?\d*$/.test(value)) {
+                if (value.includes('.')) {
+                    value = value.replace(/^0+(?=\d)/, '');
+                } else {
+                    value = value.replace(/^0+/, '');
+                }
+
+                if (value === "") {
+                    value = "0";
+                }
+                handleInputChange(field, value);
+
+                if (numberChangeTimeout) {
+                    clearTimeout(numberChangeTimeout);
+                }
+                const timeout = setTimeout(() => onFormChange(field, value), 500);
+                setNumberChangeTimeout(timeout);
+            }
         };
     };
 

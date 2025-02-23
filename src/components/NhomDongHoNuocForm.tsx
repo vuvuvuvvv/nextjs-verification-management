@@ -30,7 +30,7 @@ import {
 } from "@lib/system-constant";
 
 // import { createDongHo, getDongHoExistsByInfo } from "@/app/api/dongho/route";
-import { faArrowLeft, faArrowRight, faSave } from "@fortawesome/free-solid-svg-icons";
+import { faArrowLeft, faArrowRight, faChevronLeft, faChevronRight, faSave } from "@fortawesome/free-solid-svg-icons";
 import { DongHo, PDMData } from "@lib/types";
 import { useDongHoList } from "@/context/ListDongHo";
 
@@ -46,6 +46,9 @@ interface NhomDongHoNuocFormProps {
 }
 
 interface State {
+    ketQuaCheckVoNgoai: boolean
+    ghiChuVoNgoai: string | null,
+
     tenDongHo: string;
     phuongTienDo: string;
     ccx: string | null;
@@ -76,13 +79,6 @@ interface State {
     q1Ormin: number | null;
     selectedTenDHOption: { value: string, label: string } | null;
     selectedCssxOption: { value: string, label: string } | null;
-    DHNameOptions: { value: string, label: string }[];
-    isDHDienTu: boolean;
-    isDHSaved: boolean | null;
-    CSSXOptions: { value: string, label: string }[];
-    selectedDongHoIndex: number;
-    errorPDM: string;
-    errorFields: string[];
 }
 
 type Action =
@@ -105,6 +101,9 @@ export default function NhomDongHoNuocForm({ className, generalInfoDongHo, isEdi
     const { user, isManager } = useUser();
 
     const initialState: State = {
+        ketQuaCheckVoNgoai: false,
+        ghiChuVoNgoai: "",
+
         tenDongHo: generalInfoDongHo?.ten_dong_ho || "",
         phuongTienDo: generalInfoDongHo?.phuong_tien_do || "",
         ccx: generalInfoDongHo?.ccx || null,
@@ -135,13 +134,6 @@ export default function NhomDongHoNuocForm({ className, generalInfoDongHo, isEdi
         q1Ormin: null,
         selectedTenDHOption: generalInfoDongHo?.ten_dong_ho ? { value: generalInfoDongHo.ten_dong_ho, label: generalInfoDongHo.ten_dong_ho } : null,
         selectedCssxOption: generalInfoDongHo?.co_so_san_xuat ? { value: generalInfoDongHo.co_so_san_xuat, label: generalInfoDongHo.co_so_san_xuat } : null,
-        DHNameOptions: [],
-        isDHDienTu: false,
-        isDHSaved: null,
-        CSSXOptions: [],
-        selectedDongHoIndex: 0,
-        errorPDM: "",
-        errorFields: []
     };
 
     const { dongHoList,
@@ -153,6 +145,7 @@ export default function NhomDongHoNuocForm({ className, generalInfoDongHo, isEdi
         setSavedDongHoList,
         setDongHoList
     } = useDongHoList();
+
     const {
         getDuLieuKiemDinhJSON,
         formHieuSaiSo,
@@ -160,7 +153,7 @@ export default function NhomDongHoNuocForm({ className, generalInfoDongHo, isEdi
         setFormHieuSaiSo, setKetQua,
         initialFormHieuSaiSo,
         initialDuLieuKiemDinhCacLuuLuong,
-        duLieuKiemDinhCacLuuLuong,
+        duLieuKiemDinhCacLuuLuong
     } = useKiemDinh();
 
     const [isCollapsed, setIsCollapsed] = useState<boolean>(false);
@@ -175,7 +168,7 @@ export default function NhomDongHoNuocForm({ className, generalInfoDongHo, isEdi
     const [isDHDienTu, setDHDienTu] = useState<boolean>(false);
     const [isDHSaved, setDHSaved] = useState<boolean | null>(null);
     const [CSSXOptions, setCSSXOptions] = useState<{ value: string, label: string }[]>([]);
-    const [selectedDongHoIndex, setSelectedDongHoIndex] = useState<number>(0);
+    const [selectedDongHoIndex, setSelectedDongHoIndex] = useState<number | null>(null);
     const [errorPDM, setErrorPDM] = useState("");
     const [errorFields, setErrorFields] = useState<string[]>([]);
 
@@ -191,9 +184,6 @@ export default function NhomDongHoNuocForm({ className, generalInfoDongHo, isEdi
     };
     //
 
-
-    const [debouncedFields, setDebouncedFields] = useState<Partial<DongHo>>({});
-    // const [showModalSelectDongHoToSave, setShowModalSelectDongHoToSave] = useState(false);
     const [error, setError] = useState("");
 
     const [showFormTienTrinh, setShowFormTienTrinh] = useState(false);
@@ -270,22 +260,12 @@ export default function NhomDongHoNuocForm({ className, generalInfoDongHo, isEdi
         fetchData();
     }, []);
 
-    const handleChangeField = (field: keyof DongHo, value: string) => {
-        if (debounceFieldTimeoutRef.current) {
-            clearTimeout(debounceFieldTimeoutRef.current);
-        }
-
-        debounceFieldTimeoutRef.current = setTimeout(() => {
-            setDebouncedFields(prevFields => ({ ...prevFields, [field]: value }));
-        }, 500);
-    };
-
     const debounceFieldTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
     // Func: Set saved
     useEffect(() => {
-        if (savedDongHoList.length > 0) {
-            updateDongHoSaved(getCurrentDongHo())
+        if (savedDongHoList.length > 0 && selectedDongHoIndex) {
+            updateDongHoSaved(getCurrentDongHo(selectedDongHoIndex))
         }
     }, [savedDongHoList]);
 
@@ -416,7 +396,6 @@ export default function NhomDongHoNuocForm({ className, generalInfoDongHo, isEdi
         { value: state.doAm, id: "do_am" },
     ];
 
-    // TODO:
     useEffect(() => {
         setShowFormTienTrinh(errorFields.length == 0)
     }, [errorFields]);
@@ -481,12 +460,17 @@ export default function NhomDongHoNuocForm({ className, generalInfoDongHo, isEdi
         state.noiThucHien,
     ]);
 
-    const getCurrentDongHo = (formHieuSaiSoProp?: { hss: number | null }[]) => {
+    const getCurrentDongHo = (selectedDongHoIndex: number | null, formHieuSaiSoProp?: { hss: number | null }[]) => {
         const checkQ3 = ((state.ccx && (state.ccx == "1" || state.ccx == "2")) || isDHDienTu);
 
         // TODO: check so_tem, sogcn hieu_luc_bb
+
         return {
-            id: isEditing ? dongHoList[selectedDongHoIndex].id : null,
+            ket_qua_check_vo_ngoai: state.ketQuaCheckVoNgoai,
+            ghi_chu_vo_ngoai: state.ghiChuVoNgoai,
+            index: dongHoList[selectedDongHoIndex ?? 0].index ?? 0,
+
+            id: isEditing ? dongHoList[selectedDongHoIndex ?? 0].id : null,
             ten_dong_ho: state.tenDongHo || "",
             group_id: !isEditing
                 ? convertToUppercaseNonAccent(state.tenDongHo + state.dn + state.ccx + state.q3 + state.r + state.qn + (state.ngayThucHien ? dayjs(state.ngayThucHien).format('DDMMYYHHmmss') : ''))
@@ -539,9 +523,6 @@ export default function NhomDongHoNuocForm({ className, generalInfoDongHo, isEdi
         setFormHieuSaiSo(newFormValues);
         const newKetQua = isDongHoDatTieuChuan(newFormValues);
         setKetQua(newKetQua);
-
-        setLoading(true);
-        setLoading(false);
     };
 
     const handler = useRef<NodeJS.Timeout | null>(null);
@@ -575,8 +556,7 @@ export default function NhomDongHoNuocForm({ className, generalInfoDongHo, isEdi
     useEffect(() => {
         if (state.ccx && ((state.q3 && state.r) || state.qn)) {
             const { getQ1OrMin, getQ2Ort } = getQ2OrtAndQ1OrQMin(isDHDienTu, state.ccx, isDHDienTu ? state.q3 : state.qn, isDHDienTu ? state.r : null);
-            handleFieldChange("q1Ormin", getQ1OrMin);
-            handleFieldChange("q2Ort", getQ2Ort);
+            handleMultFieldChange({ q1Ormin: getQ1OrMin.value, q2Ort: getQ2Ort.value });
         }
     }, [state.ccx, state.q3, state.qn, state.r]);
 
@@ -597,24 +577,26 @@ export default function NhomDongHoNuocForm({ className, generalInfoDongHo, isEdi
     // Gán giá trị khi slect dongHo
     useEffect(() => {
         // setFirsttabLL(true);
-        const dongHoSelected = dongHoList[selectedDongHoIndex]
-        const duLieuKiemDinhJSON = dongHoSelected.du_lieu_kiem_dinh;
+        if (selectedDongHoIndex) {
+            const dongHoSelected = dongHoList[selectedDongHoIndex]
+            const duLieuKiemDinhJSON = dongHoSelected.du_lieu_kiem_dinh;
 
-        if (duLieuKiemDinhJSON) {
-            const duLieuKiemDinh = duLieuKiemDinhJSON ?
-                ((isEditing && typeof duLieuKiemDinhJSON != 'string') ?
-                    duLieuKiemDinhJSON : JSON.parse(duLieuKiemDinhJSON)
-                ) : null;
-            setDuLieuKiemDinhCacLuuLuong(duLieuKiemDinh.du_lieu || initialDuLieuKiemDinhCacLuuLuong);
-            setFormHieuSaiSo(duLieuKiemDinh.hieu_sai_so || initialFormHieuSaiSo);
-            const newKetQua = isDongHoDatTieuChuan(duLieuKiemDinh.hieu_sai_so);
-            setKetQua(newKetQua || null);
-        } else {
-            setFormHieuSaiSo(initialFormHieuSaiSo);
-            setDuLieuKiemDinhCacLuuLuong(initialDuLieuKiemDinhCacLuuLuong);
+            if (duLieuKiemDinhJSON) {
+                const duLieuKiemDinh = duLieuKiemDinhJSON ?
+                    ((isEditing && typeof duLieuKiemDinhJSON != 'string') ?
+                        duLieuKiemDinhJSON : JSON.parse(duLieuKiemDinhJSON)
+                    ) : null;
+                setDuLieuKiemDinhCacLuuLuong(duLieuKiemDinh.du_lieu || initialDuLieuKiemDinhCacLuuLuong);
+                setFormHieuSaiSo(duLieuKiemDinh.hieu_sai_so || initialFormHieuSaiSo);
+                const newKetQua = isDongHoDatTieuChuan(duLieuKiemDinh.hieu_sai_so);
+                setKetQua(newKetQua || null);
+            } else {
+                setFormHieuSaiSo(initialFormHieuSaiSo);
+                setDuLieuKiemDinhCacLuuLuong(initialDuLieuKiemDinhCacLuuLuong);
+            }
+
+            updateDongHoSaved(dongHoSelected);
         }
-
-        updateDongHoSaved(dongHoSelected);
     }, [selectedDongHoIndex]);
 
     useEffect(() => {
@@ -628,11 +610,12 @@ export default function NhomDongHoNuocForm({ className, generalInfoDongHo, isEdi
     }, [duLieuKiemDinhCacLuuLuong])
 
     const updateCurrentDongHo = () => {
-        const currentDongHo = getCurrentDongHo();
-        if (currentDongHo != dongHoList[selectedDongHoIndex]) {
-            updateListDongHo(currentDongHo, selectedDongHoIndex);
+        const currentDongHo = getCurrentDongHo(selectedDongHoIndex);
+        if (currentDongHo != dongHoList[selectedDongHoIndex ?? 0]) {
+            updateListDongHo(currentDongHo, selectedDongHoIndex ?? 0);
         }
     }
+
 
     // Handle selection change
     const handleDongHoChange = (selectedIndex: number) => {
@@ -645,14 +628,14 @@ export default function NhomDongHoNuocForm({ className, generalInfoDongHo, isEdi
 
     // Handle previous and next button clicks
     const handlePrevDongHo = () => {
-        if (selectedDongHoIndex > 0) {
+        if (selectedDongHoIndex && selectedDongHoIndex > 0) {
             setSelectedDongHoIndex(selectedDongHoIndex - 1);
             updateCurrentDongHo();
         }
     };
 
     const handleNextDongHo = () => {
-        if (selectedDongHoIndex < dongHoList.length - 1) {
+        if (selectedDongHoIndex && selectedDongHoIndex < dongHoList.length - 1) {
             setSelectedDongHoIndex(selectedDongHoIndex + 1);
             updateCurrentDongHo();
         }
@@ -687,7 +670,8 @@ export default function NhomDongHoNuocForm({ className, generalInfoDongHo, isEdi
                                     router.push(ACCESS_LINKS.DHN.src);
                                 }
                             });
-                            updateDongHoSaved(getCurrentDongHo())
+                            // TODO: Update Save
+                            // updateDongHoSaved(getCurrentDongHo(selectedDongHoIndex))
                         }
                     });
                 }
@@ -964,7 +948,6 @@ export default function NhomDongHoNuocForm({ className, generalInfoDongHo, isEdi
                                         value={state.kieuSensor || ""}
                                         onChange={(e) => {
                                             handleFieldChange('kieuSensor', e.target.value);
-                                            handleChangeField('kieu_sensor', e.target.value)
                                         }}
                                     />
                                 </div>
@@ -980,7 +963,6 @@ export default function NhomDongHoNuocForm({ className, generalInfoDongHo, isEdi
                                                 value={state.kieuChiThi || ""}
                                                 onChange={(e) => {
                                                     handleFieldChange('kieuChiThi', e.target.value);
-                                                    handleChangeField('kieu_chi_thi', e.target.value)
                                                 }}
                                             />
                                         </div>
@@ -1287,228 +1269,222 @@ export default function NhomDongHoNuocForm({ className, generalInfoDongHo, isEdi
 
                 <div className={`m-0 mb-3 bg-white rounded shadow-sm w-100 position-relative`}>
                     <div className="w-100 m-0 mb-3 p-0 position-relative">
-                        {/* Select Nav  */}
-                        <div className={`w-100 p-3 shadow-sm rounded-top bg-main-blue d-flex align-items-center sticky-top justify-content-center ${dongHoList.length <= 1 ? "d-none" : ""}`} style={{ top: "60px", zIndex: "900" }}>
-                            {/* <span className="fs-5 fw-bold mb-0 text-white me-2">Đồng hồ:</span> */}
-                            <button aria-label="Đồng hồ trước" className="btn bg-white m-0 p-0 px-2 d-flex align-items-center justify-content-center" style={{ height: "42px", width: "42px" }} onClick={() => {
-                                handlePrevDongHo()
-                            }}>
-                                <FontAwesomeIcon icon={faArrowLeft} style={{ fontSize: "1.6rem" }} className="fa-2x text-blue"></FontAwesomeIcon>
-                            </button>
-
-                            <div className="mx-2">
-                                <Select
-                                    name="selectDongHo"
-                                    options={dongHoList.map((dongHo, index) => ({ value: index, label: "Đồng hồ " + (index + 1) }))} // Assuming each dong ho has a 'name' property
-                                    className="basic-multi-select"
-                                    classNamePrefix="select"
-                                    placeholder="- Chọn đồng hồ -"
-                                    value={selectedDongHoIndex !== null ? { value: selectedDongHoIndex, label: "Đồng hồ " + (selectedDongHoIndex + 1) + (isDHSaved ? " (Đã lưu)" : "") } : null} // Đặt giá trị dựa trên state
-                                    onChange={(selectedOptions) => {
-                                        if (selectedOptions) {
-                                            handleDongHoChange(selectedOptions.value);
-                                        }
-                                    }} // Pass the index
-                                    styles={{
-                                        control: (provided) => ({
-                                            ...provided,
-                                            minWidth: "180px",
-                                            width: "30vw",
-                                            height: '42px',
-                                            minHeight: '42px',
-                                            borderColor: '#dee2e6 !important',
-                                            boxShadow: 'none !important',
-                                            overflow: "hidden"
-                                        }),
-                                        valueContainer: (provided) => ({
-                                            ...provided,
-                                            height: '42px',
-                                            padding: '0 8px',
-                                            color: "#000 !important",
-                                        }),
-                                        input: (provided) => ({
-                                            ...provided,
-                                            margin: '0',
-                                            padding: '0'
-                                        }),
-                                        indicatorsContainer: (provided) => ({
-                                            ...provided,
-                                            height: '42px',
-                                            width: '34px'
-                                        }),
-                                        menu: (provided) => ({
-                                            ...provided,
-                                            zIndex: 777
-                                        }),
-                                        singleValue: (provided, state) => ({
-                                            ...provided,
-                                            color: state.isDisabled ? '#000' : provided.color,
-                                        })
-                                    }}
-                                />
-                            </div>
-
-                            <button aria-label="Đồng hồ tiếp theo" className="btn bg-white m-0 p-0 px-2 d-flex align-items-center justify-content-center" style={{ height: "42px", width: "42px" }} onClick={() => {
-                                handleNextDongHo()
-                            }}>
-                                <FontAwesomeIcon icon={faArrowRight} style={{ fontSize: "1.6rem" }} className="fa-2x text-blue"></FontAwesomeIcon>
-                            </button>
-                        </div>
-                        {/* End select nav  */}
-
-                        <div className={`w-100 p-2`}>
-                            {dongHoList[selectedDongHoIndex] ? (
-                                <>
-                                    <div className={`w-100 p-2`}>
-                                        <div className={`w-100 p-2 d-flex gap-2 justify-content-between ${showFormTienTrinh ? "d-none" : ""}`}>
-                                            <div className={`w-100 px-3 row alert alert-warning m-0`}>
-                                                <h6><i>* Điền đủ các thông tin để hiện Form tiến trình!</i></h6>
-                                                {errorFields.map((error, index) => (
-                                                    <div className="col-12 col-sm-6 col-lg-4 col-xxl-3" key={index}><span className="me-2">•</span> {fieldTitles[error as keyof typeof fieldTitles]} là bắt buộc</div>
-                                                ))}
-                                            </div>
-                                        </div>
-
-                                        <div className={`w-100 ${showFormTienTrinh ? "" : "d-none"}`}>
-                                            <h5 className="p-0">Đo lường:</h5>
-                                            <NavTab buttonControl={true} gotoFirstTab={isFirstTabLL} tabContent={[
-                                                {
-                                                    title: <>{isDHDienTu != null && isDHDienTu ? "0.3*" : ""}Q<sub>{isDHDienTu != null && isDHDienTu ? "3" : "n"}</sub></>,
-                                                    content: <TinhSaiSoTab isDHDienTu={isDHDienTu} onFormHSSChange={(value: number | null) => handleFormHSSChange(0, value)}
-                                                        isDisable={savedDongHoList.some(dh => JSON.stringify(dh) == JSON.stringify(dongHoList[selectedDongHoIndex]))}
-                                                        d={state.d ? state.d : ""} q={{
-                                                            title: isDHDienTu != null && isDHDienTu ? TITLE_LUU_LUONG.q3 : TITLE_LUU_LUONG.qn,
-                                                            value: (state.q3) ? state.q3 : ((state.qn) ? state.qn : "")
-                                                        }} className="" tabIndex={1} Form={TinhSaiSoForm as any} />
-                                                },
-                                                {
-                                                    title: <>Q<sub>{isDHDienTu != null && isDHDienTu ? "2" : "t"}</sub></>,
-                                                    content: <TinhSaiSoTab onFormHSSChange={(value: number | null) => handleFormHSSChange(1, value)}
-                                                        isDisable={savedDongHoList.some(dh => JSON.stringify(dh) == JSON.stringify(dongHoList[selectedDongHoIndex]))}
-                                                        d={state.d ? state.d : ""} q={{
-                                                            title: isDHDienTu != null && isDHDienTu ? TITLE_LUU_LUONG.q2 : TITLE_LUU_LUONG.qt,
-                                                            value: (state.q2Ort) ? state.q2Ort.toString() : ""
-                                                        }} tabIndex={2} Form={TinhSaiSoForm as any} />
-                                                },
-                                                {
-                                                    title: <>Q<sub>{isDHDienTu != null && isDHDienTu ? "1" : "min"}</sub></>,
-                                                    content: <TinhSaiSoTab onFormHSSChange={(value: number | null) => handleFormHSSChange(2, value)}
-                                                        isDisable={savedDongHoList.some(dh => JSON.stringify(dh) == JSON.stringify(dongHoList[selectedDongHoIndex]))}
-                                                        d={state.d ? state.d : ""} q={{
-                                                            title: isDHDienTu != null && isDHDienTu ? TITLE_LUU_LUONG.q1 : TITLE_LUU_LUONG.qmin,
-                                                            value: (state.q1Ormin) ? state.q1Ormin.toString() : ""
-                                                        }} tabIndex={3} Form={TinhSaiSoForm as any} />
-                                                },
-                                            ]} />
-                                            {/* 
-                                            <div className={`w-100 px-2 py-1 d-flex gap-2 justify-content-between`}>
-                                                <div className={`w-100 px-3 row alert alert-warning m-0 ${(ketQua != null) ? "fade d-none" : "show"} ${isDHSaved != null && isDHSaved ? "d-none" : ""}`}>
-                                                    <h6><i>* Điền đủ các thông tin để hiện kết quả kiểm tra!</i></h6>
-
-                                                    {ketQua == null && (
-                                                        <div className="col-12"><span className="me-2">•</span>Tiến trình chạy lưu lượng không được bỏ trống</div>
-                                                    )}
-                                                </div>
-                                            </div> */}
-                                        </div>
-                                        <div className={`w-100 m-0 p-2 d-flex gap-2 justify-content-center ${isDHSaved != null && isDHSaved ? "" : "d-none"}`}>
-                                            <button aria-label="Đồng hồ đã lưu" className={`btn py-2 px-3 btn-secondary`} disabled={isDHSaved != null && isDHSaved}>
-                                                Đồng hồ đã lưu
-                                            </button>
-                                        </div>
-                                    </div>
-                                </>
-                            ) : (
-                                <p className="py-4 w-100 text-center"><i>CHƯA CHỌN ĐỒNG HỒ</i></p>
-                            )}
-                        </div>
-
-                        {/* Select Nav  */}
-                        <div className={`w-100 rounded-bottom p-3 bg-light-grey d-flex align-items-center justify-content-center ${dongHoList.length <= 1 ? "d-none" : ""}`}>
-                            {/* <span className="fs-5 fw-bold mb-0 text-white me-2">Đồng hồ:</span> */}
-                            <button aria-label="Đồng hồ trước" className="btn bg-white m-0 p-0 px-2 d-flex align-items-center justify-content-center" style={{ height: "42px", width: "42px" }}
-                                onClick={() => {
+                        {selectedDongHoIndex != null && showFormTienTrinh && <>
+                            {/* Select Nav  */}
+                            <div className={`w-100 py-3 px-2 shadow-sm rounded-top bg-main-blue d-flex align-items-center sticky-top justify-content-center ${dongHoList.length <= 1 ? "d-none" : ""}`} style={{ top: "60px", zIndex: "900" }}>
+                                
+                                <button style={{ top: "50%", left: "10px", transform: "translateY(-50%)" }} className={`btn m-0 py-0 px-0 position-absolute text-white d-flex align-items-center gap-1 border-0 shadow-0`} onClick={() => setSelectedDongHoIndex(null)}>
+                                    <FontAwesomeIcon icon={faArrowLeft} style={{ fontSize: "1.6rem" }}></FontAwesomeIcon><span className="d-none d-sm-block">Quay lại</span>
+                                </button>
+                                <button aria-label="Đồng hồ trước" className="btn bg-white m-0 p-0 px-2 d-flex align-items-center justify-content-center" style={{ height: "42px", width: "42px" }} onClick={() => {
                                     handlePrevDongHo()
                                 }}>
-                                <FontAwesomeIcon icon={faArrowLeft} style={{ fontSize: "1.6rem" }} className="fa-2x text-blue"></FontAwesomeIcon>
-                            </button>
+                                    <FontAwesomeIcon icon={faChevronLeft} style={{ fontSize: "1.6rem" }} className="fa-2x text-blue"></FontAwesomeIcon>
+                                </button>
 
-                            <div className="mx-2">
-                                <Select
-                                    name="selectDongHo"
-                                    options={dongHoList.map((dongHo, index) => ({ value: index, label: "Đồng hồ " + (index + 1) }))}
-                                    className="basic-multi-select"
-                                    classNamePrefix="select"
-                                    placeholder="- Chọn đồng hồ -"
-                                    value={selectedDongHoIndex !== null ? { value: selectedDongHoIndex, label: "Đồng hồ " + (selectedDongHoIndex + 1) + (isDHSaved != null && isDHSaved ? " (Đã lưu)" : "") } : null}
-                                    onChange={(selectedOptions) => {
-                                        if (selectedOptions) {
-                                            handleDongHoChange(selectedOptions.value);
-                                        }
-                                    }} // Pass the index
-                                    menuPlacement="top"
-                                    styles={{
-                                        control: (provided) => ({
-                                            ...provided,
-                                            minWidth: "180px",
-                                            width: "30vw",
-                                            height: '42px',
-                                            minHeight: '42px',
-                                            borderColor: '#dee2e6 !important',
-                                            boxShadow: 'none !important',
-                                            backgroundColor: "white",
-                                            overflow: "hidden"
-                                        }),
-                                        valueContainer: (provided) => ({
-                                            ...provided,
-                                            height: '42px',
-                                            padding: '0 8px',
-                                            color: "#000 !important",
-                                        }),
-                                        input: (provided) => ({
-                                            ...provided,
-                                            margin: '0',
-                                            padding: '0'
-                                        }),
-                                        indicatorsContainer: (provided) => ({
-                                            ...provided,
-                                            height: '42px',
-                                            width: '34px'
-                                        }),
-                                        menu: (provided) => ({
-                                            ...provided,
-                                            zIndex: 777
-                                        }),
-                                        singleValue: (provided, state) => ({
-                                            ...provided,
-                                            color: state.isDisabled ? '#000' : provided.color,
-                                        })
-                                    }}
-                                />
-                            </div>
+                                <div className="mx-2">
+                                    <Select
+                                        name="selectDongHo"
+                                        options={dongHoList.map((dongHo, index) => ({ value: index, label: "Đồng hồ " + (index + 1) }))} // Assuming each dong ho has a 'name' property
+                                        className="basic-multi-select"
+                                        classNamePrefix="select"
+                                        placeholder="- Chọn đồng hồ -"
+                                        value={selectedDongHoIndex !== null ? { value: selectedDongHoIndex, label: "Đồng hồ " + (selectedDongHoIndex + 1) + (isDHSaved ? " (Đã lưu)" : "") } : null} // Đặt giá trị dựa trên state
+                                        onChange={(selectedOptions) => {
+                                            if (selectedOptions) {
+                                                handleDongHoChange(selectedOptions.value);
+                                            }
+                                        }} // Pass the index
+                                        styles={{
+                                            control: (provided) => ({
+                                                ...provided,
+                                                minWidth: "180px",
+                                                width: "30vw",
+                                                height: '42px',
+                                                minHeight: '42px',
+                                                borderColor: '#dee2e6 !important',
+                                                boxShadow: 'none !important',
+                                                overflow: "hidden"
+                                            }),
+                                            valueContainer: (provided) => ({
+                                                ...provided,
+                                                height: '42px',
+                                                padding: '0 8px',
+                                                color: "#000 !important",
+                                            }),
+                                            input: (provided) => ({
+                                                ...provided,
+                                                margin: '0',
+                                                padding: '0'
+                                            }),
+                                            indicatorsContainer: (provided) => ({
+                                                ...provided,
+                                                height: '42px',
+                                                width: '34px'
+                                            }),
+                                            menu: (provided) => ({
+                                                ...provided,
+                                                zIndex: 777
+                                            }),
+                                            singleValue: (provided, state) => ({
+                                                ...provided,
+                                                color: state.isDisabled ? '#000' : provided.color,
+                                            })
+                                        }}
+                                    />
+                                </div>
 
-                            <button aria-label="Đồng hồ tiếp theo" className="btn bg-white m-0 p-0 px-2 d-flex align-items-center justify-content-center" style={{ height: "42px", width: "42px" }}
-                                onClick={() => {
+                                <button aria-label="Đồng hồ tiếp theo" className="btn bg-white m-0 p-0 px-2 d-flex align-items-center justify-content-center" style={{ height: "42px", width: "42px" }} onClick={() => {
                                     handleNextDongHo()
                                 }}>
-                                <FontAwesomeIcon icon={faArrowRight} style={{ fontSize: "1.6rem" }} className="fa-2x text-blue"></FontAwesomeIcon>
-                            </button>
-                        </div>
+                                    <FontAwesomeIcon icon={faChevronRight} style={{ fontSize: "1.6rem" }} className="fa-2x text-blue"></FontAwesomeIcon>
+                                </button>
+                            </div>
+                            {/* End select nav  */}
+
+                            <div className={`w-100 p-2`}>
+                                {dongHoList[selectedDongHoIndex] ? (
+                                    <>
+                                        <div className={`w-100 p-2`}>
+                                            <div className={`w-100 ${showFormTienTrinh ? "" : "d-none"}`}>
+                                                <h5 className="p-0">Đo lường:</h5>
+                                                <NavTab buttonControl={true} gotoFirstTab={isFirstTabLL} tabContent={[
+                                                    {
+                                                        title: <>{isDHDienTu != null && isDHDienTu ? "0.3*" : ""}Q<sub>{isDHDienTu != null && isDHDienTu ? "3" : "n"}</sub></>,
+                                                        content: <TinhSaiSoTab isDHDienTu={isDHDienTu} onFormHSSChange={(value: number | null) => handleFormHSSChange(0, value)}
+                                                            isDisable={savedDongHoList.some(dh => JSON.stringify(dh) == JSON.stringify(dongHoList[selectedDongHoIndex]))}
+                                                            d={state.d ? state.d : ""} q={{
+                                                                title: isDHDienTu != null && isDHDienTu ? TITLE_LUU_LUONG.q3 : TITLE_LUU_LUONG.qn,
+                                                                value: (state.q3) ? state.q3 : ((state.qn) ? state.qn : "")
+                                                            }} className="" tabIndex={1} Form={TinhSaiSoForm as any} />
+                                                    },
+                                                    {
+                                                        title: <>Q<sub>{isDHDienTu != null && isDHDienTu ? "2" : "t"}</sub></>,
+                                                        content: <TinhSaiSoTab onFormHSSChange={(value: number | null) => handleFormHSSChange(1, value)}
+                                                            isDisable={savedDongHoList.some(dh => JSON.stringify(dh) == JSON.stringify(dongHoList[selectedDongHoIndex]))}
+                                                            d={state.d ? state.d : ""} q={{
+                                                                title: isDHDienTu != null && isDHDienTu ? TITLE_LUU_LUONG.q2 : TITLE_LUU_LUONG.qt,
+                                                                value: (state.q2Ort) ? state.q2Ort.toString() : ""
+                                                            }} tabIndex={2} Form={TinhSaiSoForm as any} />
+                                                    },
+                                                    {
+                                                        title: <>Q<sub>{isDHDienTu != null && isDHDienTu ? "1" : "min"}</sub></>,
+                                                        content: <TinhSaiSoTab onFormHSSChange={(value: number | null) => handleFormHSSChange(2, value)}
+                                                            isDisable={savedDongHoList.some(dh => JSON.stringify(dh) == JSON.stringify(dongHoList[selectedDongHoIndex]))}
+                                                            d={state.d ? state.d : ""} q={{
+                                                                title: isDHDienTu != null && isDHDienTu ? TITLE_LUU_LUONG.q1 : TITLE_LUU_LUONG.qmin,
+                                                                value: (state.q1Ormin) ? state.q1Ormin.toString() : ""
+                                                            }} tabIndex={3} Form={TinhSaiSoForm as any} />
+                                                    },
+                                                ]} />
+                                            </div>
+                                            <div className={`w-100 m-0 p-2 d-flex gap-2 justify-content-center ${isDHSaved != null && isDHSaved ? "" : "d-none"}`}>
+                                                <button aria-label="Đồng hồ đã lưu" className={`btn py-2 px-3 btn-secondary`} disabled={isDHSaved != null && isDHSaved}>
+                                                    Đồng hồ đã lưu
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </>
+                                ) : (
+                                    <p className="py-4 w-100 text-center"><i>CHƯA CHỌN ĐỒNG HỒ</i></p>
+                                )}
+                            </div>
+
+                            {/* Select Nav  */}
+                            {/* <div className={`w-100 rounded-bottom p-3 bg-light-grey d-flex align-items-center justify-content-center ${dongHoList.length <= 1 ? "d-none" : ""}`}>
+                                <button aria-label="Đồng hồ trước" className="btn bg-white m-0 p-0 px-2 d-flex align-items-center justify-content-center" style={{ height: "42px", width: "42px" }}
+                                    onClick={() => {
+                                        handlePrevDongHo()
+                                    }}>
+                                    <FontAwesomeIcon icon={faArrowLeft} style={{ fontSize: "1.6rem" }} className="fa-2x text-blue"></FontAwesomeIcon>
+                                </button>
+
+                                <div className="mx-2">
+                                    <Select
+                                        name="selectDongHo"
+                                        options={dongHoList.map((dongHo, index) => ({ value: index, label: "Đồng hồ " + (index + 1) }))}
+                                        className="basic-multi-select"
+                                        classNamePrefix="select"
+                                        placeholder="- Chọn đồng hồ -"
+                                        value={selectedDongHoIndex !== null ? { value: selectedDongHoIndex, label: "Đồng hồ " + (selectedDongHoIndex + 1) + (isDHSaved != null && isDHSaved ? " (Đã lưu)" : "") } : null}
+                                        onChange={(selectedOptions) => {
+                                            if (selectedOptions) {
+                                                handleDongHoChange(selectedOptions.value);
+                                            }
+                                        }} // Pass the index
+                                        menuPlacement="top"
+                                        styles={{
+                                            control: (provided) => ({
+                                                ...provided,
+                                                minWidth: "180px",
+                                                width: "30vw",
+                                                height: '42px',
+                                                minHeight: '42px',
+                                                borderColor: '#dee2e6 !important',
+                                                boxShadow: 'none !important',
+                                                backgroundColor: "white",
+                                                overflow: "hidden"
+                                            }),
+                                            valueContainer: (provided) => ({
+                                                ...provided,
+                                                height: '42px',
+                                                padding: '0 8px',
+                                                color: "#000 !important",
+                                            }),
+                                            input: (provided) => ({
+                                                ...provided,
+                                                margin: '0',
+                                                padding: '0'
+                                            }),
+                                            indicatorsContainer: (provided) => ({
+                                                ...provided,
+                                                height: '42px',
+                                                width: '34px'
+                                            }),
+                                            menu: (provided) => ({
+                                                ...provided,
+                                                zIndex: 777
+                                            }),
+                                            singleValue: (provided, state) => ({
+                                                ...provided,
+                                                color: state.isDisabled ? '#000' : provided.color,
+                                            })
+                                        }}
+                                    />
+                                </div>
+
+                                <button aria-label="Đồng hồ tiếp theo" className="btn bg-white m-0 p-0 px-2 d-flex align-items-center justify-content-center" style={{ height: "42px", width: "42px" }}
+                                    onClick={() => {
+                                        handleNextDongHo()
+                                    }}>
+                                    <FontAwesomeIcon icon={faArrowRight} style={{ fontSize: "1.6rem" }} className="fa-2x text-blue"></FontAwesomeIcon>
+                                </button>
+                            </div> */}
+                        </>}
                         {/* End select nav  */}
                     </div>
                 </div>
 
-                <div className={`m-0 mb-3 bg-white rounded shadow-sm w-100 position-relative py-3 pt-md-4`}>
-                    {showFormTienTrinh &&
+                <div className={`m-0 mb-3 bg-white rounded shadow-sm w-100 position-relative p-3`}>
+                    {showFormTienTrinh && selectedDongHoIndex == null &&
                         <>
-                            <h4 className="w-100 text-uppercase text-center">Thông tin riêng</h4>
                             <TableDongHoInfo
                                 isEditing={isEditing}
                                 isDHDienTu={isDHDienTu}
-                                setLoading={(value: boolean) => setLoading(value)} />
+                                setLoading={(value: boolean) => setLoading(value)}
+                                selectDongHo={(value: number) => setSelectedDongHoIndex(value)}
+                            />
                         </>}
+                    <div className={`w-100 d-flex gap-2 justify-content-between ${showFormTienTrinh ? "d-none" : ""}`}>
+                        <div className={`w-100 px-3 row alert alert-warning m-0`}>
+                            <h6><i>* Điền đủ các thông tin để hiện Form tiến trình!</i></h6>
+                            {errorFields.map((error, index) => (
+                                <div className="col-12 col-sm-6 col-lg-4 col-xxl-3" key={index}><span className="me-2">•</span> {fieldTitles[error as keyof typeof fieldTitles]} là bắt buộc</div>
+                            ))}
+                        </div>
+                    </div>
 
-                    <div className={`w-100 px-2 px-md-3 d-flex gap-2 align-items-center justify-content-end ${savedDongHoList.length == dongHoList.length ? "d-none" : ""}`}>
+                    <div className={`w-100 px-2 px-md-3 d-flex gap-2 align-items-center justify-content-end ${savedDongHoList.length == dongHoList.length || !showFormTienTrinh ? "d-none" : ""}`}>
                         <button aria-label={dongHoList.length <= 1 ? "Lưu đồng hồ" : "Lưu toàn bộ"} className="btn btn-success py-2 px-4" disabled={loading || !showFormTienTrinh} onClick={handleSaveAllDongHo}>
                             {loading ?
                                 <><span className="spinner-border spinner-border-sm me-2" aria-hidden="true"></span></> :

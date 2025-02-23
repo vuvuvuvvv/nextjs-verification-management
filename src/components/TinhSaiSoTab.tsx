@@ -90,7 +90,7 @@ export default function TinhSaiSoTab({ className, tabIndex, d, q, Form, onFormHS
     useEffect(() => {
         if (JSON.stringify(prevFormValuesRef.current) !== JSON.stringify(getDuLieuChayCuaLuuLuong(q))) {
             setFormValues(getDuLieuChayCuaLuuLuong(q));
-            // prevFormValuesRef.current = getDuLieuChayCuaLuuLuong(q);
+            prevFormValuesRef.current = getDuLieuChayCuaLuuLuong(q);
         }
     }, [duLieuKiemDinhCacLuuLuong]);
 
@@ -169,6 +169,7 @@ export default function TinhSaiSoTab({ className, tabIndex, d, q, Form, onFormHS
     }
 
     const handleAdd = () => {
+        // themLanChayCuaLuuLuong(q)
         updateFormValuesAndSelectedTabForm(themLanChayCuaLuuLuong(q));
     };
 
@@ -213,10 +214,18 @@ export default function TinhSaiSoTab({ className, tabIndex, d, q, Form, onFormHS
                         <div className={`${c_ect["wrap-form"]} rounded w-100`}>
                             <label className={`w-100 ${c_ect["tab-radio"]} ${selectedTabForm[Number(key) * tabIndex] ? c_ect["active"] : ""}`}>
                                 <h5 className="m-0">Lần {key}</h5>
-                                <input type="radio" name={`process-tab-${key}-${tabIndex}`} className="d-none" checked={selectedTabForm[Number(key) * tabIndex]} onChange={() => toggleTabForm(Number(key))} />
-                                <button aria-label={`Xóa lần ${key}`} type="button" className={`btn border-0 btn-light text-main-color ${isDisable ? "d-none" : ""}`} onClick={() => handleDelete(key)}>
-                                    <FontAwesomeIcon icon={faTimes} className="me-1" /> Xóa
-                                </button>
+                                <input
+                                    type="radio"
+                                    name={`process-tab-${key}-${tabIndex}`}
+                                    className="d-none"
+                                    checked={selectedTabForm[Number(key) * tabIndex] ?? false}
+                                    onChange={() => toggleTabForm(Number(key))}
+                                />
+                                {index != 0 &&
+                                    <button aria-label={`Xóa lần ${key}`} type="button" className={`btn border-0 btn-light text-main-color ${isDisable ? "d-none" : ""}`} onClick={() => handleDelete(key)}>
+                                        <FontAwesomeIcon icon={faTimes} className="me-1" /> Xóa
+                                    </button>
+                                }
                             </label>
                             {!selectedTabForm[Number(key) * tabIndex] && (
                                 <div
@@ -244,8 +253,8 @@ export default function TinhSaiSoTab({ className, tabIndex, d, q, Form, onFormHS
 
     return (
         <div className={`row m-0 p-0 w-100 justify-content-center ${className ? className : ""} ${c_ect['wrapper']}`}>
-            <div className="w-100 m-0 mb-3 p-0">
-                <div className={`w-100 py-2 row m-0 ${c_ect['info']}`}>
+            <div className="w-100 m-0 p-0">
+                <div className={`w-100 pt-2 row m-0 ${c_ect['info']}`}>
                     <div className={`col-12 col-lg-6 col-xxl-5 mb-2 p-0 px-1`}>
                         <h5 className="w-100">Lưu lượng:</h5>
                         <div className="w-100 px-3 pe-lg-2  d-flex align-items-center justify-content-between gap-3">

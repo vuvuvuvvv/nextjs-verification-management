@@ -36,6 +36,9 @@ export const DongHoListProvider = ({ children }: { children: ReactNode }) => {
     const [amount, setAmount] = useState<number>(1)
 
     const initDongHoList = Array.from({ length: amount }, (_, i) => ({
+        ket_qua_check_vo_ngoai: false,
+        ghi_chu_vo_ngoai: "",
+        index: i + 1,
         id: null,
         group_id: "",
         ten_dong_ho: "",
@@ -94,6 +97,10 @@ export const DongHoListProvider = ({ children }: { children: ReactNode }) => {
         setDongHoList(() => {
             // Khởi tạo danh sách với số lượng dongHo
             return Array.from({ length: amount }, (_, i) => ({
+                ket_qua_check_vo_ngoai: false,
+                ghi_chu_vo_ngoai: "",
+                index: i + 1,
+                
                 id: null,
                 group_id: "",
                 ten_dong_ho: "",
@@ -207,6 +214,7 @@ export const DongHoListProvider = ({ children }: { children: ReactNode }) => {
     const handler = useRef<NodeJS.Timeout | null>(null);
 
     useEffect(() => {
+        console.log(isInitialization)
         if (user && user.username && !isInitialization && savedDongHoList.length != dongHoList.length && !isEditing) {
             if (handler.current) {
                 clearTimeout(handler.current);

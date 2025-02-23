@@ -1,6 +1,7 @@
 import { TITLE_LUU_LUONG } from '@lib/system-constant';
 import { isDongHoDatTieuChuan } from '@lib/system-function';
 import { DuLieuChayDongHo, DuLieuChayDiemLuuLuong, DuLieuMotLanChay, DuLieuCacLanChay, VChuanDongBoCacLL } from '@lib/types';
+import { ChildProcessWithoutNullStreams } from 'node:child_process';
 import React, { createContext, useState, useContext, ReactNode, useRef, useEffect } from 'react';
 
 interface KiemDinhContextType {
@@ -57,6 +58,10 @@ export const KiemDinhProvider = ({ children }: { children: ReactNode }) => {
     const [ketQua, setKetQua] = useState<boolean | null>(null);
     const [vChuanDongBoCacLL, setVChuanDongBoCacLL] = useState<VChuanDongBoCacLL>({})
 
+    // useEffect(() => {
+    //     console.log("dlkđcll: ", duLieuKiemDinhCacLuuLuong)
+    // }, [duLieuKiemDinhCacLuuLuong])
+
     const setDuLieuKiemDinhChoMotLuuLuong = (tenLuuLuong: string, data: DuLieuChayDiemLuuLuong | null) => {
         if (previousDuLieuRef.current[tenLuuLuong] !== data) {
             setDuLieuKiemDinhCacLuuLuong(prevState => ({
@@ -92,7 +97,20 @@ export const KiemDinhProvider = ({ children }: { children: ReactNode }) => {
         }
     }
 
-    const updateLuuLuong = (q: { title: string; value: string }, duLieuChay: DuLieuCacLanChay) => {
+    const updateLuuLuong = (q: { title: string; value: string }, duLieuChay: DuLieuCacLanChay | null = null) => {
+        if(duLieuChay == null) {
+            duLieuChay = {
+                1: {
+                    V1: 0,
+                    V2: 0,
+                    Vc1: "0",
+                    Vc2: "0",
+                    Tdh: randomT,
+                    Tc: randomT,
+                    ...(vChuanDongBoCacLL?.[q.title]?.[1] || {})
+                }
+            }
+        }
         const value = isNaN(Number(q.value)) ? 0 : Number(q.value);
         const keyOfLuuLuongDHDienTu = [TITLE_LUU_LUONG.q3, TITLE_LUU_LUONG.q2, TITLE_LUU_LUONG.q1];
         if (q.title) {
@@ -163,14 +181,33 @@ export const KiemDinhProvider = ({ children }: { children: ReactNode }) => {
         let updatedData: DuLieuChayDongHo = duLieuKiemDinhCacLuuLuong;
         if (q.title) {
             let key = q.title;
+            if(duLieuKiemDinhCacLuuLuong[key] == null) {
+                duLieuKiemDinhCacLuuLuong[key] = {
+                    value: Number(q.value) | 0,
+                    lan_chay: {
+                        1: {
+                            V1: 0,
+                            V2: 0,
+                            Vc1: 0,
+                            Vc2: 0,
+                            Tdh: randomT,
+                            Tc: randomT,
+                            ...(vChuanDongBoCacLL?.[q.title]?.[1] || {})
+                        }
+                    }
+                };
+            }
+
             let data = duLieuKiemDinhCacLuuLuong[key]?.lan_chay;
+            
             if (data) {
                 let latest_V2 = data[Number(Object.keys(data)[Object.entries(data).length - 1])].V2
                 let latest_Vc2 = data[Number(Object.keys(data)[Object.entries(data).length - 1])].Vc2
                 const newIndexOfLanChay = Number(Object.keys(data)[Object.entries(data).length - 1]) + 1;
                 setDuLieuKiemDinhCacLuuLuong(prevState => {
                     const existingData = prevState[key] || {
-                        value: 0, lan_chay: {
+                        value: 0,
+                        lan_chay: {
                             1: {
                                 V1: 0,
                                 V2: 0,
@@ -203,6 +240,22 @@ export const KiemDinhProvider = ({ children }: { children: ReactNode }) => {
                     return updatedData;
                 });
             }
+        }
+        if (updatedData[q.title] == null) {
+            updatedData[q.title] = {
+                value: 0,
+                lan_chay: {
+                    1: {
+                        V1: 0,
+                        V2: 0,
+                        Vc1: 0,
+                        Vc2: 0,
+                        Tdh: randomT,
+                        Tc: randomT,
+                        ...(vChuanDongBoCacLL?.[q.title]?.[1] || {})
+                    }
+                }
+            };
         }
         return updatedData[q.title]?.lan_chay as DuLieuCacLanChay;
     };

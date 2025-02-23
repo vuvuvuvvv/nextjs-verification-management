@@ -1,5 +1,6 @@
 import { useDongHoList } from "@/context/ListDongHo";
 import { Dayjs } from "dayjs";
+import dynamic from "next/dynamic";
 import dayjs from "dayjs";
 import React, { useEffect, useRef, useState } from "react";
 import c_tbIDHInf from "@styles/scss/components/table-input-dongho-info.module.scss";
@@ -8,13 +9,19 @@ import { getDongHoExistsByInfo } from "@/app/api/dongho/route";
 import { getLastDayOfMonthInFuture } from "@lib/system-function";
 import { TITLE_LUU_LUONG } from "@lib/system-constant";
 import DatePickerField from "./ui/DatePickerTBDHInfo";
-import InputField from "./ui/InputFieldTBDHInfo";
+import { DongHo } from "@lib/types";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faEdit } from "@fortawesome/free-solid-svg-icons";
+
+const ToggleSwitchButton = dynamic(() => import('@/components/ui/ToggleSwitchButton'));
+const InputField = dynamic(() => import('@/components/ui//InputFieldTBDHInfo'));
 
 interface TableDongHoInfoProps {
     className?: string,
     setLoading: (value: boolean) => void;
     isDHDienTu: boolean;
     isEditing: boolean;
+    selectDongHo: (value: number) => void;
 }
 
 const InfoFieldTitle = {
@@ -23,23 +30,28 @@ const InfoFieldTitle = {
     seri_chi_thi: "Serial chỉ thị",
     so_tem: "Số tem",
     hieu_luc_bien_ban: "Hiệu lực biên bản",
-    k_factor: "Hệ số K"
+    k_factor: "Hệ số K",
+    ket_qua_check_vo_ngoai: "Kết quả kiếm tra vỏ ngoài",
+    ghi_chu_vo_ngoai: "Ghi chú vỏ ngoài"
 };
 
 type InfoField = {
-    so_giay_chung_nhan?: string,
-    seri_sensor?: string,
-    seri_chi_thi?: string,
-    so_tem?: string,
-    k_factor?: string,
-    hieu_luc_bien_ban?: Date | null,
+    so_giay_chung_nhan?: string;
+    seri_sensor?: string;
+    seri_chi_thi?: string;
+    so_tem?: string;
+    k_factor?: string;
+    hieu_luc_bien_ban?: Date | null;
+    ket_qua_check_vo_ngoai?: boolean;
+    ghi_chu_vo_ngoai?: string | null;
 };
 
 const TableDongHoInfo: React.FC<TableDongHoInfoProps> = React.memo(({
     className,
     setLoading,
     isDHDienTu,
-    isEditing
+    isEditing,
+    selectDongHo
 }) => {
     const { dongHoList, setDongHoList, savedDongHoList } = useDongHoList();
     const [errorsList, setErrorsList] = useState<InfoField[]>([]);
@@ -51,8 +63,9 @@ const TableDongHoInfo: React.FC<TableDongHoInfoProps> = React.memo(({
         value: string | Date
     ) => {
         const updatedErrors = [...errorsList];
+        const updatedDongHoList = [...dongHoList];
+
         if (field == "hieu_luc_bien_ban") {
-            const updatedDongHoList = [...dongHoList];
             updatedDongHoList[index].hieu_luc_bien_ban = dayjs(value, 'DD-MM-YYYY').isValid() ? dayjs(value, 'DD-MM-YYYY').toDate() : null;
             setDongHoList(updatedDongHoList);
         } else if (!["k_factor", "seri_chi_thi"].includes(field)) {
@@ -93,8 +106,6 @@ const TableDongHoInfo: React.FC<TableDongHoInfoProps> = React.memo(({
                     updatedErrors[index][field] = "";
                 }
 
-                const updatedDongHoList = [...dongHoList];
-
                 if (updatedDongHoList[index].so_giay_chung_nhan && updatedDongHoList[index].so_tem) {
                     const isDHDienTu = Boolean((dongHoList[index].ccx && ["1", "2"].includes(dongHoList[index].ccx)) || dongHoList[index].kieu_thiet_bi == "Điện tử");
                     updatedDongHoList[index].hieu_luc_bien_ban = getLastDayOfMonthInFuture(isDHDienTu, updatedDongHoList[index].ngay_thuc_hien) || null;
@@ -103,15 +114,34 @@ const TableDongHoInfo: React.FC<TableDongHoInfoProps> = React.memo(({
                 }
 
                 updatedDongHoList[index][field] = value.toString();
-                setDongHoList(updatedDongHoList);
                 setErrorsList(updatedErrors);
             }, 500);
 
             setDebounceTimeout(handler);
             setErrorsList(updatedErrors);
+        } else {
+            updatedDongHoList[index][field] = value.toString();
         }
+
+        setDongHoList(updatedDongHoList);
     },
         [dongHoList, errorsList, setLoading]
+    );
+
+    const handleVoNgoaiChange = React.useCallback((
+        index: number,
+        field: "ket_qua_check_vo_ngoai" | "ghi_chu_vo_ngoai",
+        value: boolean | string
+    ) => {
+        const updatedDongHoList = [...dongHoList];
+        if (field == "ket_qua_check_vo_ngoai" && typeof (value) == "boolean") {
+            updatedDongHoList[index].ket_qua_check_vo_ngoai = value;
+        } else {
+            updatedDongHoList[index].ghi_chu_vo_ngoai = value.toString();
+        }
+        setDongHoList(updatedDongHoList);
+    },
+        [dongHoList, errorsList]
     );
 
     useEffect(() => {
@@ -138,7 +168,7 @@ const TableDongHoInfo: React.FC<TableDongHoInfoProps> = React.memo(({
     //             }
     //         } else {
     //             const nextIndex = index + 1;
-    //             if (nextIndex < dongHoList.length) {
+    //             if (nextIndex < dongHoList.length)
     //                 const nextInput = document.querySelector(`input[name="${field}-${nextIndex}"]`) as HTMLInputElement;
     //                 if (nextInput) {
     //                     nextInput.focus();
@@ -164,6 +194,13 @@ const TableDongHoInfo: React.FC<TableDongHoInfoProps> = React.memo(({
                             <div className={`${c_tbIDHInf['table-label']}`}>
                                 <span>
                                     Trạng thái
+                                </span>
+                            </div>
+                        </th>
+                        <th>
+                            <div className={`${c_tbIDHInf['table-label']}`}>
+                                <span>
+                                    Vỏ ngoài
                                 </span>
                             </div>
                         </th>
@@ -213,6 +250,8 @@ const TableDongHoInfo: React.FC<TableDongHoInfoProps> = React.memo(({
                                 </span>
                             </div>
                         </th> */}
+                        <th>
+                        </th>
                     </tr>
                 </thead>
                 <tbody>
@@ -234,7 +273,12 @@ const TableDongHoInfo: React.FC<TableDongHoInfoProps> = React.memo(({
                             rows.push(
                                 <tr key={index}>
                                     {dongHoList.length > 1 &&
-                                        <td>{index + 1}</td>}
+                                        <td style={{ cursor: "pointer" }} onClick={() => {
+                                            selectDongHo(index)
+                                        }}>
+                                            <span>{dongHo.index}</span>
+                                            <span><FontAwesomeIcon icon={faEdit} className="text-blue"></FontAwesomeIcon></span>
+                                        </td>}
                                     <td>
                                         <p className="m-0 p-0 text-center w-100" style={{ minWidth: "140px" }}>
                                             {status != null ?
@@ -253,6 +297,13 @@ const TableDongHoInfo: React.FC<TableDongHoInfoProps> = React.memo(({
                                                     "Chưa kiểm định"
                                             }
                                         </p>
+                                    </td>
+                                    <td>
+                                        <ToggleSwitchButton
+                                            value={dongHo.ket_qua_check_vo_ngoai ?? false}
+                                            onChange={(value: boolean) => handleVoNgoaiChange(index, "ket_qua_check_vo_ngoai", value)}
+                                            disabled={savedDongHoList.some(dh => JSON.stringify(dh) == JSON.stringify(dongHo)) || savedDongHoList.length == dongHoList.length}
+                                        />
                                     </td>
                                     <td>
                                         <InputField
@@ -315,6 +366,14 @@ const TableDongHoInfo: React.FC<TableDongHoInfoProps> = React.memo(({
                                             name={"hieu_luc_bien_ban"}
                                         /> */}
                                     {/* </td> */}
+                                    <td>
+                                        <button onClick={() => {
+                                            console.log(index)
+                                            selectDongHo(index)
+                                        }} className={`btn`}>
+                                            <FontAwesomeIcon icon={faEdit} className="text-blue"></FontAwesomeIcon>
+                                        </button>
+                                    </td>
                                 </tr>
                             );
                         }
