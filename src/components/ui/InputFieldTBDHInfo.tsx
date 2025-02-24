@@ -51,7 +51,7 @@ const InputField: React.FC<{
                     setValue(e.target.value);
                 }}
                 className="form-control"
-                style={{ width: "100%", minWidth: "170px" }}
+                style={{ width: "100%", minWidth: "130px" }}
                 name={name + "-" + index}
             />
             {error && (

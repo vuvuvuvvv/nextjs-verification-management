@@ -183,42 +183,41 @@ const TableDongHoInfo: React.FC<TableDongHoInfoProps> = React.memo(({
             <table className={`table table-bordered mb-0 table-hover ${c_tbIDHInf['process-table']}`}>
                 <thead className="shadow border">
                     <tr className={`${c_tbIDHInf['table-header']}`}>
-                        {dongHoList.length > 1 && <th>
-                            <div className={`${c_tbIDHInf['table-label']}`}>
-                                <span>
-                                    Đồng hồ
-                                </span>
-                            </div>
-                        </th>}
-                        <th>
+                        {dongHoList.length > 1 &&
+                            <th rowSpan={2}>
+                                <div className={`${c_tbIDHInf['table-label']}`}>
+                                    STT
+                                </div>
+                            </th>}
+                        <th rowSpan={2}>
                             <div className={`${c_tbIDHInf['table-label']}`}>
                                 <span>
                                     Trạng thái
                                 </span>
                             </div>
                         </th>
-                        <th>
+                        <th rowSpan={2}>
                             <div className={`${c_tbIDHInf['table-label']}`}>
                                 <span>
                                     Vỏ ngoài
                                 </span>
                             </div>
                         </th>
-                        <th>
+                        <th rowSpan={2}>
                             <div className={`${c_tbIDHInf['table-label']}`}>
                                 <span>
                                     Số giấy CN
                                 </span>
                             </div>
                         </th>
-                        <th>
+                        <th rowSpan={2}>
                             <div className={`${c_tbIDHInf['table-label']}`}>
                                 <span>
                                     Số Tem
                                 </span>
                             </div>
                         </th>
-                        <th>
+                        <th rowSpan={2}>
                             <div className={`${c_tbIDHInf['table-label']}`}>
                                 <span>
                                     Serial Sensor
@@ -226,7 +225,7 @@ const TableDongHoInfo: React.FC<TableDongHoInfoProps> = React.memo(({
                             </div>
                         </th>
                         {isDHDienTu &&
-                            <th>
+                            <th rowSpan={2}>
                                 <div className={`${c_tbIDHInf['table-label']}`}>
                                     <span>
                                         Serial chỉ thị
@@ -235,7 +234,7 @@ const TableDongHoInfo: React.FC<TableDongHoInfoProps> = React.memo(({
                             </th>
                         }
                         {["Điện tử", "Cơ - Điện từ"].includes(dongHoList[0].kieu_thiet_bi || "xx") &&
-                            <th>
+                            <th rowSpan={2}>
                                 <div className={`${c_tbIDHInf['table-label']}`}>
                                     <span>
                                         Hệ số K
@@ -250,8 +249,20 @@ const TableDongHoInfo: React.FC<TableDongHoInfoProps> = React.memo(({
                                 </span>
                             </div>
                         </th> */}
-                        <th>
+                        <th colSpan={3}>
+                            <div className={`${c_tbIDHInf['table-label']}`}>
+                                <span>
+                                    Sai số
+                                </span>
+                            </div>
                         </th>
+                        <th rowSpan={2}>
+                        </th>
+                    </tr>
+                    <tr className={`${c_tbIDHInf['table-header']} border-top border-white`}>
+                        <th>Q<sub>III</sub></th>
+                        <th>Q<sub>II</sub></th>
+                        <th>Q<sub>I</sub></th>
                     </tr>
                 </thead>
                 <tbody>
@@ -366,6 +377,15 @@ const TableDongHoInfo: React.FC<TableDongHoInfoProps> = React.memo(({
                                             name={"hieu_luc_bien_ban"}
                                         /> */}
                                     {/* </td> */}
+                                    <td>
+                                        {objHss[0].hss != null ? objHss[0].hss + "%" : <span className="text-secondary">-</span>}
+                                    </td>
+                                    <td>
+                                        {objHss[1].hss != null ? objHss[1].hss + "%" : <span className="text-secondary">-</span>}
+                                    </td>
+                                    <td>
+                                        {objHss[2].hss != null ? objHss[2].hss + "%" : <span className="text-secondary">-</span>}
+                                    </td>
                                     <td>
                                         <button onClick={() => {
                                             console.log(index)

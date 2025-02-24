@@ -727,7 +727,7 @@ export default function NhomDongHoNuocForm({ className, generalInfoDongHo, isEdi
                 handleClose={handleCloseModal}
                 setExitsDHSaved={setExitsDHSaved}
             /> */}
-            <div className={`${className ? className : ""} ${ui_vfm['wraper']} container-fluid p-0 px-2 py-3 w-100`}>
+            <div className={`${className ? className : ""} ${ui_vfm['wraper']} container p-0 px-2 py-3 w-100`}>
                 <div className={`row m-0 mb-3 p-3 w-100 bg-white shadow-sm rounded`}>
                     <div className="w-100 m-0 p-0 mb-3 position-relative">
                         <h3 className="text-uppercase fw-bolder text-center mt-3 mb-0">thông tin chung đồng hồ</h3>
