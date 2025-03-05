@@ -1,42 +1,17 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 
-import { logout } from './app/api/auth/logout/route';
 import { jwtVerify } from 'jose';
 import { ACCESS_LINKS } from '@lib/system-constant';
 
-const CUSTOM_404_PATH = '/error/404';
-const CUSTOM_500_PATH = '/error/500';
 const CUSTOM_AUTH_ERROR_TOKEN_PATH = '/error/error-token';
 
-const ADMIN_PATHS = ['/dashboard'];
 const AUTH_PATHS = [
     ACCESS_LINKS.AUTH_FORGOT_PW.src,
     ACCESS_LINKS.AUTH_LOGIN.src,
     ACCESS_LINKS.AUTH_REGISTER.src,
     ACCESS_LINKS.AUTH_VERIFY.src,
 ];
-const PROTECTED_PATHS = [
-    ACCESS_LINKS.CHANGE_EMAIL.src,
-    ACCESS_LINKS.CHANGE_PW.src,
-    ACCESS_LINKS.DHN_ADD.src,
-    ACCESS_LINKS.DHN_DETAIL_DH.src,
-    ACCESS_LINKS.DHN_DETAIL_NDH.src,
-    ACCESS_LINKS.DHN.src,
-    ACCESS_LINKS.PDM.src,
-    ACCESS_LINKS.PDM_ADD.src,
-    ACCESS_LINKS.PDM_DETAIL.src
-];
-
-const ERROR_PATHS = [CUSTOM_404_PATH, CUSTOM_500_PATH];
-const VALID_PATHS = [
-    ...ADMIN_PATHS,
-    ...AUTH_PATHS,
-    ...PROTECTED_PATHS,
-    ...ERROR_PATHS,
-    ACCESS_LINKS.HOME.src
-];
-
 
 export async function middleware(req: NextRequest) {
     const { pathname, searchParams } = new URL(req.url);

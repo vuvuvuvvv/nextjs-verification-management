@@ -1,6 +1,7 @@
 "use client";
 
 import { useKiemDinh } from "@/context/KiemDinh";
+import { useDongHoList } from "@/context/ListDongHo";
 import { faAdd, faTimes, faUndo } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { TITLE_LUU_LUONG } from "@lib/system-constant";
@@ -48,8 +49,12 @@ export default function TinhSaiSoTab({ className, tabIndex, d, q, Form, onFormHS
         xoaLanChayCuaLuuLuong,
         resetLanChay,
         updateSoDongHoChuan,
-        lanChayMoi
+        lanChayMoi,
+        formMf,
+        formHieuSaiSo,
+        setFormMf
     } = useKiemDinh();
+    const { isHieuChuan } = useDongHoList();
 
     if (!tabIndex || tabIndex <= 0) {
         return <></>;
@@ -104,6 +109,28 @@ export default function TinhSaiSoTab({ className, tabIndex, d, q, Form, onFormHS
                 [(Object.keys(formValues).includes((activeTab / tabIndex).toString()) && selectedTabForm[activeTab]) ? activeTab : parseInt(Object.keys(selectedTabForm)[0])]: true
             });
             onFormHSSChange(getHieuSaiSo(formValues as TinhSaiSoValueTabs));
+
+            if (isHieuChuan) {
+                let totalMf = 0;
+                let count = 0;
+
+                Object.values(formValues).forEach(({ V1, V2, Vc1, Vc2 }) => {
+                    const Vdh = V2 ? parseFloat(V2.toString()) : 0 - V1 ? parseFloat(V1.toString()) : 0;
+                    const Vc = parseFloat(Vc2.toString()) - parseFloat(Vc1.toString());
+                    if (Vdh > 0 && Vc > 0) {
+                        const mf = parseFloat((Vc / Vdh).toFixed(4));
+                        totalMf += mf;
+                        count += 1;
+                    }
+                });
+
+                const avgMf = count > 0 ? parseFloat((totalMf / count).toFixed(4)) : null;
+
+                const newFormMf = [...formMf];
+                newFormMf[tabIndex - 1] = { mf: avgMf };
+                setFormMf(newFormMf);
+            }
+
             updateLuuLuong(q, formValues);
             prevFormValuesRef.current = formValues;
         }
@@ -132,6 +159,7 @@ export default function TinhSaiSoTab({ className, tabIndex, d, q, Form, onFormHS
 
         setFormValues(prevFormValues => {
             const newFormValues = { ...prevFormValues };
+
             newFormValues[index] = { ...newFormValues[index], [field]: value };
 
             // Nếu field là "V2", cập nhật V1 của tab tiếp theo
@@ -255,7 +283,7 @@ export default function TinhSaiSoTab({ className, tabIndex, d, q, Form, onFormHS
         <div className={`row m-0 p-0 w-100 justify-content-center ${className ? className : ""} ${c_ect['wrapper']}`}>
             <div className="w-100 m-0 p-0">
                 <div className={`w-100 pt-2 row m-0 ${c_ect['info']}`}>
-                    <div className={`col-12 col-lg-6 col-xxl-5 mb-2 p-0 px-1`}>
+                    <div className={`col-12 col-lg-6 col-xxl-5 mb-2 p-0 px-2`}>
                         <h5 className="w-100">Lưu lượng:</h5>
                         <div className="w-100 px-3 pe-lg-2  d-flex align-items-center justify-content-between gap-3">
                             <label className={`form-label m-0 fs-5 fw-bold d-block`}>Q:</label>
@@ -285,6 +313,34 @@ export default function TinhSaiSoTab({ className, tabIndex, d, q, Form, onFormHS
                             </div>
                         </div>
                     </div>
+                    <div className={`col-12 col-lg-6 col-xxl-5 mb-2 p-0 px-2`}>
+                        <h5 className="w-100">Hiệu sai số:</h5>
+                        <div className="w-100 px-3 pe-lg-2  d-flex align-items-center justify-content-between gap-3">
+                            <label className={`form-label m-0 fs-5 fw-bold d-block`}>SS:</label>
+                            <div className="input-group">
+                                <input
+                                    type="text"
+                                    className={`form-control text-start`}
+                                    disabled
+                                    value={formHieuSaiSo[tabIndex - 1].hss ?? "-"}
+                                />
+                                <span className="input-group-text">%</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div className={`col-12 col-lg-6 col-xxl-5 mb-2 p-0 px-2`}>
+                        <h5 className="w-100">Mf:</h5>
+                        <div className="w-100 px-3 pe-lg-2  d-flex align-items-center justify-content-between gap-3">
+                            <div className="input-group">
+                                <input
+                                    type="text"
+                                    className={`form-control text-start`}
+                                    disabled
+                                    value={formMf[tabIndex - 1].mf ?? "-"}
+                                />
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
             <div className="w-100 d-flex px-1 align-items-center justify-content-between">
@@ -301,8 +357,4 @@ export default function TinhSaiSoTab({ className, tabIndex, d, q, Form, onFormHS
             </div>
         </div>
     );
-}
-
-function useListDongHo(): { dongHoSelected: any; } {
-    throw new Error("Function not implemented.");
 }

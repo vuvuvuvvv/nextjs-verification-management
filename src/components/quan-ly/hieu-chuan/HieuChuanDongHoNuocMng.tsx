@@ -10,9 +10,9 @@ import dayjs, { Dayjs } from "dayjs";
 import { viVN } from "@mui/x-date-pickers/locales";
 
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faChevronDown, faChevronUp, faEdit, faCircleArrowRight, faArrowLeft, faSearch, faRefresh, faEye } from "@fortawesome/free-solid-svg-icons";
+import { faEdit, faCircleArrowRight, faArrowLeft, faSearch, faRefresh, faEye } from "@fortawesome/free-solid-svg-icons";
 import React from "react";
-import { DongHo, DongHoFilterParameters, DongHoPermission, DuLieuChayDongHo } from "@lib/types";
+import { DongHo, DongHoFilterParameters } from "@lib/types";
 
 import Pagination from "@/components/Pagination";
 // import { usePathname } from "next/navigation";
@@ -23,25 +23,21 @@ import {
     //  limitOptions 
 } from "@lib/system-constant";
 import Swal from "sweetalert2";
-import { getDongHoByFilter } from "@/app/api/dongho/route";
-import { decode, getNameOfRole } from "@lib/system-function";
+import { getHieuChuanDongHoByFilter } from "@/app/api/dongho/route";
+import { decode } from "@lib/system-function";
 import { useUser } from "@/context/AppContext";
-import { Button } from "react-bootstrap";
-import ModalMultDongHoPermissionMng from "@/components/ui/ModalMultDongHoPermissionMng";
 
 const Loading = React.lazy(() => import("@/components/Loading"));
 
 
-interface DongHoNuocMngProps {
+interface HieuChuanDongHoNuocMngProps {
     className?: string,
-    isBiggerThan15?: boolean,
-    isAuthorizing?: boolean,
     setSelectedDongHo?: React.Dispatch<React.SetStateAction<DongHo | null>>;
     clearNDHPropData?: () => void;
     dataList?: DongHo[]
 }
 
-export default function DongHoNuocMng({ className, isBiggerThan15 = false, isAuthorizing = false, setSelectedDongHo, clearNDHPropData, dataList = [] }: DongHoNuocMngProps) {
+export default function HieuChuanDongHoNuocMng({ className, setSelectedDongHo, clearNDHPropData, dataList = [] }: HieuChuanDongHoNuocMngProps) {
     const { user, isViewer, isSuperAdmin, getCurrentRole } = useUser();
     const [data, setRootData] = useState<DongHo[]>([]);
     const rootData = useRef<DongHo[]>([]);
@@ -85,7 +81,6 @@ export default function DongHoNuocMng({ className, isBiggerThan15 = false, isAut
     // const path = usePathname();
 
     const [filterForm, setFilterForm] = useState<DongHoFilterParameters>({
-        is_bigger_than_15: isBiggerThan15,
         so_giay_chung_nhan: "",
         seri_sensor: "",
         type: "",
@@ -113,7 +108,7 @@ export default function DongHoNuocMng({ className, isBiggerThan15 = false, isAut
             setFilterLoading(false);
         } else {
             try {
-                const res = await getDongHoByFilter(filterFormProps ? filterFormProps : filterForm, !isSuperAdmin, (!isSuperAdmin ? (user?.username || "") : ""));
+                const res = await getHieuChuanDongHoByFilter(filterFormProps ? filterFormProps : filterForm);
                 if (res.status === 200 || res.status === 201) {
                     setRootData(res.data.donghos || []);
                     if (totalPageRef.current != res.data.total_page) {
@@ -147,7 +142,7 @@ export default function DongHoNuocMng({ className, isBiggerThan15 = false, isAut
             fetchedRef.current = true;
         }
     }, []);
-    
+
 
     // useEffect(() => {
     //     const filteredData = rootData.current ? [...rootData.current].filter(_per => {
@@ -227,15 +222,6 @@ export default function DongHoNuocMng({ className, isBiggerThan15 = false, isAut
         setCurrentPage(1);
     }
 
-    const handleAddPermission = () => {
-        setIsShow(true);
-        isEditing.current = false;
-    }
-
-    const handleCloseModal = () => {
-        setIsShow(false);
-    }
-
     const handleSearch = () => {
         setCurrentPage(1);
         _fetchDongHo({ ...filterForm, last_seen: "", next_from: "", prev_from: "" })
@@ -266,77 +252,55 @@ export default function DongHoNuocMng({ className, isBiggerThan15 = false, isAut
 
     return (
         <LocalizationProvider dateAdapter={AdapterDayjs} localeText={viVN.components.MuiLocalizationProvider.defaultProps.localeText}>
-            {isAuthorizing && dataList.length > 0 &&
-                <ModalMultDongHoPermissionMng
-                    show={isShow != null ? isShow : false}
-                    dongHoList={dataList}
-                    handleClose={handleCloseModal}
-                ></ModalMultDongHoPermissionMng>
-            }
             <div className={`${className ? className : ""} m-0 w-100`}>
                 <div className={`${c_vfml['wraper']} w-100`}>
 
                     <div className="bg-white w-100 shadow-sm mb-2 rounded pt-3 pb-1">
                         <div className={`row m-0 px-md-3 w-100 mb-3 ${c_vfml['search-process']}`}>
-                            {isAuthorizing ?
-                                <div className={`col-12 mb-3 col-xl-4 d-flex ${isAuthorizing ? "col-md-4 col-lg-4" : "col-md-6"}`}>
-                                    <label className={`${c_vfml['form-label']}`} htmlFor="seri_sensor">
-                                        Serial Sensor:
-                                        <input
-                                            type="text"
-                                            id="seri_sensor"
-                                            className="form-control"
-                                            placeholder="Nhập serial"
-                                            value={filterForm.seri_sensor}
-                                            onChange={(e) => handleFilterChange('seri_sensor', e.target.value)}
-                                        />
-                                    </label>
-                                </div> : <>
-                                    <div className="col-12 mb-3 col-md-6 col-lg-4 d-flex">
-                                        <label className={`${c_vfml['form-label']}`} htmlFor="so_giay_chung_nhan">
-                                            Số giấy chứng nhận:
-                                            <input
-                                                type="text"
-                                                id="so_giay_chung_nhan"
-                                                className="form-control"
-                                                placeholder="Nhập số giấy"
-                                                value={filterForm.so_giay_chung_nhan}
-                                                onChange={(e) => handleFilterChange('so_giay_chung_nhan', e.target.value)}
-                                            />
-                                        </label>
-                                    </div>
-                                    <div className="col-12 mb-3 col-md-6 col-lg-4">
-                                        <label className={`${c_vfml['form-label']}`} htmlFor="ten_khach_hang">
-                                            Tên khách hàng:
-                                            <input
-                                                type="text"
-                                                id="ten_khach_hang"
-                                                className="form-control"
-                                                placeholder="Nhập tên khách hàng"
-                                                value={filterForm.ten_khach_hang}
-                                                onChange={(e) => handleFilterChange('ten_khach_hang', e.target.value)}
-                                            />
-                                        </label>
-                                    </div>
-                                    <div className="col-12 d-md-none d-lg-flex mb-3 col-md-6 col-lg-4">
-                                        <label className={`${c_vfml['form-label']}`} htmlFor="nguoi_thuc_hien">
-                                            Người kiểm định:
-                                            <input
-                                                type="text"
-                                                id="nguoi_thuc_hien"
-                                                className="form-control"
-                                                placeholder="Nhập tên người kiểm định"
-                                                value={filterForm.nguoi_thuc_hien}
-                                                onChange={(e) => handleFilterChange('nguoi_thuc_hien', e.target.value)}
-                                            />
-                                        </label>
-                                    </div>
-                                </>
-                            }
 
-                            <div className={`col-12 ${isAuthorizing ? "col-md-8 col-lg-8" : "col-lg-8"} mb-3 m-0 row p-0 ${c_vfml['search-created-date']}`}>
+                            <div className="col-12 mb-3 col-md-6 col-lg-4 d-flex">
+                                <label className={`${c_vfml['form-label']}`} htmlFor="so_giay_chung_nhan">
+                                    Số giấy chứng nhận:
+                                    <input
+                                        type="text"
+                                        id="so_giay_chung_nhan"
+                                        className="form-control"
+                                        placeholder="Nhập số giấy"
+                                        value={filterForm.so_giay_chung_nhan}
+                                        onChange={(e) => handleFilterChange('so_giay_chung_nhan', e.target.value)}
+                                    />
+                                </label>
+                            </div>
+                            <div className="col-12 mb-3 col-md-6 col-lg-4">
+                                <label className={`${c_vfml['form-label']}`} htmlFor="ten_khach_hang">
+                                    Tên khách hàng:
+                                    <input
+                                        type="text"
+                                        id="ten_khach_hang"
+                                        className="form-control"
+                                        placeholder="Nhập tên khách hàng"
+                                        value={filterForm.ten_khach_hang}
+                                        onChange={(e) => handleFilterChange('ten_khach_hang', e.target.value)}
+                                    />
+                                </label>
+                            </div>
+                            <div className="col-12 d-md-none d-lg-flex mb-3 col-md-6 col-lg-4">
+                                <label className={`${c_vfml['form-label']}`} htmlFor="nguoi_thuc_hien">
+                                    Người thực hiện:
+                                    <input
+                                        type="text"
+                                        id="nguoi_thuc_hien"
+                                        className="form-control"
+                                        placeholder="Nhập tên người thực hiện"
+                                        value={filterForm.nguoi_thuc_hien}
+                                        onChange={(e) => handleFilterChange('nguoi_thuc_hien', e.target.value)}
+                                    />
+                                </label>
+                            </div>
+
+                            <div className={`col-12 col-lg-8 mb-3 m-0 row p-0 ${c_vfml['search-created-date']}`}>
                                 <label className={`${c_vfml['form-label']} col-12`}>
-                                    Ngày kiểm định:
+                                    Ngày thực hiện:
                                 </label>
                                 <div className={`col-12 row m-0 mt-2 p-0 ${c_vfml['pick-created-date']}`}>
                                     <div className={`col-12 col-md-6 mb-3 mb-md-0 ${c_vfml['picker-field']}`}>
@@ -368,22 +332,20 @@ export default function DongHoNuocMng({ className, isBiggerThan15 = false, isAut
                                     </div>
                                 </div>
                             </div>
-                            {!isAuthorizing &&
-                                <div className="col-12 d-none d-md-flex d-lg-none mb-3 col-md-6 col-lg-4">
-                                    <label className={`${c_vfml['form-label']}`} htmlFor="nguoi_thuc_hien">
-                                        Người kiểm định:
-                                        <input
-                                            type="text"
-                                            id="nguoi_thuc_hien"
-                                            className="form-control"
-                                            placeholder="Nhập tên người kiểm định"
-                                            value={filterForm.nguoi_thuc_hien}
-                                            onChange={(e) => handleFilterChange('nguoi_thuc_hien', e.target.value)}
-                                        />
-                                    </label>
-                                </div>
-                            }
-                            <div className={`col-12 align-items-end pb-2 ${isAuthorizing ? "col-lg-12" : "col-md-6 col-lg-4"} m-0 my-2 d-flex justify-content-between`}>
+                            <div className="col-12 d-none d-md-flex d-lg-none mb-3 col-md-6 col-lg-4">
+                                <label className={`${c_vfml['form-label']}`} htmlFor="nguoi_thuc_hien">
+                                    Người hiệu chuẩn:
+                                    <input
+                                        type="text"
+                                        id="nguoi_thuc_hien"
+                                        className="form-control"
+                                        placeholder="Nhập tên người hiệu chuẩn"
+                                        value={filterForm.nguoi_thuc_hien}
+                                        onChange={(e) => handleFilterChange('nguoi_thuc_hien', e.target.value)}
+                                    />
+                                </label>
+                            </div>
+                            <div className={`col-12 align-items-end pb-2 col-md-6 col-lg-4 m-0 my-2 d-flex justify-content-between`}>
                                 <div className="d-flex gap-2">
                                     <button aria-label="Tìm kiếm" type="button" className={`btn bg-main-blue text-white`} onClick={handleSearch}>
                                         <FontAwesomeIcon icon={faSearch}></FontAwesomeIcon> Tìm
@@ -392,22 +354,14 @@ export default function DongHoNuocMng({ className, isBiggerThan15 = false, isAut
                                         <FontAwesomeIcon icon={faRefresh}></FontAwesomeIcon>
                                     </button>
                                 </div>
-                                {!isViewer && !isAuthorizing &&
+                                {!isViewer &&
                                     <Link
                                         style={{ minHeight: "42px" }}
-                                        href={ACCESS_LINKS.DHN_ADD.src}
+                                        href={ACCESS_LINKS.HC_DHN_ADD.src}
                                         className="btn bg-main-green text-white"
                                     >
                                         Thêm mới
                                     </Link>
-                                }
-                                {isAuthorizing && dataList.length > 0 &&
-                                    <button
-                                        className="btn bg-main-green text-white"
-                                        onClick={() => handleAddPermission()}
-                                    >
-                                        Thêm phân quyền
-                                    </button>
                                 }
                             </div>
 
@@ -434,64 +388,43 @@ export default function DongHoNuocMng({ className, isBiggerThan15 = false, isAut
                                             <th className="text-center">
                                                 ID
                                             </th>
-                                            {isAuthorizing ?
-                                                <>
-                                                    <th>
-                                                        <div>
-                                                            <span>
-                                                                Serial Sensor
-                                                            </span>
-                                                        </div>
-                                                    </th>
-                                                    <th>
-                                                        <div>
-                                                            <span>
-                                                                Ngày thực hiện
-                                                            </span>
-                                                        </div>
-                                                    </th>
-                                                    <th>Vai trò của bạn</th>
-                                                    <th>Phân quyền</th>
-                                                </>
-                                                : <>
-                                                    <th>
-                                                        <div>
-                                                            <span>
-                                                                Số giấy CN
-                                                            </span>
-                                                        </div>
-                                                    </th>
-                                                    <th>
-                                                        <div>
-                                                            <span>
-                                                                Tên khách hàng
-                                                            </span>
-                                                        </div>
-                                                    </th>
-                                                    <th>
-                                                        <div>
-                                                            <span>
-                                                                Người kiểm định
-                                                            </span>
-                                                        </div>
-                                                    </th>
-                                                    <th>
-                                                        <div>
-                                                            <span>
-                                                                Ngày thực hiện
-                                                            </span>
-                                                        </div>
-                                                    </th>
-                                                    <th>
-                                                        <div>
-                                                            <span>
-                                                                Trạng thái
-                                                            </span>
-                                                        </div>
-                                                    </th>
-                                                    <th></th>
-                                                </>
-                                            }
+
+                                            <th>
+                                                <div>
+                                                    <span>
+                                                        Số giấy CN
+                                                    </span>
+                                                </div>
+                                            </th>
+                                            <th>
+                                                <div>
+                                                    <span>
+                                                        Tên khách hàng
+                                                    </span>
+                                                </div>
+                                            </th>
+                                            <th>
+                                                <div>
+                                                    <span>
+                                                        Người hiệu chuẩn
+                                                    </span>
+                                                </div>
+                                            </th>
+                                            <th>
+                                                <div>
+                                                    <span>
+                                                        Ngày thực hiện
+                                                    </span>
+                                                </div>
+                                            </th>
+                                            <th>
+                                                <div>
+                                                    <span>
+                                                        Trạng thái
+                                                    </span>
+                                                </div>
+                                            </th>
+                                            <th></th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -503,7 +436,7 @@ export default function DongHoNuocMng({ className, isBiggerThan15 = false, isAut
                                                     duLieuKiemDinhJSON : JSON.parse(duLieuKiemDinhJSON)
                                                 ) : null;
                                             const ketQua = duLieuKiemDinh?.ket_qua;
-                                            const redirectLink = `${ACCESS_LINKS.DHN_DETAIL_DH.src}/${dongHo.id}`;
+                                            const redirectLink = `${ACCESS_LINKS.HC_DHN_DETAIL_DH.src}/${dongHo.id}`;
 
                                             return (
                                                 <tr
@@ -511,37 +444,23 @@ export default function DongHoNuocMng({ className, isBiggerThan15 = false, isAut
                                                     style={{ cursor: 'pointer' }}
                                                 >
                                                     <td className="text-center">{decode(dongHo.id || "")}</td>
-                                                    {isAuthorizing ?
-                                                        <>
-                                                            <td onClick={() => setSelectedDongHo?.(dongHo)}>{dongHo.seri_sensor || "Không có serial sensor"}</td>
-                                                            <td onClick={() => setSelectedDongHo?.(dongHo)}>{dayjs(dongHo.ngay_thuc_hien).format('DD-MM-YYYY')}</td>
-                                                            <td onClick={() => setSelectedDongHo?.(dongHo)}>{getNameOfRole(isSuperAdmin ? getCurrentRole() : (dongHo?.current_permission || ""))}</td>
-                                                            <td>
-                                                                <button aria-label="Phân quyền" onClick={() => setSelectedDongHo?.(dongHo)} className={`btn border-0 w-100 text-blue shadow-0`}>
-                                                                    <FontAwesomeIcon icon={faCircleArrowRight} style={{ fontSize: "26px" }}></FontAwesomeIcon>
-                                                                </button>
-                                                            </td>
-                                                        </> :
-                                                        <>
-                                                            <td>{dongHo.so_giay_chung_nhan}</td>
-                                                            <td>{dongHo.ten_khach_hang}</td>
-                                                            <td>{dongHo.nguoi_thuc_hien}</td>
-                                                            <td>{dayjs(dongHo.ngay_thuc_hien).format('DD-MM-YYYY')}</td>
-                                                            <td>
-                                                                {ketQua != null ? (ketQua ? "Đạt" : "Không đạt") : "Chưa kiểm định"}
-                                                            </td>
-                                                            <td style={{ width: "90px" }}>
-                                                                <div className="w-100 m-0 p-0 d-flex align-items-center justify-content-center">
-                                                                    <Link aria-label="Xem" href={redirectLink} target="_blank" className={`btn p-1 w-100 text-blue shadow-0`}>
-                                                                        <FontAwesomeIcon icon={faEye}></FontAwesomeIcon>
-                                                                    </Link>
-                                                                    <Link aria-label="Chỉnh sửa" href={ACCESS_LINKS.DHN_EDIT_DH.src + "/" + dongHo.id} className={`btn p-1 w-100 text-blue shadow-0`}>
-                                                                        <FontAwesomeIcon icon={faEdit}></FontAwesomeIcon>
-                                                                    </Link>
-                                                                </div>
-                                                            </td>
-                                                        </>
-                                                    }
+                                                    <td>{dongHo.so_giay_chung_nhan}</td>
+                                                    <td>{dongHo.ten_khach_hang}</td>
+                                                    <td>{dongHo.nguoi_thuc_hien}</td>
+                                                    <td>{dayjs(dongHo.ngay_thuc_hien).format('DD-MM-YYYY')}</td>
+                                                    <td>
+                                                        {ketQua != null ? (ketQua ? "Đạt" : "Không đạt") : "Chưa hiệu chuẩn"}
+                                                    </td>
+                                                    <td style={{ width: "90px" }}>
+                                                        <div className="w-100 m-0 p-0 d-flex align-items-center justify-content-center">
+                                                            <Link aria-label="Xem" href={redirectLink} target="_blank" className={`btn p-1 w-100 text-blue shadow-0`}>
+                                                                <FontAwesomeIcon icon={faEye}></FontAwesomeIcon>
+                                                            </Link>
+                                                            <Link aria-label="Chỉnh sửa" href={ACCESS_LINKS.HC_DHN_EDIT_DH.src + "/" + dongHo.id} className={`btn p-1 w-100 text-blue shadow-0`}>
+                                                                <FontAwesomeIcon icon={faEdit}></FontAwesomeIcon>
+                                                            </Link>
+                                                        </div>
+                                                    </td>
                                                 </tr>
                                             )
                                         })}

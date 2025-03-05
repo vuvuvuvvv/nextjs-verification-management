@@ -20,7 +20,7 @@ import Link from "next/link";
 
 import { ACCESS_LINKS, BASE_API_URL } from "@lib/system-constant";
 import Swal from "sweetalert2";
-import { getNhomDongHoByFilter, updatePaymentStatus } from "@/app/api/dongho/route";
+import { getHieuChuanNhomDongHoByFilter } from "@/app/api/dongho/route";
 import api from "@/app/api/route";
 import dynamic from "next/dynamic";
 import Pagination from "@/components/Pagination";
@@ -29,13 +29,12 @@ import { useUser } from "@/context/AppContext";
 const Loading = dynamic(() => import("@/components/Loading"), { ssr: false });
 
 
-interface NhomDongHoNuocManagementProps {
+interface HieuChuanNhomDongHoNuocMngProps {
     className?: string,
-    isAuthorizing?: boolean,
     setSelectedGroupId?: React.Dispatch<React.SetStateAction<string | null>>;
 }
 
-export default function NhomDongHoNuocManagement({ className, isAuthorizing, setSelectedGroupId }: NhomDongHoNuocManagementProps) {
+export default function HieuChuanNhomDongHoNuocMng({ className, setSelectedGroupId }: HieuChuanNhomDongHoNuocMngProps) {
     const { user, isAdmin, isSuperAdmin, isViewer } = useUser();
     const [data, setRootData] = useState<NhomDongHo[]>([]);
     const rootData = useRef<NhomDongHo[]>([]);
@@ -163,7 +162,7 @@ export default function NhomDongHoNuocManagement({ className, isAuthorizing, set
     const _fetchNhomDongHo = async (filterFormProps?: NhomDongHoFilterParameters) => {
         setFilterLoading(true);
         try {
-            const res = await getNhomDongHoByFilter(filterFormProps ? filterFormProps : filterForm, !isSuperAdmin, (!isSuperAdmin ? (user?.username || "") : ""));
+            const res = await getHieuChuanNhomDongHoByFilter(filterFormProps ? filterFormProps : filterForm);
             if (res.status === 200 || res.status === 201) {
                 setRootData(res.data.groups || []);
                 if (totalPageRef.current != res.data.total_page) {
@@ -257,32 +256,32 @@ export default function NhomDongHoNuocManagement({ className, isAuthorizing, set
         });
     }
 
-    const handleUpdatePaymentStatus = (group_id: string, current_payment_status: boolean) => {
-        if (group_id) {
-            Swal.fire({
-                title: `Xác nhận!`,
-                text: !current_payment_status ? "Đã hoàn tất thanh toán?" : "Hủy hoàn tất thanh toán?",
-                icon: "warning",
-                showCancelButton: true,
-                cancelButtonColor: "#d33",
-                confirmButtonText: "Xác nhận",
-                cancelButtonText: "Hủy",
-            }).then(async (result) => {
-                if (result.isConfirmed) {
-                    try {
-                        const res = await updatePaymentStatus(group_id, !current_payment_status, user?.fullname || "");
-                        if (res.status == 200 || res.status == 201) {
-                            _fetchNhomDongHo(filterForm);
-                        } else {
-                            setError("Đã có lỗi xảy ra! Hãy thử lại sau.");
-                        }
-                    } catch (error) {
-                        setError("Đã có lỗi xảy ra! Hãy thử lại sau.");
-                    }
-                }
-            });
-        }
-    }
+    // const handleUpdatePaymentStatus = (group_id: string, current_payment_status: boolean) => {
+    //     if (group_id) {
+    //         Swal.fire({
+    //             title: `Xác nhận!`,
+    //             text: !current_payment_status ? "Đã hoàn tất thanh toán?" : "Hủy hoàn tất thanh toán?",
+    //             icon: "warning",
+    //             showCancelButton: true,
+    //             cancelButtonColor: "#d33",
+    //             confirmButtonText: "Xác nhận",
+    //             cancelButtonText: "Hủy",
+    //         }).then(async (result) => {
+    //             if (result.isConfirmed) {
+    //                 try {
+    //                     const res = await updatePaymentStatus(group_id, !current_payment_status, user?.fullname || "");
+    //                     if (res.status == 200 || res.status == 201) {
+    //                         _fetchNhomDongHo(filterForm);
+    //                     } else {
+    //                         setError("Đã có lỗi xảy ra! Hãy thử lại sau.");
+    //                     }
+    //                 } catch (error) {
+    //                     setError("Đã có lỗi xảy ra! Hãy thử lại sau.");
+    //                 }
+    //             }
+    //         });
+    //     }
+    // }
 
     const handleSearch = () => {
         setCurrentPage(1);
@@ -441,12 +440,12 @@ export default function NhomDongHoNuocManagement({ className, isAuthorizing, set
 
                             <div className="col-12 col-sm-6 mb-3 col-lg-4 d-none d-lg-flex">
                                 <label className={`${c_vfml['form-label']}`} htmlFor="nguoi_thuc_hien">
-                                    Người kiểm định:
+                                    Người thực hiện:
                                     <input
                                         type="text"
                                         id="nguoi_thuc_hien"
                                         className="form-control"
-                                        placeholder="Nhập tên người kiểm định"
+                                        placeholder="Nhập tên người thực hiện"
                                         value={filterForm.nguoi_thuc_hien}
                                         onChange={(e) => handleFilterChange('nguoi_thuc_hien', e.target.value)}
                                     />
@@ -454,7 +453,7 @@ export default function NhomDongHoNuocManagement({ className, isAuthorizing, set
                             </div>
                             <div className={`col-12 col-lg-8 mb-3 m-0 row p-0 ${c_vfml['search-created-date']}`}>
                                 <label className={`${c_vfml['form-label']} col-12`}>
-                                    Ngày kiểm định:
+                                    Ngày thực hiện:
                                 </label>
                                 <div className={`col-12 row m-0 mt-2 p-0 ${c_vfml['pick-created-date']}`}>
                                     <div className={`col-12 col-sm-6 mb-3 mb-sm-0 ${c_vfml['picker-field']}`}>
@@ -488,12 +487,12 @@ export default function NhomDongHoNuocManagement({ className, isAuthorizing, set
                             </div>
                             <div className="col-12 col-sm-6 mb-3 col-lg-4 d-lg-none">
                                 <label className={`${c_vfml['form-label']}`} htmlFor="nguoi_thuc_hien">
-                                    Người kiểm định:
+                                    Người hiệu chuẩn:
                                     <input
                                         type="text"
                                         id="nguoi_thuc_hien"
                                         className="form-control"
-                                        placeholder="Nhập tên người kiểm định"
+                                        placeholder="Nhập tên người hiệu chuẩn"
                                         value={filterForm.nguoi_thuc_hien}
                                         onChange={(e) => handleFilterChange('nguoi_thuc_hien', e.target.value)}
                                     />
@@ -509,9 +508,9 @@ export default function NhomDongHoNuocManagement({ className, isAuthorizing, set
                                         <FontAwesomeIcon icon={faRefresh}></FontAwesomeIcon>
                                     </button>
                                 </div>
-                                {!isViewer && !isAuthorizing && <Link
+                                {!isViewer && <Link
                                     style={{ minHeight: "42px" }}
-                                    href={ACCESS_LINKS.DHN_ADD.src}
+                                    href={ACCESS_LINKS.HC_DHN_ADD.src}
                                     className="btn bg-main-green text-white"
                                 >
                                     Thêm mới
@@ -578,7 +577,7 @@ export default function NhomDongHoNuocManagement({ className, isAuthorizing, set
                                             <th onClick={() => sortData('nguoi_thuc_hien')}>
                                                 <div className={`${c_vfml['table-label']}`}>
                                                     <span>
-                                                        Người kiểm định
+                                                        Người thực hiện
                                                     </span>
                                                     {sortConfig && sortConfig.key === 'nguoi_thuc_hien' && sortConfig.direction === 'asc' && (
                                                         <FontAwesomeIcon icon={faChevronDown}></FontAwesomeIcon>
@@ -592,7 +591,7 @@ export default function NhomDongHoNuocManagement({ className, isAuthorizing, set
                                             <th onClick={() => sortData('ngay_thuc_hien')}>
                                                 <div className={`${c_vfml['table-label']}`}>
                                                     <span>
-                                                        Ngày kiểm định
+                                                        Ngày thực hiện
                                                     </span>
                                                     {sortConfig && sortConfig.key === 'ngay_thuc_hien' && sortConfig.direction === 'asc' && (
                                                         <FontAwesomeIcon icon={faChevronDown}></FontAwesomeIcon>
@@ -614,9 +613,9 @@ export default function NhomDongHoNuocManagement({ className, isAuthorizing, set
                                     <tbody>
                                         {/* {paginatedData.map((item, index) => ( */}
                                         {data.map((item, index) => {
-                                            const redirectLink = `${ACCESS_LINKS.DHN_DETAIL_NDH.src}/${item.group_id}`;
+                                            const redirectLink = `${ACCESS_LINKS.HC_DHN_DETAIL_NDH.src}/${item.group_id}`;
 
-                                            let handleClick = () => !isAuthorizing ? window.open(redirectLink) : setSelectedGroupId?.(item.group_id);
+                                            let handleClick = () => window.open(redirectLink);
 
                                             return (
                                                 <tr
@@ -627,10 +626,8 @@ export default function NhomDongHoNuocManagement({ className, isAuthorizing, set
                                                     <td>{item.group_id}</td>
                                                     <td>{item.ten_dong_ho}</td>
                                                     <td>{item.so_luong}</td>
-                                                    {/* {!isAuthorizing && <> */}
                                                     <td>{item.ten_khach_hang}</td>
                                                     <td>{item.nguoi_thuc_hien}</td>
-                                                    {/* </>} */}
                                                     <td>{dayjs(item.ngay_thuc_hien).format('DD-MM-YYYY')}</td>
                                                     {/* {(isAdmin && !isAuthorizing) && <td>
                                                         <div className="w-100 d-flex justify-content-center" onClick={() => handleUpdatePaymentStatus(item?.group_id || "", item?.is_paid ?? false)}>
@@ -646,22 +643,16 @@ export default function NhomDongHoNuocManagement({ className, isAuthorizing, set
                                                             />
                                                         </div>
                                                     </td>} */}
-
-                                                    {!isAuthorizing ?
-                                                        <td style={{ width: "90px" }}>
-                                                            <div className="w-100 m-0 p-0 d-flex align-items-center justify-content-center">
-                                                                <button aria-label="Xem" onClick={handleClick} className={`btn p-1 w-100 text-blue shadow-0`}>
-                                                                    <FontAwesomeIcon icon={faEye}></FontAwesomeIcon>
-                                                                </button>
-                                                                <Link aria-label="Chỉnh sửa" href={ACCESS_LINKS.DHN_EDIT_NDH.src + "/" + item.group_id} className={`btn w-100 text-blue shadow-0`}>
-                                                                    <FontAwesomeIcon icon={faEdit}></FontAwesomeIcon>
-                                                                </Link>
-                                                            </div>
-                                                        </td> : <td>
-                                                            <button aria-label="Phân quyền" onClick={() => setSelectedGroupId?.(item.group_id)} className={`btn border-0 w-100 text-blue shadow-0`}>
-                                                                <FontAwesomeIcon icon={faCircleArrowRight} style={{ fontSize: "26px" }}></FontAwesomeIcon>
+                                                    <td style={{ width: "90px" }}>
+                                                        <div className="w-100 m-0 p-0 d-flex align-items-center justify-content-center">
+                                                            <button aria-label="Xem" onClick={handleClick} className={`btn p-1 w-100 text-blue shadow-0`}>
+                                                                <FontAwesomeIcon icon={faEye}></FontAwesomeIcon>
                                                             </button>
-                                                        </td>}
+                                                            <Link aria-label="Chỉnh sửa" href={ACCESS_LINKS.HC_DHN_EDIT_NDH.src + "/" + item.group_id} className={`btn w-100 text-blue shadow-0`}>
+                                                                <FontAwesomeIcon icon={faEdit}></FontAwesomeIcon>
+                                                            </Link>
+                                                        </div>
+                                                    </td>
                                                 </tr>
                                             )
                                         })}

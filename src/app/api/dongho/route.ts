@@ -67,8 +67,8 @@ export const getDongHoByFilter = async (parameters?: DongHoFilterParameters, wit
             url.searchParams.append('ten_khach_hang', parameters.ten_khach_hang.toString());
         }
 
-        if (parameters?.nguoi_kiem_dinh) {
-            url.searchParams.append('nguoi_kiem_dinh', parameters.nguoi_kiem_dinh.toString());
+        if (parameters?.nguoi_thuc_hien) {
+            url.searchParams.append('nguoi_thuc_hien', parameters.nguoi_thuc_hien.toString());
         }
 
         if (parameters?.ngay_kiem_dinh_from) {
@@ -130,8 +130,8 @@ export const getNhomDongHoByFilter = async (parameters?: NhomDongHoFilterParamet
             url.searchParams.append('ten_khach_hang', parameters.ten_khach_hang.toString());
         }
 
-        if (parameters?.nguoi_kiem_dinh) {
-            url.searchParams.append('nguoi_kiem_dinh', parameters.nguoi_kiem_dinh.toString());
+        if (parameters?.nguoi_thuc_hien) {
+            url.searchParams.append('nguoi_thuc_hien', parameters.nguoi_thuc_hien.toString());
         }
 
         if (parameters?.ngay_kiem_dinh_from) {
@@ -209,42 +209,6 @@ export const getDongHoById = async (id: string) => {
     }
 };
 
-export const getDongHoExistsByInfo = async (info: string) => {
-    try {
-        const url = `${API_DONGHO_URL}/dong-ho-info/${info.toString()}`;
-
-        const response = await api.get(url.toString(), { withCredentials: true });
-
-        if (response.status === 200 || response.status === 201) {
-            return {
-                "status": response.status,
-                "data": response.data,
-                "msg": "Đã có đồng hồ tồn tại thông tin trên!"
-            };
-        }
-
-    } catch (error: any) {
-        if (error.response) {
-            if (error.response.status === 404) {
-                return {
-                    "status": 404,
-                    "msg": 'Thông tin không tồn tại!'
-                };
-            }
-            if (error.response.data?.msg) {
-                return {
-                    "status": error.response.status,
-                    "msg": 'Có lỗi xảy ra khi lấy dữ liệu đồng hồ!'
-                };
-            }
-        }
-        return {
-            "status": error.response?.status || 500,
-            "msg": 'Có lỗi xảy ra khi lấy dữ liệu đồng hồ!'
-        };
-    }
-};
-
 export const getDongHoByGroupId = async (group_id: string) => {
     try {
         const url = `${API_DONGHO_URL}/group_id/${group_id.toString()}`;
@@ -281,32 +245,68 @@ export const getDongHoByGroupId = async (group_id: string) => {
     }
 };
 
-export const getDongHoByTenkhachhang = async (tenkhachhang: string) => {
+export const getDongHoExistsByInfo = async (info: string) => {
     try {
-        const url = `${API_DONGHO_URL}/tenkhachhang/${tenkhachhang.toString()}`;
+        const url = `${API_DONGHO_URL}/dong-ho-info/${info.toString()}`;
 
         const response = await api.get(url.toString(), { withCredentials: true });
 
-        return {
-            "status": response.status,
-            "data": response.data,
-            "msg": response.data.msg || "Done!"
-        };
-
-    } catch (error: any) {
-        if (error.response?.data?.msg) {
+        if (response.status === 200 || response.status === 201) {
             return {
-                "status": error.response.status,
-                "msg": error.response.data.msg || 'Error fetching DongHo data!'
-            };
-        } else {
-            return {
-                "status": error.response?.status || 500,
-                "msg": 'An error occurred. Please try again!'
+                "status": response.status,
+                "data": response.data,
+                "msg": "Đã có đồng hồ tồn tại thông tin trên!"
             };
         }
+
+    } catch (error: any) {
+        if (error.response) {
+            if (error.response.status === 404) {
+                return {
+                    "status": 404,
+                    "msg": 'Thông tin không tồn tại!'
+                };
+            }
+            if (error.response.data?.msg) {
+                return {
+                    "status": error.response.status,
+                    "msg": 'Có lỗi xảy ra khi lấy dữ liệu đồng hồ!'
+                };
+            }
+        }
+        return {
+            "status": error.response?.status || 500,
+            "msg": 'Có lỗi xảy ra khi lấy dữ liệu đồng hồ!'
+        };
     }
 };
+
+// export const getDongHoByTenkhachhang = async (tenkhachhang: string) => {
+//     try {
+//         const url = `${API_DONGHO_URL}/tenkhachhang/${tenkhachhang.toString()}`;
+
+//         const response = await api.get(url.toString(), { withCredentials: true });
+
+//         return {
+//             "status": response.status,
+//             "data": response.data,
+//             "msg": response.data.msg || "Done!"
+//         };
+
+//     } catch (error: any) {
+//         if (error.response?.data?.msg) {
+//             return {
+//                 "status": error.response.status,
+//                 "msg": error.response.data.msg || 'Error fetching DongHo data!'
+//             };
+//         } else {
+//             return {
+//                 "status": error.response?.status || 500,
+//                 "msg": 'An error occurred. Please try again!'
+//             };
+//         }
+//     }
+// };
 
 export const createDongHo = async (dongho: DongHo) => {
     try {
@@ -636,6 +636,201 @@ export const checkDHPByUserInfoAndGroupId = async (user_info: string, group_id: 
         return {
             status: 500,
             msg: 'Có lỗi xảy ra khi kết nối với server!'
+        };
+    }
+};
+
+// Hiệu chuẩn
+export const getHieuChuanDongHoByFilter = async (parameters?: DongHoFilterParameters) => {
+    try {
+        const url = new URL(API_DONGHO_URL +  "/hieu-chuan");
+
+        if (parameters?.so_giay_chung_nhan) {
+            url.searchParams.append('so_giay_chung_nhan', parameters.so_giay_chung_nhan.toString());
+        }
+
+        if (parameters?.seri_sensor) {
+            url.searchParams.append('seri_sensor', parameters.seri_sensor.toString());
+        }
+
+        if (parameters?.ten_khach_hang) {
+            url.searchParams.append('ten_khach_hang', parameters.ten_khach_hang.toString());
+        }
+
+        if (parameters?.nguoi_thuc_hien) {
+            url.searchParams.append('nguoi_thuc_hien', parameters.nguoi_thuc_hien.toString());
+        }
+
+        if (parameters?.ngay_kiem_dinh_from) {
+            url.searchParams.append('ngay_kiem_dinh_from', parameters.ngay_kiem_dinh_from.toString());
+        }
+
+        if (parameters?.ngay_kiem_dinh_to) {
+            url.searchParams.append('ngay_kiem_dinh_to', parameters.ngay_kiem_dinh_to.toString());
+        }
+
+        if (parameters?.limit) {
+            url.searchParams.append('limit', parameters.limit.toString());
+        }
+
+        if (parameters?.last_seen) {
+            url.searchParams.append('last_seen', parameters.last_seen.toString());
+        }
+
+        if (parameters?.next_from) {
+            url.searchParams.append('next_from', parameters.next_from.toString());
+        }
+
+        if (parameters?.prev_from) {
+            url.searchParams.append('prev_from', parameters.prev_from.toString());
+        }
+
+        const response = await api.get(url.toString(), { withCredentials: true });
+
+        return {
+            "status": response.status,
+            "data": response.data,
+            "msg": "Thành công!"
+        };
+
+    } catch (error: any) {
+        if (error.response?.data?.msg) {
+            return {
+                "status": error.response.status,
+                "msg": 'Có lỗi xảy ra khi lấy dữ liệu đồng hồ!'
+            };
+        } else {
+            return {
+                "status": error.response?.status || 500,
+                "msg": 'Có lỗi xảy ra khi lấy dữ liệu đồng hồ!'
+            };
+        }
+    }
+};
+
+export const getHieuChuanNhomDongHoByFilter = async (parameters?: NhomDongHoFilterParameters | null) => {
+    try {
+        const url = new URL(API_DONGHO_URL + "/hieu-chuan/group");
+
+        if (parameters?.ten_dong_ho) {
+            url.searchParams.append('ten_dong_ho', parameters.ten_dong_ho.toString());
+        }
+
+        if (parameters?.ten_khach_hang) {
+            url.searchParams.append('ten_khach_hang', parameters.ten_khach_hang.toString());
+        }
+
+        if (parameters?.nguoi_thuc_hien) {
+            url.searchParams.append('nguoi_thuc_hien', parameters.nguoi_thuc_hien.toString());
+        }
+
+        if (parameters?.ngay_kiem_dinh_from) {
+            url.searchParams.append('ngay_kiem_dinh_from', parameters.ngay_kiem_dinh_from.toString());
+        }
+
+        if (parameters?.ngay_kiem_dinh_to) {
+            url.searchParams.append('ngay_kiem_dinh_to', parameters.ngay_kiem_dinh_to.toString());
+        }
+
+        if (parameters?.limit) {
+            url.searchParams.append('limit', parameters.limit.toString());
+        }
+
+        if (parameters?.page) {
+            url.searchParams.append('page', parameters.page.toString());
+        }
+
+        const response = await api.get(url.toString(), { withCredentials: true });
+
+        return {
+            "status": response.status,
+            "data": response.data,
+            "msg": "Thành công!"
+        };
+
+    } catch (error: any) {
+        if (error.response?.data?.msg) {
+            return {
+                "status": error.response.status,
+                "msg": 'Có lỗi xảy ra khi lấy dữ liệu đồng hồ!'
+            };
+        } else {
+            return {
+                "status": error.response?.status || 500,
+                "msg": 'Có lỗi xảy ra khi lấy dữ liệu đồng hồ!'
+            };
+        }
+    }
+};
+
+export const getHieuChuanDongHoById = async (id: string) => {
+    try {
+        const url = `${API_DONGHO_URL}/hieu-chuan/id/${id.toString()}`;
+
+        const response = await api.get(url.toString(), { withCredentials: true });
+
+        if (response.status === 200 || response.status === 201) {
+            return {
+                "status": response.status,
+                "data": response.data,
+                "msg": "Thành công!"
+            };
+        }
+
+    } catch (error: any) {
+        if (error.response) {
+            if (error.response.status === 404) {
+                return {
+                    "status": 404,
+                    "msg": 'Id không hợp lệ!'
+                };
+            }
+            if (error.response.data?.msg) {
+                return {
+                    "status": error.response.status,
+                    "msg": 'Có lỗi xảy ra khi lấy dữ liệu đồng hồ!'
+                };
+            }
+        }
+        return {
+            "status": error.response?.status || 500,
+            "msg": 'Có lỗi xảy ra khi lấy dữ liệu đồng hồ!'
+        };
+    }
+};
+
+export const getHieuChuanDongHoByGroupId = async (group_id: string) => {
+    try {
+        const url = `${API_DONGHO_URL}/hieu-chuan/group_id/${group_id.toString()}`;
+
+        const response = await api.get(url.toString(), { withCredentials: true });
+
+        if (response.status === 200 || response.status === 201) {
+            return {
+                "status": response.status,
+                "data": response.data,
+                "msg": "Thành công!"
+            };
+        }
+
+    } catch (error: any) {
+        if (error.response) {
+            if (error.response.status === 404) {
+                return {
+                    "status": 404,
+                    "msg": 'Id không hợp lệ!'
+                };
+            }
+            if (error.response.data?.msg) {
+                return {
+                    "status": error.response.status,
+                    "msg": 'Có lỗi xảy ra khi lấy dữ liệu đồng hồ!'
+                };
+            }
+        }
+        return {
+            "status": error.response?.status || 500,
+            "msg": 'Có lỗi xảy ra khi lấy dữ liệu đồng hồ!'
         };
     }
 };

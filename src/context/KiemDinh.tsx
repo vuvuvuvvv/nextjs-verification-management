@@ -1,21 +1,22 @@
 import { TITLE_LUU_LUONG } from '@lib/system-constant';
 import { isDongHoDatTieuChuan } from '@lib/system-function';
 import { DuLieuChayDongHo, DuLieuChayDiemLuuLuong, DuLieuMotLanChay, DuLieuCacLanChay, VChuanDongBoCacLL } from '@lib/types';
-import { ChildProcessWithoutNullStreams } from 'node:child_process';
 import React, { createContext, useState, useContext, ReactNode, useRef, useEffect } from 'react';
 
 interface KiemDinhContextType {
     duLieuKiemDinhCacLuuLuong: DuLieuChayDongHo;
     initialDuLieuKiemDinhCacLuuLuong: DuLieuChayDongHo;
     initialFormHieuSaiSo: { hss: number | null }[];
+    initialFormMf: { mf: number | null }[]
     formHieuSaiSo: { hss: number | null }[];
     setFormHieuSaiSo: (form: { hss: number | null }[]) => void;
+    formMf: { mf: number | null }[];
+    setFormMf: (form: { mf: number | null }[]) => void;
     ketQua: boolean | null;
     setKetQua: (ketQua: boolean | null) => void;
     lanChayMoi: DuLieuCacLanChay;
     updateLuuLuong: (q: { title: string; value: string }, duLieuChay: DuLieuCacLanChay) => void;
 
-    setDuLieuKiemDinhChoMotLuuLuong: (tenLuuLuong: string, data: DuLieuChayDiemLuuLuong | null) => void;
     setDuLieuKiemDinhCacLuuLuong: (duLieu: DuLieuChayDongHo) => void;
     updateSoDongHoChuan: (q: { title: string; value: string }, index: number, field: keyof DuLieuMotLanChay, value: string) => void;
     removeKiemDinh: (id: string) => void;
@@ -51,29 +52,19 @@ export const KiemDinhProvider = ({ children }: { children: ReactNode }) => {
         { hss: null },      // Q1-min
     ];
 
+    const initialFormMf: { mf: number | null }[] = [
+        { mf: null },      // Q3-n
+        { mf: null },      // Q2-t
+        { mf: null },      // Q1-min
+    ];
+
     const [duLieuKiemDinhCacLuuLuong, setDuLieuKiemDinhCacLuuLuong] = useState<DuLieuChayDongHo>(initialDuLieuKiemDinhCacLuuLuong);
     const previousDuLieuRef = useRef<DuLieuChayDongHo>(duLieuKiemDinhCacLuuLuong);
 
     const [formHieuSaiSo, setFormHieuSaiSo] = useState<{ hss: number | null }[]>(initialFormHieuSaiSo);
+    const [formMf, setFormMf] = useState<{ mf: number | null }[]>(initialFormMf);
     const [ketQua, setKetQua] = useState<boolean | null>(null);
     const [vChuanDongBoCacLL, setVChuanDongBoCacLL] = useState<VChuanDongBoCacLL>({})
-
-    // useEffect(() => {
-    //     console.log("dlkđcll: ", duLieuKiemDinhCacLuuLuong)
-    // }, [duLieuKiemDinhCacLuuLuong])
-
-    const setDuLieuKiemDinhChoMotLuuLuong = (tenLuuLuong: string, data: DuLieuChayDiemLuuLuong | null) => {
-        if (previousDuLieuRef.current[tenLuuLuong] !== data) {
-            setDuLieuKiemDinhCacLuuLuong(prevState => ({
-                ...prevState,
-                [tenLuuLuong]: data,
-            }));
-            previousDuLieuRef.current = {
-                ...previousDuLieuRef.current,
-                [tenLuuLuong]: data,
-            };
-        }
-    };
 
     const updateSoDongHoChuan = (q: { title: string; value: string }, index: number, field: keyof DuLieuMotLanChay, value: string) => {
         const qValue = isNaN(Number(q.value)) ? 0 : Number(q.value);
@@ -376,6 +367,7 @@ export const KiemDinhProvider = ({ children }: { children: ReactNode }) => {
     const getDuLieuKiemDinhJSON = (formHieuSaiSoProp?: { hss: number | null }[]) => {
         return JSON.stringify({
             hieu_sai_so: formHieuSaiSoProp ? formHieuSaiSoProp : formHieuSaiSo,
+            mf: formMf,
             du_lieu: duLieuKiemDinhCacLuuLuong,
             ket_qua: formHieuSaiSoProp ? isDongHoDatTieuChuan(formHieuSaiSoProp) : ketQua
         });
@@ -385,13 +377,13 @@ export const KiemDinhProvider = ({ children }: { children: ReactNode }) => {
         <KiemDinhContext.Provider value={{
             duLieuKiemDinhCacLuuLuong,
             initialFormHieuSaiSo,
+            initialFormMf,
             initialDuLieuKiemDinhCacLuuLuong,
             formHieuSaiSo,
             lanChayMoi,
             ketQua,
             updateLuuLuong,
             removeKiemDinh,
-            setDuLieuKiemDinhChoMotLuuLuong,
             updateSoDongHoChuan,
             setDuLieuKiemDinhCacLuuLuong,
             setKetQua,
@@ -412,7 +404,9 @@ export const KiemDinhProvider = ({ children }: { children: ReactNode }) => {
             xoaLanChayCuaLuuLuong,
             resetLanChay,
             getDuLieuKiemDinhJSON,
-            setFormHieuSaiSo, // Added to context value
+            setFormHieuSaiSo,
+            formMf,
+            setFormMf,
             vChuanDongBoCacLL
         }}>
             {children}

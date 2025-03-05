@@ -1,7 +1,7 @@
 import dayjs from "dayjs";
 import { DongHo, DuLieuMotLanChay, PDMData, TinhSaiSoValueTabs } from "./types";
 import { getAllDongHoNamesExist } from "@/app/api/dongho/route";
-import { INDEXED_DB_DH_OBJ_NAME, INDEXED_DB_NAME, PERMISSION_TITLES, PERMISSION_VALUES, PERMISSIONS, TITLE_LUU_LUONG } from "./system-constant";
+import { INDEXED_DB_NAME, PERMISSION_TITLES, PERMISSION_VALUES, PERMISSIONS, TITLE_LUU_LUONG } from "./system-constant";
 
 export const getSaiSoDongHo = (formValue: DuLieuMotLanChay) => {
     if (formValue) {
@@ -13,14 +13,14 @@ export const getSaiSoDongHo = (formValue: DuLieuMotLanChay) => {
         const VDHC = parseFloat(formValue.Vc2.toString()) - parseFloat(formValue.Vc1.toString());
         if (VDHC !== 0) {
             const error = ((VDHCT - VDHC) / VDHC) * 100;
-            return Number((Math.round(error * 10000) / 10000).toFixed(3));
+            return Number((Math.round(error * 10000) / 10000).toFixed(4));
         }
     }
     return null;
 };
 
-export const getFullSoGiayCN = (soGiayCN: string, ngayThucHien: Date) => {
-    return "FMS.KĐ." + (soGiayCN || "-----") + "." + dayjs(ngayThucHien).format("YY");
+export const getFullSoGiayCN = (soGiayCN: string, ngayThucHien: Date, isHieuChuan: boolean = false) => {
+    return "FMS." + (isHieuChuan ? "HC." : "KĐ.") + (soGiayCN || "-----") + "." + dayjs(ngayThucHien).format("YY");
 }
 
 export const getQ2OrtAndQ1OrQMin = (isDHDienTu: boolean, ccx: string | null, q: string | null, r: string | null) => {
@@ -46,7 +46,7 @@ export const getQ2OrtAndQ1OrQMin = (isDHDienTu: boolean, ccx: string | null, q: 
         if (isDHDienTu && q && r) {
             const qmin = parseFloat(q) / parseFloat(r);
             const qt = 1.6 * qmin;
-                
+
             return {
                 getQ1OrMin: {
                     title: isDHDienTu != null && isDHDienTu ? TITLE_LUU_LUONG.q1 : TITLE_LUU_LUONG.qmin,
@@ -198,34 +198,36 @@ export const getListDongHoNamesExist = async () => {
     return []
 }
 
-export function openDB() {
+export function openDB(dbName: string) {
     return new Promise((resolve, reject) => {
         if (typeof window === "undefined") return;
 
-        const request = indexedDB.open(INDEXED_DB_NAME, 1);
+        const request = indexedDB.open(INDEXED_DB_NAME, 2); // Tăng version nếu cần tạo thêm bảng, 
+        // Version không phải số lượng bảng! Chỉ tăng version khi có thay đổi schema
+
         request.onupgradeneeded = (event) => {
             const db = (event.target as IDBOpenDBRequest).result;
-            if (!db.objectStoreNames.contains(INDEXED_DB_DH_OBJ_NAME)) {
-                db.createObjectStore(INDEXED_DB_DH_OBJ_NAME, { keyPath: 'id' });
+
+            // Kiểm tra và tạo bảng nếu chưa có
+            if (!db.objectStoreNames.contains(dbName)) {
+                db.createObjectStore(dbName, { keyPath: 'id' });
             }
         };
         request.onsuccess = (event) => {
-            const target = event.target as IDBOpenDBRequest;
-            resolve(target.result);
+            resolve((event.target as IDBOpenDBRequest).result);
         };
-
         request.onerror = (event) => {
-            const target = event.target as IDBOpenDBRequest;
-            reject(target.error);
+            reject((event.target as IDBOpenDBRequest).error);
         };
     });
 }
 
-export async function saveDongHoDataExistsToIndexedDB(username: string, data: DongHo[], savedData?: DongHo[]) {
-    const db = await openDB() as IDBDatabase;
+
+export async function saveDongHoDataExistsToIndexedDB(dbName: string, username: string, data: DongHo[], savedData?: DongHo[]) {
+    const db = await openDB(dbName) as IDBDatabase;
     return new Promise<void>((resolve, reject) => {
-        const transaction = db.transaction(INDEXED_DB_DH_OBJ_NAME, "readwrite");
-        const store = transaction.objectStore(INDEXED_DB_DH_OBJ_NAME);
+        const transaction = db.transaction(dbName, "readwrite");
+        const store = transaction.objectStore(dbName);
 
         const dataToStore = { id: username, dongHoList: data, savedDongHoList: (savedData && savedData.length != 0) ? savedData : [] };
 
@@ -241,14 +243,14 @@ export async function saveDongHoDataExistsToIndexedDB(username: string, data: Do
     });
 }
 
-export async function getDongHoDataExistsFromIndexedDB(username: string): Promise<{
+export async function getDongHoDataExistsFromIndexedDB(dbName: string, username: string): Promise<{
     dongHoList: DongHo[],
     savedDongHoList: DongHo[]
 } | null> {
-    const db = await openDB() as IDBDatabase;
+    const db = await openDB(dbName) as IDBDatabase;
     return new Promise((resolve, reject) => {
-        const transaction = db.transaction(INDEXED_DB_DH_OBJ_NAME, "readonly");
-        const store = transaction.objectStore(INDEXED_DB_DH_OBJ_NAME);
+        const transaction = db.transaction(dbName, "readonly");
+        const store = transaction.objectStore(dbName);
         const request = store.get(username);
 
         request.onsuccess = (event: Event) => {
@@ -272,11 +274,11 @@ export async function getDongHoDataExistsFromIndexedDB(username: string): Promis
     });
 }
 
-export async function deleteDongHoDataFromIndexedDB(username: string): Promise<void> {
-    const db = await openDB() as IDBDatabase;
+export async function deleteDongHoDataFromIndexedDB(dbName: string, username: string): Promise<void> {
+    const db = await openDB(dbName) as IDBDatabase;
     return new Promise<void>((resolve, reject) => {
-        const transaction = db.transaction(INDEXED_DB_DH_OBJ_NAME, "readwrite");
-        const store = transaction.objectStore(INDEXED_DB_DH_OBJ_NAME);
+        const transaction = db.transaction(dbName, "readwrite");
+        const store = transaction.objectStore(dbName);
 
         const request = store.delete(username);
 
@@ -311,7 +313,7 @@ export function getAvailableRolesOptions(current_role: string | null): { value: 
 }
 
 export function decode(encodedString: string): string {
-    if(!encodedString) {
+    if (!encodedString) {
         return "";
     }
     return decodeURIComponent(escape(atob(encodedString)));

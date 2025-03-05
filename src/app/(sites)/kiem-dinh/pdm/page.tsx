@@ -7,7 +7,7 @@ import { BASE_API_URL } from "@lib/system-constant";
 const Loading = dynamic(() => import("@/components/Loading"));
 import Swal from "sweetalert2";
 
-const PDMManagement = dynamic(() => import("@/components/quan-ly/kiem-dinh/PDMMng"), { ssr: true });
+const PDMManagement = dynamic(() => import("@/components/quan-ly/PDMMng"), { ssr: true });
 
 interface PDMProps {
     className?: string,

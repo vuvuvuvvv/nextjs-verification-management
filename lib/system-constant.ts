@@ -79,13 +79,15 @@ export const PERMISSION_TITLES : Record<string, string> = {
 
 export const DEFAULT_LOCATION = "Công ty Cổ phần Công nghệ và Thương mại FMS"
 export const INDEXED_DB_NAME = "FMS_VFM_DB"
-export const INDEXED_DB_DH_OBJ_NAME = "DongHo"
+export const INDEXED_DB_KIEM_DINH_NAME = "KiemDinh"
+export const INDEXED_DB_HIEU_CHUAN_NAME = "HieuChuan"
 
 export const BASE_API_URL = process.env.NEXT_PUBLIC_API_URL;
 
 // Acess links:
 const KD_PDM = "/kiem-dinh/pdm"
 const KD_DHN = "/kiem-dinh/dong-ho-nuoc"
+const HC_DHN = "/hieu-chuan/dong-ho-nuoc"
 // const KD_DHN = KD_DHN + "/q-bigger-than-15"
 // const KD_DHN = KD_DHN + "/q-smaller-than-15"
 export const ACCESS_LINKS = {
@@ -139,23 +141,23 @@ export const ACCESS_LINKS = {
     },
     DHN_ADD : {
         src: KD_DHN + "/them-moi",
-        title: "Thêm mới đồng hồ nước"
+        title: "Thêm mới kiểm định"
     },
     DHN_EDIT_DH : {
         src: KD_DHN + "/chinh-sua",
-        title: "Chỉnh sửa đồng hồ nước"
+        title: "Chỉnh sửa kiểm định"
     },
     DHN_EDIT_NDH : {
         src: KD_DHN + "/chinh-sua/nhom",
-        title: "Chỉnh sửa nhóm đồng hồ nước"
+        title: "Chỉnh sửa kiểm định nhóm"
     },
     DHN_DETAIL_DH : {
         src: KD_DHN + "/chi-tiet",
-        title: "Chi tiết đồng hồ"
+        title: "Chi tiết kiểm định"
     },
     DHN_DETAIL_NDH : {
         src: KD_DHN + "/chi-tiet/nhom",
-        title: "Chi tiết nhóm đồng hồ"
+        title: "Chi tiết kiểm định nhóm"
     },
     PDM : {
         src: KD_PDM,
@@ -168,5 +170,30 @@ export const ACCESS_LINKS = {
     PDM_ADD : {
         src: KD_PDM + "/them-moi",
         title: "Thêm mới phê duyệt mẫu"
+    },
+    // Hiệu chuẩn
+    HC_DHN : {
+        src: HC_DHN, 
+        title: "Đồng hồ nước"
+    },
+    HC_DHN_ADD : {
+        src: HC_DHN + "/them-moi",
+        title: "Thêm mới hiệu chuẩn"
+    },
+    HC_DHN_EDIT_DH : {
+        src: HC_DHN + "/chinh-sua",
+        title: "Chỉnh sửa hiệu chuẩn"
+    },
+    HC_DHN_EDIT_NDH : {
+        src: HC_DHN + "/chinh-sua/nhom",
+        title: "Chỉnh sửa nhóm hiệu chuẩn"
+    },
+    HC_DHN_DETAIL_DH : {
+        src: HC_DHN + "/chi-tiet",
+        title: "Chi tiết hiệu chuẩn"
+    },
+    HC_DHN_DETAIL_NDH : {
+        src: HC_DHN + "/chi-tiet/nhom",
+        title: "Chi tiết hiệu chuẩn nhóm"
     },
 }

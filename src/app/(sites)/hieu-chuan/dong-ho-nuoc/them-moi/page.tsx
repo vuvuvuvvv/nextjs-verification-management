@@ -11,7 +11,7 @@ import { deleteDongHoDataFromIndexedDB, getDongHoDataExistsFromIndexedDB } from 
 import { useUser } from "@/context/AppContext";
 import { INDEXED_DB_KIEM_DINH_NAME } from "@lib/system-constant";
 
-const KiemDinhNhomDongHoNuocForm = dynamic(() => import("@/components/quan-ly/kiem-dinh/KiemDinhNhomDongHoNuocForm"), { ssr: false });
+const KiemDinhNhomDongHoNuocForm = dynamic(() => import("@/components/quan-ly/hieu-chuan/HieuChuanNhomDongHoNuocForm"), { ssr: false });
 
 interface AddNewDongHoNuocProps {
     className?: string,

@@ -59,10 +59,7 @@ const siteSideLinks: SideLink[] = [
         title: "Hiệu chuẩn",
         icon: faImage,
         children: [
-            { title: "Đồng hồ nước", href: "#", icon: faTint },
-            { title: "Đồng hồ khí", href: "#", icon: faWind },
-            { title: "Thiết bị đo lưu lượng", href: "#", icon: faClock },
-            { title: "Thiết bị đo áp suất", href: "#", icon: faWeight },
+            { title: ACCESS_LINKS.HC_DHN.title, href: ACCESS_LINKS.HC_DHN.src, icon: faClock },
         ]
     },
     {

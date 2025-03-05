@@ -29,7 +29,6 @@ import {
     TITLE_LUU_LUONG, typeOptions
 } from "@lib/system-constant";
 
-// import { createDongHo, getDongHoExistsByInfo } from "@/app/api/dongho/route";
 import { faArrowLeft, faArrowRight, faChevronLeft, faChevronRight, faSave } from "@fortawesome/free-solid-svg-icons";
 import { DongHo, PDMData } from "@lib/types";
 import { useDongHoList } from "@/context/ListDongHo";
@@ -39,7 +38,7 @@ import { getPDMByMaTimDongHoPDM } from "@/app/api/pdm/route";
 import api from "@/app/api/route";
 
 
-interface NhomDongHoNuocFormProps {
+interface KiemDinhNhomDongHoNuocFormProps {
     className?: string;
     generalInfoDongHo?: DongHo | null,
     isEditing?: boolean
@@ -66,7 +65,7 @@ interface State {
     tenKhachHang: string;
     phuongPhapThucHien: string;
     chuanThietBiSuDung: string;
-    nguoiKiemDinh: string;
+    nguoiThucHien: string;
     nguoiSoatLai: string;
     ngayThucHien: Date | null;
     coSoSuDung: string;
@@ -96,7 +95,7 @@ function reducer(state: State, action: Action): State {
     }
 }
 
-export default function NhomDongHoNuocForm({ className, generalInfoDongHo, isEditing = false }: NhomDongHoNuocFormProps) {
+export default function KiemDinhNhomDongHoNuocForm({ className, generalInfoDongHo, isEditing = false }: KiemDinhNhomDongHoNuocFormProps) {
 
     const { user, isManager } = useUser();
 
@@ -121,7 +120,7 @@ export default function NhomDongHoNuocForm({ className, generalInfoDongHo, isEdi
         tenKhachHang: generalInfoDongHo?.ten_khach_hang || "",
         phuongPhapThucHien: generalInfoDongHo?.phuong_phap_thuc_hien || "FMS - PP - 02",
         chuanThietBiSuDung: generalInfoDongHo?.chuan_thiet_bi_su_dung || "Đồng hồ chuẩn đo nước và Bình chuẩn",
-        nguoiKiemDinh: generalInfoDongHo?.nguoi_kiem_dinh || user?.fullname || "",
+        nguoiThucHien: generalInfoDongHo?.nguoi_thuc_hien || user?.fullname || "",
         nguoiSoatLai: generalInfoDongHo?.nguoi_soat_lai || "",
         ngayThucHien: generalInfoDongHo?.ngay_thuc_hien || new Date(),
         coSoSuDung: generalInfoDongHo?.co_so_su_dung || "",
@@ -452,7 +451,7 @@ export default function NhomDongHoNuocForm({ className, generalInfoDongHo, isEdi
         state.nhietDo,
         state.doAm,
         state.ngayThucHien,
-        state.nguoiKiemDinh,
+        state.nguoiThucHien,
         state.chuanThietBiSuDung,
         state.namSanXuat,
         state.nguoiSoatLai,
@@ -503,7 +502,7 @@ export default function NhomDongHoNuocForm({ className, generalInfoDongHo, isEdi
             co_so_su_dung: state.coSoSuDung || "",
             phuong_phap_thuc_hien: state.phuongPhapThucHien || "",
             chuan_thiet_bi_su_dung: state.chuanThietBiSuDung || "",
-            nguoi_kiem_dinh: state.nguoiKiemDinh || "",
+            nguoi_thuc_hien: state.nguoiThucHien || "",
             nguoi_soat_lai: state.nguoiSoatLai || "",
             ngay_thuc_hien: state.ngayThucHien,
             noi_su_dung: state.noiSuDung || "",
@@ -610,12 +609,13 @@ export default function NhomDongHoNuocForm({ className, generalInfoDongHo, isEdi
     }, [duLieuKiemDinhCacLuuLuong])
 
     const updateCurrentDongHo = () => {
-        const currentDongHo = getCurrentDongHo(selectedDongHoIndex);
-        if (currentDongHo != dongHoList[selectedDongHoIndex ?? 0]) {
-            updateListDongHo(currentDongHo, selectedDongHoIndex ?? 0);
+        if (selectedDongHoIndex != null) {
+            const currentDongHo = getCurrentDongHo(selectedDongHoIndex);
+            if (currentDongHo != dongHoList[selectedDongHoIndex ?? 0]) {
+                updateListDongHo(currentDongHo, selectedDongHoIndex ?? 0);
+            }
         }
     }
-
 
     // Handle selection change
     const handleDongHoChange = (selectedIndex: number) => {
@@ -667,7 +667,7 @@ export default function NhomDongHoNuocForm({ className, generalInfoDongHo, isEdi
                             Swal.showLoading();
                             createListDongHo(dongHoToSave).then((isSuccessful) => {
                                 if (isSuccessful) {
-                                    router.push(ACCESS_LINKS.DHN.src);
+                                    window.location.href = ACCESS_LINKS.DHN.src;
                                 }
                             });
                             // TODO: Update Save
@@ -1234,18 +1234,18 @@ export default function NhomDongHoNuocForm({ className, generalInfoDongHo, isEdi
                                     </div>
                                 </div>
                                 <div className="mb-3 col-12 col-md-6">
-                                    <label htmlFor="nguoi_kiem_dinh" className="form-label">Người thực hiện:</label>
+                                    <label htmlFor="nguoi_thuc_hien" className="form-label">Người thực hiện:</label>
                                     <input
                                         type="text"
                                         className="form-control"
-                                        id="nguoi_kiem_dinh"
+                                        id="nguoi_thuc_hien"
                                         disabled={savedDongHoList.length != 0}
-                                        value={state.nguoiKiemDinh || ""}
-                                        onChange={(e) => handleFieldChange('nguoiKiemDinh', e.target.value)}
+                                        value={state.nguoiThucHien || ""}
+                                        onChange={(e) => handleFieldChange('nguoiThucHien', e.target.value)}
                                     />
                                 </div>
                                 <div className="mb-3 col-12 col-md-6">
-                                    <label htmlFor="nguoi_kiem_dinh" className="form-label">Người soát lại:</label>
+                                    <label htmlFor="nguoi_thuc_hien" className="form-label">Người soát lại:</label>
                                     <input
                                         type="text"
                                         className="form-control"
@@ -1271,7 +1271,7 @@ export default function NhomDongHoNuocForm({ className, generalInfoDongHo, isEdi
                     <div className="w-100 m-0 mb-3 p-0 position-relative">
                         {selectedDongHoIndex != null && showFormTienTrinh && <>
                             {/* Select Nav  */}
-                            <div className={`w-100 py-3 px-2 shadow-sm rounded-top bg-main-blue d-flex align-items-center sticky-top justify-content-center ${dongHoList.length <= 1 ? "d-none" : ""}`} style={{ top: "60px", zIndex: "900" }}>
+                            <div className={`w-100 py-3 px-2 shadow-sm rounded-top bg-main-blue d-flex align-items-center sticky-top justify-content-center`} style={{ top: "60px", zIndex: "900" }}>
                                 
                                 <button style={{ top: "50%", left: "10px", transform: "translateY(-50%)" }} className={`btn m-0 py-0 px-0 position-absolute text-white d-flex align-items-center gap-1 border-0 shadow-0`} onClick={() => setSelectedDongHoIndex(null)}>
                                     <FontAwesomeIcon icon={faArrowLeft} style={{ fontSize: "1.6rem" }}></FontAwesomeIcon><span className="d-none d-sm-block">Quay lại</span>

@@ -6,7 +6,7 @@ import React, { useEffect, useRef, useState } from "react";
 import c_tbIDHInf from "@styles/scss/components/table-input-dongho-info.module.scss";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import { getDongHoExistsByInfo } from "@/app/api/dongho/route";
-import { getLastDayOfMonthInFuture } from "@lib/system-function";
+import { decode, getLastDayOfMonthInFuture } from "@lib/system-function";
 import { TITLE_LUU_LUONG } from "@lib/system-constant";
 import DatePickerField from "./ui/DatePickerTBDHInfo";
 import { DongHo } from "@lib/types";
@@ -53,7 +53,7 @@ const TableDongHoInfo: React.FC<TableDongHoInfoProps> = React.memo(({
     isEditing,
     selectDongHo
 }) => {
-    const { dongHoList, setDongHoList, savedDongHoList } = useDongHoList();
+    const { dongHoList, setDongHoList, savedDongHoList, isHieuChuan } = useDongHoList();
     const [errorsList, setErrorsList] = useState<InfoField[]>([]);
     const [debounceTimeout, setDebounceTimeout] = useState<NodeJS.Timeout | null>(null);
 
@@ -107,7 +107,7 @@ const TableDongHoInfo: React.FC<TableDongHoInfoProps> = React.memo(({
                 }
 
                 if (updatedDongHoList[index].so_giay_chung_nhan && updatedDongHoList[index].so_tem) {
-                    const isDHDienTu = Boolean((dongHoList[index].ccx && ["1", "2"].includes(dongHoList[index].ccx)) || dongHoList[index].kieu_thiet_bi == "Điện tử");
+                    const isDHDienTu = Boolean((dongHoList[index].ccx && ["1", "2"].includes(dongHoList[index].ccx ?? "")) || dongHoList[index].kieu_thiet_bi == "Điện tử");
                     updatedDongHoList[index].hieu_luc_bien_ban = getLastDayOfMonthInFuture(isDHDienTu, updatedDongHoList[index].ngay_thuc_hien) || null;
                 } else {
                     updatedDongHoList[index].hieu_luc_bien_ban = null;
@@ -183,12 +183,11 @@ const TableDongHoInfo: React.FC<TableDongHoInfoProps> = React.memo(({
             <table className={`table table-bordered mb-0 table-hover ${c_tbIDHInf['process-table']}`}>
                 <thead className="shadow border">
                     <tr className={`${c_tbIDHInf['table-header']}`}>
-                        {dongHoList.length > 1 &&
-                            <th rowSpan={2}>
-                                <div className={`${c_tbIDHInf['table-label']}`}>
-                                    STT
-                                </div>
-                            </th>}
+                        <th rowSpan={2}>
+                            <div className={`${c_tbIDHInf['table-label']}`}>
+                                STT
+                            </div>
+                        </th>
                         <th rowSpan={2}>
                             <div className={`${c_tbIDHInf['table-label']}`}>
                                 <span>
@@ -196,13 +195,16 @@ const TableDongHoInfo: React.FC<TableDongHoInfoProps> = React.memo(({
                                 </span>
                             </div>
                         </th>
-                        <th rowSpan={2}>
-                            <div className={`${c_tbIDHInf['table-label']}`}>
-                                <span>
-                                    Vỏ ngoài
-                                </span>
-                            </div>
-                        </th>
+
+                        {!isHieuChuan &&
+                            <th rowSpan={2}>
+                                <div className={`${c_tbIDHInf['table-label']}`}>
+                                    <span>
+                                        Vỏ ngoài
+                                    </span>
+                                </div>
+                            </th>}
+
                         <th rowSpan={2}>
                             <div className={`${c_tbIDHInf['table-label']}`}>
                                 <span>
@@ -249,10 +251,10 @@ const TableDongHoInfo: React.FC<TableDongHoInfoProps> = React.memo(({
                                 </span>
                             </div>
                         </th> */}
-                        <th colSpan={3}>
+                        <th colSpan={isHieuChuan ? 6 : 3}>
                             <div className={`${c_tbIDHInf['table-label']}`}>
                                 <span>
-                                    Sai số
+                                    Sai số{isHieuChuan ? " & Mf" : ""}
                                 </span>
                             </div>
                         </th>
@@ -261,8 +263,11 @@ const TableDongHoInfo: React.FC<TableDongHoInfoProps> = React.memo(({
                     </tr>
                     <tr className={`${c_tbIDHInf['table-header']} border-top border-white`}>
                         <th>Q<sub>III</sub></th>
+                        {isHieuChuan && <th>Mf</th>}
                         <th>Q<sub>II</sub></th>
+                        {isHieuChuan && <th>Mf</th>}
                         <th>Q<sub>I</sub></th>
+                        {isHieuChuan && <th>Mf</th>}
                     </tr>
                 </thead>
                 <tbody>
@@ -276,20 +281,22 @@ const TableDongHoInfo: React.FC<TableDongHoInfoProps> = React.memo(({
                                 ((isEditing && typeof duLieuKiemDinhJSON != 'string') ?
                                     duLieuKiemDinhJSON : JSON.parse(duLieuKiemDinhJSON)
                                 ) : null;
+                            // console.log(decode(dongHo.id), duLieuKiemDinh);
                             const status = duLieuKiemDinh ? duLieuKiemDinh.ket_qua : null;
                             const objHss = duLieuKiemDinh ? duLieuKiemDinh.hieu_sai_so : null;
+                            const objMf = duLieuKiemDinh ? duLieuKiemDinh.mf : null;
 
                             const isDHDienTu = Boolean((dongHo.ccx && ["1", "2"].includes(dongHo.ccx)) || dongHo.kieu_thiet_bi == "Điện tử");
 
                             rows.push(
                                 <tr key={index}>
-                                    {dongHoList.length > 1 &&
-                                        <td style={{ cursor: "pointer" }} onClick={() => {
-                                            selectDongHo(index)
-                                        }}>
-                                            <span>{dongHo.index}</span>
-                                            <span><FontAwesomeIcon icon={faEdit} className="text-blue"></FontAwesomeIcon></span>
-                                        </td>}
+
+                                    <td style={{ cursor: "pointer" }} onClick={() => {
+                                        selectDongHo(index)
+                                    }}>
+                                        <span>{dongHo.index}</span>
+                                        <span><FontAwesomeIcon icon={faEdit} className="text-blue"></FontAwesomeIcon></span>
+                                    </td>
                                     <td>
                                         <p className="m-0 p-0 text-center w-100" style={{ minWidth: "140px" }}>
                                             {status != null ?
@@ -299,23 +306,25 @@ const TableDongHoInfo: React.FC<TableDongHoInfoProps> = React.memo(({
                                                         objHss[0].hss == null &&
                                                             objHss[1].hss == null &&
                                                             objHss[2].hss == null ?
-                                                            "Chưa kiểm định" :
+                                                            ("Chưa " + (isHieuChuan ? "hiệu chuẩn" : "kiểm định")) :
                                                             "Còn: " +
                                                             (objHss[0].hss == null ? (isDHDienTu ? TITLE_LUU_LUONG.q3 : TITLE_LUU_LUONG.qn) + " " : "") +
                                                             (objHss[1].hss == null ? (isDHDienTu ? TITLE_LUU_LUONG.q2 : TITLE_LUU_LUONG.qt) + " " : "") +
                                                             (objHss[2].hss == null ? (isDHDienTu ? TITLE_LUU_LUONG.q1 : TITLE_LUU_LUONG.qmin) : "")
                                                     ) :
-                                                    "Chưa kiểm định"
+                                                    ("Chưa " + (isHieuChuan ? "hiệu chuẩn" : "kiểm định"))
                                             }
                                         </p>
                                     </td>
-                                    <td>
-                                        <ToggleSwitchButton
-                                            value={dongHo.ket_qua_check_vo_ngoai ?? false}
-                                            onChange={(value: boolean) => handleVoNgoaiChange(index, "ket_qua_check_vo_ngoai", value)}
-                                            disabled={savedDongHoList.some(dh => JSON.stringify(dh) == JSON.stringify(dongHo)) || savedDongHoList.length == dongHoList.length}
-                                        />
-                                    </td>
+
+                                    {!isHieuChuan &&
+                                        <td>
+                                            <ToggleSwitchButton
+                                                value={dongHo.ket_qua_check_vo_ngoai ?? false}
+                                                onChange={(value: boolean) => handleVoNgoaiChange(index, "ket_qua_check_vo_ngoai", value)}
+                                                disabled={savedDongHoList.some(dh => JSON.stringify(dh) == JSON.stringify(dongHo)) || savedDongHoList.length == dongHoList.length}
+                                            />
+                                        </td>}
                                     <td>
                                         <InputField
                                             index={index}
@@ -380,12 +389,24 @@ const TableDongHoInfo: React.FC<TableDongHoInfoProps> = React.memo(({
                                     <td>
                                         {objHss[0].hss != null ? objHss[0].hss + "%" : <span className="text-secondary">-</span>}
                                     </td>
+                                    {isHieuChuan && <td>
+                                        {objMf && objMf[0].mf != null ? objMf[0].mf : <span className="text-secondary">-</span>}
+                                    </td>}
+
                                     <td>
                                         {objHss[1].hss != null ? objHss[1].hss + "%" : <span className="text-secondary">-</span>}
                                     </td>
+                                    {isHieuChuan && <td>
+                                        {objMf && objMf[1].mf != null ? objMf[1].mf : <span className="text-secondary">-</span>}
+                                    </td>}
+
                                     <td>
                                         {objHss[2].hss != null ? objHss[2].hss + "%" : <span className="text-secondary">-</span>}
                                     </td>
+                                    {isHieuChuan && <td>
+                                        {objMf && objMf[2].mf != null ? objMf[2].mf : <span className="text-secondary">-</span>}
+                                    </td>}
+
                                     <td>
                                         <button onClick={() => {
                                             console.log(index)

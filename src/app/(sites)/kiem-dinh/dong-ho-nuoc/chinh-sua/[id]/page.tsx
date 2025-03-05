@@ -1,8 +1,8 @@
 "use client"
-const DongHoEditPage = dynamic(() => import('@/components/EditDongHo'));
+const EditKiemDinhDongHo = dynamic(() => import('@/components/quan-ly/kiem-dinh/EditKiemDinhDongHo'));
 import dynamic from "next/dynamic";
 
 
 export default function EditDongHoPage({ params }: { params: { id: string } }) {
-    return <DongHoEditPage id={params.id}></DongHoEditPage>
+    return <EditKiemDinhDongHo id={params.id}></EditKiemDinhDongHo>
 }

@@ -1,6 +1,6 @@
 "use client"
 
-import { getDongHoById, getDongHoByGroupId } from "@/app/api/dongho/route";
+import { getHieuChuanDongHoByGroupId, getHieuChuanDongHoById } from "@/app/api/dongho/route";
 const Loading = dynamic(() => import('@/components/Loading'));
 import { DongHo } from "@lib/types";
 import { useEffect, useRef, useState } from "react";
@@ -9,14 +9,15 @@ import { useRouter } from "next/navigation";
 import Swal from "sweetalert2";
 import { ACCESS_LINKS } from "@lib/system-constant";
 import { useDongHoList } from "@/context/ListDongHo";
-import NhomDongHoNuocForm from "@/components/NhomDongHoNuocForm";
 
-interface DongHoEditPage {
+const HieuChuanNhomDongHoNuocForm = dynamic(() => import("@/components/quan-ly/hieu-chuan/HieuChuanNhomDongHoNuocForm"), { ssr: false });
+
+interface EditHieuChuanDongHo {
     id?: string;
     groupId?: string;
 }
 
-export default function DongHoEditPage({ id, groupId }: DongHoEditPage) {
+export default function EditHieuChuanDongHo({ id, groupId }: EditHieuChuanDongHo) {
     const { setDongHoList, setEditing } = useDongHoList();
     const [dongHoData, setDongHoData] = useState<DongHo>();
     const [loading, setLoading] = useState<boolean>(true);
@@ -45,7 +46,7 @@ export default function DongHoEditPage({ id, groupId }: DongHoEditPage) {
             confirmButtonColor: "#0980de",
             confirmButtonText: "OK"
         }).then(() => {
-            router.push(ACCESS_LINKS.DHN.src)
+            window.location.href = ACCESS_LINKS.HC_DHN.src;
         });
     }
 
@@ -60,9 +61,9 @@ export default function DongHoEditPage({ id, groupId }: DongHoEditPage) {
                 } else {
                     let res;
                     if (groupId) {
-                        res = await getDongHoByGroupId(groupId);
+                        res = await getHieuChuanDongHoByGroupId(groupId);
                     } else if (id) {
-                        res = await getDongHoById(id);
+                        res = await getHieuChuanDongHoById(id);
                     }
                     if (res?.status == 404) {
                         fetchGetError("Id không hợp lệ!")
@@ -101,8 +102,6 @@ export default function DongHoEditPage({ id, groupId }: DongHoEditPage) {
         return <></>;
     }
     return (
-        <>
-            <NhomDongHoNuocForm generalInfoDongHo={dongHoData} isEditing={true} />
-        </>
+        <HieuChuanNhomDongHoNuocForm generalInfoDongHo={dongHoData} isEditing={true} />
     );
 }

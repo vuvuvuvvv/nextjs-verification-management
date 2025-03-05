@@ -1,8 +1,8 @@
 import Loading from "@/components/Loading"
 import dynamic from "next/dynamic";
 
-const NhomDongHoNuocManagement = dynamic(() => import("@/components/quan-ly/kiem-dinh/NhomDongHoNuocMng"))
-const DongHoNuocMng = dynamic(() => import("@/components/quan-ly/kiem-dinh/DongHoNuocMng"), { ssr: true })
+const HieuChuanNhomDongHoNuocMng = dynamic(() => import("@/components/quan-ly/hieu-chuan/HieuChuanNhomDongHoNuocMng"))
+const HieuChuanDongHoNuocMng = dynamic(() => import("@/components/quan-ly/hieu-chuan/HieuChuanDongHoNuocMng"), { ssr: true })
 
 import vrfWm from "@styles/scss/ui/vfm.module.scss"
 
@@ -17,12 +17,12 @@ export default function DongHoNuocPage({ className }: DongHoNuocPageProps) {
 
     const tabContent = [
         {
-            title: "Kiểm định theo nhóm",
-            content: <NhomDongHoNuocManagement />
+            title: "Hiệu chuẩn theo nhóm",
+            content: <HieuChuanNhomDongHoNuocMng />
         },
         {
-            title: "Kiểm định theo đồng hồ",
-            content: <DongHoNuocMng />
+            title: "Hiệu chuẩn theo đồng hồ",
+            content: <HieuChuanDongHoNuocMng />
         }
     ]
 

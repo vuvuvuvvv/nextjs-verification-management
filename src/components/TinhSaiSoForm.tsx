@@ -12,6 +12,7 @@ interface CaculatorFormProps {
         Vc1: number;
         Vc2: number;
         Tc: number;
+        Mf?: number;
     };
     readOnly?: boolean,
     onFormChange: (field: string, value: string) => void;
@@ -20,6 +21,7 @@ interface CaculatorFormProps {
     tabFormName: string;
 }
 export default function TinhSaiSoForm({ tabFormName, className, formValue, readOnly = false, onFormChange, d, isDisable }: CaculatorFormProps) {
+    const { isHieuChuan } = useDongHoList();
     const [formState, setFormState] = useState({
         V1: formValue.V1.toString() || "0",
         V2: formValue.V2.toString() || "0",
@@ -27,6 +29,7 @@ export default function TinhSaiSoForm({ tabFormName, className, formValue, readO
         Vc2: formValue.Vc2 ? formValue.Vc2.toString() : "0",
         Tdh: formValue.Tdh ? formValue.Tdh.toString() : "0",
         Tc: formValue.Tc ? formValue.Tc.toString() : "0",
+        Mf: formValue.Mf ? formValue.Mf.toString() : "-",
     });
     const [saiSo, setSaiSo] = useState<string>("0%");
     const prevFormValuesRef = useRef(formValue);
@@ -60,17 +63,16 @@ export default function TinhSaiSoForm({ tabFormName, className, formValue, readO
     const [numericInputTimeout, setNumericInputTimeout] = useState<NodeJS.Timeout | null>(null);
 
     useEffect(() => {
-        if (prevFormValuesRef.current != formValue) {
-            setFormState({
-                V1: formValue.V1.toString(),
-                V2: formValue.V2.toString(),
-                Vc1: formValue.Vc1.toString(),
-                Vc2: formValue.Vc2.toString(),
-                Tdh: formValue.Tdh.toString(),
-                Tc: formValue.Tc.toString(),
-            });
-            prevFormValuesRef.current = formValue;
-        }
+        setFormState({
+            V1: formValue.V1.toString() ?? 0,
+            V2: formValue.V2.toString() ?? 0,
+            Vc1: formValue.Vc1.toString() ?? 0,
+            Vc2: formValue.Vc2.toString() ?? 0,
+            Tdh: formValue.Tdh.toString() ?? 0,
+            Tc: formValue.Tc.toString() ?? 0,
+            Mf: formValue.Mf ? formValue.Mf.toString() : "-",
+        });
+        setSaiSo((getSaiSoDongHo(formValue) ?? 0).toString());
     }, [formValue]);
 
     const handleInputChange = (field: string, value: string) => {
@@ -154,6 +156,7 @@ export default function TinhSaiSoForm({ tabFormName, className, formValue, readO
             Vc2: "0",
             Tdh: "0",
             Tc: "0",
+            Mf: "-",
         };
         setFormState(resetValues);
         Object.keys(resetValues).forEach((key) => onFormChange(key, "0"));
@@ -214,6 +217,16 @@ export default function TinhSaiSoForm({ tabFormName, className, formValue, readO
                             name={tabFormName + "-3"}
                         />
                     </div>
+
+                    <div className={`mb-3 ${ecf["box-input-form"]}`}>
+                        <label htmlFor="tc" className="form-label">V<sub>đh</sub></label>
+                        <input
+                            type="text"
+                            className="form-control"
+                            value={Math.round((Number(formState.V2) - Number(formState.V1)) * 1000000) / 1000000}
+                            disabled={true}
+                        />
+                    </div>
                 </div>
 
                 <div className="col-12 col-md-6">
@@ -267,21 +280,28 @@ export default function TinhSaiSoForm({ tabFormName, className, formValue, readO
                             name={tabFormName + "-c-3"}
                         />
                     </div>
-                </div>
 
-                <div className="mb-3 w-100">
-                    <div className={`${ecf["box-input-form"]}`}>
-                        <h5 className="mb-2">Sai số:</h5>
-                        <input type="text" className="form-control p-3" id={ecf["errNum"]} value={saiSo || "0%"} disabled readOnly />
+                    <div className={`mb-3 ${ecf["box-input-form"]}`}>
+                        <label htmlFor="tc" className="form-label">V<sub>c</sub></label>
+                        <input
+                            type="text"
+                            className="form-control"
+                            value={Math.round((Number(formState.Vc2) - Number(formState.Vc1)) * 1000000) / 1000000}
+                            disabled={true}
+                        />
                     </div>
                 </div>
-                <div className={`${ecf["box-button"]} ${readOnly || isDisable ? "d-none" : ""}`}>
-                    <button aria-label="Lưu kết quả" type="button" className={`w-100 btn py-2 d-none btn-success ${ecf["btn-save"]}`} disabled={saiSo === "0%"}>
-                        Lưu kết quả
-                    </button>
-                    <button aria-label="Nhập lại" type="reset" onClick={handleReset} className="btn py-2 btn-secondary">
-                        Nhập lại
-                    </button>
+
+                <div className="w-100">
+                    <div className={`${ecf["box-input-form"]}`}>
+                        <h5 className="mb-2">Sai số:</h5>
+                        <input type="text" className="form-control p-3" id={ecf["errNum"]} value={saiSo || "0%"} disabled />
+                    </div>
+                    <div className=" d-flex justify-content-end">
+                        <button aria-label="Nhập lại" type="reset" onClick={handleReset} className="btn mt-2 py-2 btn-secondary">
+                            Nhập lại
+                        </button>
+                    </div>
                 </div>
             </form>
         </div>
