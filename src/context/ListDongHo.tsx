@@ -109,6 +109,8 @@ export const DongHoListProvider = ({ dbName, children }: DongHoListProviderProps
                 return Array.from({ length: amount }, (_, i) => ({
                     is_hieu_chuan: isHieuChuan.current,
 
+                    ma_quan_ly: null,
+
                     ket_qua_check_vo_ngoai: null,
                     ghi_chu_vo_ngoai: null,
 

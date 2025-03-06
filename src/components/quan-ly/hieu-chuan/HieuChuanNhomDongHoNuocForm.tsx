@@ -17,7 +17,6 @@ import { useUser } from "@/context/AppContext";
 
 import CreatableSelect from 'react-select/creatable';
 import Select, { GroupBase } from 'react-select';
-import Link from "next/link";
 import Swal from "sweetalert2";
 import { useRouter } from "next/navigation";
 import dayjs, { Dayjs } from "dayjs";
@@ -29,12 +28,11 @@ import {
     TITLE_LUU_LUONG, typeOptions
 } from "@lib/system-constant";
 
-import { faArrowLeft, faArrowRight, faChevronLeft, faChevronRight, faSave } from "@fortawesome/free-solid-svg-icons";
-import { DongHo, PDMData } from "@lib/types";
+import { faArrowLeft, faChevronLeft, faChevronRight, faSave } from "@fortawesome/free-solid-svg-icons";
+import { DongHo } from "@lib/types";
 import { useDongHoList } from "@/context/ListDongHo";
 
 import dynamic from "next/dynamic";
-import { getPDMByMaTimDongHoPDM } from "@/app/api/pdm/route";
 import api from "@/app/api/route";
 
 

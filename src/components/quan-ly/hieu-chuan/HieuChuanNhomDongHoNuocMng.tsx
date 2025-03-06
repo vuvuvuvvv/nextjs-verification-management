@@ -35,7 +35,7 @@ interface HieuChuanNhomDongHoNuocMngProps {
 }
 
 export default function HieuChuanNhomDongHoNuocMng({ className, setSelectedGroupId }: HieuChuanNhomDongHoNuocMngProps) {
-    const { user, isAdmin, isSuperAdmin, isViewer } = useUser();
+    const { isViewer } = useUser();
     const [data, setRootData] = useState<NhomDongHo[]>([]);
     const rootData = useRef<NhomDongHo[]>([]);
 

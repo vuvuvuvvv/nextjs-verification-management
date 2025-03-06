@@ -182,6 +182,7 @@ export type DuLieuChayDongHo = Record<string, DuLieuChayDiemLuuLuong | null>;
 
 export interface DongHo {
     is_hieu_chuan?: boolean,
+    ma_quan_ly?: string | null,
 
     ket_qua_check_vo_ngoai: boolean | null,
     ghi_chu_vo_ngoai: string | null,

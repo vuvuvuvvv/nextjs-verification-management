@@ -20,7 +20,7 @@ import { usePathname } from "next/navigation";
 import dynamic from "next/dynamic";
 import Navbar from "@/components/Navbar";
 import { ACCESS_LINKS } from "@lib/system-constant";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 const routeTitles: { [key: string]: string } = {
     ...Object.fromEntries(
@@ -32,7 +32,17 @@ const routeTitles: { [key: string]: string } = {
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode; }>) {
     const pathname = usePathname();
-    const [show, setShow] = useState(false     );
+    const [show, setShow] = useState<boolean>(() => {
+        if (typeof window !== "undefined") {
+            return localStorage.getItem("sidebar") === "open";
+        }
+        return false;
+    });
+
+    useEffect(() => {
+        localStorage.setItem("sidebar", show ? "open" : "closed");
+    }, [show]);
+    
     const title = routeTitles[pathname] || routeTitles[pathname.slice(0, pathname.lastIndexOf('/'))] || "DHT - Quản Lý Kiểm Định";
     return (
         <>

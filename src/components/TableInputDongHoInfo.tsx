@@ -32,7 +32,8 @@ const InfoFieldTitle = {
     hieu_luc_bien_ban: "Hiệu lực biên bản",
     k_factor: "Hệ số K",
     ket_qua_check_vo_ngoai: "Kết quả kiếm tra vỏ ngoài",
-    ghi_chu_vo_ngoai: "Ghi chú vỏ ngoài"
+    ghi_chu_vo_ngoai: "Ghi chú vỏ ngoài",
+    ma_quan_ly: "Mã quản lý"
 };
 
 type InfoField = {
@@ -44,6 +45,7 @@ type InfoField = {
     hieu_luc_bien_ban?: Date | null;
     ket_qua_check_vo_ngoai?: boolean;
     ghi_chu_vo_ngoai?: string | null;
+    ma_quan_ly?: string | null;
 };
 
 const TableDongHoInfo: React.FC<TableDongHoInfoProps> = React.memo(({
@@ -128,16 +130,20 @@ const TableDongHoInfo: React.FC<TableDongHoInfoProps> = React.memo(({
         [dongHoList, errorsList, setLoading]
     );
 
-    const handleVoNgoaiChange = React.useCallback((
+    const handleOtherFieldChange = React.useCallback((
         index: number,
-        field: "ket_qua_check_vo_ngoai" | "ghi_chu_vo_ngoai",
+        field: "ket_qua_check_vo_ngoai" | "ghi_chu_vo_ngoai" | "ma_quan_ly",
         value: boolean | string
     ) => {
         const updatedDongHoList = [...dongHoList];
         if (field == "ket_qua_check_vo_ngoai" && typeof (value) == "boolean") {
             updatedDongHoList[index].ket_qua_check_vo_ngoai = value;
-        } else {
+        } 
+        if (field == "ghi_chu_vo_ngoai" && typeof (value) == "string") {
             updatedDongHoList[index].ghi_chu_vo_ngoai = value.toString();
+        }
+        if (field == "ma_quan_ly" && typeof (value) == "string") {
+            updatedDongHoList[index].ma_quan_ly = value.toString();
         }
         setDongHoList(updatedDongHoList);
     },
@@ -244,6 +250,7 @@ const TableDongHoInfo: React.FC<TableDongHoInfoProps> = React.memo(({
                                 </div>
                             </th>
                         }
+                        {isHieuChuan && <th rowSpan={2}>Mã quản lý</th>}
                         {/* <th>
                             <div className={`${c_tbIDHInf['table-label']}`}>
                                 <span>
@@ -286,7 +293,7 @@ const TableDongHoInfo: React.FC<TableDongHoInfoProps> = React.memo(({
                             const objHss = duLieuKiemDinh ? duLieuKiemDinh.hieu_sai_so : null;
                             const objMf = duLieuKiemDinh ? duLieuKiemDinh.mf : null;
 
-                            const isDHDienTu = Boolean((dongHo.ccx && ["1", "2"].includes(dongHo.ccx)) || dongHo.kieu_thiet_bi == "Điện tử");
+                            // const isDHDienTu = Boolean((dongHo.ccx && ["1", "2"].includes(dongHo.ccx)) || dongHo.kieu_thiet_bi == "Điện tử");
 
                             rows.push(
                                 <tr key={index}>
@@ -321,7 +328,7 @@ const TableDongHoInfo: React.FC<TableDongHoInfoProps> = React.memo(({
                                         <td>
                                             <ToggleSwitchButton
                                                 value={dongHo.ket_qua_check_vo_ngoai ?? false}
-                                                onChange={(value: boolean) => handleVoNgoaiChange(index, "ket_qua_check_vo_ngoai", value)}
+                                                onChange={(value: boolean) => handleOtherFieldChange(index, "ket_qua_check_vo_ngoai", value)}
                                                 disabled={savedDongHoList.some(dh => JSON.stringify(dh) == JSON.stringify(dongHo)) || savedDongHoList.length == dongHoList.length}
                                             />
                                         </td>}
@@ -373,6 +380,16 @@ const TableDongHoInfo: React.FC<TableDongHoInfoProps> = React.memo(({
                                             />
                                         </td>
                                     }
+
+                                    {isHieuChuan && <td>
+                                        <InputField
+                                            index={index}
+                                            onChange={(value) => handleOtherFieldChange(index, "ma_quan_ly", value)}
+                                            disabled={savedDongHoList.some(dh => JSON.stringify(dh) == JSON.stringify(dongHo)) || savedDongHoList.length == dongHoList.length}
+                                            name={`ma_quan_ly`}
+                                        />
+                                    </td>}
+
                                     {/* <td> */}
                                     {/* {dayjs(dongHo.hieu_luc_bien_ban).format('DD-MM-YYYY').toString()} */}
                                     {/* {dongHo.hieu_luc_bien_ban?.toString() || ""} */}
@@ -387,21 +404,21 @@ const TableDongHoInfo: React.FC<TableDongHoInfoProps> = React.memo(({
                                         /> */}
                                     {/* </td> */}
                                     <td>
-                                        {objHss[0].hss != null ? objHss[0].hss + "%" : <span className="text-secondary">-</span>}
+                                        {objHss && objHss[0] && objHss[0].hss != null ? objHss[0].hss + "%" : <span className="text-secondary">-</span>}
                                     </td>
                                     {isHieuChuan && <td>
                                         {objMf && objMf[0].mf != null ? objMf[0].mf : <span className="text-secondary">-</span>}
                                     </td>}
 
                                     <td>
-                                        {objHss[1].hss != null ? objHss[1].hss + "%" : <span className="text-secondary">-</span>}
+                                        {objHss && objHss[1] && objHss[1].hss != null ? objHss[1].hss + "%" : <span className="text-secondary">-</span>}
                                     </td>
                                     {isHieuChuan && <td>
                                         {objMf && objMf[1].mf != null ? objMf[1].mf : <span className="text-secondary">-</span>}
                                     </td>}
 
                                     <td>
-                                        {objHss[2].hss != null ? objHss[2].hss + "%" : <span className="text-secondary">-</span>}
+                                        {objHss && objHss[2] && objHss[2].hss != null ? objHss[2].hss + "%" : <span className="text-secondary">-</span>}
                                     </td>
                                     {isHieuChuan && <td>
                                         {objMf && objMf[2].mf != null ? objMf[2].mf : <span className="text-secondary">-</span>}

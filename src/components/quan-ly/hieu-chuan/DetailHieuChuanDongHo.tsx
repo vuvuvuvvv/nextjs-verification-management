@@ -173,7 +173,7 @@ export default function DetailHieuChuanDongHo({ dongHo }: DetailHieuChuanDongHoP
                     </Link>
                     {ketQua != null && <>
                         <span style={{ cursor: "unset" }} className={`btn bg-grey text-white rounded-start rounded-end-0 ${(dongHo.so_giay_chung_nhan && dongHo.so_tem && ketQua == true) || (ketQua == false) ? "d-inline" : "d-none"}`}><FontAwesomeIcon icon={faDownload}></FontAwesomeIcon> Nhiều:</span>
-                        <button aria-label="Tải hiệu chuẩn" className={`btn bg-main-green rounded-0 ${(dongHo.so_giay_chung_nhan && dongHo.so_tem && ketQua == true) ? "" : "rounded-end"} text-white ${(dongHo.so_giay_chung_nhan && dongHo.so_tem && ketQua == true) || (ketQua == false) ? "d-inline" : "d-none"}`} onClick={handleDownloadHC}>
+                        <button aria-label="Tải hiệu chuẩn" disabled className={`btn bg-main-green rounded-0 ${(dongHo.so_giay_chung_nhan && dongHo.so_tem && ketQua == true) ? "" : "rounded-end"} text-white ${(dongHo.so_giay_chung_nhan && dongHo.so_tem && ketQua == true) || (ketQua == false) ? "d-inline" : "d-none"}`} onClick={handleDownloadHC}>
                             <FontAwesomeIcon icon={faFileExcel} className="me-1"></FontAwesomeIcon> Hiệu chuẩn
                         </button>
                     </>}
@@ -181,21 +181,37 @@ export default function DetailHieuChuanDongHo({ dongHo }: DetailHieuChuanDongHoP
                 <div className="w-100 bg-white px-3 px-md-5 py-3">
                     <h4 className="fs-4 text-center text-uppercase">Chi tiết hiệu chuẩn</h4>
                     <div className="row">
-                        <div className="col-12">
-                            <p>Số giấy: <b>{dongHo.so_giay_chung_nhan && dongHo.ngay_thuc_hien ? getFullSoGiayCN(dongHo.so_giay_chung_nhan, dongHo.ngay_thuc_hien, true) : "Chưa có số giấy"}</b></p>
-                        </div>
-                        <div className="col-12">
-                            <p>Số tem: <b>{dongHo.so_tem ? dongHo.so_tem : "Chưa có số tem"}</b></p>
-                        </div>
-                        <div className="col-12">
-                            <p>Tên đồng hồ: <b>{dongHo.ten_dong_ho || "Chưa có tên đồng hồ"}</b></p>
-                        </div>
-                        <div className="col-12">
-                            <p>Tên phương tiện đo: <b>{dongHo.phuong_tien_do || "Chưa có tên phương tiện đo"}</b></p>
-                        </div>
-                        <div className="col-12">
-                            <p>Nơi sản xuất: <b>{dongHo.co_so_san_xuat || "Chưa có nơi sản xuất"}</b></p>
-                        </div>
+                        {dongHo.so_giay_chung_nhan && dongHo.ngay_thuc_hien && (
+                            <div className="col-12">
+                                <p>Số giấy: <b>{getFullSoGiayCN(dongHo.so_giay_chung_nhan, dongHo.ngay_thuc_hien, true)}</b></p>
+                            </div>
+                        )}
+                        {dongHo.so_tem && (
+                            <div className="col-12">
+                                <p>Số tem: <b>{dongHo.so_tem}</b></p>
+                            </div>
+                        )}
+                        {dongHo.ten_dong_ho && (
+                            <div className="col-12">
+                                <p>Tên đồng hồ: <b>{dongHo.ten_dong_ho}</b></p>
+                            </div>
+                        )}
+                        {dongHo.phuong_tien_do && (
+                            <div className="col-12">
+                                <p>Tên phương tiện đo: <b>{dongHo.phuong_tien_do}</b></p>
+                            </div>
+                        )}
+                        {dongHo.co_so_san_xuat && (
+                            <div className="col-12 col-md-6">
+                                <p>Nơi sản xuất: <b>{dongHo.co_so_san_xuat}</b></p>
+                            </div>
+                        )}
+                        {dongHo.ma_quan_ly && (
+                            <div className="col-12 col-md-6">
+                                <p>Mã quản lý: <b>{dongHo.ma_quan_ly}</b></p>
+                            </div>
+                        )}
+
                         {(dongHo.kieu_sensor || dongHo.seri_sensor || dongHo.kieu_chi_thi || dongHo.seri_chi_thi)
                             && <div className="col-12 row mb-3">
                                 <p className="m-0">Kiểu sản xuất:</p>
@@ -210,57 +226,59 @@ export default function DetailHieuChuanDongHo({ dongHo }: DetailHieuChuanDongHoP
                             </div>
                         }
                     </div>
-                    <div className="row mb-3">
-                        <div className="col-12 col-md-4">
-                            <span>Đặc trưng kỹ thuật đo lường:</span>
-                        </div>
-                        <div className="col-12 col-md-8 px-4 px-md-0">
-                            <ul className="list-unstyled m-0 p-0">
-                                <li>- Đường kính danh định: <b>DN ={dongHo.dn || 0}</b> mm</li>
-                                <li>- Lưu lượng danh định: {dongHo.q3 ? <b>Q3= {dongHo.q3 || 0}</b> : <b>Qn= {dongHo.qn || 0}</b>} m<sup>3</sup>/h</li>
-                                <li>- Cấp chính xác: <b>{dongHo.ccx || "Chưa có cấp chính xác"}</b></li>
-                            </ul>
-                        </div>
-                    </div>
-                    <div className="row mb-3">
-                        <p>Cơ sở sử dụng: <b>{dongHo.noi_su_dung || "Chưa có cơ sở sử dụng"}</b></p>
-                    </div>
-                    <div className="row mb-3">
-                        <p>Phương pháp thực hiện: <b>{dongHo.phuong_phap_thuc_hien || "Chưa có phương pháp thực hiện"}</b></p>
-                        <p>Chuẩn được sử dụng: <b>{dongHo.chuan_thiet_bi_su_dung || "Chưa có chuẩn thiết bị sử dụng"}</b></p>
-                    </div>
-                    <div className="row mb-3">
-                        <div className="col-6">
-                            <p>Người thực hiện: <b className="text-uppercase">{dongHo.nguoi_thuc_hien || "Chưa có người thực hiện"}</b></p>
-                        </div>
-                        <div className="col-6">
-                            <p>Ngày thực hiện: <b>{dayjs(dongHo.ngay_thuc_hien).format("DD/MM/YYYY")}</b></p>
-                        </div>
-                        <div className="col-12">
-                            <p>Địa điểm thực hiện: <b>{dongHo.noi_thuc_hien || "Chưa có địa điểm thực hiện"}</b></p>
-                        </div>
-                    </div>
-                    <div className="w-100 mb-3">
-                        <p className="fs-5 fw-bold text-center text-uppercase m-0">Kết quả kiểm tra</p>
-                        <div className="w-100 m-0 p-0 row mb-3">
-                            <div className="col-12 col-md-5 col-lg-4 m-0 p-0">
-                                <span>1. Kết quả kiểm tra bên ngoài:</span>
+                    {(dongHo.dn || dongHo.q3 || dongHo.ccx || dongHo.k_factor)
+                        && <div className="row mb-3">
+                            <div className="col-12 col-md-4">
+                                <span>Đặc trưng kỹ thuật đo lường:</span>
                             </div>
-                            <div className="col-12 col-md-7 col-lg-8 px-4 px-md-0">
+                            <div className="col-12 col-md-8 px-4 px-md-0">
                                 <ul className="list-unstyled m-0 p-0">
-                                    <li>- Nhãn hiệu: <b>Đạt</b></li>
-                                    <li>- Phụ kiện: <b>Đạt</b></li>
-                                    <li>- Bộ phận chỉ thị: <b>Đạt</b></li>
+                                    {dongHo.dn && (
+                                        <li>- Đường kính danh định: <b>DN = {dongHo.dn}</b> mm</li>
+                                    )}
+                                    {(dongHo.q3 || dongHo.qn) && (
+                                        <li>- Lưu lượng danh định: {dongHo.q3 ? <b>Q3 = {dongHo.q3}</b> : <b>Qn = {dongHo.qn}</b>} m<sup>3</sup>/h</li>
+                                    )}
+                                    {dongHo.ccx && (
+                                        <li>- Cấp chính xác: <b>{dongHo.ccx}</b></li>
+                                    )}
+                                    {dongHo.k_factor && (
+                                        <li>- Hệ số K: <b>{dongHo.k_factor}</b></li>
+                                    )}
                                 </ul>
                             </div>
+                        </div>}
+                    {dongHo.noi_su_dung && (
+                        <div className="row mb-3">
+                            <p>Cơ sở sử dụng: <b>{dongHo.noi_su_dung}</b></p>
                         </div>
-                        <p className="m-0">2. Kết quả kiểm tra kỹ thuật:</p>
-                        <div className="w-100 mb-3 px-4 px-md-5">
-                            <ul className="list-unstyled m-0 p-0">
-                                <li>- Kiểm tra khả năng hoạt động của hệ thống: <b>{ketQua ? "Đạt" : "Không đạt"}</b></li>
-                            </ul>
+                    )}
+                    {(dongHo.phuong_phap_thuc_hien || dongHo.chuan_thiet_bi_su_dung) && (
+                        <div className="row mb-3">
+                            {dongHo.phuong_phap_thuc_hien && (
+                                <p>Phương pháp thực hiện: <b>{dongHo.phuong_phap_thuc_hien}</b></p>
+                            )}
+                            {dongHo.chuan_thiet_bi_su_dung && (
+                                <p>Chuẩn được sử dụng: <b>{dongHo.chuan_thiet_bi_su_dung}</b></p>
+                            )}
                         </div>
-                        <p>3. Kết quả kiểm tra đo lường: </p>
+                    )}
+                    {(dongHo.so_tem || dongHo.hieu_luc_bien_ban) && (
+                        <div className="row mb-3">
+                            {dongHo.so_tem && (
+                                <div className="col-6">
+                                    <p>Người thực hiện: <b className="text-uppercase">{dongHo.nguoi_thuc_hien}</b></p>
+                                </div>
+                            )}
+                            {dongHo.hieu_luc_bien_ban && (
+                                <div className="col-6">
+                                    <p>Ngày hiệu chuẩn đề nghị: <b>{dayjs(dongHo.hieu_luc_bien_ban).format("DD/MM/YYYY")}</b></p>
+                                </div>
+                            )}
+                        </div>
+                    )}
+                    <div className="w-100 mb-3">
+                        <p className="fs-5 fw-bold text-center text-uppercase m-0">Kết quả:</p>
                         <div className={`${dtp.wrapper} w-100`}>
                             <table>
                                 <thead>
@@ -307,6 +325,25 @@ export default function DetailHieuChuanDongHo({ dongHo }: DetailHieuChuanDongHoP
                             </table>
                         </div>
                     </div>
+                    {(dongHo.nguoi_thuc_hien || dongHo.ngay_thuc_hien || dongHo.noi_thuc_hien) && (
+                        <div className="row mb-3">
+                            {dongHo.nguoi_thuc_hien && (
+                                <div className="col-6">
+                                    <p>Người thực hiện: <b className="text-uppercase">{dongHo.nguoi_thuc_hien}</b></p>
+                                </div>
+                            )}
+                            {dongHo.ngay_thuc_hien && (
+                                <div className="col-6">
+                                    <p>Ngày thực hiện: <b>{dayjs(dongHo.ngay_thuc_hien).format("DD/MM/YYYY")}</b></p>
+                                </div>
+                            )}
+                            {dongHo.noi_thuc_hien && (
+                                <div className="col-12">
+                                    <p>Địa điểm thực hiện: <b>{dongHo.noi_thuc_hien}</b></p>
+                                </div>
+                            )}
+                        </div>
+                    )}
                 </div>
             </div>
         ) :

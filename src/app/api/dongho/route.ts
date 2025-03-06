@@ -310,6 +310,7 @@ export const getDongHoExistsByInfo = async (info: string) => {
 
 export const createDongHo = async (dongho: DongHo) => {
     try {
+        console.log(dongho.du_lieu_kiem_dinh);
         const response = await api.post(API_DONGHO_URL, dongho, { withCredentials: true });
 
         if (response.status == 201) {
@@ -412,6 +413,7 @@ export const createMultDongHoPermission = async (data: {permissions: { id: strin
 
 export const updateDongHo = async (dongho: DongHo) => {
     try {
+        console.log(dongho.du_lieu_kiem_dinh);
         const response = await api.put(API_DONGHO_URL + "/" + dongho.id, dongho, { withCredentials: true });
 
         if (response.status == 200) {

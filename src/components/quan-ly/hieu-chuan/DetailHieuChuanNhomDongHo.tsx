@@ -116,7 +116,7 @@ export default function DetailHieuChuanNhomDongHo({ nhomDongHo }: DetailHieuChua
 
     const handleDownloadBB = async (dongHo: DongHo) => {
         // TODO
-        return 
+        return
         if (dongHo.id) {
             const result = await downloadHC(dongHo);
             setMessage(result.msg);
@@ -284,7 +284,7 @@ export default function DetailHieuChuanNhomDongHo({ nhomDongHo }: DetailHieuChua
                         <FontAwesomeIcon icon={faEdit}></FontAwesomeIcon> All
                     </Link>
                     <span style={{ cursor: "unset" }} className="m-0 btn border-0 py-2 bg-grey text-white rounded-end-0"><FontAwesomeIcon icon={faDownload}></FontAwesomeIcon> Nhiều:</span>
-                    <button aria-label="Tải hiệu chuẩn" className="btn bg-main-green rounded-0 border-0 rounded-end py-2 text-white" onClick={handleMultDownloadHC}>
+                    <button disabled aria-label="Tải hiệu chuẩn" className="btn bg-main-green rounded-0 border-0 rounded-end py-2 text-white" onClick={handleMultDownloadHC}>
                         <FontAwesomeIcon icon={faFileExcel} className="me-1"></FontAwesomeIcon> Hiệu chuẩn
                     </button>
                 </div>
@@ -292,19 +292,27 @@ export default function DetailHieuChuanNhomDongHo({ nhomDongHo }: DetailHieuChua
                     <div className="px-4 px-md-5">
                         <h4 className="text-center text-uppercase">Chi tiết hiệu chuẩn nhóm đồng hồ</h4>
                         <div className="row mb-3">
-                            <div className="col-12">
-                                <p>Mã nhóm đồng hồ: <b>{generalInfo.group_id || "Không có mã nhóm"}</b>
-                                </p>
-                            </div>
-                            <div className="col-12">
-                                <p>Tên đồng hồ: <b>{generalInfo.ten_dong_ho || "Chưa có tên đồng hồ"}</b></p>
-                            </div>
-                            <div className="col-12">
-                                <p>Tên phương tiện đo: <b>{generalInfo.phuong_tien_do || "Chưa có tên phương tiện đo"}</b></p>
-                            </div>
-                            <div className="col-12">
-                                <p>Nơi sản xuất: <b>{generalInfo.co_so_san_xuat || "Chưa có nơi sản xuất"}</b></p>
-                            </div>
+                            {generalInfo.group_id && (
+                                <div className="col-12">
+                                    <p>Mã nhóm đồng hồ: <b>{generalInfo.group_id || "Không có mã nhóm"}</b>
+                                    </p>
+                                </div>
+                            )}
+                            {generalInfo.ten_dong_ho && (
+                                <div className="col-12">
+                                    <p>Tên đồng hồ: <b>{generalInfo.ten_dong_ho}</b></p>
+                                </div>
+                            )}
+                            {generalInfo.phuong_tien_do && (
+                                <div className="col-12">
+                                    <p>Tên phương tiện đo: <b>{generalInfo.phuong_tien_do}</b></p>
+                                </div>
+                            )}
+                            {generalInfo.co_so_san_xuat && (
+                                <div className="col-12 col-md-6">
+                                    <p>Nơi sản xuất: <b>{generalInfo.co_so_san_xuat}</b></p>
+                                </div>
+                            )}
                             {(generalInfo.kieu_sensor || generalInfo.kieu_chi_thi) && <div className="col-12 mb-3">
                                 <p className="m-0">Kiểu sản xuất:</p>
                                 <div className="w-100 row m-0 px-3">
@@ -314,36 +322,59 @@ export default function DetailHieuChuanNhomDongHo({ nhomDongHo }: DetailHieuChua
                             </div>}
 
                         </div>
-                        <div className="row mb-3">
-                            <div className="col-12 col-md-4">
-                                <p>Đặc trưng kỹ thuật đo lường:</p>
+                        {(generalInfo.dn || generalInfo.q3 || generalInfo.ccx)
+                            && <div className="row mb-3">
+                                <div className="col-12 col-md-4">
+                                    <span>Đặc trưng kỹ thuật đo lường:</span>
+                                </div>
+                                <div className="col-12 col-md-8 px-4 px-md-0">
+                                    <ul className="list-unstyled m-0 p-0">
+                                        {generalInfo.dn && (
+                                            <li>- Đường kính danh định: <b>DN = {generalInfo.dn}</b> mm</li>
+                                        )}
+                                        {(generalInfo.q3 || generalInfo.qn) && (
+                                            <li>- Lưu lượng danh định: {generalInfo.q3 ? <b>Q3 = {generalInfo.q3}</b> : <b>Qn = {generalInfo.qn}</b>} m<sup>3</sup>/h</li>
+                                        )}
+                                        {generalInfo.ccx && (
+                                            <li>- Cấp chính xác: <b>{generalInfo.ccx}</b></li>
+                                        )}
+                                    </ul>
+                                </div>
+                            </div>}
+                        {generalInfo.noi_su_dung && (
+                            <div className="row mb-3">
+                                <p>Cơ sở sử dụng: <b>{generalInfo.noi_su_dung}</b></p>
                             </div>
-                            <div className="col-12 col-md-8">
-                                <ul className="list-unstyled m-0 p-0">
-                                    <li>- Đường kính danh định: <b>DN ={generalInfo.dn || 0}</b> mm</li>
-                                    <li>- Lưu lượng danh định: {generalInfo.q3 ? <b>Q3= {generalInfo.q3 || 0}</b> : <b>Qn= {generalInfo.qn || 0}</b>} m<sup>3</sup>/h</li>
-                                    <li>- Cấp chính xác: <b>{generalInfo.ccx || "Chưa có cấp chính xác"}</b></li>
-                                </ul>
+                        )}
+                        {(generalInfo.phuong_phap_thuc_hien || generalInfo.chuan_thiet_bi_su_dung) && (
+                            <div className="row mb-3">
+                                {generalInfo.phuong_phap_thuc_hien && (
+                                    <p>Phương pháp thực hiện: <b>{generalInfo.phuong_phap_thuc_hien}</b></p>
+                                )}
+                                {generalInfo.chuan_thiet_bi_su_dung && (
+                                    <p>Chuẩn được sử dụng: <b>{generalInfo.chuan_thiet_bi_su_dung}</b></p>
+                                )}
                             </div>
-                        </div>
-                        <div className="row mb-3">
-                            <p>Cơ sở sử dụng: <b>{generalInfo.noi_su_dung || "Chưa có cơ sở sử dụng"}</b></p>
-                        </div>
-                        <div className="row mb-3">
-                            <p>Phương pháp thực hiện: <b>{generalInfo.phuong_phap_thuc_hien || "Chưa có phương pháp thực hiện"}</b></p>
-                            <p>Chuẩn được sử dụng: <b>{generalInfo.chuan_thiet_bi_su_dung || "Chưa có chuẩn thiết bị sử dụng"}</b></p>
-                        </div>
-                        <div className="row mb-3">
-                            <div className="col-6">
-                                <p>Người thực hiện: <b className="text-uppercase">{generalInfo.nguoi_thuc_hien || "Chưa có người thực hiện"}</b></p>
+                        )}
+                        {(generalInfo.nguoi_thuc_hien || generalInfo.ngay_thuc_hien || generalInfo.noi_thuc_hien) && (
+                            <div className="row mb-3">
+                                {generalInfo.nguoi_thuc_hien && (
+                                    <div className="col-6">
+                                        <p>Người thực hiện: <b className="text-uppercase">{generalInfo.nguoi_thuc_hien}</b></p>
+                                    </div>
+                                )}
+                                {generalInfo.ngay_thuc_hien && (
+                                    <div className="col-6">
+                                        <p>Ngày thực hiện: <b>{dayjs(generalInfo.ngay_thuc_hien).format("DD/MM/YYYY")}</b></p>
+                                    </div>
+                                )}
+                                {generalInfo.noi_thuc_hien && (
+                                    <div className="col-12">
+                                        <p>Địa điểm thực hiện: <b>{generalInfo.noi_thuc_hien}</b></p>
+                                    </div>
+                                )}
                             </div>
-                            <div className="col-6">
-                                <p>Ngày thực hiện: <b>{dayjs(generalInfo.ngay_thuc_hien).format("DD/MM/YYYY")}</b></p>
-                            </div>
-                            <div className="col-12">
-                                <p>Địa điểm thực hiện: <b>{generalInfo.noi_thuc_hien || "Chưa có địa điểm thực hiện"}</b></p>
-                            </div>
-                        </div>
+                        )}
                     </div>
 
                     {nhomDongHoData.current.map((dongHo, index) => {
@@ -368,6 +399,7 @@ export default function DetailHieuChuanNhomDongHo({ nhomDongHo }: DetailHieuChua
                                     {ketQua != null && <>
                                         <span style={{ cursor: "unset" }} className={`btn border-0 bg-grey text-white rounded-start rounded-end-0 ${(dongHo.so_giay_chung_nhan && dongHo.so_tem && ketQua == true) || (ketQua == false) ? "d-inline" : "d-none"}`}><FontAwesomeIcon icon={faDownload}></FontAwesomeIcon></span>
                                         <button
+                                            disabled
                                             aria-label="Tải hiệu chuẩn"
                                             className={`btn border-top-0 border-bottom-0 bg-main-green rounded-0 ${(dongHo.so_giay_chung_nhan && dongHo.so_tem && ketQua == true) ? "" : "rounded-end"} text-white ${(dongHo.so_giay_chung_nhan && dongHo.so_tem && ketQua == true) || (ketQua == false) ? "d-inline" : "d-none"}`}
                                             onClick={() => handleDownloadBB(dongHo)}>
@@ -378,6 +410,9 @@ export default function DetailHieuChuanNhomDongHo({ nhomDongHo }: DetailHieuChua
                             </div>
                             <div className="px-3 px-md-5">
                                 <div className="row px-3">
+                                    {dongHo.ma_quan_ly && <div className="col-12">
+                                        <p>Mã quản lý: <b>{dongHo.ma_quan_ly}</b></p>
+                                    </div>}
                                     <div className="col-12 m-0 p-0 col-md-6">
                                         <p>Số giấy: <b>{(dongHo.so_giay_chung_nhan) ? getFullSoGiayCN(dongHo.so_giay_chung_nhan, dongHo.ngay_thuc_hien || new Date, true) : "Không có số giấy"}</b></p>
                                     </div>
@@ -390,31 +425,15 @@ export default function DetailHieuChuanNhomDongHo({ nhomDongHo }: DetailHieuChua
                                     {dongHo.seri_chi_thi && <div className="col-12">
                                         <p>Serial chỉ thị: <b>{dongHo.seri_chi_thi}</b></p>
                                     </div>}
+                                    {dongHo.hieu_luc_bien_ban && <div className="col-12">
+                                        <p>Ngày hiệu chuẩn đề nghị: <b>{dayjs(dongHo.hieu_luc_bien_ban).format("DD/MM/YYYY")}</b></p>
+                                    </div>}
                                 </div>
                                 {nhomDuLieuKiemDinh ? (
 
                                     <div className="row mb-3">
                                         <div className="w-100 px-3">
-                                            <p className="fs-5 fw-bold text-center text-uppercase m-0">Kết quả kiểm tra</p>
-                                            <div className="w-100 m-0 p-0 row mb-3">
-                                                <div className="col-12 col-md-5 col-lg-4 col-xl-3 m-0 p-0">
-                                                    <span>1. Kết quả kiểm tra bên ngoài:</span>
-                                                </div>
-                                                <div className="col-12 col-md-7 col-lg-8 col-xl-9 px-4">
-                                                    <ul className="list-unstyled m-0 p-0">
-                                                        <li>- Nhãn hiệu: <b>Đạt</b></li>
-                                                        <li>- Phụ kiện: <b>Đạt</b></li>
-                                                        <li>- Bộ phận chỉ thị: <b>Đạt</b></li>
-                                                    </ul>
-                                                </div>
-                                            </div>
-                                            <p className="m-0">2. Kết quả kiểm tra kỹ thuật:</p>
-                                            <div className="w-100 mb-3 px-4 px-md-5">
-                                                <ul className="list-unstyled m-0 p-0">
-                                                    <li>- Kiểm tra khả năng hoạt động của hệ thống: <b>{ketQua ? "Đạt" : "Không đạt"}</b></li>
-                                                </ul>
-                                            </div>
-                                            <p>3. Kết quả kiểm tra đo lường: </p>
+                                            <p className="fs-5 fw-bold text-center text-uppercase m-0">Kết quả:</p>
                                             <div className={`${dtp.wrapper} w-100`}>
                                                 <table>
                                                     <thead>
