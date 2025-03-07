@@ -19,12 +19,10 @@ export default function NhomDongHoDetailPage({ params }: { params: { group_id: s
         const fetchData = async () => {
             try {
                 const res = await getDongHoByGroupId(params.group_id);
-                console.log(res?.data);
                 setNhomDongHoData(res?.data);
             } catch (error) {
                 console.error("Error fetching data:", error);
             } finally {
-                console.log("111")
                 setLoading(false);
             }
         };

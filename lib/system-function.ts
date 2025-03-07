@@ -223,25 +223,36 @@ export function openDB(dbName: string) {
 }
 
 
-export async function saveDongHoDataExistsToIndexedDB(dbName: string, username: string, data: DongHo[], savedData?: DongHo[]) {
-    const db = await openDB(dbName) as IDBDatabase;
+export async function saveDongHoDataExistsToIndexedDB(
+    dbName: string,
+    username: string,
+    data: DongHo[],
+    savedData?: DongHo[]
+) {
+    const db = await openDB(dbName); // Đợi database mở hoàn tất
+
     return new Promise<void>((resolve, reject) => {
-        const transaction = db.transaction(dbName, "readwrite");
+        if (!(db as IDBDatabase).objectStoreNames.contains(dbName)) {
+            reject(new Error(`Object store "${dbName}" not found in IndexedDB`));
+            return;
+        }
+
+        const transaction = (db as IDBDatabase).transaction(dbName, "readwrite");
         const store = transaction.objectStore(dbName);
 
-        const dataToStore = { id: username, dongHoList: data, savedDongHoList: (savedData && savedData.length != 0) ? savedData : [] };
+        const dataToStore = {
+            id: username,
+            dongHoList: data,
+            savedDongHoList: savedData?.length ? savedData : [],
+        };
 
         const request = store.put(dataToStore);
 
-        request.onsuccess = () => {
-            resolve();
-        };
-        request.onerror = (event) => {
-            const error = (event.target as IDBRequest).error;
-            reject(error);
-        };
+        request.onsuccess = () => resolve();
+        request.onerror = (event) => reject((event.target as IDBRequest).error);
     });
 }
+
 
 export async function getDongHoDataExistsFromIndexedDB(dbName: string, username: string): Promise<{
     dongHoList: DongHo[],

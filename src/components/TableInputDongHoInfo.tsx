@@ -138,7 +138,7 @@ const TableDongHoInfo: React.FC<TableDongHoInfoProps> = React.memo(({
         const updatedDongHoList = [...dongHoList];
         if (field == "ket_qua_check_vo_ngoai" && typeof (value) == "boolean") {
             updatedDongHoList[index].ket_qua_check_vo_ngoai = value;
-        } 
+        }
         if (field == "ghi_chu_vo_ngoai" && typeof (value) == "string") {
             updatedDongHoList[index].ghi_chu_vo_ngoai = value.toString();
         }
@@ -241,7 +241,7 @@ const TableDongHoInfo: React.FC<TableDongHoInfoProps> = React.memo(({
                                 </div>
                             </th>
                         }
-                        {["Điện tử", "Cơ - Điện từ"].includes(dongHoList[0].kieu_thiet_bi || "xx") &&
+                        {dongHoList.length > 0 && ["Điện tử", "Cơ - Điện từ"].includes(dongHoList[0].kieu_thiet_bi ?? "xx") &&
                             <th rowSpan={2}>
                                 <div className={`${c_tbIDHInf['table-label']}`}>
                                     <span>
@@ -370,7 +370,7 @@ const TableDongHoInfo: React.FC<TableDongHoInfoProps> = React.memo(({
                                             />
                                         </td>
                                     }
-                                    {["Điện tử", "Cơ - Điện từ"].includes(dongHoList[0].kieu_thiet_bi || "xx") &&
+                                    {dongHoList.length > 0 && ["Điện tử", "Cơ - Điện từ"].includes(dongHoList[0].kieu_thiet_bi ?? "xx") &&
                                         <td>
                                             <InputField
                                                 index={index}
@@ -426,7 +426,6 @@ const TableDongHoInfo: React.FC<TableDongHoInfoProps> = React.memo(({
 
                                     <td>
                                         <button onClick={() => {
-                                            console.log(index)
                                             selectDongHo(index)
                                         }} className={`btn`}>
                                             <FontAwesomeIcon icon={faEdit} className="text-blue"></FontAwesomeIcon>

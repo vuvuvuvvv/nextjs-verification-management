@@ -3,7 +3,7 @@ import { BASE_API_URL } from '@lib/system-constant';
 import { getFullNameFileDownload } from "@lib/system-function";
 import { DongHo } from "@lib/types";
 
-const API_EXPORT_URL = `${BASE_API_URL}/export`;
+const API_DOWNLOAD_URL = `${BASE_API_URL}/download`;
 
 interface DownloadResponse {
     msg: string;
@@ -13,7 +13,7 @@ interface DownloadResponse {
 
 export async function downloadBB(dongHo: DongHo): Promise<DownloadResponse> {
     try {
-        const response = await axios.get(`${API_EXPORT_URL}/kiemdinh/bienban/${dongHo.id}`, {
+        const response = await axios.get(`${API_DOWNLOAD_URL}/kiemdinh/bienban/${dongHo.id}`, {
             responseType: "blob", // Để xử lý tải xuống file
         });
 
@@ -51,7 +51,7 @@ export async function downloadBB(dongHo: DongHo): Promise<DownloadResponse> {
 
 export async function downloadGCN(dongHo: DongHo): Promise<DownloadResponse> {
     try {
-        const response = await axios.get(`${API_EXPORT_URL}/kiemdinh/gcn/${dongHo.id}`, {
+        const response = await axios.get(`${API_DOWNLOAD_URL}/kiemdinh/gcn/${dongHo.id}`, {
             responseType: "blob", // Để xử lý tải xuống file
         });
 
@@ -90,7 +90,7 @@ export async function downloadGCN(dongHo: DongHo): Promise<DownloadResponse> {
 
 export async function downloadHC(dongHo: DongHo): Promise<DownloadResponse> {
     try {
-        const response = await axios.get(`${API_EXPORT_URL}/kiemdinh/hc/${dongHo.id}`, {
+        const response = await axios.get(`${API_DOWNLOAD_URL}/kiemdinh/hc/${dongHo.id}`, {
             responseType: "blob", // Để xử lý tải xuống file
         });
 

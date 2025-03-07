@@ -9,7 +9,7 @@ import Swal from "sweetalert2";
 import { DongHo } from "@lib/types";
 import { deleteDongHoDataFromIndexedDB, getDongHoDataExistsFromIndexedDB } from "@lib/system-function";
 import { useUser } from "@/context/AppContext";
-import { INDEXED_DB_KIEM_DINH_NAME } from "@lib/system-constant";
+import { INDEXED_DB_HIEU_CHUAN_NAME } from "@lib/system-constant";
 
 const KiemDinhNhomDongHoNuocForm = dynamic(() => import("@/components/quan-ly/hieu-chuan/HieuChuanNhomDongHoNuocForm"), { ssr: false });
 
@@ -46,7 +46,7 @@ export default function AddNewDongHoNuoc({ className }: AddNewDongHoNuocProps) {
 
     const deleteOldData = () => {
         if (user && user.username) {
-            deleteDongHoDataFromIndexedDB(INDEXED_DB_KIEM_DINH_NAME, user.username);
+            deleteDongHoDataFromIndexedDB(INDEXED_DB_HIEU_CHUAN_NAME, user.username);
             setOldDongHoData([]);
         }
     }
@@ -55,7 +55,7 @@ export default function AddNewDongHoNuoc({ className }: AddNewDongHoNuocProps) {
         const fetchDongHoData = async () => {
             if (user && user.username) {
                 try {
-                    const data = await getDongHoDataExistsFromIndexedDB(INDEXED_DB_KIEM_DINH_NAME, user.username);
+                    const data = await getDongHoDataExistsFromIndexedDB(INDEXED_DB_HIEU_CHUAN_NAME, user.username);
                     if (data) {
                         setOldDongHoData(data?.dongHoList || []);
                         setOldDongHoSavedData(data?.savedDongHoList || [])

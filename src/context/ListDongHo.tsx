@@ -41,7 +41,6 @@ export const DongHoListProvider = ({ dbName, children }: DongHoListProviderProps
     const [isInitialization, setInitialization] = useState(true);
 
     const [amount, setAmount] = useState<number>(1)
-    const amountRef = useRef(amount);
 
     const initDongHoList: DongHo[] = Array.from({ length: amount }, (_, i) => ({
         is_hieu_chuan: isHieuChuan.current,
@@ -103,73 +102,70 @@ export const DongHoListProvider = ({ dbName, children }: DongHoListProviderProps
     const [dongHoList, setDongHoList] = useState<DongHo[]>();
 
     useEffect(() => {
-        if (amountRef.current != amount) {
-            setDongHoList(() => {
-                // Khởi tạo danh sách với số lượng dongHo
-                return Array.from({ length: amount }, (_, i) => ({
-                    is_hieu_chuan: isHieuChuan.current,
+        setDongHoList(() => {
+            // Khởi tạo danh sách với số lượng dongHo
+            return Array.from({ length: amount }, (_, i) => ({
+                is_hieu_chuan: isHieuChuan.current,
 
-                    ma_quan_ly: null,
+                ma_quan_ly: null,
 
-                    ket_qua_check_vo_ngoai: null,
-                    ghi_chu_vo_ngoai: null,
+                ket_qua_check_vo_ngoai: null,
+                ghi_chu_vo_ngoai: null,
 
-                    index: i + 1,
+                index: i + 1,
 
-                    id: null,
-                    group_id: "",
-                    ten_dong_ho: "",
-                    phuong_tien_do: "",
-                    seri_chi_thi: "",
-                    seri_sensor: "",
-                    kieu_chi_thi: "",
-                    kieu_sensor: "",
-                    kieu_thiet_bi: "",
-                    co_so_san_xuat: "",
-                    so_tem: "",
-                    nam_san_xuat: null,
-                    dn: "",
-                    d: "",
-                    ccx: null,
-                    q3: "",
-                    r: "",
-                    qn: "",
-                    k_factor: "",
-                    so_qd_pdm: "",
-                    ten_khach_hang: "",
-                    co_so_su_dung: "",
-                    noi_thuc_hien: "",
-                    phuong_phap_thuc_hien: "ĐLVN 17 : 2017",
-                    chuan_thiet_bi_su_dung: "Đồng hồ chuẩn đo nước và Bình chuẩn",
-                    nguoi_thuc_hien: "",
-                    nguoi_soat_lai: "",
-                    ngay_thuc_hien: new Date(),
-                    noi_su_dung: DEFAULT_LOCATION,
-                    vi_tri: "",
-                    nhiet_do: "",
-                    do_am: "",
-                    du_lieu_kiem_dinh: JSON.stringify({
-                        hieu_sai_so: [
-                            { hss: null },
-                            { hss: null },
-                            { hss: null }
-                        ],
-                        du_lieu: {
-                            [TITLE_LUU_LUONG.q3]: null,
-                            [TITLE_LUU_LUONG.q2]: null,
-                            [TITLE_LUU_LUONG.q1]: null,
-                            [TITLE_LUU_LUONG.qn]: null,
-                            [TITLE_LUU_LUONG.qt]: null,
-                            [TITLE_LUU_LUONG.qmin]: null,
-                        },
-                        ket_qua: null
-                    }),
-                    hieu_luc_bien_ban: null,
-                    so_giay_chung_nhan: "",
-                }));
-            })
-            amountRef.current = amount
-        }
+                id: null,
+                group_id: "",
+                ten_dong_ho: "",
+                phuong_tien_do: "",
+                seri_chi_thi: "",
+                seri_sensor: "",
+                kieu_chi_thi: "",
+                kieu_sensor: "",
+                kieu_thiet_bi: "",
+                co_so_san_xuat: "",
+                so_tem: "",
+                nam_san_xuat: null,
+                dn: "",
+                d: "",
+                ccx: null,
+                q3: "",
+                r: "",
+                qn: "",
+                k_factor: "",
+                so_qd_pdm: "",
+                ten_khach_hang: "",
+                co_so_su_dung: "",
+                noi_thuc_hien: "",
+                phuong_phap_thuc_hien: "ĐLVN 17 : 2017",
+                chuan_thiet_bi_su_dung: "Đồng hồ chuẩn đo nước và Bình chuẩn",
+                nguoi_thuc_hien: "",
+                nguoi_soat_lai: "",
+                ngay_thuc_hien: new Date(),
+                noi_su_dung: DEFAULT_LOCATION,
+                vi_tri: "",
+                nhiet_do: "",
+                do_am: "",
+                du_lieu_kiem_dinh: JSON.stringify({
+                    hieu_sai_so: [
+                        { hss: null },
+                        { hss: null },
+                        { hss: null }
+                    ],
+                    du_lieu: {
+                        [TITLE_LUU_LUONG.q3]: null,
+                        [TITLE_LUU_LUONG.q2]: null,
+                        [TITLE_LUU_LUONG.q1]: null,
+                        [TITLE_LUU_LUONG.qn]: null,
+                        [TITLE_LUU_LUONG.qt]: null,
+                        [TITLE_LUU_LUONG.qmin]: null,
+                    },
+                    ket_qua: null
+                }),
+                hieu_luc_bien_ban: null,
+                so_giay_chung_nhan: "",
+            }));
+        })
     }, [amount])
 
     const [savedDongHoList, setSavedDongHoList] = useState<DongHo[]>([]);
@@ -234,7 +230,7 @@ export const DongHoListProvider = ({ dbName, children }: DongHoListProviderProps
     useEffect(() => {
         if (dongHoList && dongHoList.length > 0
             && user && user.username
-            && !isInitialization
+            // && !isInitialization
             && savedDongHoList.length != dongHoList.length
             && !isEditing) {
             if (handler.current) {
@@ -282,7 +278,7 @@ export const DongHoListProvider = ({ dbName, children }: DongHoListProviderProps
     };
 
     const createListDongHo = async (listDongHo: DongHo[]): Promise<boolean> => {
-        if(!dongHoList) {
+        if (!dongHoList) {
             return Swal.fire({
                 title: 'Lỗi',
                 html: "Có lỗi đã xảy ra. Hãy thử lại sau.",

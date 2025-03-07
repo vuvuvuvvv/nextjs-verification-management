@@ -58,7 +58,7 @@ export default function DetailHieuChuanDongHo({ dongHo }: DetailHieuChuanDongHoP
         if (listKeys && duLieuKiemDinhCacLuuLuong) {
             return listKeys.map((key, index) => {
                 const value = duLieuKiemDinhCacLuuLuong[key] as DuLieuChayDiemLuuLuong;
-                if (value?.value) {
+                if (value?.value != null) {
                     let indexHead = true;
                     let jsxStart, jsxEnd;
                     const rowSpan = Object.entries(value.lan_chay).reduce((count, [keyLanChay, valueLanChay]) => {

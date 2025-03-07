@@ -114,9 +114,7 @@ export default function DetailHieuChuanNhomDongHo({ nhomDongHo }: DetailHieuChua
         setSelectedDongHo([]);
     }
 
-    const handleDownloadBB = async (dongHo: DongHo) => {
-        // TODO
-        return
+    const handleDownloadHC = async (dongHo: DongHo) => {
         if (dongHo.id) {
             const result = await downloadHC(dongHo);
             setMessage(result.msg);
@@ -124,8 +122,6 @@ export default function DetailHieuChuanNhomDongHo({ nhomDongHo }: DetailHieuChua
     }
 
     const handleMultDownloadHC = async () => {
-        // TODO:
-        return
         setTypeToDownload(DOWNLOAD_TYPE.HC);
         setShowModalSelectDongHoToDownload(true);
     }
@@ -198,7 +194,7 @@ export default function DetailHieuChuanNhomDongHo({ nhomDongHo }: DetailHieuChua
         if (listKeys && duLieu && hieuSaiSo && mf) {
             return listKeys.map((key, index) => {
                 const value = duLieu[key] as DuLieuChayDiemLuuLuong;
-                if (value?.value) {
+                if (value?.value != null) {
                     let indexHead = true;
                     let jsxStart, jsxEnd;
                     const rowSpan = Object.entries(value.lan_chay).reduce((count, [keyLanChay, valueLanChay]) => {
@@ -218,7 +214,7 @@ export default function DetailHieuChuanNhomDongHo({ nhomDongHo }: DetailHieuChua
                                                     ? "I" : ((key === TITLE_LUU_LUONG.q2 || key === TITLE_LUU_LUONG.qt)
                                                         ? "II" : "III")}
                                             </td>
-                                            <td rowSpan={rowSpan}>{key === TITLE_LUU_LUONG.q3 ? 0.3 * parseFloat(Number(value.value).toString()) : value.value}</td>
+                                            <td rowSpan={rowSpan}>{key === TITLE_LUU_LUONG.q3 ? 0.3 * parseFloat(Number(value.value).toString()) : (value.value == 0 ? "-" : value.value)}</td>
                                         </>;
                                         const getmf = mf ? mf[
                                             [TITLE_LUU_LUONG.q1, TITLE_LUU_LUONG.qmin].includes(key)
@@ -284,7 +280,7 @@ export default function DetailHieuChuanNhomDongHo({ nhomDongHo }: DetailHieuChua
                         <FontAwesomeIcon icon={faEdit}></FontAwesomeIcon> All
                     </Link>
                     <span style={{ cursor: "unset" }} className="m-0 btn border-0 py-2 bg-grey text-white rounded-end-0"><FontAwesomeIcon icon={faDownload}></FontAwesomeIcon> Nhiều:</span>
-                    <button disabled aria-label="Tải hiệu chuẩn" className="btn bg-main-green rounded-0 border-0 rounded-end py-2 text-white" onClick={handleMultDownloadHC}>
+                    <button aria-label="Tải hiệu chuẩn" className="btn bg-main-green rounded-0 border-0 rounded-end py-2 text-white" onClick={handleMultDownloadHC}>
                         <FontAwesomeIcon icon={faFileExcel} className="me-1"></FontAwesomeIcon> Hiệu chuẩn
                     </button>
                 </div>
@@ -399,10 +395,9 @@ export default function DetailHieuChuanNhomDongHo({ nhomDongHo }: DetailHieuChua
                                     {ketQua != null && <>
                                         <span style={{ cursor: "unset" }} className={`btn border-0 bg-grey text-white rounded-start rounded-end-0 ${(dongHo.so_giay_chung_nhan && dongHo.so_tem && ketQua == true) || (ketQua == false) ? "d-inline" : "d-none"}`}><FontAwesomeIcon icon={faDownload}></FontAwesomeIcon></span>
                                         <button
-                                            disabled
                                             aria-label="Tải hiệu chuẩn"
                                             className={`btn border-top-0 border-bottom-0 bg-main-green rounded-0 ${(dongHo.so_giay_chung_nhan && dongHo.so_tem && ketQua == true) ? "" : "rounded-end"} text-white ${(dongHo.so_giay_chung_nhan && dongHo.so_tem && ketQua == true) || (ketQua == false) ? "d-inline" : "d-none"}`}
-                                            onClick={() => handleDownloadBB(dongHo)}>
+                                            onClick={() => handleDownloadHC(dongHo)}>
                                             <FontAwesomeIcon icon={faFileExcel} className="me-1"></FontAwesomeIcon> Hiệu chuẩn
                                         </button>
                                     </>}
