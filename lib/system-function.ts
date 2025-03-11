@@ -1,27 +1,29 @@
 import dayjs from "dayjs";
-import { DongHo, DuLieuMotLanChay, TinhSaiSoValueTabs } from "./types";
+import { DongHo, DuLieuMotLanChay, PDMData, TinhSaiSoValueTabs } from "./types";
+import { getAllDongHoNamesExist } from "@/app/api/dongho/route";
+import { INDEXED_DB_NAME, PERMISSION_TITLES, PERMISSION_VALUES, PERMISSIONS, TITLE_LUU_LUONG } from "./system-constant";
 
 export const getSaiSoDongHo = (formValue: DuLieuMotLanChay) => {
     if (formValue) {
-
-        if (formValue.V2 == 0 && formValue.V1 == 0 && formValue.Vc2 == 0 && formValue.Vc1 == 0) return null;
+        if ((formValue.V2 == 0 && formValue.V1 == 0) || (formValue.V2 - formValue.V1 <= 0)) {
+            return null;
+        };
 
         const VDHCT = formValue.V2 - formValue.V1;
-        const VDHC = formValue.Vc2 - formValue.Vc1;
+        const VDHC = parseFloat(formValue.Vc2.toString()) - parseFloat(formValue.Vc1.toString());
         if (VDHC !== 0) {
             const error = ((VDHCT - VDHC) / VDHC) * 100;
-            return Number((Math.round(error * 10000) / 10000).toFixed(3));
+            return Number((Math.round(error * 10000) / 10000).toFixed(4));
         }
     }
     return null;
 };
 
-export const getFullSoGiayCN = (soGiayCN: string, ngayThucHien: Date) => {
-    return "FMS.KĐ." + (soGiayCN || "-----") + "." + dayjs(ngayThucHien).format("YY");
+export const getFullSoGiayCN = (soGiayCN: string, ngayThucHien: Date, isHieuChuan: boolean = false) => {
+    return "FMS." + (isHieuChuan ? "HC." : "KĐ.") + (soGiayCN || "-----") + "." + dayjs(ngayThucHien).format("YY");
 }
 
-export const getQ2OrQtAndQ1OrQMin = (isDHDienTu: boolean, ccx: string | null, q: string | null, r: string | null) => {
-    // Qt:Q2 && Qmin:Q1 
+export const getQ2OrtAndQ1OrQMin = (isDHDienTu: boolean, ccx: string | null, q: string | null, r: string | null) => {
     if (isDHDienTu != null && ccx && q) {
         const heso = {
             "A": {
@@ -44,24 +46,44 @@ export const getQ2OrQtAndQ1OrQMin = (isDHDienTu: boolean, ccx: string | null, q:
         if (isDHDienTu && q && r) {
             const qmin = parseFloat(q) / parseFloat(r);
             const qt = 1.6 * qmin;
+
             return {
-                getQ1OrMin: parseFloat(qmin.toFixed(3)),
-                getQ2OrQt: parseFloat(qt.toFixed(3))
+                getQ1OrMin: {
+                    title: isDHDienTu != null && isDHDienTu ? TITLE_LUU_LUONG.q1 : TITLE_LUU_LUONG.qmin,
+                    value: parseFloat(qmin.toFixed(3))
+                },
+                getQ2Ort: {
+                    title: isDHDienTu != null && isDHDienTu ? TITLE_LUU_LUONG.q1 : TITLE_LUU_LUONG.qmin,
+                    value: parseFloat(qt.toFixed(3))
+                },
             };
         } else {
-            if (ccx && ccx in heso) {
+            if (ccx && heso.hasOwnProperty(ccx)) {
                 const heso_qt = heso[ccx as keyof typeof heso].qt;
                 const heso_qmin = heso[ccx as keyof typeof heso].qmin;
+
                 return {
-                    getQ1OrMin: (heso_qmin) ? parseFloat(q) * heso_qmin : null,
-                    getQ2OrQt: (heso_qt) ? parseFloat(q) * heso_qt : null,
+                    getQ1OrMin: {
+                        title: isDHDienTu != null && isDHDienTu ? TITLE_LUU_LUONG.q1 : TITLE_LUU_LUONG.qmin,
+                        value: (heso_qmin) ? parseFloat(q) * heso_qmin : null
+                    },
+                    getQ2Ort: {
+                        title: isDHDienTu != null && isDHDienTu ? TITLE_LUU_LUONG.q1 : TITLE_LUU_LUONG.qmin,
+                        value: (heso_qt) ? parseFloat(q) * heso_qt : null
+                    },
                 };
             }
         }
     }
     return {
-        getQ1OrMin: null,
-        getQ2OrQt: null,
+        getQ1OrMin: {
+            title: "",
+            value: 0
+        },
+        getQ2Ort: {
+            title: "",
+            value: 0
+        },
     };
 };
 
@@ -69,8 +91,7 @@ export const getVToiThieu = (q: string | number, d: string | number) => {
     // q: m3/h 
     // d: mm
     if (q && d) {
-
-        const qNum = parseFloat(typeof q === 'string' ? q : q.toString());
+        let qNum = parseFloat(typeof q === 'string' ? q : q.toString());
         const dNum = parseFloat(typeof d === 'string' ? d : d.toString());
 
         if (isNaN(qNum) || isNaN(dNum)) {
@@ -87,6 +108,8 @@ export const getVToiThieu = (q: string | number, d: string | number) => {
 
 export const getHieuSaiSo = (formValues: TinhSaiSoValueTabs) => {
     try {
+        const hasErrorFormValues = Object.values(formValues).some(({ V1, V2 }) => (Number(V1) === 0 && Number(V2) === 0) || Number(V2) - Number(V1) <= 0);
+        if (hasErrorFormValues) return null;
         const values = Object.values(formValues)
             .map(getSaiSoDongHo)
             .filter(value => value !== null);
@@ -98,29 +121,33 @@ export const getHieuSaiSo = (formValues: TinhSaiSoValueTabs) => {
         }, 0);
 
         return Number(result.toFixed(3));
-    } catch {
+    } catch (e) {
         return null;
     }
 }
 
 
 // TODO: Check 
-export const isDongHoDatTieuChuan = (isQ3: boolean, formHieuSaiSo: { hss: number | null }[]) => {
+export const isDongHoDatTieuChuan = (formHieuSaiSo: { hss: number | null }[]) => {
     const lan1 = formHieuSaiSo[0].hss;
     const lan2 = formHieuSaiSo[1].hss;
     const lan3 = formHieuSaiSo[2].hss;
 
     if (lan1 !== null && lan2 !== null && lan3 !== null) {
-        return (isQ3) ? (lan1 >= -2 && lan2 >= -2 && lan3 >= -5) : (lan1 <= 2 && lan2 <= 2 && lan3 <= 5)
+        // return (isQ3) ? (lan1 >= -2 && lan2 >= -2 && lan3 >= -5) : (lan1 <= 2 && lan2 <= 2 && lan3 <= 5)
+        return (lan1 >= -2 && lan2 >= -2 && lan3 >= -5 && lan1 <= 2 && lan2 <= 2 && lan3 <= 5)
     }
     return null;
 }
 
-export const getLastDayOfMonthInFuture = (isDHDienTu: boolean): Date => {
-    const years = isDHDienTu ? 3 : 5
-    const today = new Date();
-    const futureDate = new Date(today.getFullYear() + years, today.getMonth() + 1, 0);
-    return futureDate;
+export const getLastDayOfMonthInFuture = (isDHDienTu: boolean | null, date?: Date | null): Date | null => {
+    if (isDHDienTu != null) {
+        const years = isDHDienTu ? 3 : 5;
+        const today = date instanceof Date && !isNaN(date.getTime()) ? date : new Date(); // Ensure 'today' is a valid Date object
+        const futureDate = new Date(today.getFullYear() + years, today.getMonth() + 1, 0);
+        return futureDate;
+    }
+    return new Date();
 }
 
 export const convertToUppercaseNonAccent = (str: string) => {
@@ -153,5 +180,152 @@ export const convertToUppercaseNonAccent = (str: string) => {
 }
 
 export const getFullNameFileDownload = (dongho: DongHo) => {
-    return (dongho.ten_dong_ho || "") + (dongho.dn || "") + (dongho.ccx || "") + (dongho.q3 || "") + (dongho.r || "") + (dongho.qn || "") + (dongho.seri_sensor || "") + (dongho.seri_chi_thi || "") + (dongho.kieu_sensor || "") + (dongho.kieu_chi_thi || "")
+    return (dongho.so_giay_chung_nhan || "") +
+        (dongho.ten_khach_hang ? "_" + dongho.ten_khach_hang : "") +
+        (dongho.ten_dong_ho ? "_" + dongho.ten_dong_ho : "") +
+        (dongho.dn ? "_" + dongho.dn : "") +
+        (dongho.ngay_thuc_hien ? "_" + dayjs(dongho.ngay_thuc_hien).format('DD-MM-YYYY') : "")
+}
+
+export const getListDongHoNamesExist = async () => {
+    const res = await getAllDongHoNamesExist();
+    if (res.status == 200 || res.status == 201) {
+        const listNames: string[] = [...res.data.map((pdm: PDMData) => pdm["ten_dong_ho"])]
+        const uniqueNames = listNames.filter((value, index, self) => self.indexOf(value) === index);
+        const sortedNames = uniqueNames.sort((a, b) => a.localeCompare(b));
+        return sortedNames;
+    }
+    return []
+}
+
+export function openDB(dbName: string) {
+    return new Promise((resolve, reject) => {
+        if (typeof window === "undefined") return;
+
+        const request = indexedDB.open(INDEXED_DB_NAME, 2); // Tăng version nếu cần tạo thêm bảng, 
+        // Version không phải số lượng bảng! Chỉ tăng version khi có thay đổi schema
+
+        request.onupgradeneeded = (event) => {
+            const db = (event.target as IDBOpenDBRequest).result;
+
+            // Kiểm tra và tạo bảng nếu chưa có
+            if (!db.objectStoreNames.contains(dbName)) {
+                db.createObjectStore(dbName, { keyPath: 'id' });
+            }
+        };
+        request.onsuccess = (event) => {
+            resolve((event.target as IDBOpenDBRequest).result);
+        };
+        request.onerror = (event) => {
+            reject((event.target as IDBOpenDBRequest).error);
+        };
+    });
+}
+
+
+export async function saveDongHoDataExistsToIndexedDB(
+    dbName: string,
+    username: string,
+    data: DongHo[],
+    savedData?: DongHo[]
+) {
+    const db = await openDB(dbName); // Đợi database mở hoàn tất
+
+    return new Promise<void>((resolve, reject) => {
+        if (!(db as IDBDatabase).objectStoreNames.contains(dbName)) {
+            reject(new Error(`Object store "${dbName}" not found in IndexedDB`));
+            return;
+        }
+
+        const transaction = (db as IDBDatabase).transaction(dbName, "readwrite");
+        const store = transaction.objectStore(dbName);
+
+        const dataToStore = {
+            id: username,
+            dongHoList: data,
+            savedDongHoList: savedData?.length ? savedData : [],
+        };
+
+        const request = store.put(dataToStore);
+
+        request.onsuccess = () => resolve();
+        request.onerror = (event) => reject((event.target as IDBRequest).error);
+    });
+}
+
+
+export async function getDongHoDataExistsFromIndexedDB(dbName: string, username: string): Promise<{
+    dongHoList: DongHo[],
+    savedDongHoList: DongHo[]
+} | null> {
+    const db = await openDB(dbName) as IDBDatabase;
+    return new Promise((resolve, reject) => {
+        const transaction = db.transaction(dbName, "readonly");
+        const store = transaction.objectStore(dbName);
+        const request = store.get(username);
+
+        request.onsuccess = (event: Event) => {
+            const target = event.target as IDBRequest;
+            if (target.result) {
+                resolve({
+                    dongHoList: target.result?.dongHoList || [],
+                    savedDongHoList: target.result?.savedDongHoList || []
+                });
+            } else {
+                resolve(null);
+            }
+        };
+
+        request.onerror = (event) => {
+            const target = event.target as IDBRequest;
+            if (target && target.error) {
+                reject(target.error);
+            }
+        };
+    });
+}
+
+export async function deleteDongHoDataFromIndexedDB(dbName: string, username: string): Promise<void> {
+    const db = await openDB(dbName) as IDBDatabase;
+    return new Promise<void>((resolve, reject) => {
+        const transaction = db.transaction(dbName, "readwrite");
+        const store = transaction.objectStore(dbName);
+
+        const request = store.delete(username);
+
+        request.onsuccess = () => {
+            resolve();
+        };
+
+        request.onerror = (event) => {
+            const error = (event.target as IDBRequest).error;
+            reject(error);
+        };
+    });
+}
+
+export function getNameOfRole(role: string | undefined) {
+    return role ? (PERMISSION_TITLES[role] || role) : "Chưa rõ";
+}
+
+export function getAvailableRolesOptions(current_role: string | null): { value: string, label: string }[] {
+    if (current_role) {
+        const current_per_val = PERMISSION_VALUES[current_role];
+        if (current_per_val) {
+            return Object.values(PERMISSIONS).filter(r => {
+                const per_val = PERMISSION_VALUES[r];
+                return current_role == PERMISSIONS.SUPERADMIN || ((per_val || per_val == 0) && current_per_val > per_val);
+            }).map(r => ({ value: r, label: getNameOfRole(r) }));
+        }
+        return [];
+    } else {
+        return Object.values(PERMISSIONS).map(r => ({ value: r, label: getNameOfRole(r) }));
+    }
+}
+
+export function decode(encodedString: string): string {
+    if (!encodedString) {
+        return "";
+    }
+    return decodeURIComponent(escape(atob(encodedString)));
 }

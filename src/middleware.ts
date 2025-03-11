@@ -1,49 +1,25 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 
-import { logout } from './app/api/auth/logout/route';
 import { jwtVerify } from 'jose';
 import { ACCESS_LINKS } from '@lib/system-constant';
 
-const ADMIN_ROLE = 'ADMIN';
-const CUSTOM_404_PATH = '/404'; // Đường dẫn cho trang 404 tùy chỉnh
-const CUSTOM_500_PATH = '/500'; // Đường dẫn cho trang 500 tùy chỉnh
-const CUSTOM_AUTH_ERROR_TOKEN_PATH = '/auth-error/error-token'; // Đường dẫn cho trang 500 tùy chỉnh
+const CUSTOM_AUTH_ERROR_TOKEN_PATH = '/error/error-token';
 
-const ADMIN_PATHS = ['/dashboard'];
 const AUTH_PATHS = [
     ACCESS_LINKS.AUTH_FORGOT_PW.src,
     ACCESS_LINKS.AUTH_LOGIN.src,
     ACCESS_LINKS.AUTH_REGISTER.src,
+    ACCESS_LINKS.AUTH_VERIFY.src,
 ];
-const PROTECTED_PATHS = [
-    ACCESS_LINKS.CHANGE_EMAIL.src,
-    ACCESS_LINKS.CHANGE_PW.src,
-    ACCESS_LINKS.DHN_BT15.src,
-    ACCESS_LINKS.DHN_BT15_ADD.src,
-    ACCESS_LINKS.DHN_DETAIL.src,
-    ACCESS_LINKS.DHN_ST15.src,
-    ACCESS_LINKS.DHN_ST15_ADD.src,
-    ACCESS_LINKS.PDM.src,
-    ACCESS_LINKS.PDM_ADD.src,
-    ACCESS_LINKS.PDM_DETAIL.src
-];
-
-const ERROR_PATHS = [CUSTOM_404_PATH, CUSTOM_500_PATH];
-const VALID_PATHS = [
-    ...ADMIN_PATHS,
-    ...AUTH_PATHS,
-    ...PROTECTED_PATHS,
-    ...ERROR_PATHS,
-    ACCESS_LINKS.HOME.src
-];
-
 
 export async function middleware(req: NextRequest) {
-    const tokenCookie = req.cookies.get('accessToken')?.value;
+    const { pathname, searchParams } = new URL(req.url);
+
     const refreshTokenCookie = req.cookies.get('refreshToken')?.value;
     const userCookie = req.cookies.get('user')?.value;
-    const { pathname, searchParams } = new URL(req.url);
+
+    const isConfirmed = (userCookie ? JSON.parse(userCookie)?.confirmed : "") == "1" ? true : false;
 
     if (pathname.startsWith(ACCESS_LINKS.AUTH_RESET_PW.src)) {
         const token = pathname.split(ACCESS_LINKS.AUTH_RESET_PW.src + "/")[1];
@@ -66,11 +42,10 @@ export async function middleware(req: NextRequest) {
     const redirectUrl = new URL(ACCESS_LINKS.AUTH_LOGIN.src, req.url);
     redirectUrl.searchParams.set('redirect', pathname + searchParams.toString());
 
-    if (!tokenCookie && !refreshTokenCookie && !userCookie) {
-        if (AUTH_PATHS.includes(pathname)) {
+    if (!refreshTokenCookie || !userCookie) {
+        if (AUTH_PATHS.some(authPath => pathname.includes(authPath))) {
             return NextResponse.next();
         }
-        // logout();
         return NextResponse.redirect(redirectUrl);
     }
 
@@ -79,34 +54,40 @@ export async function middleware(req: NextRequest) {
         try {
             const { payload } = await jwtVerify(refreshTokenCookie, new TextEncoder().encode(process.env.NEXT_PUBLIC_JWT_SECRET));
             if (payload.exp && payload.exp * 1000 < Date.now()) {
-                logout();
+                // logout();
                 return NextResponse.redirect(redirectUrl);
             }
         } catch (error) {
-            logout();
-            return NextResponse.redirect(redirectUrl);
+            const response = NextResponse.redirect(redirectUrl);
+            response.cookies.delete('accessToken');
+            response.cookies.delete('refreshToken');
+            response.cookies.delete('user');
+            return response;
         }
-    }
-
-    try {
-        const user = userCookie ? JSON.parse(userCookie) : null;
-        if (ADMIN_PATHS.includes(pathname) && user?.role !== ADMIN_ROLE) {
-            return NextResponse.redirect(redirectUrl);
-        }
-
-        if (AUTH_PATHS.includes(pathname)) {
-            return NextResponse.redirect(new URL(ACCESS_LINKS.HOME.src, req.url));
-        }
-
-        if (!VALID_PATHS.some(path => pathname.includes(path) || pathname.startsWith(path))) {
-            return NextResponse.redirect(new URL(CUSTOM_404_PATH, req.url));
-        }
-
-        return NextResponse.next();
-    } catch (error) {
-        logout();
+    } else {
         return NextResponse.redirect(redirectUrl);
     }
+
+    if (AUTH_PATHS.some(authPath => pathname.includes(authPath))) {
+        return NextResponse.redirect(new URL(ACCESS_LINKS.HOME.src, req.url));
+    }
+
+    if (!isConfirmed) {
+        if (pathname.includes(ACCESS_LINKS.AUTH_UNVERIFIED.src)
+            || pathname.includes(ACCESS_LINKS.AUTH_VERIFY.src)
+        ) {
+            return NextResponse.next();
+        }
+        return NextResponse.redirect(new URL(ACCESS_LINKS.AUTH_UNVERIFIED.src, req.url));
+    } else {
+        if (pathname.includes(ACCESS_LINKS.AUTH_UNVERIFIED.src)
+            || pathname.includes(ACCESS_LINKS.AUTH_VERIFY.src)
+        ) {
+            return NextResponse.redirect(new URL(ACCESS_LINKS.HOME.src, req.url));
+        }
+    }
+
+    return NextResponse.next();
 }
 
 export const config = {

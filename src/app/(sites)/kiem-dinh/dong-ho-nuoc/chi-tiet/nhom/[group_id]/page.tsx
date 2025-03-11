@@ -1,11 +1,11 @@
 "use client"
 
-import { getNhomDongHoByGroupId } from "@/app/api/dongho/route";
-const Loading = dynamic(() => import('@/components/Loading'), { ssr: false });
+import { getDongHoByGroupId } from "@/app/api/dongho/route";
+const Loading = dynamic(() => import('@/components/Loading'));
 import { DongHo } from "@lib/types";
 import {  useEffect, useRef, useState } from "react";
 import dynamic from "next/dynamic";
-import DetailNhomDongHo from "@/components/DetailNhomDongHo";
+import DetailKiemDinhNhomDongHo from "@/components/quan-ly/kiem-dinh/DetailKiemDinhNhomDongHo";
 
 export default function NhomDongHoDetailPage({ params }: { params: { group_id: string } }) {
     const [nhomDongHo, setNhomDongHoData] = useState<DongHo[]>();
@@ -18,7 +18,7 @@ export default function NhomDongHoDetailPage({ params }: { params: { group_id: s
 
         const fetchData = async () => {
             try {
-                const res = await getNhomDongHoByGroupId(params.group_id);
+                const res = await getDongHoByGroupId(params.group_id);
                 setNhomDongHoData(res?.data);
             } catch (error) {
                 console.error("Error fetching data:", error);
@@ -34,5 +34,5 @@ export default function NhomDongHoDetailPage({ params }: { params: { group_id: s
         return <Loading></Loading>;
     }
 
-    return <DetailNhomDongHo nhomDongHo={nhomDongHo}></DetailNhomDongHo>
+    return <DetailKiemDinhNhomDongHo nhomDongHo={nhomDongHo}></DetailKiemDinhNhomDongHo>
 }

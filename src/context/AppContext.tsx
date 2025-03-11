@@ -3,11 +3,11 @@
 // context/user-context.tsx
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import Cookies from 'js-cookie';
-import { logout } from '@/app/api/auth/logout/route';
 import Swal from 'sweetalert2';
 import { User } from '@lib/types';
 import Loading from '@/components/Loading';
-import { ACCESS_LINKS } from '@lib/system-constant';
+import { ACCESS_LINKS, PERMISSIONS } from '@lib/system-constant';
+import { logout } from '@/app/api/auth/logout/route';
 
 // Define user type
 
@@ -17,24 +17,31 @@ export type AppContextType = {
     loading: boolean;
     updateUser: (updatedUser: User | null) => void;
     logoutUser: () => void;
+    getCurrentRole: () => string;
+    isSuperAdmin: boolean;
     isAdmin: boolean;
+    isDirector: boolean;
     isManager: boolean;
-    isUser: boolean;
+    isViewer: boolean;
 };
 
 // Create context
 const AppContext = createContext<AppContextType | undefined>(undefined);
 
 // Provider component
-export const AppProvider : React.FC<{ children: React.ReactNode }> = ({ children }) => {
+export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
     const [user, setUser] = useState<User | null>(null);
     const [loading, setLoading] = useState(true);
 
-    const isAdmin = user?.role === 'ADMIN' || user?.role === 'SUPER_ADMIN';
+    const isSuperAdmin = user?.role === PERMISSIONS.SUPERADMIN;
 
-    const isManager = user?.role === 'MANAGER';
+    const isAdmin = user?.role === PERMISSIONS.ADMIN || isSuperAdmin;
 
-    const isUser = !isAdmin && !isManager;
+    const isDirector = user?.role === PERMISSIONS.DIRECTOR || isAdmin;
+
+    const isManager = user?.role === PERMISSIONS.MANAGER || isDirector;
+
+    const isViewer =  user?.role === PERMISSIONS.VIEWER || !isManager;
 
     useEffect(() => {
         const getUserFromCookie = Cookies.get('user');
@@ -44,52 +51,89 @@ export const AppProvider : React.FC<{ children: React.ReactNode }> = ({ children
                 setUser(cookieUser);
                 setLoading(false);
             } catch (error) {
-                logoutUser();
+                Swal.fire({
+                    icon: "error",
+                    title: "Phiên đăng nhập hết hạn!",
+                    text: "Mời đăng nhập lại.",
+                    showClass: {
+                        popup: `
+                            animate__animated
+                            animate__fadeInUp
+                            animate__faster
+                          `
+                    },
+                    hideClass: {
+                        popup: `
+                            animate__animated
+                            animate__fadeOutDown
+                            animate__faster
+                          `
+                    },
+                    confirmButtonColor: "#0980de",
+                    confirmButtonText: "OK"
+                }).then(() => {
+                    logoutUser();
+                });
             }
         } else {
-            logoutUser();
+            Swal.fire({
+                icon: "error",
+                title: "Phiên đăng nhập hết hạn!",
+                text: "Mời đăng nhập lại.",
+                showClass: {
+                    popup: `
+                        animate__animated
+                        animate__fadeInUp
+                        animate__faster
+                      `
+                },
+                hideClass: {
+                    popup: `
+                        animate__animated
+                        animate__fadeOutDown
+                        animate__faster
+                      `
+                },
+                confirmButtonColor: "#0980de",
+                confirmButtonText: "OK"
+            }).then(() => {
+                logoutUser();
+            });
         }
-    }, []);
+    }, [Cookies.get('user')]);
 
     const updateUser = (updatedUser: User | null) => {
         setUser(updatedUser);
     };
 
     const logoutUser = async () => {
-        const res = await logout();
-        if (res?.status == 200 || res?.status == 201) {
-            window.location.href = ACCESS_LINKS.AUTH_LOGIN.src;
-        } else if (res?.status == 401) {
-            Swal.fire({
-                icon: "error",
-                title: res?.msg || "Phiên đăng nhập hết hạn!",
-                text: "Mời đăng nhập lại.",
-                showClass: {
-                    popup: `
-                    animate__animated
-                    animate__fadeInUp
-                    animate__faster
-                  `
-                },
-                hideClass: {
-                    popup: `
-                    animate__animated
-                    animate__fadeOutDown
-                    animate__faster
-                  `
-                },
-                confirmButtonColor: "#0980de",
-                confirmButtonText: "OK"
-            }).then(() => {
-                window.location.href = ACCESS_LINKS.AUTH_LOGIN.src;
-            });
+        const allCookies = Cookies.get();
+        for (let cookie in allCookies) {
+            Cookies.remove(cookie);
         }
+        // logout();
+        window.location.href = ACCESS_LINKS.AUTH_LOGIN.src;
     };
-    
+
+    const getCurrentRole = () => {
+        return user?.role || "";
+    };
+
     return (loading) ? (
         <Loading></Loading>
     ) : (
-        <AppContext.Provider value={{ user, loading, updateUser, logoutUser, isAdmin, isManager, isUser }}>
+        <AppContext.Provider value={{
+            user,
+            loading,
+            updateUser,
+            logoutUser,
+            isSuperAdmin,
+            isAdmin,
+            isDirector,
+            isManager,
+            getCurrentRole,
+            isViewer
+        }}>
             {children}
         </AppContext.Provider>
     );

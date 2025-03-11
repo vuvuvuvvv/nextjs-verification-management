@@ -1,11 +1,11 @@
 "use client"
 
 import { getDongHoById } from "@/app/api/dongho/route";
-const Loading = dynamic(() => import('@/components/Loading'), { ssr: false });
+const Loading = dynamic(() => import('@/components/Loading'));
 import { DongHo } from "@lib/types";
 import {  useEffect, useRef, useState } from "react";
 import dynamic from "next/dynamic";
-import DetailDongHo from "@/components/DetailDongHo";
+import DetailKiemDinhDongHo from "@/components/quan-ly/kiem-dinh/DetailKiemDinhDongHo";
 
 export default function DongHoDetailPage({ params }: { params: { id: string } }) {
     const [dongHoData, setDongHoData] = useState<DongHo>();
@@ -21,7 +21,7 @@ export default function DongHoDetailPage({ params }: { params: { id: string } })
                 const res = await getDongHoById(params.id);
                 setDongHoData(res?.data);
             } catch (error) {
-                console.error("Error fetching data:", error);
+                console.error("Error fetching data!");
             } finally {
                 setLoading(false);
             }
@@ -34,5 +34,5 @@ export default function DongHoDetailPage({ params }: { params: { id: string } })
         return <Loading></Loading>;
     }
 
-    return <DetailDongHo dongHo={dongHoData}></DetailDongHo>
+    return <DetailKiemDinhDongHo dongHo={dongHoData}></DetailKiemDinhDongHo>
 }

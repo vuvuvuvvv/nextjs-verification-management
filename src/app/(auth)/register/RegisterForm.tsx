@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 
 import layout from "@styles/scss/layouts/auth-layout.module.scss";
@@ -18,19 +18,24 @@ interface FormProps {
     className?: string
 }
 
-
 export default function RegisterForm({ className }: FormProps) {
-    const [username, setUsername] = useState('');
-    const [fullname, setFullname] = useState('');
-    const [email, setEmail] = useState('');
-    const [password, setPassword] = useState('');
-    const [confirmPassword, setConfirmPassword] = useState('');
+    const [formState, setFormState] = useState<RegisterCredentials & {
+        confirmPassword: string;
+        isPwInvalid: boolean;
+        isUsernameInvalid: boolean;
+        isPwNotMatch: boolean;
+    }>({
+        username: '',
+        fullname: '',
+        email: '',
+        password: '',
+        confirmPassword: '',
+        isPwInvalid: false,
+        isUsernameInvalid: false,
+        isPwNotMatch: false
+    });
 
     const [error, setError] = useState('');
-    const [isPwInvalid, setPwInvalid] = useState(false);
-    const [isUsernameInvalid, setUsernameInvalid] = useState(false);
-
-    const [isPwNotMatch, setPwNotMatch] = useState(false);
     const router = useRouter();
 
     useEffect(() => {
@@ -61,34 +66,36 @@ export default function RegisterForm({ className }: FormProps) {
         }
     }, [error]);
 
-
-    const handleChangeConfirmPassword = (e: React.ChangeEvent<HTMLInputElement>) => {
-        setConfirmPassword(e.currentTarget.value);
-        setPwNotMatch(password != e.currentTarget.value);
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const { id, value } = e.target;
+        setFormState(prev => {
+            const newState = { ...prev, [id]: value };
+            if (id === 'password') {
+                newState.isPwInvalid = !/^[a-zA-Z0-9]{8,}$/.test(value);
+                newState.isPwNotMatch = newState.confirmPassword !== value;
+            }
+            if (id === 'confirmPassword') {
+                newState.isPwNotMatch = newState.password !== value;
+            }
+            if (id === 'username') {
+                newState.isUsernameInvalid = !/^[a-zA-Z0-9]{8,}$/.test(value);
+            }
+            return newState;
+        });
     };
-
-    const handleChangePassword = (e: React.ChangeEvent<HTMLInputElement>) => {
-        setPassword(e.currentTarget.value);
-        setPwInvalid(!/^[a-zA-Z0-9]{8,}$/.test(e.currentTarget.value));
-    }
-
-    const handleChangeUsername = (e: React.ChangeEvent<HTMLInputElement>) => {
-        setUsername(e.currentTarget.value);
-        setUsernameInvalid(!/^[a-zA-Z0-9]{8,}$/.test(e.currentTarget.value));
-    }
 
     const handleSubmit = async (event: { preventDefault: () => void; }) => {
         event.preventDefault();
+        const { username, fullname, email, password, isPwNotMatch, isUsernameInvalid, isPwInvalid } = formState;
         if (!isPwNotMatch && !isUsernameInvalid && !isPwInvalid) {
             setError('');
 
-            const credentials: RegisterCredentials = { username, fullname, password, email }
+            const credentials: RegisterCredentials = { username, fullname, password, email };
 
             try {
                 const response = await register(credentials);
                 if (response.status == 201) {
                     Swal.fire({
-                        // title: "Auto close alert!",
                         icon: "success",
                         showClass: {
                             popup: `
@@ -98,17 +105,13 @@ export default function RegisterForm({ className }: FormProps) {
                             `
                         },
                         html: "Đăng ký thành công! Đang chuyển hướng về trang chủ.",
-                        timer: 1500,
                         allowOutsideClick: false,
                         allowEscapeKey: false,
                         didOpen: () => {
                             Swal.showLoading();
                         },
-                    }).then((result) => {
-                        if (result.dismiss === Swal.DismissReason.timer) {
-                            router.push('/');
-                        }
-                    });
+                    })
+                    window.location.href = "/";
                 } else {
                     setError(response.msg);
                 }
@@ -128,8 +131,8 @@ export default function RegisterForm({ className }: FormProps) {
                     id="fullname"
                     placeholder='Tên đầy đủ'
                     spellCheck={false}
-                    value={fullname}
-                    onChange={(e) => setFullname(e.target.value)}
+                    value={formState.fullname}
+                    onChange={handleChange}
                     required
                 />
                 <FontAwesomeIcon className={`${layout['placeholder-icon']}`} icon={faUser}></FontAwesomeIcon>
@@ -142,13 +145,13 @@ export default function RegisterForm({ className }: FormProps) {
                     id="username"
                     placeholder='Tên đăng nhập'
                     spellCheck={false}
-                    value={username}
-                    onChange={(e) => handleChangeUsername(e)}
+                    value={formState.username}
+                    onChange={handleChange}
                     required
                 />
                 <FontAwesomeIcon className={`${layout['placeholder-icon']}`} icon={faUser}></FontAwesomeIcon>
             </div>
-            {(username != "" && isUsernameInvalid) &&
+            {(formState.username !== "" && formState.isUsernameInvalid) &&
                 (
                     <div className='w-1000 mb-3'>
                         <small className='text-danger'>Tối thiểu 8 ký tự viết liền không bao gồm ký tự đặc biệt</small>
@@ -156,15 +159,15 @@ export default function RegisterForm({ className }: FormProps) {
                 )
             }
             <div className="mb-3">
-                <label htmlFor="password" className="form-label">Email:</label>
+                <label htmlFor="email" className="form-label">Email:</label>
                 <input
                     type="email"
                     className="form-control py-2"
                     id="email"
                     placeholder='Email'
                     spellCheck={false}
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
+                    value={formState.email}
+                    onChange={handleChange}
                     required
                 />
                 <FontAwesomeIcon className={`${layout['placeholder-icon']}`} icon={faEnvelope}></FontAwesomeIcon>
@@ -176,33 +179,33 @@ export default function RegisterForm({ className }: FormProps) {
                     className="form-control py-2"
                     id="password"
                     placeholder='Nhập mật khẩu'
-                    value={password}
-                    onChange={(e) => handleChangePassword(e)}
+                    value={formState.password}
+                    onChange={handleChange}
                     required
                 />
                 <FontAwesomeIcon className={`${layout['placeholder-icon']}`} icon={faLock}></FontAwesomeIcon>
             </div>
-            {(password != "" && isPwInvalid) &&
+            {(formState.password !== "" && formState.isPwInvalid) &&
                 (
                     <div className='w-100 mb-3'>
                         <small className='text-danger'>Mật khẩu tối thiểu 8 ký tự và không bao gồm ký tự đặc biệt</small>
                     </div>
                 )
             }
-            <div className={(!isPwNotMatch) ? "mb-3" : ""}>
-                <label htmlFor="confirm-password" className="form-label">Nhập lại khẩu:</label>
+            <div className={(!formState.isPwNotMatch) ? "mb-3" : ""}>
+                <label htmlFor="confirmPassword" className="form-label">Nhập lại khẩu:</label>
                 <input
                     type="password"
                     className="form-control py-2"
-                    id="confirm-password"
+                    id="confirmPassword"
                     placeholder='Nhập lại mật khẩu'
-                    value={confirmPassword}
-                    onChange={(e) => handleChangeConfirmPassword(e)}
+                    value={formState.confirmPassword}
+                    onChange={handleChange}
                     required
                 />
                 <FontAwesomeIcon className={`${layout['placeholder-icon']}`} icon={faLock}></FontAwesomeIcon>
             </div>
-            {(isPwNotMatch) &&
+            {(formState.isPwNotMatch) &&
                 (
                     <div className='w-100 mb-3'>
                         <small className='text-danger'>Mật khẩu không khớp</small>

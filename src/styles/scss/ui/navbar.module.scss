@@ -47,8 +47,6 @@
             color: $nav_text_color;
             gap: 6px;
 
-            @media (min-width: $screen_break_point) {}
-
             .p_name {
                 font-size: 14px;
                 text-align: start;
@@ -65,7 +63,7 @@
             min-width: 300px;
             max-width: 380px;
             width: max-content;
-            top: 16px !important;
+            top: 10px !important;
             z-index: 99999 !important;
 
             .dD_profile {
@@ -129,7 +127,7 @@
 }
 @media (max-width: 768px) {
     .p_name {
-        max-width: 80px;
+        max-width: 96px;
     }
 }
 

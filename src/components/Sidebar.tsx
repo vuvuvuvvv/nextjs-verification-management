@@ -13,7 +13,9 @@ import {
     faCaretLeft,
     faCaretRight,
     faFile,
-    faCertificate
+    faCertificate,
+    faPeopleArrows,
+    faFileExport
 }
     from '@fortawesome/free-solid-svg-icons';
 import { useState, useRef, useEffect, Suspense } from 'react';
@@ -26,11 +28,14 @@ import Link from 'next/link';
 import { SideLink } from '@lib/types';
 import Loading from './Loading';
 import { ACCESS_LINKS } from '@lib/system-constant';
+import { useUser } from '@/context/AppContext';
 
 interface SidebarProps {
     // "?" can be undefind
     className?: string;
     title?: string;
+    show: boolean;
+    setShow: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
 interface CollapseState {
@@ -47,26 +52,20 @@ const siteSideLinks: SideLink[] = [
         title: "Kiểm định",
         icon: faEdit,
         children: [
-            {
-                title: "Đồng hồ",
-                icon: faClock,
-                children: [
-                    { title: ACCESS_LINKS.DHN_BT15.title, href: ACCESS_LINKS.DHN_BT15.src, icon: faTint },
-                    { title: ACCESS_LINKS.DHN_ST15.title, href: ACCESS_LINKS.DHN_ST15.src, icon: faTint },
-                ]
-            },
-            { title: ACCESS_LINKS.PDM.title, href: ACCESS_LINKS.PDM.src, icon: faFileAlt },
+            { title: ACCESS_LINKS.DHN.title, href: ACCESS_LINKS.DHN.src, icon: faClock },
         ]
     },
     {
         title: "Hiệu chuẩn",
         icon: faImage,
         children: [
-            { title: "Đồng hồ nước", href: "#", icon: faTint },
-            { title: "Đồng hồ khí", href: "#", icon: faWind },
-            { title: "Thiết bị đo lưu lượng", href: "#", icon: faClock },
-            { title: "Thiết bị đo áp suất", href: "#", icon: faWeight },
+            { title: ACCESS_LINKS.HC_DHN.title, href: ACCESS_LINKS.HC_DHN.src, icon: faClock },
         ]
+    },
+    {
+        title: ACCESS_LINKS.PDM.title,
+        href: ACCESS_LINKS.PDM.src,
+        icon: faFileAlt
     },
     {
         title: "Quản lý chứng từ",
@@ -75,11 +74,6 @@ const siteSideLinks: SideLink[] = [
             { title: "Biên bản kiểm định", href: "#", icon: faFile },
             { title: "Giấy chứng nhận hiệu chuẩn", href: "#", icon: faCertificate },
         ]
-    },
-    {
-        title: "Xuất báo cáo",
-        icon: faComment,
-        href: "#"
     },
     {
         title: "Quét mã QR",
@@ -105,31 +99,28 @@ const siteSideLinks: SideLink[] = [
 
 const adminSideLinks: SideLink[] = [
     {
-        title: "Dashboard",
-        icon: faHome,
-        href: "/dashboard"
+        title: ACCESS_LINKS.AD_XUAT_BAO_CAO.title,
+        icon: faFileExport,
+        href: ACCESS_LINKS.AD_XUAT_BAO_CAO.src
     },
     {
-        title: "Quản lý người dùng",
-        icon: faUserFriends,
-        href: "/dashboard/manage/user"
-    },
-    {
-        title: "Quay lại trang kiểm định",
-        icon: faQrcode,
-        href: "/"
+        title: ACCESS_LINKS.AD_PHAN_QUYEN.title,
+        icon: faPeopleArrows,
+        href: ACCESS_LINKS.AD_PHAN_QUYEN.src
     },
 ]
 
 export default function Sidebar({
     className,
-    title
+    title,
+    show,
+    setShow
 }: SidebarProps) {
-    const [show, setShow] = useState(false);
     const sidebarRef = useRef<HTMLDivElement>(null);
     const [collapseState, setCollapseState] = useState<CollapseState>({});
     const pathname = usePathname();
-    const sideLinks = pathname.startsWith("/dashboard") ? adminSideLinks : siteSideLinks;
+    // const sideLinks = !isManager ? [...siteSideLinks, ...adminSideLinks] : siteSideLinks;
+    const sideLinks = [...siteSideLinks, ...adminSideLinks];
 
     const toggleOpen = () => {
         setShow(!show);
@@ -158,9 +149,13 @@ export default function Sidebar({
         });
     };
 
+    const closeAllCollapse = () => {
+        setCollapseState({});
+    };
+
     return <Suspense fallback={<Loading />}>
-        <button aria-label="Menu" className={`bg-transparent d-xl-none px-3 ${sb['btn-toggle']}`} onClick={toggleOpen}>
-            <FontAwesomeIcon icon={faBars} fontSize={24}></FontAwesomeIcon>
+        <button aria-label="Menu" className={`bg-transparent px-3 me-1 ${sb['btn-toggle']}`} onClick={toggleOpen}>
+            <FontAwesomeIcon icon={faBars} className='fs-4'></FontAwesomeIcon>
         </button>
         {show && (
             <div className={`${sb['sb-backdrop']}`} onClick={() => setShow(!show)}></div>
@@ -168,7 +163,7 @@ export default function Sidebar({
         <div ref={sidebarRef} className={`${sb['wrap-sidebar']} p-0 ${className ? className : ""} ${show ? sb["sb-show"] : ""}`}>
             <div className={`${sb['sb-header']} py-3 border-bottom`}>
                 <Offcanvas.Title className={sb['sb-title']}>
-                    <img src="/images/logo.png" alt="profileImg" />
+                    <img src="/images/logo.png" alt="Kiểm định DHT" />
                     <h5 className='fw-bold m-0 p-0'>{title ? title : ""}</h5>
                 </Offcanvas.Title>
                 <button aria-label="Đóng" onClick={toggleOpen} className={`btn border-0 shadow-0 ${''}`}>
@@ -213,14 +208,19 @@ export default function Sidebar({
                                                         <span className={`${sb['nl-child-icon']}`}>
                                                             <FontAwesomeIcon icon={child.icon} fontSize={14} />
                                                         </span>
-                                                        <span className={`${sb["nl-title"]}`}>{child.title}
+                                                        <span className={`${sb["nl-title"]}`}
+                                                            style={{ fontSize: "14px" }}>{child.title}
                                                             <FontAwesomeIcon className='ms-3 d-none d-xl-flex' icon={(!collapseState[index + "-" + childIndex]) ? faCaretDown : faCaretRight} />
                                                             <FontAwesomeIcon className='ms-3 d-xl-none' icon={faCaretDown} />
                                                         </span>
                                                     </button>
                                                     <div className={`${sb['collapse-menu']} w-100 ${sb['collapse']} ${collapseState[index + "-" + childIndex] ? sb['show'] : ''}`}>
                                                         {child.children?.map((grandChild, grandChildIndex) => {
-                                                            return <Link href={grandChild.href || "#"} className={`btn ${sb['clp-link']}`} key={index + "-" + childIndex + "-" + grandChildIndex} onClick={toggleOpen}>
+                                                            return <Link href={grandChild.href || "#"}
+                                                                className={`btn ${sb['clp-link']}`}
+                                                                key={index + "-" + childIndex + "-" + grandChildIndex}
+                                                            // onClick={closeAllCollapse}
+                                                            >
                                                                 <FontAwesomeIcon icon={grandChild.icon} className={`me-3`} />{grandChild.title}
                                                             </Link>
                                                         })}
@@ -228,15 +228,24 @@ export default function Sidebar({
                                                     </div>
                                                 </div>
                                             ) : (
-                                                <Link href={child.href || "#"} className={`btn ${sb['clp-link']}`} key={index + "-" + childIndex} onClick={toggleOpen}>
-                                                    <FontAwesomeIcon icon={child.icon} className={`me-3`} />{child.title}
+                                                <Link
+                                                    href={child.href || "#"}
+                                                    className={`btn ${sb['clp-link']}`}
+                                                    key={index + "-" + childIndex}
+                                                    onClick={() => closeAllCollapse()}
+                                                >
+                                                    <FontAwesomeIcon icon={child.icon} className={`me-3 ms-1`} />{child.title}
                                                 </Link>
                                             )
                                         ))}
                                     </div>
                                 </>
                             ) : (
-                                <Link href={item.href || "#"} className={`btn ${sb['nav-link']} ${item.href == pathname ? sb['active'] : ""}`} onClick={toggleOpen}>
+                                <Link
+                                    href={item.href || "#"}
+                                    className={`btn ${sb['nav-link']} ${item.href == pathname ? sb['active'] : ""}`}
+                                    onClick={closeAllCollapse}
+                                >
                                     <span className={`${sb['nl-icon']}`}>
                                         <FontAwesomeIcon icon={item.icon} />
                                     </span>
@@ -249,23 +258,6 @@ export default function Sidebar({
 
                 </ul>
             </div>
-
-            {/* <div className={`${sb["sb-footer"]}`}>
-                <div className={`${sb['profile']}`}>
-                    <img src="/images/logo.png" alt="profileImg" />
-                    <div className={sb["name_job"]}>
-                        <div className={sb["name"]}>Vuvuvuvvv</div>
-                        <div className={sb["job"]}>Admin</div>
-                    </div>
-                </div>
-                <Link
-                    href={"#"}
-                    className={`btn m-0 p-0`}
-                    id={`${sb['btn-logout']}`}
-                >
-                    <FontAwesomeIcon icon={faSignOutAlt} fontSize={20}></FontAwesomeIcon>
-                </Link>
-            </div> */}
         </div>
     </Suspense>
 }

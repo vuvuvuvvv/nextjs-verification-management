@@ -15,8 +15,7 @@ import {
     faKey,
     faMailBulk,
     faSignOut,
-    faUser,
-    faUsersCog
+    faUser
 }
     from '@fortawesome/free-solid-svg-icons';
 import Link from "next/link";
@@ -26,13 +25,16 @@ import { useUser } from "@/context/AppContext";
 import React from "react";
 import dynamic from "next/dynamic";
 import { ACCESS_LINKS } from "@lib/system-constant";
+import { getNameOfRole } from "@lib/system-function";
 
 interface NavbarProps {
     className?: string,
     title?: string,
+    show: boolean,
+    setShowSB: React.Dispatch<React.SetStateAction<boolean>>;
 }
-const Navbar: React.FC<NavbarProps> = ({ className, title = "Trang kiểm định" }) => {
-    const { user, logoutUser, isAdmin } = useUser();
+const Navbar: React.FC<NavbarProps> = ({ className, title = "Trang kiểm định", show, setShowSB }) => {
+    const { user, logoutUser } = useUser();
 
     return (
         <>
@@ -40,11 +42,11 @@ const Navbar: React.FC<NavbarProps> = ({ className, title = "Trang kiểm địn
                 <div className="row m-0 p-0 w-100 d-flex align-items-center justify-content-between">
                     <div className="col-9 d-flex align-items-center justify-content-start gap-1">
 
-                        <Sidebar title={title}></Sidebar>
+                        <Sidebar show={show} setShow={setShowSB} title={title}></Sidebar>
 
                         <Link href={"/"} className={"btn m-0 p-0 border-0"}>
                             <div className={`${layout["nav-brand"]} ps-2 ps-xl-0`}>
-                                <img src="/images/logo.png" alt="profileImg" />
+                                <img src="/images/logo.png" alt="Kiểm định DHT" />
                             </div>
                         </Link>
                         <h5 className={`d-none d-sm-block fw-bold m-0 p-0 ms-2 ${layout['nav-title']}`}>{title}</h5>
@@ -53,46 +55,49 @@ const Navbar: React.FC<NavbarProps> = ({ className, title = "Trang kiểm địn
                         <div className={`dropdown ${layout["dD_account"]}`}>
                             <button aria-label="Tài khoản" className={`${layout["dD_button"]} btn dropdown-toggle`} type="button" data-bs-toggle="dropdown" aria-expanded="false">
                                 <FontAwesomeIcon icon={faUser} fontSize={24}></FontAwesomeIcon>
-                                <span className={`${layout['p_name']} d-none d-sm-block`}>{user?.username}</span>
+                                <span className={`${layout['p_name']} d-none d-sm-block`}>{user?.fullname || user?.username || "Unknown"}</span>
                             </button>
 
-                            <div className={`${layout['dD_menu']} dropdown-menu border-0 shadow-sm`}>
+                            <div className={`${layout['dD_menu']} dropdown-menu border-0 shadow`}>
                                 <div className={`${layout['dD_profile']}`}>
-                                    <div className={`${layout['box-avt']}`}>
-                                        <img src="/images/logo.png" alt="profileImg" />
-                                    </div>
                                     <div className={`${layout['box-info']}`}>
                                         <table>
                                             <tbody>
-                                                <tr className="d-sm-none">
-                                                    <th>Name:</th>
-                                                    <td>
-                                                        <span className={`${layout['b_name']}`}>{user?.username}</span>
-                                                    </td>
-                                                </tr>
-                                                <tr>
+                                                {user?.fullname &&
+                                                    <tr className="d-sm-none">
+                                                        <th>Tên:</th>
+                                                        <td>
+                                                            <span className={`${layout['b_name']}`}>{user?.fullname}</span>
+                                                        </td>
+                                                    </tr>
+                                                }
+                                                {user?.email && <tr>
                                                     <th>Email:</th>
                                                     <td>
                                                         <span className={`${layout['b_email']}`}>{user?.email}</span>
                                                     </td>
                                                 </tr>
-                                                <tr>
-                                                    <th>Role:</th>
+                                                }
+                                                {user?.username && <tr>
+                                                    <th>Tài khoản:</th>
                                                     <td>
-                                                        <span className={`${layout['b_role']}`}>{user?.role}</span></td>
+                                                        <span className={`${layout['b_username']}`}>{user?.username}</span>
+                                                    </td>
                                                 </tr>
+                                                }
+                                                {user?.role &&
+                                                    <tr>
+                                                        <th>Vai trò:</th>
+                                                        <td>
+                                                            <span className={`${layout['b_role']}`}>{getNameOfRole(user?.role)}</span></td>
+                                                    </tr>
+                                                }
                                             </tbody>
                                         </table>
                                     </div>
                                 </div>
                                 <hr className="my-2" />
 
-                                {isAdmin && (
-                                    <a aria-label="Trang quản trị" href="/dashboard" className={`dropdown-item ${layout['dD_item']}`}>
-                                        <FontAwesomeIcon icon={faUsersCog}></FontAwesomeIcon>
-                                        Trang quản trị
-                                    </a>
-                                )}
                                 <a aria-label="Đổi mật khẩu" href={ACCESS_LINKS.CHANGE_PW.src} className={`dropdown-item ${layout['dD_item']}`}>
                                     <FontAwesomeIcon icon={faKey}></FontAwesomeIcon>
                                     Đổi mật khẩu

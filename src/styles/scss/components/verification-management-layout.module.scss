@@ -22,7 +22,11 @@
     }
 
     .search-process {
+
         // overflow: hidden;
+        button {
+            min-height: 42px;
+        }
 
         .form-label {
             // font-size: 16px;
@@ -89,12 +93,19 @@
     }
 
     .wrap-process-table {
-        overflow-x: auto;
-        
+        max-height: 80vh !important;
+        overflow-y: auto;
+        border-bottom: 1px solid $light_grey;
+
         .process-table {
-            // min-height: 150px !important;
+            thead {
+                position: sticky;
+                top: 0px;
+                z-index: 9;
+            }
 
             .table-header {
+                border-width: 0 !important;
 
                 th {
                     background-color: $blue !important;
@@ -124,7 +135,7 @@
                 }
 
 
-                th:not(:last-child) {
+                th:not(:last-child, :first-child) {
                     cursor: pointer;
                     transition: 0.3s all ease;
 
@@ -135,11 +146,11 @@
             }
 
             th {
-                padding: 18px 12px;
+                padding: 16px 10px;
             }
 
             td {
-                padding: 14px 10px;
+                padding: 10px 8px;
                 vertical-align: middle;
                 position: relative;
             }
@@ -171,7 +182,9 @@
                 }
 
                 li {
-                    a, button {
+
+                    a,
+                    button {
                         display: flex;
                         justify-content: flex-start;
                         border-radius: 0px;

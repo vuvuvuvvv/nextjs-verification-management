@@ -1,9 +1,3 @@
-export const processStatusOptions = [
-    { value: '1', label: 'Q1' },
-    { value: '2', label: 'Q2' },
-    { value: '3', label: 'Q3' }
-];
-
 export const statusOptions = [
     { value: '0', label: 'Không hoạt động' },
     { value: '1', label: 'Hoạt động' },
@@ -21,7 +15,7 @@ export const phuongTienDoOptions = [
 ]
 
 export const typeOptions = [
-    { value: "Điện từ", label: "Điện từ" },
+    { value: "Điện tử", label: "Điện tử" },
     { value: "Cơ - Điện từ", label: "Cơ - Điện từ" },
     { value: "Đơn tia", label: "Đơn tia" },
     { value: "Đa tia", label: "Đa tia" },
@@ -43,7 +37,7 @@ export const ccxOptions = [
 ]
 
 export const limitOptions = [
-    { value: 5, label: 5 },
+    // { value: 5, label: 5 },
     { value: 10, label: 10 },
     { value: 15, label: 15 },
     { value: 20, label: 20 },
@@ -60,17 +54,54 @@ export const TITLE_LUU_LUONG = {
     qmin: "Qmin"
 }
 
+export const PERMISSIONS = {
+    VIEWER: "Viewer",
+    MANAGER: "Manager",
+    DIRECTOR: "Director",
+    ADMIN: "Administrator",
+    SUPERADMIN: "SuperAdministrator",
+}
+export const PERMISSION_VALUES : Record<string, number> = {
+    "Viewer" : 1,
+    "Manager" : 2,
+    "Director" : 3,
+    "Administrator" : 4,
+    "SuperAdministrator" : 5,
+}
+
+export const PERMISSION_TITLES : Record<string, string> = {
+    "Viewer" : "Người xem",
+    "Manager" : "Quản lý",
+    "Director" : "Giám đốc",
+    "Administrator" : "Quản trị viên",
+    "SuperAdministrator" : "Siêu quản trị viên",
+}
+
+export const DEFAULT_LOCATION = "Công ty Cổ phần Công nghệ và Thương mại FMS"
+export const INDEXED_DB_NAME = "FMS_VFM_DB"
+export const INDEXED_DB_KIEM_DINH_NAME = "KiemDinh"
+export const INDEXED_DB_HIEU_CHUAN_NAME = "HieuChuan"
+
 export const BASE_API_URL = process.env.NEXT_PUBLIC_API_URL;
 
 // Acess links:
 const KD_PDM = "/kiem-dinh/pdm"
 const KD_DHN = "/kiem-dinh/dong-ho-nuoc"
-const KD_DHN_BT15 = KD_DHN + "/dn-bigger-than-15"
-const KD_DHN_ST15 = KD_DHN + "/dn-smaller-than-15"
+const HC_DHN = "/hieu-chuan/dong-ho-nuoc"
+// const KD_DHN = KD_DHN + "/q-bigger-than-15"
+// const KD_DHN = KD_DHN + "/q-smaller-than-15"
 export const ACCESS_LINKS = {
     HOME : {
         src: "/",
         title: "Trang chủ"
+    },
+    AD_XUAT_BAO_CAO : {
+        src: "/xuat-bao-cao",
+        title: "Xuất báo cáo"
+    },
+    AD_PHAN_QUYEN : {
+        src: "/phan-quyen",
+        title: "Phân quyền"
     },
     AUTH_FORGOT_PW : {
         src: "/forgot-password",
@@ -84,6 +115,14 @@ export const ACCESS_LINKS = {
         src: "/register",
         title: "Đăng ký"
     },
+    AUTH_VERIFY: {
+        src: "/verify",
+        title: "Xác thực người dùng"
+    },
+    AUTH_UNVERIFIED : {
+        src: "/unverified",
+        title: "Yêu cầu xác thực"
+    },
     AUTH_RESET_PW : {
         src: "/reset-password",
         title: "Đặt lại mật khẩu"
@@ -96,25 +135,29 @@ export const ACCESS_LINKS = {
         src: "/change/password",
         title: "Đổi mật khẩu"
     },
-    DHN_DETAIL : {
+    DHN : {
+        src: KD_DHN, 
+        title: "Đồng hồ nước"
+    },
+    DHN_ADD : {
+        src: KD_DHN + "/them-moi",
+        title: "Thêm mới kiểm định"
+    },
+    DHN_EDIT_DH : {
+        src: KD_DHN + "/chinh-sua",
+        title: "Chỉnh sửa kiểm định"
+    },
+    DHN_EDIT_NDH : {
+        src: KD_DHN + "/chinh-sua/nhom",
+        title: "Chỉnh sửa kiểm định nhóm"
+    },
+    DHN_DETAIL_DH : {
         src: KD_DHN + "/chi-tiet",
-        title: ""
+        title: "Chi tiết kiểm định"
     },
-    DHN_BT15 : {
-        src: KD_DHN_BT15,
-        title: "DN > 15 - Kiểm định"
-    },
-    DHN_BT15_ADD : {
-        src: KD_DHN_BT15 + "/them-moi",
-        title: "DN > 15 - Thêm mới"
-    },
-    DHN_ST15 : {
-        src: KD_DHN_ST15,
-        title: "DN < 15 - Kiểm định"
-    },
-    DHN_ST15_ADD : {
-        src: KD_DHN_ST15 + "/them-moi",
-        title: "DN < 15 - Thêm mới"
+    DHN_DETAIL_NDH : {
+        src: KD_DHN + "/chi-tiet/nhom",
+        title: "Chi tiết kiểm định nhóm"
     },
     PDM : {
         src: KD_PDM,
@@ -122,10 +165,35 @@ export const ACCESS_LINKS = {
     },
     PDM_DETAIL : {
         src: KD_PDM + "/chi-tiet",
-        title: ""
+        title: "Chi tiết phê duyệt mẫu"
     },
     PDM_ADD : {
         src: KD_PDM + "/them-moi",
         title: "Thêm mới phê duyệt mẫu"
+    },
+    // Hiệu chuẩn
+    HC_DHN : {
+        src: HC_DHN, 
+        title: "Đồng hồ nước"
+    },
+    HC_DHN_ADD : {
+        src: HC_DHN + "/them-moi",
+        title: "Thêm mới hiệu chuẩn"
+    },
+    HC_DHN_EDIT_DH : {
+        src: HC_DHN + "/chinh-sua",
+        title: "Chỉnh sửa hiệu chuẩn"
+    },
+    HC_DHN_EDIT_NDH : {
+        src: HC_DHN + "/chinh-sua/nhom",
+        title: "Chỉnh sửa nhóm hiệu chuẩn"
+    },
+    HC_DHN_DETAIL_DH : {
+        src: HC_DHN + "/chi-tiet",
+        title: "Chi tiết hiệu chuẩn"
+    },
+    HC_DHN_DETAIL_NDH : {
+        src: HC_DHN + "/chi-tiet/nhom",
+        title: "Chi tiết hiệu chuẩn nhóm"
     },
 }

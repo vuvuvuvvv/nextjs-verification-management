@@ -1,15 +1,13 @@
 "use client"
 
-import { DongHoProvider } from "@/context/DongHo";
 import { KiemDinhProvider } from "@/context/KiemDinh";
 import { DongHoListProvider } from "@/context/ListDongHo";
+import { INDEXED_DB_KIEM_DINH_NAME } from "@lib/system-constant";
 
 export default function KiemDinhDongHoNuocLayout({ children }: Readonly<{ children: React.ReactNode }>) {
-    return <DongHoProvider>
-        <DongHoListProvider>
-            <KiemDinhProvider>
+    return <KiemDinhProvider>
+            <DongHoListProvider dbName={INDEXED_DB_KIEM_DINH_NAME}>
                 {children}
-            </KiemDinhProvider>
-        </DongHoListProvider>
-    </DongHoProvider>
+            </DongHoListProvider>
+    </KiemDinhProvider>
 }

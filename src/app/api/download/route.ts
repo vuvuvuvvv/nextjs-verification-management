@@ -3,7 +3,7 @@ import { BASE_API_URL } from '@lib/system-constant';
 import { getFullNameFileDownload } from "@lib/system-function";
 import { DongHo } from "@lib/types";
 
-const API_EXPORT_URL = `${BASE_API_URL}/export`;
+const API_DOWNLOAD_URL = `${BASE_API_URL}/download`;
 
 interface DownloadResponse {
     msg: string;
@@ -13,7 +13,7 @@ interface DownloadResponse {
 
 export async function downloadBB(dongHo: DongHo): Promise<DownloadResponse> {
     try {
-        const response = await axios.get(`${API_EXPORT_URL}/kiemdinh/bienban/${dongHo.id}`, {
+        const response = await axios.get(`${API_DOWNLOAD_URL}/kiemdinh/bienban/${dongHo.id}`, {
             responseType: "blob", // Để xử lý tải xuống file
         });
 
@@ -51,7 +51,7 @@ export async function downloadBB(dongHo: DongHo): Promise<DownloadResponse> {
 
 export async function downloadGCN(dongHo: DongHo): Promise<DownloadResponse> {
     try {
-        const response = await axios.get(`${API_EXPORT_URL}/kiemdinh/gcn/${dongHo.id}`, {
+        const response = await axios.get(`${API_DOWNLOAD_URL}/kiemdinh/gcn/${dongHo.id}`, {
             responseType: "blob", // Để xử lý tải xuống file
         });
 
@@ -69,19 +69,57 @@ export async function downloadGCN(dongHo: DongHo): Promise<DownloadResponse> {
             throw new Error("Unexpected response");
         }
     } catch (error: any) {
-        // console.log("Error: ", error);
         if (axios.isAxiosError(error)) {
             if (error.response?.status === 404) {
                 return { msg: "Id không hợp lệ!" };
             }
             if (error.response?.status === 500) {
-                return { msg: `Đã có lỗi xảy ra! Hãy thử lại sau."}` };
+                return { msg: `Đã có lỗi xảy ra! Hãy thử lại sau.` };
             }
             if (error.response?.status === 400) {
                 return { msg: `Có lỗi xảy ra khi trích xuất dữ liệu! Hãy thử lại.` };
             }
             if (error.response?.status === 422) {
-                return { msg: `Đồng hồ không đạt tiêu chuẩn xuất biên bản!` };
+                return { msg: `Đồng hồ không đạt tiêu chuẩn xuất giấy chứng nhận!` };
+            }
+        }
+        return { msg: "Mạng hoặc API không khả dụng! Hãy thử lại sau." };
+    }
+}
+
+
+export async function downloadHC(dongHo: DongHo): Promise<DownloadResponse> {
+    try {
+        const response = await axios.get(`${API_DOWNLOAD_URL}/kiemdinh/hc/${dongHo.id}`, {
+            responseType: "blob", // Để xử lý tải xuống file
+        });
+
+        if (response.status === 200) {
+            const blob = new Blob([response.data], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" });
+            const url = window.URL.createObjectURL(blob);
+            const link = document.createElement("a");
+            link.download = "KĐ_HC_" + getFullNameFileDownload(dongHo) + ".xlsx";
+            link.href = url;
+            link.click();
+            window.URL.revokeObjectURL(url);
+
+            return { msg: "Tải xuống thành công!" };
+        } else {
+            throw new Error("Unexpected response");
+        }
+    } catch (error: any) {
+        if (axios.isAxiosError(error)) {
+            if (error.response?.status === 404) {
+                return { msg: "Id không hợp lệ!" };
+            }
+            if (error.response?.status === 500) {
+                return { msg: `Đã có lỗi xảy ra! Hãy thử lại sau.` };
+            }
+            if (error.response?.status === 400) {
+                return { msg: `Có lỗi xảy ra khi trích xuất dữ liệu! Hãy thử lại.` };
+            }
+            if (error.response?.status === 422) {
+                return { msg: `Đồng hồ không đạt tiêu chuẩn xuất hiệu chuẩn!` };
             }
         }
         return { msg: "Mạng hoặc API không khả dụng! Hãy thử lại sau." };
