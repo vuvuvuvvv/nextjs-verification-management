@@ -85,7 +85,6 @@ export default function DongHoNuocMng({ className, isBiggerThan15 = false, isAut
     // const path = usePathname();
 
     const [filterForm, setFilterForm] = useState<DongHoFilterParameters>({
-        is_bigger_than_15: isBiggerThan15,
         so_giay_chung_nhan: "",
         seri_sensor: "",
         type: "",

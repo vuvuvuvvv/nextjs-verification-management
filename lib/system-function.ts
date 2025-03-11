@@ -198,30 +198,72 @@ export const getListDongHoNamesExist = async () => {
     return []
 }
 
-export function openDB(dbName: string) {
-    return new Promise((resolve, reject) => {
+// function _openDB(dbName: string) {
+//     return new Promise<IDBDatabase>((resolve, reject) => {
+//         if (typeof window === "undefined") return;
+
+//         const request = indexedDB.open(INDEXED_DB_NAME);
+
+//         request.onupgradeneeded = (event) => {
+//             const db = (event.target as IDBOpenDBRequest).result;
+
+//             // Tạo bảng nếu chưa có
+//             if (!db.objectStoreNames.contains(dbName)) {
+//                 db.createObjectStore(dbName, { keyPath: 'id' });
+//             }
+//         };
+
+//         request.onsuccess = (event) => {
+//             resolve((event.target as IDBOpenDBRequest).result);
+//         };
+
+//         request.onerror = (event) => {
+//             reject((event.target as IDBOpenDBRequest).error);
+//         };
+//     });
+// }
+
+async function _ensureObjectStoreExists(dbName: string) {
+    return new Promise<IDBDatabase>((resolve, reject) => {
         if (typeof window === "undefined") return;
 
-        const request = indexedDB.open(INDEXED_DB_NAME, 2); // Tăng version nếu cần tạo thêm bảng, 
-        // Version không phải số lượng bảng! Chỉ tăng version khi có thay đổi schema
+        // Mở DB để lấy version hiện tại
+        const checkRequest = indexedDB.open(INDEXED_DB_NAME);
 
-        request.onupgradeneeded = (event) => {
+        checkRequest.onsuccess = (event) => {
             const db = (event.target as IDBOpenDBRequest).result;
 
-            // Kiểm tra và tạo bảng nếu chưa có
-            if (!db.objectStoreNames.contains(dbName)) {
-                db.createObjectStore(dbName, { keyPath: 'id' });
+            // Nếu bảng đã tồn tại, không cần tăng version
+            if (db.objectStoreNames.contains(dbName)) {
+                resolve(db);
+                return;
             }
+
+            // Nếu bảng chưa tồn tại, tăng version để tạo bảng mới
+            const newVersion = db.version + 1;
+            db.close();
+
+            const upgradeRequest = indexedDB.open(INDEXED_DB_NAME, newVersion);
+
+            upgradeRequest.onupgradeneeded = (event) => {
+                const upgradedDB = (event.target as IDBOpenDBRequest).result;
+                upgradedDB.createObjectStore(dbName, { keyPath: 'id' });
+            };
+
+            upgradeRequest.onsuccess = (event) => {
+                resolve((event.target as IDBOpenDBRequest).result);
+            };
+
+            upgradeRequest.onerror = (event) => {
+                reject((event.target as IDBOpenDBRequest).error);
+            };
         };
-        request.onsuccess = (event) => {
-            resolve((event.target as IDBOpenDBRequest).result);
-        };
-        request.onerror = (event) => {
+
+        checkRequest.onerror = (event) => {
             reject((event.target as IDBOpenDBRequest).error);
         };
     });
 }
-
 
 export async function saveDongHoDataExistsToIndexedDB(
     dbName: string,
@@ -229,15 +271,10 @@ export async function saveDongHoDataExistsToIndexedDB(
     data: DongHo[],
     savedData?: DongHo[]
 ) {
-    const db = await openDB(dbName); // Đợi database mở hoàn tất
+    const db = await _ensureObjectStoreExists(dbName); // Kiểm tra và tạo bảng nếu cần
 
     return new Promise<void>((resolve, reject) => {
-        if (!(db as IDBDatabase).objectStoreNames.contains(dbName)) {
-            reject(new Error(`Object store "${dbName}" not found in IndexedDB`));
-            return;
-        }
-
-        const transaction = (db as IDBDatabase).transaction(dbName, "readwrite");
+        const transaction = db.transaction(dbName, "readwrite");
         const store = transaction.objectStore(dbName);
 
         const dataToStore = {
@@ -253,56 +290,52 @@ export async function saveDongHoDataExistsToIndexedDB(
     });
 }
 
-
 export async function getDongHoDataExistsFromIndexedDB(dbName: string, username: string): Promise<{
     dongHoList: DongHo[],
     savedDongHoList: DongHo[]
 } | null> {
-    const db = await openDB(dbName) as IDBDatabase;
+    const db = await _ensureObjectStoreExists(dbName); // Kiểm tra và tạo bảng nếu cần
+
     return new Promise((resolve, reject) => {
+        if (!db.objectStoreNames.contains(dbName)) {
+            resolve(null); // Nếu bảng chưa tồn tại, trả về null
+            return;
+        }
+
         const transaction = db.transaction(dbName, "readonly");
         const store = transaction.objectStore(dbName);
         const request = store.get(username);
 
-        request.onsuccess = (event: Event) => {
+        request.onsuccess = (event) => {
             const target = event.target as IDBRequest;
-            if (target.result) {
-                resolve({
-                    dongHoList: target.result?.dongHoList || [],
-                    savedDongHoList: target.result?.savedDongHoList || []
-                });
-            } else {
-                resolve(null);
-            }
+            resolve(target.result ? {
+                dongHoList: target.result?.dongHoList || [],
+                savedDongHoList: target.result?.savedDongHoList || []
+            } : null);
         };
 
-        request.onerror = (event) => {
-            const target = event.target as IDBRequest;
-            if (target && target.error) {
-                reject(target.error);
-            }
-        };
+        request.onerror = (event) => reject((event.target as IDBRequest).error);
     });
 }
 
 export async function deleteDongHoDataFromIndexedDB(dbName: string, username: string): Promise<void> {
-    const db = await openDB(dbName) as IDBDatabase;
+    const db = await _ensureObjectStoreExists(dbName); // Kiểm tra và tạo bảng nếu cần
+
     return new Promise<void>((resolve, reject) => {
+        if (!db.objectStoreNames.contains(dbName)) {
+            resolve(); // Nếu bảng chưa tồn tại, coi như không có dữ liệu để xóa
+            return;
+        }
+
         const transaction = db.transaction(dbName, "readwrite");
         const store = transaction.objectStore(dbName);
-
         const request = store.delete(username);
 
-        request.onsuccess = () => {
-            resolve();
-        };
-
-        request.onerror = (event) => {
-            const error = (event.target as IDBRequest).error;
-            reject(error);
-        };
+        request.onsuccess = () => resolve();
+        request.onerror = (event) => reject((event.target as IDBRequest).error);
     });
 }
+
 
 export function getNameOfRole(role: string | undefined) {
     return role ? (PERMISSION_TITLES[role] || role) : "Chưa rõ";

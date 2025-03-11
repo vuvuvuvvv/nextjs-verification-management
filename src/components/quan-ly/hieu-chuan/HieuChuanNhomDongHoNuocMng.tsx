@@ -189,10 +189,12 @@ export default function HieuChuanNhomDongHoNuocMng({ className, setSelectedGroup
         }
     };
 
-    if (!fetchedRef.current) {
-        _fetchNhomDongHo();
-        fetchedRef.current = true;
-    }
+    useEffect(() => {
+        if (!fetchedRef.current) {
+            _fetchNhomDongHo();
+            fetchedRef.current = true;
+        }
+    }, [])
 
     // useEffect(() => {
     //     const filteredData = rootData.current ? [...rootData.current].filter(_ndh => {
