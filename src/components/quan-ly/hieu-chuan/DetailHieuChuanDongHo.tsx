@@ -173,7 +173,7 @@ export default function DetailHieuChuanDongHo({ dongHo }: DetailHieuChuanDongHoP
                     </Link>
                     {ketQua != null && <>
                         <span style={{ cursor: "unset" }} className={`btn bg-grey text-white rounded-start rounded-end-0 ${(dongHo.so_giay_chung_nhan && dongHo.so_tem && ketQua == true) || (ketQua == false) ? "d-inline" : "d-none"}`}><FontAwesomeIcon icon={faDownload}></FontAwesomeIcon> Nhiều:</span>
-                        <button aria-label="Tải hiệu chuẩn" disabled className={`btn bg-main-green rounded-0 ${(dongHo.so_giay_chung_nhan && dongHo.so_tem && ketQua == true) ? "" : "rounded-end"} text-white ${(dongHo.so_giay_chung_nhan && dongHo.so_tem && ketQua == true) || (ketQua == false) ? "d-inline" : "d-none"}`} onClick={handleDownloadHC}>
+                        <button aria-label="Tải hiệu chuẩn" disabled className={`btn bg-main-green rounded-end ${(dongHo.so_giay_chung_nhan && dongHo.so_tem && ketQua == true) ? "" : ""} text-white ${(dongHo.so_giay_chung_nhan && dongHo.so_tem && ketQua == true) || (ketQua == false) ? "d-inline" : "d-none"}`} onClick={handleDownloadHC}>
                             <FontAwesomeIcon icon={faFileExcel} className="me-1"></FontAwesomeIcon> Hiệu chuẩn
                         </button>
                     </>}
