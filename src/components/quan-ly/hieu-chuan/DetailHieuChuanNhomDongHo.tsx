@@ -396,7 +396,7 @@ export default function DetailHieuChuanNhomDongHo({ nhomDongHo }: DetailHieuChua
                                         <span style={{ cursor: "unset" }} className={`btn border-0 bg-grey text-white rounded-start rounded-end-0 ${(dongHo.so_giay_chung_nhan && dongHo.so_tem && ketQua == true) || (ketQua == false) ? "d-inline" : "d-none"}`}><FontAwesomeIcon icon={faDownload}></FontAwesomeIcon></span>
                                         <button
                                             aria-label="Tải hiệu chuẩn"
-                                            className={`btn border-top-0 border-bottom-0 bg-main-green rounded-0 ${(dongHo.so_giay_chung_nhan && dongHo.so_tem && ketQua == true) ? "" : "rounded-end"} text-white ${(dongHo.so_giay_chung_nhan && dongHo.so_tem && ketQua == true) || (ketQua == false) ? "d-inline" : "d-none"}`}
+                                            className={`btn border-top-0 border-bottom-0 rounded-end bg-main-green rounded-0 ${(dongHo.so_giay_chung_nhan && dongHo.so_tem && ketQua == true) ? "" : "rounded-end"} text-white ${(dongHo.so_giay_chung_nhan && dongHo.so_tem && ketQua == true) || (ketQua == false) ? "d-inline" : "d-none"}`}
                                             onClick={() => handleDownloadHC(dongHo)}>
                                             <FontAwesomeIcon icon={faFileExcel} className="me-1"></FontAwesomeIcon> Hiệu chuẩn
                                         </button>
