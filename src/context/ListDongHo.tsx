@@ -230,7 +230,7 @@ export const DongHoListProvider = ({ dbName, children }: DongHoListProviderProps
     useEffect(() => {
         if (dongHoList && dongHoList.length > 0
             && user && user.username
-            // && !isInitialization
+            && !isInitialization
             && savedDongHoList.length != dongHoList.length
             && !isEditing) {
             if (handler.current) {
