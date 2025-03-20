@@ -26,13 +26,19 @@ const api = axios.create({
     withCredentials: true,
 });
 
+// api.interceptors.request.use(config => {
+//     const token = Cookies.get('accessToken');
+//     if (token) {
+//         config.headers.Authorization = `Bearer ${token}`;
+//         config.headers['Content-Type'] = "application/json";
+//         config.headers.Accept = "application/json";
+//     }
+//     return config;
+// });
+
 api.interceptors.request.use(config => {
-    const token = Cookies.get('accessToken');
-    if (token) {
-        config.headers.Authorization = `Bearer ${token}`;
-        config.headers['Content-Type'] = "application/json";
-        config.headers.Accept = "application/json";
-    }
+    config.headers['Content-Type'] = "application/json";
+    config.headers.Accept = "application/json";
     return config;
 });
 
@@ -63,15 +69,10 @@ api.interceptors.response.use(
             isRefreshing = true;
             retryCount++;
 
-            const refreshToken = Cookies.get('refreshToken');
+            // const refreshToken = Cookies.get('refreshToken');
             return new Promise(function(resolve, reject) {
-                axios.post(`${API_AUTH_URL}/refresh`, {}, {
-                    headers: {
-                        'Authorization': `Bearer ${refreshToken}`
-                    },
-                }).then(({ data }) => {
-                    Cookies.set('accessToken', data.access_token);
-                    originalRequest.headers.Authorization = `Bearer ${data.access_token}`;
+                axios.post(`${API_AUTH_URL}/refresh`, {}, {withCredentials: true}).then(({ data }) => {
+                    // originalRequest.headers.Authorization = `Bearer ${data.access_token}`;
                     processQueue(null, data.access_token);
                     resolve(axios(originalRequest));
                 }).catch((err) => {

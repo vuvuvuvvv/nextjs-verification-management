@@ -12,10 +12,15 @@ export const login = async (credentials: LoginCredentials) => {
 
         const response = await axios.post(`${API_AUTH_URL}/login`, credentials, { withCredentials: true });
 
-        if (response.data.access_token && response.data.user && response.data.refresh_token) {
-            Cookies.set('accessToken', response.data.access_token, { expires: new Date(new Date().getTime() + 30 * 60 * 1000) });        //10 * 1000: 10s
-            Cookies.set('user', JSON.stringify(response.data.user), { expires: credentials.remember ? 7 : 1 });
-            Cookies.set('refreshToken', response.data.refresh_token, { expires: credentials.remember ? 7 : 1 });
+        if (response.data.user) {
+            try {
+                Cookies.set("user", JSON.stringify(response.data.user), {
+                    expires: credentials.remember ? 7 : 1, // 7 ngày nếu "remember me", 1 ngày nếu không
+                });
+
+            } catch (error: any) {
+                console.log("Lỗi khi lưu dữ liệu đăng nhập: ", error)
+            }
 
             return {
                 "status": response.status,
