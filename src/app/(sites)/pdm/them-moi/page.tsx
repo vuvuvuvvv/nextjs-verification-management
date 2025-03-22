@@ -185,7 +185,7 @@ export default function AddNewPDM({ className }: AddNewPDMProps) {
             noi_san_xuat: noiSanXuat,
             dn: DN,
             ccx: CCX,
-            kieu_sensor: kieuSensor,
+            sensor: kieuSensor,
             transmitter: kieuChiThi,
             qn: qn,
             q3: q3,

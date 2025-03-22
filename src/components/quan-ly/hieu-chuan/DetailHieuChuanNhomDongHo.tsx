@@ -138,10 +138,10 @@ export default function DetailHieuChuanNhomDongHo({ nhomDongHo }: DetailHieuChua
                 kieu_thiet_bi: dongHo.kieu_thiet_bi,
 
                 ten_dong_ho: dongHo.ten_dong_ho,
-                phuong_tien_do: dongHo.phuong_tien_do,
+                ten_phuong_tien_do: dongHo.ten_phuong_tien_do,
 
-                kieu_chi_thi: dongHo.kieu_chi_thi,
-                kieu_sensor: dongHo.kieu_sensor,
+                transitor: dongHo.transitor,
+                sensor: dongHo.sensor,
                 co_so_san_xuat: dongHo.co_so_san_xuat,
 
                 nam_san_xuat: dongHo.nam_san_xuat,
@@ -167,8 +167,8 @@ export default function DetailHieuChuanNhomDongHo({ nhomDongHo }: DetailHieuChua
                 nhiet_do: dongHo.nhiet_do,
                 do_am: dongHo.do_am,
 
-                nguoi_soat_lai: dongHo.noi_thuc_hien,
-                noi_thuc_hien: dongHo.noi_thuc_hien,
+                nguoi_soat_lai: dongHo.dia_diem_thuc_hien,
+                dia_diem_thuc_hien: dongHo.dia_diem_thuc_hien,
                 noi_su_dung: dongHo.noi_su_dung,
             })
 
@@ -299,9 +299,9 @@ export default function DetailHieuChuanNhomDongHo({ nhomDongHo }: DetailHieuChua
                                     <p>Tên đồng hồ: <b>{generalInfo.ten_dong_ho}</b></p>
                                 </div>
                             )}
-                            {generalInfo.phuong_tien_do && (
+                            {generalInfo.ten_phuong_tien_do && (
                                 <div className="col-12">
-                                    <p>Tên phương tiện đo: <b>{generalInfo.phuong_tien_do}</b></p>
+                                    <p>Tên phương tiện đo: <b>{generalInfo.ten_phuong_tien_do}</b></p>
                                 </div>
                             )}
                             {generalInfo.co_so_san_xuat && (
@@ -309,11 +309,11 @@ export default function DetailHieuChuanNhomDongHo({ nhomDongHo }: DetailHieuChua
                                     <p>Nơi sản xuất: <b>{generalInfo.co_so_san_xuat}</b></p>
                                 </div>
                             )}
-                            {(generalInfo.kieu_sensor || generalInfo.kieu_chi_thi) && <div className="col-12 mb-3">
+                            {(generalInfo.sensor || generalInfo.transitor) && <div className="col-12 mb-3">
                                 <p className="m-0">Kiểu sản xuất:</p>
                                 <div className="w-100 row m-0 px-3">
-                                    <div className="col-12 col-md-6 m-0 p-0">{(generalInfo.kieu_sensor) && <>Kiểu sensor: <b>{generalInfo.kieu_sensor}</b></>}</div>
-                                    <div className="col-12 col-md-6 m-0 p-0">{(generalInfo.kieu_chi_thi) && <>Kiểu chỉ thị: <b>{generalInfo.kieu_chi_thi}</b></>}</div>
+                                    <div className="col-12 col-md-6 m-0 p-0">{(generalInfo.sensor) && <>Kiểu sensor: <b>{generalInfo.sensor}</b></>}</div>
+                                    <div className="col-12 col-md-6 m-0 p-0">{(generalInfo.transitor) && <>Kiểu chỉ thị: <b>{generalInfo.transitor}</b></>}</div>
                                 </div>
                             </div>}
 
@@ -352,7 +352,7 @@ export default function DetailHieuChuanNhomDongHo({ nhomDongHo }: DetailHieuChua
                                 )}
                             </div>
                         )}
-                        {(generalInfo.nguoi_thuc_hien || generalInfo.ngay_thuc_hien || generalInfo.noi_thuc_hien) && (
+                        {(generalInfo.nguoi_thuc_hien || generalInfo.ngay_thuc_hien || generalInfo.dia_diem_thuc_hien) && (
                             <div className="row mb-3">
                                 {generalInfo.nguoi_thuc_hien && (
                                     <div className="col-6">
@@ -364,9 +364,9 @@ export default function DetailHieuChuanNhomDongHo({ nhomDongHo }: DetailHieuChua
                                         <p>Ngày thực hiện: <b>{dayjs(generalInfo.ngay_thuc_hien).format("DD/MM/YYYY")}</b></p>
                                     </div>
                                 )}
-                                {generalInfo.noi_thuc_hien && (
+                                {generalInfo.dia_diem_thuc_hien && (
                                     <div className="col-12">
-                                        <p>Địa điểm thực hiện: <b>{generalInfo.noi_thuc_hien}</b></p>
+                                        <p>Địa điểm thực hiện: <b>{generalInfo.dia_diem_thuc_hien}</b></p>
                                     </div>
                                 )}
                             </div>

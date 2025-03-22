@@ -190,18 +190,18 @@ export default function DetailKiemDinhDongHo({ dongHo }: DetailKiemDinhDongHoPro
                             <p>Tên đồng hồ: <b>{dongHo.ten_dong_ho || "Chưa có tên đồng hồ"}</b></p>
                         </div>
                         <div className="col-12">
-                            <p>Tên phương tiện đo: <b>{dongHo.phuong_tien_do || "Chưa có tên phương tiện đo"}</b></p>
+                            <p>Tên phương tiện đo: <b>{dongHo.ten_phuong_tien_do || "Chưa có tên phương tiện đo"}</b></p>
                         </div>
                         <div className="col-12">
                             <p>Nơi sản xuất: <b>{dongHo.co_so_san_xuat || "Chưa có nơi sản xuất"}</b></p>
                         </div>
-                        {(dongHo.kieu_sensor || dongHo.seri_sensor || dongHo.kieu_chi_thi || dongHo.seri_chi_thi)
+                        {(dongHo.sensor || dongHo.seri_sensor || dongHo.transitor || dongHo.seri_chi_thi)
                             && <div className="col-12 mb-3">
                                 <p className="m-0">Kiểu sản xuất:</p>
                                 <div className="w-100 row m-0 px-3">
-                                    <div className="col-12 col-md-6 m-0 p-0">{(dongHo.kieu_sensor) && <>Kiểu sensor: <b>{dongHo.kieu_sensor}</b></>}</div>
+                                    <div className="col-12 col-md-6 m-0 p-0">{(dongHo.sensor) && <>Kiểu sensor: <b>{dongHo.sensor}</b></>}</div>
                                     <div className="col-12 col-md-6 m-0 p-0">{(dongHo.seri_sensor) && <>Serial sensor: <b>{dongHo.seri_sensor}</b></>}</div>
-                                    <div className="col-12 col-md-6 m-0 p-0">{(dongHo.kieu_chi_thi) && <>Kiểu chỉ thị: <b>{dongHo.kieu_chi_thi}</b></>}</div>
+                                    <div className="col-12 col-md-6 m-0 p-0">{(dongHo.transitor) && <>Kiểu chỉ thị: <b>{dongHo.transitor}</b></>}</div>
                                     <div className="col-12 col-md-6 m-0 p-0">{(dongHo.seri_chi_thi) && <>Serial chỉ thị: <b>{dongHo.seri_chi_thi}</b></>}</div>
                                 </div>
                             </div>
@@ -235,7 +235,7 @@ export default function DetailKiemDinhDongHo({ dongHo }: DetailKiemDinhDongHoPro
                             <p>Ngày thực hiện: <b>{dayjs(dongHo.ngay_thuc_hien).format("DD/MM/YYYY")}</b></p>
                         </div>
                         <div className="col-12">
-                            <p>Địa điểm thực hiện: <b>{dongHo.noi_thuc_hien || "Chưa có địa điểm thực hiện"}</b></p>
+                            <p>Địa điểm thực hiện: <b>{dongHo.dia_diem_thuc_hien || "Chưa có địa điểm thực hiện"}</b></p>
                         </div>
                     </div>
                     <div className="w-100 mb-3">

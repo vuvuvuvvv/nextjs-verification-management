@@ -10,7 +10,8 @@ export const getSaiSoDongHo = (formValue: DuLieuMotLanChay) => {
         };
 
         const VDHCT = formValue.V2 - formValue.V1;
-        const VDHC = parseFloat(formValue.Vc2.toString()) - parseFloat(formValue.Vc1.toString());
+        // const VDHC = parseFloat(formValue.Vc2.toString()) - parseFloat(formValue.Vc1.toString());
+        const VDHC = parseFloat(formValue.Vc.toString());
         if (VDHC !== 0) {
             const error = ((VDHCT - VDHC) / VDHC) * 100;
             return Number((Math.round(error * 10000) / 10000).toFixed(4));
@@ -126,8 +127,6 @@ export const getHieuSaiSo = (formValues: TinhSaiSoValueTabs) => {
     }
 }
 
-
-// TODO: Check 
 export const isDongHoDatTieuChuan = (formHieuSaiSo: { hss: number | null }[]) => {
     const lan1 = formHieuSaiSo[0].hss;
     const lan2 = formHieuSaiSo[1].hss;
@@ -181,8 +180,8 @@ export const convertToUppercaseNonAccent = (str: string) => {
 
 export const getFullNameFileDownload = (dongho: DongHo) => {
     return (dongho.so_giay_chung_nhan || "") +
-        (dongho.ten_khach_hang ? "_" + dongho.ten_khach_hang : "") +
-        (dongho.ten_dong_ho ? "_" + dongho.ten_dong_ho : "") +
+        // (dongho.ten_khach_hang ? "_" + dongho.ten_khach_hang : "") +
+        // (dongho.ten_dong_ho ? "_" + dongho.ten_dong_ho : "") +
         (dongho.dn ? "_" + dongho.dn : "") +
         (dongho.ngay_thuc_hien ? "_" + dayjs(dongho.ngay_thuc_hien).format('DD-MM-YYYY') : "")
 }

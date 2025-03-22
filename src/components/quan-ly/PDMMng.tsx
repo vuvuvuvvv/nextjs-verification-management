@@ -650,7 +650,7 @@ export default React.memo(function PDMManagement({ className, listDHNamesExist }
                                                 <td>{item.ten_dong_ho}</td>
                                                 <td>{item.dn}</td>
                                                 <td>{item.ccx}</td>
-                                                <td>{item.kieu_sensor}</td>
+                                                <td>{item.sensor}</td>
                                                 <td>{item.transmitter}</td>
                                                 <td>{item.q3 ? <>Q<sub>III</sub>= {item.q3}</> : <>Q<sub>n</sub>= {item.qn}</>}</td>
                                                 <td>{item.r}</td>

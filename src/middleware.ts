@@ -19,6 +19,9 @@ export async function middleware(req: NextRequest) {
     const refreshTokenCookie = req.cookies.get('refreshToken')?.value;
     const userCookie = req.cookies.get('user')?.value;
 
+    console.log("rft: ", refreshTokenCookie);
+    console.log("user: ", userCookie);
+
     const isConfirmed = (userCookie ? JSON.parse(userCookie)?.confirmed : "") == "1" ? true : false;
 
     if (pathname.startsWith(ACCESS_LINKS.AUTH_RESET_PW.src)) {
@@ -42,31 +45,34 @@ export async function middleware(req: NextRequest) {
     const redirectUrl = new URL(ACCESS_LINKS.AUTH_LOGIN.src, req.url);
     redirectUrl.searchParams.set('redirect', pathname + searchParams.toString());
 
-    if (!refreshTokenCookie || !userCookie) {
+    if (
+        // !refreshTokenCookie || 
+        !userCookie
+    ) {
         if (AUTH_PATHS.some(authPath => pathname.includes(authPath))) {
             return NextResponse.next();
         }
         return NextResponse.redirect(redirectUrl);
     }
 
-    // Check if refreshToken is expired
-    if (refreshTokenCookie) {
-        try {
-            const { payload } = await jwtVerify(refreshTokenCookie, new TextEncoder().encode(process.env.NEXT_PUBLIC_JWT_SECRET));
-            if (payload.exp && payload.exp * 1000 < Date.now()) {
-                // logout();
-                return NextResponse.redirect(redirectUrl);
-            }
-        } catch (error) {
-            const response = NextResponse.redirect(redirectUrl);
-            response.cookies.delete('accessToken');
-            response.cookies.delete('refreshToken');
-            response.cookies.delete('user');
-            return response;
-        }
-    } else {
-        return NextResponse.redirect(redirectUrl);
-    }
+    // // Check if refreshToken is expired
+    // if (refreshTokenCookie) {
+    //     try {
+    //         const { payload } = await jwtVerify(refreshTokenCookie, new TextEncoder().encode(process.env.NEXT_PUBLIC_JWT_SECRET));
+    //         if (payload.exp && payload.exp * 1000 < Date.now()) {
+    //             // logout();
+    //             return NextResponse.redirect(redirectUrl);
+    //         }
+    //     } catch (error) {
+    //         const response = NextResponse.redirect(redirectUrl);
+    //         response.cookies.delete('accessToken');
+    //         response.cookies.delete('refreshToken');
+    //         response.cookies.delete('user');
+    //         return response;
+    //     }
+    // } else {
+    //     return NextResponse.redirect(redirectUrl);
+    // }
 
     if (AUTH_PATHS.some(authPath => pathname.includes(authPath))) {
         return NextResponse.redirect(new URL(ACCESS_LINKS.HOME.src, req.url));

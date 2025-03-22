@@ -34,7 +34,24 @@ export const KiemDinhProvider = ({ children }: { children: ReactNode }) => {
     const [randomT, setRandomT] = useState(parseFloat((Math.random() * (25 - 22) + 22).toFixed(1)));
 
     const lanChayMoi: DuLieuCacLanChay = {
-        1: { V1: 0, V2: 0, Vc1: 0, Vc2: 0, Tdh: randomT, Tc: randomT, },
+        1: { 
+            V1: 0, 
+            V2: 0,
+            Vc1: 0,
+            Vc2: 0,
+            Vc: 0,
+            Tdh: randomT,
+            Tc: randomT
+        },
+        2: { 
+            V1: 0, 
+            V2: 0,
+            Vc1: 0,
+            Vc2: 0,
+            Vc: 0,
+            Tdh: randomT,
+            Tc: randomT
+        },
     };
 
     const initialDuLieuKiemDinhCacLuuLuong: DuLieuChayDongHo = {
@@ -96,10 +113,20 @@ export const KiemDinhProvider = ({ children }: { children: ReactNode }) => {
                     V2: 0,
                     Vc1: "0",
                     Vc2: "0",
+                    Vc: "0",
                     Tdh: randomT,
                     Tc: randomT,
                     ...(vChuanDongBoCacLL?.[q.title]?.[1] || {})
-                }
+                },
+                2: { 
+                    V1: 0, 
+                    V2: 0,
+                    Vc1: "0",
+                    Vc2: "0",
+                    Vc: "0",
+                    Tdh: randomT,
+                    Tc: randomT
+                },
             }
         }
         const value = isNaN(Number(q.value)) ? 0 : Number(q.value);
@@ -161,10 +188,21 @@ export const KiemDinhProvider = ({ children }: { children: ReactNode }) => {
                 V2: 0,
                 Vc1: "0",
                 Vc2: "0",
+                Vc: "0",
                 Tdh: randomT,
                 Tc: randomT,
                 ...(vChuanDongBoCacLL?.[q.title]?.[1] || {})
-            }
+            },
+            2: { 
+                V1: 0, 
+                V2: 0,
+                Vc1: "0",
+                Vc2: "0",
+                Vc: "0",
+                Tdh: randomT,
+                Tc: randomT,
+                ...(vChuanDongBoCacLL?.[q.title]?.[2] || {})
+            },
         };
     }
 
@@ -181,10 +219,21 @@ export const KiemDinhProvider = ({ children }: { children: ReactNode }) => {
                             V2: 0,
                             Vc1: 0,
                             Vc2: 0,
+                            Vc: 0,
                             Tdh: randomT,
                             Tc: randomT,
                             ...(vChuanDongBoCacLL?.[q.title]?.[1] || {})
-                        }
+                        },
+                        2: { 
+                            V1: 0, 
+                            V2: 0,
+                            Vc1: 0,
+                            Vc2: 0,
+                            Vc: 0,
+                            Tdh: randomT,
+                            Tc: randomT,
+                            ...(vChuanDongBoCacLL?.[q.title]?.[2] || {})
+                        },
                     }
                 };
             }
@@ -194,6 +243,7 @@ export const KiemDinhProvider = ({ children }: { children: ReactNode }) => {
             if (data) {
                 let latest_V2 = data[Number(Object.keys(data)[Object.entries(data).length - 1])].V2
                 let latest_Vc2 = data[Number(Object.keys(data)[Object.entries(data).length - 1])].Vc2
+                let latest_Vc = data[Number(Object.keys(data)[Object.entries(data).length - 1])].Vc
                 const newIndexOfLanChay = Number(Object.keys(data)[Object.entries(data).length - 1]) + 1;
                 setDuLieuKiemDinhCacLuuLuong(prevState => {
                     const existingData = prevState[key] || {
@@ -204,9 +254,20 @@ export const KiemDinhProvider = ({ children }: { children: ReactNode }) => {
                                 V2: 0,
                                 Vc1: 0,
                                 Vc2: 0,
+                                Vc: 0,
                                 Tdh: randomT,
                                 Tc: randomT,
                                 ...(vChuanDongBoCacLL?.[q.title]?.[1] || {})
+                            },
+                            2: {
+                                V1: 0,
+                                V2: 0,
+                                Vc1: 0,
+                                Vc2: 0,
+                                Vc: 0,
+                                Tdh: randomT,
+                                Tc: randomT,
+                                ...(vChuanDongBoCacLL?.[q.title]?.[2] || {})
                             }
                         }
                     };
@@ -221,6 +282,8 @@ export const KiemDinhProvider = ({ children }: { children: ReactNode }) => {
                                     V2: 0,
                                     Vc1: latest_Vc2 || 0,
                                     Vc2: 0,
+                                    // TODO:
+                                    Vc: latest_Vc || 0,
                                     Tdh: randomT,
                                     Tc: randomT,
                                     ...(vChuanDongBoCacLL?.[q.title]?.[newIndexOfLanChay] || {})
@@ -241,9 +304,20 @@ export const KiemDinhProvider = ({ children }: { children: ReactNode }) => {
                         V2: 0,
                         Vc1: 0,
                         Vc2: 0,
+                        Vc: 0,
                         Tdh: randomT,
                         Tc: randomT,
                         ...(vChuanDongBoCacLL?.[q.title]?.[1] || {})
+                    },
+                    2: {
+                        V1: 0,
+                        V2: 0,
+                        Vc1: 0,
+                        Vc2: 0,
+                        Vc: 0,
+                        Tdh: randomT,
+                        Tc: randomT,
+                        ...(vChuanDongBoCacLL?.[q.title]?.[2] || {})
                     }
                 }
             };
@@ -268,9 +342,20 @@ export const KiemDinhProvider = ({ children }: { children: ReactNode }) => {
                                 V2: 0,
                                 Vc1: 0,
                                 Vc2: 0,
+                                Vc: 0,
                                 Tdh: randomT,
                                 Tc: randomT,
                                 ...(vChuanDongBoCacLL?.[q.title]?.[1] || {})
+                            },
+                            2: {
+                                V1: 0,
+                                V2: 0,
+                                Vc1: 0,
+                                Vc2: 0,
+                                Vc: 0,
+                                Tdh: randomT,
+                                Tc: randomT,
+                                ...(vChuanDongBoCacLL?.[q.title]?.[2] || {})
                             }
                         }
                     };
@@ -280,9 +365,20 @@ export const KiemDinhProvider = ({ children }: { children: ReactNode }) => {
                             V2: 0,
                             Vc1: 0,
                             Vc2: 0,
+                            Vc: 0,
                             Tdh: randomT,
                             Tc: randomT,
                             ...(vChuanDongBoCacLL?.[q.title]?.[1] || {})
+                        },
+                        2: {
+                            V1: 0,
+                            V2: 0,
+                            Vc1: 0,
+                            Vc2: 0,
+                            Vc: 0,
+                            Tdh: randomT,
+                            Tc: randomT,
+                            ...(vChuanDongBoCacLL?.[q.title]?.[2] || {})
                         }
                     };
 
@@ -313,6 +409,15 @@ export const KiemDinhProvider = ({ children }: { children: ReactNode }) => {
                 Tdh: randomT,
                 Tc: randomT,
                 ...(vChuanDongBoCacLL?.[q.title]?.[1] || {})
+            },
+            2: {
+                V1: 0,
+                V2: 0,
+                Vc1: 0,
+                Vc2: 0,
+                Tdh: randomT,
+                Tc: randomT,
+                ...(vChuanDongBoCacLL?.[q.title]?.[2] || {})
             }
         };
     };
@@ -335,6 +440,15 @@ export const KiemDinhProvider = ({ children }: { children: ReactNode }) => {
                                 Tdh: randomT,
                                 Tc: randomT,
                                 ...(vChuanDongBoCacLL?.[q.title]?.[1] || {})
+                            },
+                            2: {
+                                V1: 0,
+                                V2: 0,
+                                Vc1: 0,
+                                Vc2: 0,
+                                Tdh: randomT,
+                                Tc: randomT,
+                                ...(vChuanDongBoCacLL?.[q.title]?.[2] || {})
                             }
                         }
                     };
@@ -349,9 +463,20 @@ export const KiemDinhProvider = ({ children }: { children: ReactNode }) => {
                                     V2: 0,
                                     Vc1: 0,
                                     Vc2: 0,
+                                    Vc: 0,
                                     Tdh: randomT,
                                     Tc: randomT,
                                     ...(vChuanDongBoCacLL?.[q.title]?.[1] || {})
+                                },
+                                2: {
+                                    V1: 0,
+                                    V2: 0,
+                                    Vc1: 0,
+                                    Vc2: 0,
+                                    Vc: 0,
+                                    Tdh: randomT,
+                                    Tc: randomT,
+                                    ...(vChuanDongBoCacLL?.[q.title]?.[2] || {})
                                 }
                             }
                         }
@@ -395,9 +520,20 @@ export const KiemDinhProvider = ({ children }: { children: ReactNode }) => {
                         V2: 0,
                         Vc1: 0,
                         Vc2: 0,
+                        Vc: 0,
                         Tdh: randomT,
                         Tc: randomT,
                         ...(vChuanDongBoCacLL?.[q.title]?.[1] || {})
+                    },
+                    2: {
+                        V1: 0,
+                        V2: 0,
+                        Vc1: 0,
+                        Vc2: 0,
+                        Vc: 0,
+                        Tdh: randomT,
+                        Tc: randomT,
+                        ...(vChuanDongBoCacLL?.[q.title]?.[2] || {})
                     }
                 };
             },

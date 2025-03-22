@@ -41,8 +41,8 @@ export const getPDMByFilter = async (parameters?: PDMFilterParameters) => {
             url.searchParams.append('ccx', parameters.ccx.toString().replaceAll("/", "@gach_cheo"));
         }
 
-        if (parameters?.kieu_sensor) {
-            url.searchParams.append('kieu_sensor', parameters.kieu_sensor.toString().replaceAll("/", "@gach_cheo"));
+        if (parameters?.sensor) {
+            url.searchParams.append('sensor', parameters.sensor.toString().replaceAll("/", "@gach_cheo"));
         }
 
         if (parameters?.transmitter) {

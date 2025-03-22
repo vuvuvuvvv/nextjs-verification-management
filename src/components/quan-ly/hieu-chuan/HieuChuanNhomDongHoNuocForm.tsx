@@ -101,10 +101,10 @@ export default function HieuChuanNhomDongHoNuocForm({ className, generalInfoDong
         ghiChuVoNgoai: "",
 
         tenDongHo: generalInfoDongHo?.ten_dong_ho || "",
-        phuongTienDo: generalInfoDongHo?.phuong_tien_do || "",
+        phuongTienDo: generalInfoDongHo?.ten_phuong_tien_do || "",
         ccx: generalInfoDongHo?.ccx || null,
-        kieuChiThi: generalInfoDongHo?.kieu_chi_thi || "",
-        kieuSensor: generalInfoDongHo?.kieu_sensor || "",
+        kieuChiThi: generalInfoDongHo?.transitor || "",
+        kieuSensor: generalInfoDongHo?.sensor || "",
         kieuThietBi: generalInfoDongHo?.kieu_thiet_bi || "",
         coSoSanXuat: generalInfoDongHo?.co_so_san_xuat || "",
         namSanXuat: generalInfoDongHo?.nam_san_xuat || null,
@@ -121,7 +121,7 @@ export default function HieuChuanNhomDongHoNuocForm({ className, generalInfoDong
         ngayThucHien: generalInfoDongHo?.ngay_thuc_hien || new Date(),
         coSoSuDung: generalInfoDongHo?.co_so_su_dung || "",
         noiSuDung: generalInfoDongHo?.noi_su_dung || "",
-        noiThucHien: generalInfoDongHo?.noi_thuc_hien || "",
+        noiThucHien: generalInfoDongHo?.dia_diem_thuc_hien || "",
         viTri: generalInfoDongHo?.vi_tri || "",
         nhietDo: generalInfoDongHo?.nhiet_do || '',
         doAm: generalInfoDongHo?.do_am || '',
@@ -270,12 +270,12 @@ export default function HieuChuanNhomDongHoNuocForm({ className, generalInfoDong
     // Func: Validate
     const fieldTitles = {
         ten_dong_ho: "Tên đồng hồ",
-        phuong_tien_do: "Tên phương tiện đo",
+        ten_phuong_tien_do: "Tên phương tiện đo",
         kieu_thiet_bi: "Kiểu thiết bị",
         seri_chi_thi: "Serial chỉ thị",
         seri_sensor: "Serial sensor",
-        kieu_chi_thi: "Kiểu chỉ thị",
-        kieu_sensor: "Kiểu sensor",
+        transitor: "Kiểu chỉ thị",
+        sensor: "Kiểu sensor",
         so_tem: "Số Tem",
         co_so_san_xuat: "Cơ sở sản xuất",
         nam_san_xuat: "Năm sản xuất",
@@ -299,13 +299,13 @@ export default function HieuChuanNhomDongHoNuocForm({ className, generalInfoDong
 
     const fields = [
         { value: state.tenDongHo, id: "ten_dong_ho" },
-        // { value: state.phuongTienDo, setter: setPhuongTienDo, id: "phuong_tien_do" },
+        // { value: state.phuongTienDo, setter: setPhuongTienDo, id: "ten_phuong_tien_do" },
         { value: state.kieuThietBi, id: "kieu_thiet_bi" },
 
         // { value: state.seriChiThi, id: "seri_chi_thi" },
         // { value: state.seriSensor, id: "seri_sensor" },
-        // { value: state.kieuChiThi, id: "kieu_chi_thi" },                      
-        // { value: state.kieuSensor, id: "kieu_sensor" },
+        // { value: state.kieuChiThi, id: "transitor" },                      
+        // { value: state.kieuSensor, id: "sensor" },
 
         // { value: state.soTem, id: "so_tem" },
         { value: state.coSoSanXuat, id: "co_so_san_xuat" },
@@ -336,7 +336,7 @@ export default function HieuChuanNhomDongHoNuocForm({ className, generalInfoDong
         for (const field of fields) {
             const shouldValidate = (state.ccx && (state.ccx === "1" || state.ccx === "2")) || isDHDienTu
                 ? field.id !== "qn"
-                : field.id !== "q3" && field.id !== "r" && field.id !== "seri_sensor" && field.id !== "kieu_sensor";
+                : field.id !== "q3" && field.id !== "r" && field.id !== "seri_sensor" && field.id !== "sensor";
 
             if (shouldValidate && !field.value) {
                 validationErrors.push(field.id);
@@ -410,11 +410,11 @@ export default function HieuChuanNhomDongHoNuocForm({ className, generalInfoDong
                     + (generalInfoDongHo?.r || "")
                     + (generalInfoDongHo?.qn || "")
                     + (generalInfoDongHo?.ngay_thuc_hien ? dayjs(generalInfoDongHo.ngay_thuc_hien).format('DDMMYYHHmmss') : '')),
-            phuong_tien_do: state.phuongTienDo,
+            ten_phuong_tien_do: state.phuongTienDo,
             seri_chi_thi: '',
             seri_sensor: "",
-            kieu_chi_thi: checkQ3 ? state.kieuChiThi : "",
-            kieu_sensor: state.kieuSensor,
+            transitor: checkQ3 ? state.kieuChiThi : "",
+            sensor: state.kieuSensor,
             kieu_thiet_bi: state.kieuThietBi,
             co_so_san_xuat: state.coSoSanXuat,
             so_tem: "",
@@ -435,7 +435,7 @@ export default function HieuChuanNhomDongHoNuocForm({ className, generalInfoDong
             nguoi_soat_lai: state.nguoiSoatLai || "",
             ngay_thuc_hien: state.ngayThucHien,
             noi_su_dung: state.noiSuDung || "",
-            noi_thuc_hien: state.noiThucHien || DEFAULT_LOCATION,
+            dia_diem_thuc_hien: state.noiThucHien || DEFAULT_LOCATION,
             vi_tri: state.viTri || "",
             nhiet_do: state.nhietDo || "",
             do_am: state.doAm || "",
@@ -868,11 +868,11 @@ export default function HieuChuanNhomDongHoNuocForm({ className, generalInfoDong
                             <label className="w-100 fs-5 fw-bold">Đặc trưng kỹ thuật:</label>
                             <div className="row mx-0 w-100 mb-3">
                                 <div className="mb-3 col-12 col-md-6 col-xxl-4">
-                                    <label htmlFor="kieu_sensor" className="form-label">- Kiểu sensor:</label>
+                                    <label htmlFor="sensor" className="form-label">- Kiểu sensor:</label>
                                     <input
                                         type="text"
                                         className="form-control"
-                                        id="kieu_sensor"
+                                        id="sensor"
                                         disabled={savedDongHoList.length != 0}
                                         value={state.kieuSensor || ""}
                                         onChange={(e) => {
@@ -882,12 +882,12 @@ export default function HieuChuanNhomDongHoNuocForm({ className, generalInfoDong
                                 </div>
                                 {(isDHDienTu != null && isDHDienTu) ? <>
                                     <div className="mb-3 col-12 col-md-6 col-xxl-4">
-                                        <label htmlFor="kieu_chi_thi" className="form-label">- Kiểu chỉ thị:</label>
+                                        <label htmlFor="transitor" className="form-label">- Kiểu chỉ thị:</label>
                                         <div className="input-group">
                                             <input
                                                 type="text"
                                                 className="form-control"
-                                                id="kieu_chi_thi"
+                                                id="transitor"
                                                 disabled={savedDongHoList.length != 0}
                                                 value={state.kieuChiThi || ""}
                                                 onChange={(e) => {
@@ -1100,11 +1100,11 @@ export default function HieuChuanNhomDongHoNuocForm({ className, generalInfoDong
                                     />
                                 </div>
                                 <div className="mb-3 col-12 col-md-6">
-                                    <label htmlFor="noi_su_dung" className="form-label">Nơi thực hiện:</label>
+                                    <label htmlFor="noi_su_dung" className="form-label">Địa điểm thực hiện:</label>
                                     <input
                                         type="text"
                                         className="form-control"
-                                        id="noi_thuc_hien"
+                                        id="dia_diem_thuc_hien"
                                         placeholder={DEFAULT_LOCATION}
                                         disabled={savedDongHoList.length != 0}
                                         value={state.noiThucHien || ""}

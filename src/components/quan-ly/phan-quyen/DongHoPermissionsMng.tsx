@@ -322,18 +322,18 @@ export default function DongHoPermissionsManagement({ className, dongHoSelected,
                         <p>Tên đồng hồ: <b>{dongHoSelected.ten_dong_ho || "Chưa có tên đồng hồ"}</b></p>
                     </div>
                     <div className="col-12">
-                        <p>Tên phương tiện đo: <b>{dongHoSelected.phuong_tien_do || "Chưa có tên phương tiện đo"}</b></p>
+                        <p>Tên phương tiện đo: <b>{dongHoSelected.ten_phuong_tien_do || "Chưa có tên phương tiện đo"}</b></p>
                     </div>
                     <div className="col-12">
                         <p>Nơi sản xuất: <b>{dongHoSelected.co_so_san_xuat || "Chưa có nơi sản xuất"}</b></p>
                     </div>
-                    {(dongHoSelected.kieu_sensor || dongHoSelected.seri_sensor || dongHoSelected.kieu_chi_thi || dongHoSelected.seri_chi_thi)
+                    {(dongHoSelected.sensor || dongHoSelected.seri_sensor || dongHoSelected.transitor || dongHoSelected.seri_chi_thi)
                         && <div className="col-12 mb-3">
                             <p className="m-0">Kiểu sản xuất:</p>
                             <div className="w-100 row m-0 px-3">
-                                <div className="col-12 col-md-6 m-0 p-0">{(dongHoSelected.kieu_sensor) && <>Kiểu sensor: <b>{dongHoSelected.kieu_sensor}</b></>}</div>
+                                <div className="col-12 col-md-6 m-0 p-0">{(dongHoSelected.sensor) && <>Kiểu sensor: <b>{dongHoSelected.sensor}</b></>}</div>
                                 <div className="col-12 col-md-6 m-0 p-0">{(dongHoSelected.seri_sensor) && <>Serial sensor: <b>{dongHoSelected.seri_sensor}</b></>}</div>
-                                <div className="col-12 col-md-6 m-0 p-0">{(dongHoSelected.kieu_chi_thi) && <>Kiểu chỉ thị: <b>{dongHoSelected.kieu_chi_thi}</b></>}</div>
+                                <div className="col-12 col-md-6 m-0 p-0">{(dongHoSelected.transitor) && <>Kiểu chỉ thị: <b>{dongHoSelected.transitor}</b></>}</div>
                                 <div className="col-12 col-md-6 m-0 p-0">{(dongHoSelected.seri_chi_thi) && <>Serial chỉ thị: <b>{dongHoSelected.seri_chi_thi}</b></>}</div>
                             </div>
                         </div>

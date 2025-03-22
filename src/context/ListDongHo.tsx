@@ -43,22 +43,21 @@ export const DongHoListProvider = ({ dbName, children }: DongHoListProviderProps
     const [amount, setAmount] = useState<number>(1)
 
     const initDongHoList: DongHo[] = Array.from({ length: amount }, (_, i) => ({
-        is_hieu_chuan: isHieuChuan.current,
-        ket_qua_check_vo_ngoai: false,
-        ghi_chu_vo_ngoai: "",
-        index: i + 1,
         id: null,
+        ten_phuong_tien_do: "",
+
+        is_hieu_chuan: isHieuChuan.current,
+        index: i + 1,
+
         group_id: "",
-        ten_dong_ho: "",
-        phuong_tien_do: "",
-        seri_chi_thi: "",
-        seri_sensor: "",
-        kieu_chi_thi: "",
-        kieu_sensor: "",
-        kieu_thiet_bi: "",
+        
+        transitor: "",
+        sensor: "",
+        serial: "",
+
         co_so_san_xuat: "",
-        so_tem: "",
         nam_san_xuat: null,
+
         dn: "",
         d: "",
         ccx: null,
@@ -67,18 +66,27 @@ export const DongHoListProvider = ({ dbName, children }: DongHoListProviderProps
         qn: "",
         k_factor: "",
         so_qd_pdm: "",
-        ten_khach_hang: "",
+
+        so_giay_chung_nhan: "",
+        so_tem: "",
+
         co_so_su_dung: "",
-        noi_thuc_hien: "",
-        nguoi_soat_lai: "",
         phuong_phap_thuc_hien: "ĐLVN 17 : 2017",
         chuan_thiet_bi_su_dung: "Đồng hồ chuẩn đo nước và Bình chuẩn",
         nguoi_thuc_hien: "",
         ngay_thuc_hien: new Date(),
-        noi_su_dung: DEFAULT_LOCATION,
-        vi_tri: "",
-        nhiet_do: "",
-        do_am: "",
+
+        dia_diem_thuc_hien: "",
+
+        ket_qua_check_vo_ngoai: false,
+        ket_qua_check_do_kin: false,
+        ket_qua_check_do_on_dinh_chi_so: false,
+
+        // noi_su_dung: DEFAULT_LOCATION,
+        // vi_tri: "",
+        // nhiet_do: "",
+        // do_am: "",
+
         du_lieu_kiem_dinh: JSON.stringify({
             hieu_sai_so: [
                 { hss: null },
@@ -95,8 +103,9 @@ export const DongHoListProvider = ({ dbName, children }: DongHoListProviderProps
             },
             ket_qua: null
         }),
+        nguoi_soat_lai: "",
+
         hieu_luc_bien_ban: null,
-        so_giay_chung_nhan: "",
     }));
 
     const [dongHoList, setDongHoList] = useState<DongHo[]>();
@@ -105,27 +114,21 @@ export const DongHoListProvider = ({ dbName, children }: DongHoListProviderProps
         setDongHoList(() => {
             // Khởi tạo danh sách với số lượng dongHo
             return Array.from({ length: amount }, (_, i) => ({
-                is_hieu_chuan: isHieuChuan.current,
-
-                ma_quan_ly: null,
-
-                ket_qua_check_vo_ngoai: null,
-                ghi_chu_vo_ngoai: null,
-
-                index: i + 1,
-
                 id: null,
+                ten_phuong_tien_do: "",
+        
+                is_hieu_chuan: isHieuChuan.current,
+                index: i + 1,
+        
                 group_id: "",
-                ten_dong_ho: "",
-                phuong_tien_do: "",
-                seri_chi_thi: "",
-                seri_sensor: "",
-                kieu_chi_thi: "",
-                kieu_sensor: "",
-                kieu_thiet_bi: "",
+                
+                transitor: "",
+                sensor: "",
+                serial: "",
+        
                 co_so_san_xuat: "",
-                so_tem: "",
                 nam_san_xuat: null,
+        
                 dn: "",
                 d: "",
                 ccx: null,
@@ -134,18 +137,27 @@ export const DongHoListProvider = ({ dbName, children }: DongHoListProviderProps
                 qn: "",
                 k_factor: "",
                 so_qd_pdm: "",
-                ten_khach_hang: "",
+        
+                so_giay_chung_nhan: "",
+                so_tem: "",
+        
                 co_so_su_dung: "",
-                noi_thuc_hien: "",
                 phuong_phap_thuc_hien: "ĐLVN 17 : 2017",
                 chuan_thiet_bi_su_dung: "Đồng hồ chuẩn đo nước và Bình chuẩn",
                 nguoi_thuc_hien: "",
-                nguoi_soat_lai: "",
                 ngay_thuc_hien: new Date(),
-                noi_su_dung: DEFAULT_LOCATION,
-                vi_tri: "",
-                nhiet_do: "",
-                do_am: "",
+        
+                dia_diem_thuc_hien: "",
+        
+                ket_qua_check_vo_ngoai: false,
+                ket_qua_check_do_kin: false,
+                ket_qua_check_do_on_dinh_chi_so: false,
+        
+                // noi_su_dung: DEFAULT_LOCATION,
+                // vi_tri: "",
+                // nhiet_do: "",
+                // do_am: "",
+        
                 du_lieu_kiem_dinh: JSON.stringify({
                     hieu_sai_so: [
                         { hss: null },
@@ -162,8 +174,9 @@ export const DongHoListProvider = ({ dbName, children }: DongHoListProviderProps
                     },
                     ket_qua: null
                 }),
+                nguoi_soat_lai: "",
+        
                 hieu_luc_bien_ban: null,
-                so_giay_chung_nhan: "",
             }));
         })
     }, [amount])
@@ -185,13 +198,8 @@ export const DongHoListProvider = ({ dbName, children }: DongHoListProviderProps
     const getGeneralInfo = (dongHo: DongHo): GeneralInfoDongHo => {
         return {
             group_id: dongHo.group_id,
-            kieu_thiet_bi: dongHo.kieu_thiet_bi,
+            ten_phuong_tien_do: dongHo.ten_phuong_tien_do,
 
-            ten_dong_ho: dongHo.ten_dong_ho,
-            phuong_tien_do: dongHo.phuong_tien_do,
-
-            kieu_chi_thi: dongHo.kieu_chi_thi,
-            kieu_sensor: dongHo.kieu_sensor,
             co_so_san_xuat: dongHo.co_so_san_xuat,
 
             nam_san_xuat: dongHo.nam_san_xuat,
@@ -204,8 +212,6 @@ export const DongHoListProvider = ({ dbName, children }: DongHoListProviderProps
 
             qn: dongHo.qn,
             so_qd_pdm: dongHo.so_qd_pdm,
-
-            ten_khach_hang: dongHo.ten_khach_hang,
             co_so_su_dung: dongHo.co_so_su_dung,
             phuong_phap_thuc_hien: dongHo.phuong_phap_thuc_hien,
 
@@ -213,13 +219,13 @@ export const DongHoListProvider = ({ dbName, children }: DongHoListProviderProps
             nguoi_thuc_hien: dongHo.nguoi_thuc_hien,
             ngay_thuc_hien: dongHo.ngay_thuc_hien,
 
-            vi_tri: dongHo.vi_tri,
-            nhiet_do: dongHo.nhiet_do,
-            do_am: dongHo.do_am,
+            // vi_tri: dongHo.vi_tri,
+            // nhiet_do: dongHo.nhiet_do,
+            // do_am: dongHo.do_am,
+            // noi_su_dung: dongHo.noi_su_dung,
 
             nguoi_soat_lai: dongHo.nguoi_soat_lai,
-            noi_thuc_hien: dongHo.noi_thuc_hien,
-            noi_su_dung: dongHo.noi_su_dung,
+            dia_diem_thuc_hien: dongHo.dia_diem_thuc_hien,
 
         }
     }
@@ -324,7 +330,7 @@ export const DongHoListProvider = ({ dbName, children }: DongHoListProviderProps
 
     const isDHSaved = (dongHoSelected: DongHo) => {
         for (const dongHo of savedDongHoList) {
-            if (dongHo.seri_sensor == dongHoSelected.seri_sensor && dongHo.seri_chi_thi == dongHoSelected.seri_chi_thi) {
+            if (dongHo.serial == dongHoSelected.serial || (dongHo.sensor == dongHoSelected.sensor && dongHo.transitor == dongHoSelected.transitor)) {
                 return true;
             }
         }

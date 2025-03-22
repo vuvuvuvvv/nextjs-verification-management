@@ -196,9 +196,9 @@ export default function DetailHieuChuanDongHo({ dongHo }: DetailHieuChuanDongHoP
                                 <p>Tên đồng hồ: <b>{dongHo.ten_dong_ho}</b></p>
                             </div>
                         )}
-                        {dongHo.phuong_tien_do && (
+                        {dongHo.ten_phuong_tien_do && (
                             <div className="col-12">
-                                <p>Tên phương tiện đo: <b>{dongHo.phuong_tien_do}</b></p>
+                                <p>Tên phương tiện đo: <b>{dongHo.ten_phuong_tien_do}</b></p>
                             </div>
                         )}
                         {dongHo.co_so_san_xuat && (
@@ -212,12 +212,12 @@ export default function DetailHieuChuanDongHo({ dongHo }: DetailHieuChuanDongHoP
                             </div>
                         )}
 
-                        {(dongHo.kieu_sensor || dongHo.seri_sensor || dongHo.kieu_chi_thi || dongHo.seri_chi_thi)
+                        {(dongHo.sensor || dongHo.seri_sensor || dongHo.transitor || dongHo.seri_chi_thi)
                             && <div className="col-12 row mb-3">
                                 <p className="m-0">Kiểu sản xuất:</p>
                                 <div className="col-12 col-sm-6 row m-0 px-3">
-                                    <p>{(dongHo.kieu_sensor) && <>Kiểu sensor: <b>{dongHo.kieu_sensor}</b></>}</p>
-                                    <p>{(dongHo.kieu_chi_thi) && <>Kiểu chỉ thị: <b>{dongHo.kieu_chi_thi}</b></>}</p>
+                                    <p>{(dongHo.sensor) && <>Kiểu sensor: <b>{dongHo.sensor}</b></>}</p>
+                                    <p>{(dongHo.transitor) && <>Kiểu chỉ thị: <b>{dongHo.transitor}</b></>}</p>
                                 </div>
                                 <div className="col-12 col-sm-6 row m-0 px-3">
                                     <p>{(dongHo.seri_sensor) && <>Serial sensor: <b>{dongHo.seri_sensor}</b></>}</p>
@@ -325,7 +325,7 @@ export default function DetailHieuChuanDongHo({ dongHo }: DetailHieuChuanDongHoP
                             </table>
                         </div>
                     </div>
-                    {(dongHo.nguoi_thuc_hien || dongHo.ngay_thuc_hien || dongHo.noi_thuc_hien) && (
+                    {(dongHo.nguoi_thuc_hien || dongHo.ngay_thuc_hien || dongHo.dia_diem_thuc_hien) && (
                         <div className="row mb-3">
                             {dongHo.nguoi_thuc_hien && (
                                 <div className="col-6">
@@ -337,9 +337,9 @@ export default function DetailHieuChuanDongHo({ dongHo }: DetailHieuChuanDongHoP
                                     <p>Ngày thực hiện: <b>{dayjs(dongHo.ngay_thuc_hien).format("DD/MM/YYYY")}</b></p>
                                 </div>
                             )}
-                            {dongHo.noi_thuc_hien && (
+                            {dongHo.dia_diem_thuc_hien && (
                                 <div className="col-12">
-                                    <p>Địa điểm thực hiện: <b>{dongHo.noi_thuc_hien}</b></p>
+                                    <p>Địa điểm thực hiện: <b>{dongHo.dia_diem_thuc_hien}</b></p>
                                 </div>
                             )}
                         </div>
