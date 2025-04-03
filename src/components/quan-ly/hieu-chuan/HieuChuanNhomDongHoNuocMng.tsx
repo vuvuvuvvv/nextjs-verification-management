@@ -52,26 +52,26 @@ export default function HieuChuanNhomDongHoNuocMng({ className, setSelectedGroup
 
     // Query dongho name
     useEffect(() => {
-        if (fetchDHNameCalled.current) return;
-        fetchDHNameCalled.current = true;
+        // if (fetchDHNameCalled.current) return;
+        // fetchDHNameCalled.current = true;
 
-        const fetchData = async () => {
-            try {
-                const res = await api.get(`${BASE_API_URL}/dongho/get-distinct-names-and-locations`);
-                const listNames: string[] = res.data.ten_dong_ho ?? [];
-                const uniqueNames = listNames.filter((value, index, self) => self.indexOf(value) === index);
-                const sortedNames = uniqueNames.sort((a, b) => a.localeCompare(b));
-                setDHNameOptions(sortedNames && sortedNames.length > 0 ? [
-                    ...sortedNames
-                        .filter(name => name && name.trim() !== "")
-                        .map((name) => ({ value: name, label: name }))
-                ] : []);
-            } catch (error) {
-                setError("Đã có lỗi xảy ra! Hãy thử lại sau.");
-            }
-        };
+        // const fetchData = async () => {
+        //     try {
+        //         const res = await api.get(`${BASE_API_URL}/dongho/get-distinct-names-and-locations`);
+        //         const listNames: string[] = res.data.ten_dong_ho ?? [];
+        //         const uniqueNames = listNames.filter((value, index, self) => self.indexOf(value) === index);
+        //         const sortedNames = uniqueNames.sort((a, b) => a.localeCompare(b));
+        //         setDHNameOptions(sortedNames && sortedNames.length > 0 ? [
+        //             ...sortedNames
+        //                 .filter(name => name && name.trim() !== "")
+        //                 .map((name) => ({ value: name, label: name }))
+        //         ] : []);
+        //     } catch (error) {
+        //         setError("Đã có lỗi xảy ra! Hãy thử lại sau.");
+        //     }
+        // };
 
-        fetchData();
+        // fetchData();
     }, []);
 
     // Func: Set err

@@ -195,6 +195,10 @@ export const DongHoListProvider = ({ dbName, children }: DongHoListProviderProps
         }
     }, [savedDongHoList]);
 
+    useEffect(() => {
+        console.log(dongHoList);
+    }, [dongHoList]);
+
     const getGeneralInfo = (dongHo: DongHo): GeneralInfoDongHo => {
         return {
             group_id: dongHo.group_id,

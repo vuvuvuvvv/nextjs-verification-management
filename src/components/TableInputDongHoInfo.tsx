@@ -139,12 +139,12 @@ const TableDongHoInfo: React.FC<TableDongHoInfoProps> = React.memo(({
         if (field == "ket_qua_check_vo_ngoai" && typeof (value) == "boolean") {
             updatedDongHoList[index].ket_qua_check_vo_ngoai = value;
         }
-        if (field == "ghi_chu_vo_ngoai" && typeof (value) == "string") {
-            updatedDongHoList[index].ghi_chu_vo_ngoai = value.toString();
-        }
-        if (field == "ma_quan_ly" && typeof (value) == "string") {
-            updatedDongHoList[index].ma_quan_ly = value.toString();
-        }
+        // if (field == "ghi_chu_vo_ngoai" && typeof (value) == "string") {
+        //     updatedDongHoList[index].ghi_chu_vo_ngoai = value.toString();
+        // }
+        // if (field == "ma_quan_ly" && typeof (value) == "string") {
+        //     updatedDongHoList[index].ma_quan_ly = value.toString();
+        // }
         setDongHoList(updatedDongHoList);
     },
         [dongHoList, errorsList]
@@ -241,7 +241,7 @@ const TableDongHoInfo: React.FC<TableDongHoInfoProps> = React.memo(({
                                 </div>
                             </th>
                         }
-                        {dongHoList.length > 0 && ["Điện tử", "Cơ - Điện từ"].includes(dongHoList[0].kieu_thiet_bi ?? "xx") &&
+                        {/* {dongHoList.length > 0 && ["Điện tử", "Cơ - Điện từ"].includes(dongHoList[0].kieu_thiet_bi ?? "xx") &&
                             <th rowSpan={2}>
                                 <div className={`${c_tbIDHInf['table-label']}`}>
                                     <span>
@@ -249,7 +249,7 @@ const TableDongHoInfo: React.FC<TableDongHoInfoProps> = React.memo(({
                                     </span>
                                 </div>
                             </th>
-                        }
+                        } */}
                         {isHieuChuan && <th rowSpan={2}>Mã quản lý</th>}
                         {/* <th>
                             <div className={`${c_tbIDHInf['table-label']}`}>
@@ -326,11 +326,15 @@ const TableDongHoInfo: React.FC<TableDongHoInfoProps> = React.memo(({
 
                                     {!isHieuChuan &&
                                         <td>
+                                        <div className="d-flex align-items-center">
+                                            <span style={{fontSize: "14px"}} className={`me-2 ${dongHo.ket_qua_check_vo_ngoai && "text-secondary"}`}>Không</span>
                                             <ToggleSwitchButton
                                                 value={dongHo.ket_qua_check_vo_ngoai ?? false}
                                                 onChange={(value: boolean) => handleOtherFieldChange(index, "ket_qua_check_vo_ngoai", value)}
                                                 disabled={savedDongHoList.some(dh => JSON.stringify(dh) == JSON.stringify(dongHo)) || savedDongHoList.length == dongHoList.length}
                                             />
+                                            <span style={{fontSize: "14px"}} className={`ms-2 ${!dongHo.ket_qua_check_vo_ngoai && "text-secondary"}`}>Đạt</span>
+                                        </div>
                                         </td>}
                                     <td>
                                         <InputField
@@ -370,7 +374,7 @@ const TableDongHoInfo: React.FC<TableDongHoInfoProps> = React.memo(({
                                             />
                                         </td>
                                     }
-                                    {dongHoList.length > 0 && ["Điện tử", "Cơ - Điện từ"].includes(dongHoList[0].kieu_thiet_bi ?? "xx") &&
+                                    {/* {dongHoList.length > 0 && ["Điện tử", "Cơ - Điện từ"].includes(dongHoList[0].kieu_thiet_bi ?? "xx") &&
                                         <td>
                                             <InputField
                                                 index={index}
@@ -379,7 +383,7 @@ const TableDongHoInfo: React.FC<TableDongHoInfoProps> = React.memo(({
                                                 name={`k_factor`}
                                             />
                                         </td>
-                                    }
+                                    } */}
 
                                     {isHieuChuan && <td>
                                         <InputField

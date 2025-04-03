@@ -160,14 +160,14 @@ export default function DetailKiemDinhDongHo({ dongHo }: DetailKiemDinhDongHoPro
     }
 
     return <div className="container-fluid m-0 p-2">
-        <title>{dongHo?.ten_dong_ho}</title>
+        <title>{dongHo?.ten_phuong_tien_do}</title>
         {dongHo ? (
             <div className="w-100 container my-3 p-0">
                 <div className={`w-100 mb-3 mx-0 d-flex align-items-center justify-content-center justify-content-md-end p-0`}>
                     <Link href={ACCESS_LINKS.DHN_EDIT_DH.src + "/" + dongHo.id} aria-label="Chỉnh sửa đồng hồ" className="btn bg-warning me-2">
                         <FontAwesomeIcon icon={faEdit}></FontAwesomeIcon> Edit
                     </Link>
-                    {ketQua != null && <>
+                    {/* {ketQua != null && <>
                         <span style={{ cursor: "unset" }} className={`btn bg-grey text-white rounded-start rounded-end-0 ${(dongHo.so_giay_chung_nhan && dongHo.so_tem && ketQua == true) || (ketQua == false) ? "d-inline" : "d-none"}`}><FontAwesomeIcon icon={faDownload}></FontAwesomeIcon> Nhiều:</span>
                         <button aria-label="Tải biên bản kiểm định" className={`btn bg-main-green rounded-0 ${(dongHo.so_giay_chung_nhan && dongHo.so_tem && ketQua == true) ? "" : "rounded-end"} text-white ${(dongHo.so_giay_chung_nhan && dongHo.so_tem && ketQua == true) || (ketQua == false) ? "d-inline" : "d-none"}`} onClick={handleDownloadBB}>
                             <FontAwesomeIcon icon={faFileExcel} className="me-1"></FontAwesomeIcon> Biên bản
@@ -175,7 +175,7 @@ export default function DetailKiemDinhDongHo({ dongHo }: DetailKiemDinhDongHoPro
                         <button aria-label="Tải giấy chứng nhận kiểm định" className={`btn border-start rounded-start-0 rounded-end bg-main-green text-white ${(dongHo.so_giay_chung_nhan && dongHo.so_tem && ketQua == true) ? "d-inline" : "d-none"}`} onClick={handleDownloadGCN}>
                             <FontAwesomeIcon icon={faFileExcel} className="me-1"></FontAwesomeIcon> Giấy chứng nhận
                         </button>
-                    </>}
+                    </>} */}
                 </div>
                 <div className="w-100 bg-white px-3 px-md-5 py-3">
                     <h4 className="fs-4 text-center text-uppercase">Chi tiết đồng hồ</h4>
@@ -187,15 +187,12 @@ export default function DetailKiemDinhDongHo({ dongHo }: DetailKiemDinhDongHoPro
                             <p>Số tem: <b>{dongHo.so_tem ? dongHo.so_tem : "Chưa có số tem"}</b></p>
                         </div>
                         <div className="col-12">
-                            <p>Tên đồng hồ: <b>{dongHo.ten_dong_ho || "Chưa có tên đồng hồ"}</b></p>
-                        </div>
-                        <div className="col-12">
                             <p>Tên phương tiện đo: <b>{dongHo.ten_phuong_tien_do || "Chưa có tên phương tiện đo"}</b></p>
                         </div>
                         <div className="col-12">
                             <p>Nơi sản xuất: <b>{dongHo.co_so_san_xuat || "Chưa có nơi sản xuất"}</b></p>
                         </div>
-                        {(dongHo.sensor || dongHo.seri_sensor || dongHo.transitor || dongHo.seri_chi_thi)
+                        {/* {(dongHo.sensor || dongHo.seri_sensor || dongHo.transitor || dongHo.seri_chi_thi)
                             && <div className="col-12 mb-3">
                                 <p className="m-0">Kiểu sản xuất:</p>
                                 <div className="w-100 row m-0 px-3">
@@ -205,7 +202,7 @@ export default function DetailKiemDinhDongHo({ dongHo }: DetailKiemDinhDongHoPro
                                     <div className="col-12 col-md-6 m-0 p-0">{(dongHo.seri_chi_thi) && <>Serial chỉ thị: <b>{dongHo.seri_chi_thi}</b></>}</div>
                                 </div>
                             </div>
-                        }
+                        } */}
                     </div>
                     <div className="row mb-3">
                         <div className="col-12 col-md-4">
@@ -221,7 +218,7 @@ export default function DetailKiemDinhDongHo({ dongHo }: DetailKiemDinhDongHoPro
                         </div>
                     </div>
                     <div className="row mb-3">
-                        <p>Cơ sở sử dụng: <b>{dongHo.noi_su_dung || "Chưa có cơ sở sử dụng"}</b></p>
+                        <p>Cơ sở sử dụng: <b>{dongHo.co_so_su_dung || "Chưa có cơ sở sử dụng"}</b></p>
                     </div>
                     <div className="row mb-3">
                         <p>Phương pháp thực hiện: <b>{dongHo.phuong_phap_thuc_hien || "Chưa có phương pháp thực hiện"}</b></p>

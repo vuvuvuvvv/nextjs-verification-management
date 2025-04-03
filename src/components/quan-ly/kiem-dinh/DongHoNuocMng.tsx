@@ -26,7 +26,6 @@ import Swal from "sweetalert2";
 import { getDongHoByFilter } from "@/app/api/dongho/route";
 import { decode, getNameOfRole } from "@lib/system-function";
 import { useUser } from "@/context/AppContext";
-import { Button } from "react-bootstrap";
 import ModalMultDongHoPermissionMng from "@/components/ui/ModalMultDongHoPermissionMng";
 
 const Loading = React.lazy(() => import("@/components/Loading"));
@@ -34,14 +33,13 @@ const Loading = React.lazy(() => import("@/components/Loading"));
 
 interface DongHoNuocMngProps {
     className?: string,
-    isBiggerThan15?: boolean,
     isAuthorizing?: boolean,
     setSelectedDongHo?: React.Dispatch<React.SetStateAction<DongHo | null>>;
     clearNDHPropData?: () => void;
     dataList?: DongHo[]
 }
 
-export default function DongHoNuocMng({ className, isBiggerThan15 = false, isAuthorizing = false, setSelectedDongHo, clearNDHPropData, dataList = [] }: DongHoNuocMngProps) {
+export default function DongHoNuocMng({ className, isAuthorizing = false, setSelectedDongHo, clearNDHPropData, dataList = [] }: DongHoNuocMngProps) {
     const { user, isViewer, isSuperAdmin, getCurrentRole } = useUser();
     const [data, setRootData] = useState<DongHo[]>([]);
     const rootData = useRef<DongHo[]>([]);
@@ -90,7 +88,6 @@ export default function DongHoNuocMng({ className, isBiggerThan15 = false, isAut
         ccx: "",
         nguoi_thuc_hien: "",
         serial: "",
-        status: "",
         ngay_kiem_dinh_from: null,
         ngay_kiem_dinh_to: null,
         limit: limit,
@@ -212,7 +209,6 @@ export default function DongHoNuocMng({ className, isBiggerThan15 = false, isAut
             kieu_moden: "",
             ccx: "",
             nguoi_thuc_hien: "",
-            status: "",
             ngay_kiem_dinh_from: null,
             ngay_kiem_dinh_to: null,
             last_seen: "",

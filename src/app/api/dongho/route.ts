@@ -54,17 +54,17 @@ export const getAllDongHoNamesExist = async () => {
 
 export const getDongHoByFilter = async (parameters?: DongHoFilterParameters, withPermission?: boolean, username?: string) => {
     try {
-        const url = new URL(API_DONGHO_URL + ((withPermission) ? "/permission/" + username : ""));
+        const url = new URL(API_DONGHO_URL);
         if (parameters?.so_giay_chung_nhan) {
             url.searchParams.append('so_giay_chung_nhan', parameters.so_giay_chung_nhan.toString());
         }
 
-        if (parameters?.seri_sensor) {
-            url.searchParams.append('seri_sensor', parameters.seri_sensor.toString());
+        if (parameters?.serial) {
+            url.searchParams.append('serial', parameters.serial.toString());
         }
 
-        if (parameters?.ten_khach_hang) {
-            url.searchParams.append('ten_khach_hang', parameters.ten_khach_hang.toString());
+        if (parameters?.kieu_moden) {
+            url.searchParams.append('kieu_moden', parameters.kieu_moden.toString());
         }
 
         if (parameters?.nguoi_thuc_hien) {
@@ -122,13 +122,13 @@ export const getNhomDongHoByFilter = async (parameters?: NhomDongHoFilterParamet
     try {
         const url = new URL(API_DONGHO_URL + ((withPermission) ? "/permission/group/" + username : "/group"));
 
-        if (parameters?.ten_dong_ho) {
-            url.searchParams.append('ten_dong_ho', parameters.ten_dong_ho.toString());
-        }
+        // if (parameters?.ten_dong_ho) {
+        //     url.searchParams.append('ten_dong_ho', parameters.ten_dong_ho.toString());
+        // }
 
-        if (parameters?.ten_khach_hang) {
-            url.searchParams.append('ten_khach_hang', parameters.ten_khach_hang.toString());
-        }
+        // if (parameters?.ten_khach_hang) {
+        //     url.searchParams.append('ten_khach_hang', parameters.ten_khach_hang.toString());
+        // }
 
         if (parameters?.nguoi_thuc_hien) {
             url.searchParams.append('nguoi_thuc_hien', parameters.nguoi_thuc_hien.toString());
@@ -649,12 +649,12 @@ export const getHieuChuanDongHoByFilter = async (parameters?: DongHoFilterParame
             url.searchParams.append('so_giay_chung_nhan', parameters.so_giay_chung_nhan.toString());
         }
 
-        if (parameters?.seri_sensor) {
-            url.searchParams.append('seri_sensor', parameters.seri_sensor.toString());
+        if (parameters?.serial) {
+            url.searchParams.append('serial', parameters.serial.toString());
         }
 
-        if (parameters?.ten_khach_hang) {
-            url.searchParams.append('ten_khach_hang', parameters.ten_khach_hang.toString());
+        if (parameters?.kieu_moden) {
+            url.searchParams.append('kieu_moden', parameters.kieu_moden.toString());
         }
 
         if (parameters?.nguoi_thuc_hien) {
@@ -711,14 +711,6 @@ export const getHieuChuanDongHoByFilter = async (parameters?: DongHoFilterParame
 export const getHieuChuanNhomDongHoByFilter = async (parameters?: NhomDongHoFilterParameters | null) => {
     try {
         const url = new URL(API_DONGHO_URL + "/hieu-chuan/group");
-
-        if (parameters?.ten_dong_ho) {
-            url.searchParams.append('ten_dong_ho', parameters.ten_dong_ho.toString());
-        }
-
-        if (parameters?.ten_khach_hang) {
-            url.searchParams.append('ten_khach_hang', parameters.ten_khach_hang.toString());
-        }
 
         if (parameters?.nguoi_thuc_hien) {
             url.searchParams.append('nguoi_thuc_hien', parameters.nguoi_thuc_hien.toString());

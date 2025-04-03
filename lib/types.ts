@@ -212,8 +212,14 @@ export interface DongHo {
     co_so_su_dung: string | null;
     phuong_phap_thuc_hien: string | null;
     chuan_thiet_bi_su_dung: string | null;
+    
     nguoi_thuc_hien: string | null;
     ngay_thuc_hien: Date | null;
+
+    // vi_tri: string | null,
+    // nhiet_do: string | null,
+    // do_am: string | null,
+    // noi_su_dung: string | null,
 
     dia_diem_thuc_hien: string | null;
     
@@ -268,7 +274,7 @@ export interface DongHoFilterParameters {
     kieu_moden: string;
     ccx: string;
     nguoi_thuc_hien: string;
-    status: string | number;
+    
     ngay_kiem_dinh_from: Date | null;
     ngay_kiem_dinh_to: Date | null;
 

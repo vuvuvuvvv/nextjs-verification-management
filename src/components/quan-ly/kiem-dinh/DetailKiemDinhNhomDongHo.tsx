@@ -150,13 +150,11 @@ export default function DetailKiemDinhNhomDongHo({ nhomDongHo }: DetailKiemDinhN
             const dongHo = nhomDongHo[0];
             setGeneralInfo({
                 group_id: dongHo.group_id,
-                kieu_thiet_bi: dongHo.kieu_thiet_bi,
+                // kieu_thiet_bi: dongHo.kieu_thiet_bi,
 
-                ten_dong_ho: dongHo.ten_dong_ho,
+                // ten_dong_ho: dongHo.ten_dong_ho,
                 ten_phuong_tien_do: dongHo.ten_phuong_tien_do,
                 
-                transitor: dongHo.transitor,
-                sensor: dongHo.sensor,
                 co_so_san_xuat: dongHo.co_so_san_xuat,
 
                 nam_san_xuat: dongHo.nam_san_xuat,
@@ -170,7 +168,7 @@ export default function DetailKiemDinhNhomDongHo({ nhomDongHo }: DetailKiemDinhN
                 qn: dongHo.qn,
                 so_qd_pdm: dongHo.so_qd_pdm ?? null,
 
-                ten_khach_hang: dongHo.ten_khach_hang,
+                // ten_khach_hang: dongHo.ten_khach_hang,
                 co_so_su_dung: dongHo.co_so_su_dung,
                 phuong_phap_thuc_hien: dongHo.phuong_phap_thuc_hien,
                 
@@ -178,13 +176,13 @@ export default function DetailKiemDinhNhomDongHo({ nhomDongHo }: DetailKiemDinhN
                 nguoi_thuc_hien: dongHo.nguoi_thuc_hien,
                 ngay_thuc_hien: dongHo.ngay_thuc_hien,
 
-                vi_tri: dongHo.vi_tri,
-                nhiet_do: dongHo.nhiet_do,
-                do_am: dongHo.do_am,
+                // vi_tri: dongHo.vi_tri,
+                // nhiet_do: dongHo.nhiet_do,
+                // do_am: dongHo.do_am,
+                // noi_su_dung: dongHo.noi_su_dung,
                 
                 nguoi_soat_lai: dongHo.dia_diem_thuc_hien,
                 dia_diem_thuc_hien: dongHo.dia_diem_thuc_hien,
-                noi_su_dung: dongHo.noi_su_dung,
             })
 
             let tmpNhomDuLieuKiemDinh: DuLieuKiemDinh[] = []
@@ -273,7 +271,7 @@ export default function DetailKiemDinhNhomDongHo({ nhomDongHo }: DetailKiemDinhN
     }
 
     return <div className="w-100 m-0 mb-4 p-2">
-        <title>{"Nhóm đồng hồ " + generalInfo.ten_dong_ho || ""}</title>
+        <title>{"Nhóm đồng hồ " + generalInfo.ten_phuong_tien_do || ""}</title>
         {generalInfo ? (
             <div className="w-100 m-0 p-0">
                 <ModalSelectDongHoToDownload
@@ -314,21 +312,18 @@ export default function DetailKiemDinhNhomDongHo({ nhomDongHo }: DetailKiemDinhN
                                 </p>
                             </div>
                             <div className="col-12">
-                                <p>Tên đồng hồ: <b>{generalInfo.ten_dong_ho || "Chưa có tên đồng hồ"}</b></p>
-                            </div>
-                            <div className="col-12">
                                 <p>Tên phương tiện đo: <b>{generalInfo.ten_phuong_tien_do || "Chưa có tên phương tiện đo"}</b></p>
                             </div>
                             <div className="col-12">
                                 <p>Nơi sản xuất: <b>{generalInfo.co_so_san_xuat || "Chưa có nơi sản xuất"}</b></p>
                             </div>
-                            {(generalInfo.sensor || generalInfo.transitor) && <div className="col-12 mb-3">
+                            {/* {(generalInfo.sensor || generalInfo.transitor) && <div className="col-12 mb-3">
                                 <p className="m-0">Kiểu sản xuất:</p>
                                 <div className="w-100 row m-0 px-3">
                                     <div className="col-12 col-md-6 m-0 p-0">{(generalInfo.sensor) && <>Kiểu sensor: <b>{generalInfo.sensor}</b></>}</div>
                                     <div className="col-12 col-md-6 m-0 p-0">{(generalInfo.transitor) && <>Kiểu chỉ thị: <b>{generalInfo.transitor}</b></>}</div>
                                 </div>
-                            </div>}
+                            </div>} */}
 
                         </div>
                         <div className="row mb-3">
@@ -345,7 +340,7 @@ export default function DetailKiemDinhNhomDongHo({ nhomDongHo }: DetailKiemDinhN
                             </div>
                         </div>
                         <div className="row mb-3">
-                            <p>Cơ sở sử dụng: <b>{generalInfo.noi_su_dung || "Chưa có cơ sở sử dụng"}</b></p>
+                            <p>Cơ sở sử dụng: <b>{generalInfo.co_so_su_dung || "Chưa có cơ sở sử dụng"}</b></p>
                         </div>
                         <div className="row mb-3">
                             <p>Phương pháp thực hiện: <b>{generalInfo.phuong_phap_thuc_hien || "Chưa có phương pháp thực hiện"}</b></p>
@@ -413,12 +408,6 @@ export default function DetailKiemDinhNhomDongHo({ nhomDongHo }: DetailKiemDinhN
                                     <div className="col-12 m-0 p-0 col-md-6">
                                         <p>Số tem: <b>{dongHo.so_tem ? dongHo.so_tem : "Không có số tem"}</b></p>
                                     </div>
-                                    {dongHo.seri_sensor && <div className="col-12">
-                                        <p>Serial sensor: <b>{dongHo.seri_sensor}</b></p>
-                                    </div>}
-                                    {dongHo.seri_chi_thi && <div className="col-12">
-                                        <p>Serial chỉ thị: <b>{dongHo.seri_chi_thi}</b></p>
-                                    </div>}
                                 </div>
                                 {nhomDuLieuKiemDinh ? (
 

@@ -8,6 +8,7 @@ const FontAwesomeIcon = dynamic(() => import('@fortawesome/react-fontawesome').t
 const LocalizationProvider = dynamic(() => import('@mui/x-date-pickers/LocalizationProvider').then(mod => mod.LocalizationProvider));
 const DatePicker = dynamic(() => import('@mui/x-date-pickers/DatePicker').then(mod => mod.DatePicker));
 const NavTab = dynamic(() => import('@/components/ui/NavTab'));
+const ToggleSwitchButton = dynamic(() => import('@/components/ui/ToggleSwitchButton'));
 const TinhSaiSoTab = dynamic(() => import('@/components/TinhSaiSoTab'));
 const TinhSaiSoForm = dynamic(() => import('@/components/TinhSaiSoForm'));
 const TableDongHoInfo = dynamic(() => import('@/components/TableInputDongHoInfo'));
@@ -26,6 +27,7 @@ import { useEffect, useMemo, useReducer, useRef, useState } from "react";
 import { convertToUppercaseNonAccent, getQ2OrtAndQ1OrQMin, isDongHoDatTieuChuan } from "@lib/system-function";
 import {
     ACCESS_LINKS, BASE_API_URL, ccxOptions, DEFAULT_LOCATION,
+    phuongTienDoOptions,
     TITLE_LUU_LUONG, typeOptions
 } from "@lib/system-constant";
 
@@ -36,6 +38,8 @@ import { useDongHoList } from "@/context/ListDongHo";
 import dynamic from "next/dynamic";
 import { getPDMByMaTimDongHoPDM } from "@/app/api/pdm/route";
 import api from "@/app/api/route";
+import ModalInputSerialDongHo from "@/components/ui/ModalInputSerialDongHo";
+
 
 
 interface KiemDinhNhomDongHoNuocFormProps {
@@ -45,38 +49,45 @@ interface KiemDinhNhomDongHoNuocFormProps {
 }
 
 interface State {
-    ketQuaCheckVoNgoai: boolean
-    ghiChuVoNgoai: string | null,
-
-    tenDongHo: string;
     phuongTienDo: string;
-    ccx: string | null;
-    kieuChiThi: string;
-    kieuSensor: string;
-    kieuThietBi: string;
+
+    transitor: string;
+    sensor: string;
+    serial: string;
+
     coSoSanXuat: string;
     namSanXuat: Date | null;
+
     dn: string;
     d: string;
+    ccx: string | null;
     q3: string;
     r: string;
     qn: string;
     soQDPDM: string;
-    tenKhachHang: string;
+
+    coSoSuDung: string;
     phuongPhapThucHien: string;
     chuanThietBiSuDung: string;
+
     nguoiThucHien: string;
-    nguoiSoatLai: string;
     ngayThucHien: Date | null;
-    coSoSuDung: string;
-    noiSuDung: string;
-    noiThucHien: string;
-    viTri: string;
-    nhietDo: string;
-    doAm: string;
+
+    diaDiemThucHien: string;
+
+    ketQuaCheckVoNgoai: boolean
+    ketQuaCheckDoKin: boolean
+    ketQuaCheckDoOnDinhChiSo: boolean
+
+    nguoiSoatLai: string;
+
+    // viTri: string;
+    // nhietDo: string;
+    // doAm: string;
+    // noiSuDung: string;
+
     q2Ort: number | null;
     q1Ormin: number | null;
-    selectedTenDHOption: { value: string, label: string } | null;
     selectedCssxOption: { value: string, label: string } | null;
 }
 
@@ -100,38 +111,45 @@ export default function KiemDinhNhomDongHoNuocForm({ className, generalInfoDongH
     const { user, isManager } = useUser();
 
     const initialState: State = {
-        ketQuaCheckVoNgoai: false,
-        ghiChuVoNgoai: "",
-
-        tenDongHo: generalInfoDongHo?.ten_dong_ho || "",
         phuongTienDo: generalInfoDongHo?.ten_phuong_tien_do || "",
-        ccx: generalInfoDongHo?.ccx || null,
-        kieuChiThi: generalInfoDongHo?.transitor || "",
-        kieuSensor: generalInfoDongHo?.sensor || "",
-        kieuThietBi: generalInfoDongHo?.kieu_thiet_bi || "",
+
+        transitor: generalInfoDongHo?.transitor || "",
+        sensor: generalInfoDongHo?.sensor || "",
+        serial: generalInfoDongHo?.serial || "",
+
         coSoSanXuat: generalInfoDongHo?.co_so_san_xuat || "",
         namSanXuat: generalInfoDongHo?.nam_san_xuat || null,
+
         dn: generalInfoDongHo?.dn || "",
         d: generalInfoDongHo?.d || "",
+        ccx: generalInfoDongHo?.ccx || null,
         q3: generalInfoDongHo?.q3 || "",
         r: generalInfoDongHo?.r || "",
         qn: generalInfoDongHo?.qn || "",
         soQDPDM: generalInfoDongHo?.so_qd_pdm || "",
-        tenKhachHang: generalInfoDongHo?.ten_khach_hang || "",
+
+        coSoSuDung: generalInfoDongHo?.co_so_su_dung || "",
         phuongPhapThucHien: generalInfoDongHo?.phuong_phap_thuc_hien || "FMS - PP - 02",
         chuanThietBiSuDung: generalInfoDongHo?.chuan_thiet_bi_su_dung || "Đồng hồ chuẩn đo nước và Bình chuẩn",
+
         nguoiThucHien: generalInfoDongHo?.nguoi_thuc_hien || user?.fullname || "",
-        nguoiSoatLai: generalInfoDongHo?.nguoi_soat_lai || "",
         ngayThucHien: generalInfoDongHo?.ngay_thuc_hien || new Date(),
-        coSoSuDung: generalInfoDongHo?.co_so_su_dung || "",
-        noiSuDung: generalInfoDongHo?.noi_su_dung || "",
-        noiThucHien: generalInfoDongHo?.dia_diem_thuc_hien || "",
-        viTri: generalInfoDongHo?.vi_tri || "",
-        nhietDo: generalInfoDongHo?.nhiet_do || '',
-        doAm: generalInfoDongHo?.do_am || '',
+
+        diaDiemThucHien: generalInfoDongHo?.dia_diem_thuc_hien || "",
+
+        ketQuaCheckVoNgoai: false,
+        ketQuaCheckDoKin: false,
+        ketQuaCheckDoOnDinhChiSo: false,
+
+        nguoiSoatLai: generalInfoDongHo?.nguoi_soat_lai || "",
+
+        // viTri: generalInfoDongHo?.vi_tri || "",
+        // nhietDo: generalInfoDongHo?.nhiet_do || '',
+        // doAm: generalInfoDongHo?.do_am || '',
+        // noiSuDung: generalInfoDongHo?.noi_su_dung || "",
+
         q2Ort: null,
         q1Ormin: null,
-        selectedTenDHOption: generalInfoDongHo?.ten_dong_ho ? { value: generalInfoDongHo.ten_dong_ho, label: generalInfoDongHo.ten_dong_ho } : null,
         selectedCssxOption: generalInfoDongHo?.co_so_san_xuat ? { value: generalInfoDongHo.co_so_san_xuat, label: generalInfoDongHo.co_so_san_xuat } : null,
     };
 
@@ -155,16 +173,12 @@ export default function KiemDinhNhomDongHoNuocForm({ className, generalInfoDongH
         duLieuKiemDinhCacLuuLuong
     } = useKiemDinh();
 
-    const [isCollapsed, setIsCollapsed] = useState<boolean>(false);
-
-    const [selectedTenDHOption, setSelectedTenDHOption] = useState<{ value: string, label: string } | null>(
-        generalInfoDongHo?.ten_dong_ho ? { value: generalInfoDongHo.ten_dong_ho, label: generalInfoDongHo.ten_dong_ho } : null
-    );
     const [selectedCssxOption, setSelectedCssxOption] = useState<{ value: string, label: string } | null>(
         generalInfoDongHo?.co_so_san_xuat ? { value: generalInfoDongHo.co_so_san_xuat, label: generalInfoDongHo.co_so_san_xuat } : null
     );
-    const [DHNameOptions, setDHNameOptions] = useState<{ value: string, label: string }[]>([]);
+    // const [DHNameOptions, setDHNameOptions] = useState<{ value: string, label: string }[]>([]);
     const [isDHDienTu, setDHDienTu] = useState<boolean>(false);
+    const [isCoSensorTransitorRoi, setCoSensorTransitorRoi] = useState<boolean>(false);             // Có sensor và transitor rời
     const [isDHSaved, setDHSaved] = useState<boolean | null>(null);
     const [CSSXOptions, setCSSXOptions] = useState<{ value: string, label: string }[]>([]);
     const [selectedDongHoIndex, setSelectedDongHoIndex] = useState<number | null>(null);
@@ -181,16 +195,16 @@ export default function KiemDinhNhomDongHoNuocForm({ className, generalInfoDongH
     const handleMultFieldChange = (fields: Partial<State>) => {
         dispatch({ type: 'SET_MULTIPLE_FIELDS', fields });
     };
-    //
 
     const [error, setError] = useState("");
 
     const [showFormTienTrinh, setShowFormTienTrinh] = useState(false);
+    const [isOpenModalSerial, setOpenModalSerial] = useState(false);
 
-    const router = useRouter();
+    // const router = useRouter();
 
-    const [isFirstTabLL, setFirsttabLL] = useState<boolean>(false);
-    const fetchCalled = useRef(false);
+    const [isFirstTabLL] = useState<boolean>(false);
+    // const fetchCalled = useRef(false);
 
     const [loading, setLoading] = useState<boolean>(false);
 
@@ -223,42 +237,6 @@ export default function KiemDinhNhomDongHoNuocForm({ className, generalInfoDongH
         }
     }, [error]);
 
-    // Query dongho name && noi san xuat
-    useEffect(() => {
-        if (fetchCalled.current) return;
-        fetchCalled.current = true;
-
-        const fetchData = async () => {
-            setLoading(true);
-            try {
-                const res = await api.get(`${BASE_API_URL}/dongho/get-distinct-names-and-locations`);
-                const listNames: string[] = res.data.ten_dong_ho ?? [];
-                const uniqueNames = listNames.filter((value, index, self) => self.indexOf(value) === index);
-                const sortedNames = uniqueNames.sort((a, b) => a.localeCompare(b));
-                setDHNameOptions(sortedNames && sortedNames.length > 0 ? [
-                    ...sortedNames
-                        .filter(name => name && name.trim() !== "")
-                        .map((name) => ({ value: name, label: name }))
-                ] : []);
-
-                const listCSSX: string[] = res.data.noi_san_xuat ?? [];
-                const uniqueCSSX = listCSSX.filter((value, index, self) => self.indexOf(value) === index);
-                const sortedCSSX = uniqueCSSX.sort((a, b) => a.localeCompare(b));
-                setCSSXOptions(sortedCSSX && sortedCSSX.length > 0 ? [
-                    ...sortedCSSX
-                        .filter(name => name && name.trim() !== "")
-                        .map((name) => ({ value: name, label: name }))
-                ] : []);
-            } catch (error) {
-                setError("Đã có lỗi xảy ra! Hãy thử lại sau.");
-            } finally {
-                setLoading(false);
-            }
-        };
-
-        fetchData();
-    }, []);
-
     const debounceFieldTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
     // Func: Set saved
@@ -272,30 +250,21 @@ export default function KiemDinhNhomDongHoNuocForm({ className, generalInfoDongH
 
     const soQDPDMRef = useRef(state.soQDPDM);
 
-    // Func: Set err
-    useEffect(() => {
-        if (soQDPDMRef.current != state.soQDPDM) {
-            setErrorPDM("");
-            soQDPDMRef.current = state.soQDPDM
-        }
-    }, [state.soQDPDM]);
-
     const filterPDM = useMemo(() => ({
-        tenDongHo: state.tenDongHo,
         dn: state.dn,
         ccx: state.ccx,
-        kieuSensor: state.kieuSensor,
-        kieuChiThi: state.kieuChiThi,
+        transitor: state.transitor,
+        sensor: state.sensor,
         qn: state.qn,
         q3: state.q3,
         r: state.r
-    }), [state.tenDongHo, state.dn, state.ccx, state.kieuSensor, state.kieuChiThi, state.qn, state.q3, state.r]);
+    }), [state.dn, state.ccx, state.transitor, state.sensor, state.qn, state.q3, state.r]);
 
     const filterPDMRef = useRef(filterPDM);
 
     useEffect(() => {
         if (filterPDMRef.current !== filterPDM && savedDongHoList.length == 0) {
-            const ma_tim_dong_ho_pdm = convertToUppercaseNonAccent(filterPDM.tenDongHo + filterPDM.dn + filterPDM.ccx + filterPDM.kieuSensor + filterPDM.kieuChiThi + (state.ccx ? ((["1", "2"].includes(state.ccx) ? (filterPDM.q3 + filterPDM.r) : filterPDM.qn)) : ""));
+            const ma_tim_dong_ho_pdm = convertToUppercaseNonAccent(filterPDM.dn + filterPDM.ccx + filterPDM.sensor + filterPDM.transitor + (state.ccx ? ((["1", "2"].includes(state.ccx) ? (filterPDM.q3 + filterPDM.r) : filterPDM.qn)) : ""));
             const handler = setTimeout(async () => {
                 setLoading(true);
                 try {
@@ -339,11 +308,8 @@ export default function KiemDinhNhomDongHoNuocForm({ className, generalInfoDongH
     const fieldTitles = {
         ten_dong_ho: "Tên đồng hồ",
         ten_phuong_tien_do: "Tên phương tiện đo",
-        kieu_thiet_bi: "Kiểu thiết bị",
-        seri_chi_thi: "Serial chỉ thị",
-        seri_sensor: "Serial sensor",
-        transitor: "Kiểu chỉ thị",
-        sensor: "Kiểu sensor",
+        transitor: "Transitor",
+        sensor: isCoSensorTransitorRoi ? "Sensor" : "Kiểu",
         so_tem: "Số Tem",
         co_so_san_xuat: "Cơ sở sản xuất",
         nam_san_xuat: "Năm sản xuất",
@@ -356,43 +322,42 @@ export default function KiemDinhNhomDongHoNuocForm({ className, generalInfoDongH
         kFactor: "Hệ số K",
         so_qd_pdm: "Ký hiệu PDM/Số quyết định PDM",
         ten_khach_hang: "Tên khách hàng",
-        co_so_su_dung: "Đơn vị phê duyệt mẫu",
+        co_so_su_dung: "Cơ sở sử dụng",
         phuong_phap_thuc_hien: "Phương pháp thực hiện",
         noi_su_dung: "Nơi sử dụng",
         vi_tri: "Địa chỉ nơi sử dụng",
         nhiet_do: "Nhiệt độ",
         do_am: "Độ ẩm",
-        ket_qua: "Tiến trình chạy lưu lượng"
+        ket_qua: "Tiến trình chạy lưu lượng",
     };
 
+    // Required field
     const fields = [
-        { value: state.tenDongHo, id: "ten_dong_ho" },
+        { value: state.phuongTienDo, id: "ten_dong_ho" },
         // { value: state.phuongTienDo, setter: setPhuongTienDo, id: "ten_phuong_tien_do" },
-        { value: state.kieuThietBi, id: "kieu_thiet_bi" },
+        { value: state.sensor, id: "sensor" },
+        isCoSensorTransitorRoi && { value: state.transitor, id: "transitor" },
 
-        // { value: state.seriChiThi, id: "seri_chi_thi" },
-        // { value: state.seriSensor, id: "seri_sensor" },
-        // { value: state.kieuChiThi, id: "transitor" },                      
-        // { value: state.kieuSensor, id: "sensor" },
+        // { value: state.serial, id: "serial" },
 
-        // { value: state.soTem, id: "so_tem" },
         { value: state.coSoSanXuat, id: "co_so_san_xuat" },
         // { value: state.namSanXuat, id: "nam_san_xuat" },
+
         { value: state.dn, id: "dn" },
-        { value: state.d, id: "d" },
+        // { value: state.d, id: "d" },
         { value: state.ccx, id: "ccx" },
         { value: state.q3, id: "q3" },
         { value: state.r, id: "r" },
         { value: state.qn, id: "qn" },
-        // { value: state.kFactor, id: "kFactor" },
+
         { value: state.soQDPDM, id: "so_qd_pdm" },
-        { value: state.tenKhachHang, id: "ten_khach_hang" },
+        // { value: state.tenKhachHang, id: "ten_khach_hang" },
         { value: state.coSoSuDung, id: "co_so_su_dung" },
         { value: state.phuongPhapThucHien, id: "phuong_phap_thuc_hien" },
-        { value: state.noiSuDung, id: "noi_su_dung" },
+        // { value: state.noiSuDung, id: "noi_su_dung" },
         // { value: state.viTri, id: "vi_tri" },
-        { value: state.nhietDo, id: "nhiet_do" },
-        { value: state.doAm, id: "do_am" },
+        // { value: state.nhietDo, id: "nhiet_do" },
+        // { value: state.doAm, id: "do_am" },
     ];
 
     useEffect(() => {
@@ -405,7 +370,7 @@ export default function KiemDinhNhomDongHoNuocForm({ className, generalInfoDongH
         for (const field of fields) {
             const shouldValidate = (state.ccx && (state.ccx === "1" || state.ccx === "2")) || isDHDienTu
                 ? field.id !== "qn"
-                : field.id !== "q3" && field.id !== "r" && field.id !== "seri_sensor" && field.id !== "sensor";
+                : (field.id !== "q3" && field.id !== "r");
 
             if (shouldValidate && !field.value) {
                 validationErrors.push(field.id);
@@ -417,10 +382,33 @@ export default function KiemDinhNhomDongHoNuocForm({ className, generalInfoDongH
     const infoTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
     useEffect(() => {
+        // Set error messgae Phe duyet mai
+        if (soQDPDMRef.current != state.soQDPDM) {
+            setErrorPDM("");
+            soQDPDMRef.current = state.soQDPDM
+        }
+
+        // Get q1 q2 || qmin qt
+        if (state.ccx && ((state.q3 && state.r) || state.qn)) {
+            const { getQ1OrMin, getQ2Ort } = getQ2OrtAndQ1OrQMin(isDHDienTu, state.ccx, isDHDienTu ? state.q3 : state.qn, isDHDienTu ? state.r : null);
+            handleMultFieldChange({ q1Ormin: getQ1OrMin.value, q2Ort: getQ2Ort.value });
+        }
+
+
+        // TODO:
+        // setDHDienTu(Boolean((state.ccx && ["1", "2"].includes(state.ccx))));
+        // if (state.kieuThietBi) {
+        //     handleFieldChange("phuongTienDo", ["Điện tử", "Cơ - Điện từ"].includes(state.kieuThietBi) ? "Đồng hồ đo nước lạnh có cơ cấu điện tử" : "Đồng hồ đo nước lạnh cơ khí")
+        // } else {
+        //     handleFieldChange("phuongTienDo", "");
+        // }
+
+
         if (infoTimeoutRef.current) {
             clearTimeout(infoTimeoutRef.current);
         }
 
+        // Set error field if it exists after 0.5s from the last typing (For validation & requried input field)
         infoTimeoutRef.current = setTimeout(() => {
             setErrorFields(validateFields());
             updateCurrentDongHo();
@@ -432,11 +420,14 @@ export default function KiemDinhNhomDongHoNuocForm({ className, generalInfoDongH
             }
         };
     }, [
-        state.tenDongHo,
-        state.kieuThietBi,
-        state.kieuChiThi,
-        state.kieuSensor,
+        state.phuongTienDo,
+        state.transitor,
+        state.sensor,
+        state.serial,
+
         state.coSoSanXuat,
+        state.namSanXuat,
+
         state.dn,
         state.d,
         state.ccx,
@@ -444,52 +435,50 @@ export default function KiemDinhNhomDongHoNuocForm({ className, generalInfoDongH
         state.r,
         state.qn,
         state.soQDPDM,
-        state.tenKhachHang,
+
         state.coSoSuDung,
         state.phuongPhapThucHien,
-        state.viTri,
-        state.nhietDo,
-        state.doAm,
-        state.ngayThucHien,
-        state.nguoiThucHien,
         state.chuanThietBiSuDung,
-        state.namSanXuat,
+
+        state.nguoiThucHien,
+        state.ngayThucHien,
+
+        state.diaDiemThucHien,
+
         state.nguoiSoatLai,
-        state.noiSuDung,
-        state.noiThucHien,
+        isCoSensorTransitorRoi
+        // state.viTri,
+        // state.nhietDo,
+        // state.doAm,
+        // state.noiSuDung,
     ]);
 
-    const getCurrentDongHo = (selectedDongHoIndex: number | null, formHieuSaiSoProp?: { hss: number | null }[]) => {
+    const getCurrentDongHo = (selectedDongHoIndex: number | null, formHieuSaiSoProp?: { hss: number | null }[]): DongHo => {
         const checkQ3 = ((state.ccx && (state.ccx == "1" || state.ccx == "2")) || isDHDienTu);
 
         // TODO: check so_tem, sogcn hieu_luc_bb
 
         return {
-            ket_qua_check_vo_ngoai: state.ketQuaCheckVoNgoai,
-            ghi_chu_vo_ngoai: state.ghiChuVoNgoai,
             index: dongHoList[selectedDongHoIndex ?? 0].index ?? 0,
 
             id: isEditing ? dongHoList[selectedDongHoIndex ?? 0].id : null,
-            ten_dong_ho: state.tenDongHo || "",
+            ten_phuong_tien_do: state.phuongTienDo,
             group_id: !isEditing
-                ? convertToUppercaseNonAccent(state.tenDongHo + state.dn + state.ccx + state.q3 + state.r + state.qn + (state.ngayThucHien ? dayjs(state.ngayThucHien).format('DDMMYYHHmmss') : ''))
+                ? convertToUppercaseNonAccent(state.dn + state.ccx + state.q3 + state.r + state.qn + (state.ngayThucHien ? dayjs(state.ngayThucHien).format('DDMMYYHHmmss') : ''))
                 : convertToUppercaseNonAccent(""
-                    + (generalInfoDongHo?.ten_dong_ho || "")
                     + (generalInfoDongHo?.dn || "")
                     + (generalInfoDongHo?.ccx || "")
                     + (generalInfoDongHo?.q3 || "")
                     + (generalInfoDongHo?.r || "")
                     + (generalInfoDongHo?.qn || "")
                     + (generalInfoDongHo?.ngay_thuc_hien ? dayjs(generalInfoDongHo.ngay_thuc_hien).format('DDMMYYHHmmss') : '')),
-            ten_phuong_tien_do: state.phuongTienDo,
-            seri_chi_thi: '',
-            seri_sensor: "",
-            transitor: checkQ3 ? state.kieuChiThi : "",
-            sensor: state.kieuSensor,
-            kieu_thiet_bi: state.kieuThietBi,
+            transitor: '',
+            sensor: "",
+            serial: "",
+
             co_so_san_xuat: state.coSoSanXuat,
-            so_tem: "",
             nam_san_xuat: state.namSanXuat || null,
+
             dn: state.dn,
             d: state.d,
             ccx: state.ccx,
@@ -498,21 +487,28 @@ export default function KiemDinhNhomDongHoNuocForm({ className, generalInfoDongH
             qn: checkQ3 ? "" : state.qn,
             k_factor: "",
             so_qd_pdm: state.soQDPDM || "",
-            ten_khach_hang: state.tenKhachHang || "",
+
+            so_tem: "",
+            so_giay_chung_nhan: "",
+
             co_so_su_dung: state.coSoSuDung || "",
             phuong_phap_thuc_hien: state.phuongPhapThucHien || "",
             chuan_thiet_bi_su_dung: state.chuanThietBiSuDung || "",
+
             nguoi_thuc_hien: state.nguoiThucHien || "",
-            nguoi_soat_lai: state.nguoiSoatLai || "",
             ngay_thuc_hien: state.ngayThucHien,
-            noi_su_dung: state.noiSuDung || "",
-            dia_diem_thuc_hien: state.noiThucHien || DEFAULT_LOCATION,
-            vi_tri: state.viTri || "",
-            nhiet_do: state.nhietDo || "",
-            do_am: state.doAm || "",
+
+            dia_diem_thuc_hien: state.diaDiemThucHien || DEFAULT_LOCATION,
+
+            ket_qua_check_vo_ngoai: false,
+            ket_qua_check_do_kin: false,
+            ket_qua_check_do_on_dinh_chi_so: false,
+
             du_lieu_kiem_dinh: getDuLieuKiemDinhJSON(formHieuSaiSoProp),
+            nguoi_soat_lai: state.nguoiSoatLai || "",
+
             hieu_luc_bien_ban: null,
-            so_giay_chung_nhan: "",
+
         }
     }
 
@@ -526,11 +522,6 @@ export default function KiemDinhNhomDongHoNuocForm({ className, generalInfoDongH
 
     const handler = useRef<NodeJS.Timeout | null>(null);
 
-    // Check Đồng hồ điện tử
-    const toggleCollapse = () => {
-        setIsCollapsed(!isCollapsed);
-    };
-
     // truyền setter vào để lưu giá trị vào state
     const handleNumberChange = (field: keyof State, value: any) => {
         // Replace commas with periods
@@ -540,34 +531,6 @@ export default function KiemDinhNhomDongHoNuocForm({ className, generalInfoDongH
             handleFieldChange(field, value);
         }
     };
-
-    // TODO: Check cơ điện từ
-    useEffect(() => {
-        setDHDienTu(Boolean((state.ccx && ["1", "2"].includes(state.ccx)) || ["Điện tử", "Cơ - Điện từ"].includes(state.kieuThietBi)));
-        if (state.kieuThietBi) {
-            handleFieldChange("phuongTienDo", ["Điện tử", "Cơ - Điện từ"].includes(state.kieuThietBi) ? "Đồng hồ đo nước lạnh có cơ cấu điện tử" : "Đồng hồ đo nước lạnh cơ khí")
-        } else {
-            handleFieldChange("phuongTienDo", "");
-        }
-    }, [state.ccx, state.kieuThietBi]);
-
-    // Fumc: Get Q1, Q2
-    useEffect(() => {
-        if (state.ccx && ((state.q3 && state.r) || state.qn)) {
-            const { getQ1OrMin, getQ2Ort } = getQ2OrtAndQ1OrQMin(isDHDienTu, state.ccx, isDHDienTu ? state.q3 : state.qn, isDHDienTu ? state.r : null);
-            handleMultFieldChange({ q1Ormin: getQ1OrMin.value, q2Ort: getQ2Ort.value });
-        }
-    }, [state.ccx, state.q3, state.qn, state.r]);
-
-    //Check doAm
-    useEffect(() => {
-        const humidity = parseFloat(state.doAm);
-        if (humidity > 100) {
-            handleFieldChange('doAm', '100');
-        } else if (humidity < 0) {
-            handleFieldChange('doAm', '0');
-        }
-    }, [state.doAm]);
 
     const updateDongHoSaved = (dongHoSelected: DongHo) => {
         setDHSaved(savedDongHoList.some(dh => JSON.stringify(dh) == JSON.stringify(dongHoSelected)))
@@ -727,12 +690,18 @@ export default function KiemDinhNhomDongHoNuocForm({ className, generalInfoDongH
                 handleClose={handleCloseModal}
                 setExitsDHSaved={setExitsDHSaved}
             /> */}
+            <ModalInputSerialDongHo
+                dongHoList={dongHoList}
+                show={isOpenModalSerial}
+                handleClose={() => setOpenModalSerial(false)}
+            >
+            </ModalInputSerialDongHo>
             <div className={`${className ? className : ""} ${ui_vfm['wraper']} container p-0 px-2 py-3 w-100`}>
                 <div className={`row m-0 mb-3 p-3 w-100 bg-white shadow-sm rounded`}>
                     <div className="w-100 m-0 p-0 mb-3 position-relative">
                         <h3 className="text-uppercase fw-bolder text-center mt-3 mb-0">thông tin chung đồng hồ</h3>
                     </div>
-                    <div className={`w-100 p-0 row m-0`}>
+                    {/* <div className={`w-100 p-0 row m-0`}>
                         <div className={`col-12 p-0 mb-3 ${ui_vfm['seri-number-input']}`}>
                             <label htmlFor="ten_dong_ho" className={`form-label m-0 fs-5 fw-bold d-block`} style={{ width: "150px" }}>Tên đồng hồ:</label>
                             <CreatableSelect
@@ -797,12 +766,12 @@ export default function KiemDinhNhomDongHoNuocForm({ className, generalInfoDongH
                                 }}
                             />
                         </div>
-                    </div>
-                    <div className={`collapse ${isCollapsed ? '' : 'show'} w-100 mt-2 p-0`}>
+                    </div> */}
+                    <div className={`w-100 mt-2 p-0`}>
                         <form className="w-100">
                             <label className="w-100 fs-5 fw-bold">Thông tin thiết bị:</label>
                             <div className="row mx-0 w-100 mb-3">
-                                <div className="mb-3 col-12 col-md-6">
+                                {/* <div className={`mb-3 col-12 col-md-6 ${ui_vfm['wrap-input-field']}`}>
                                     <label htmlFor="kieuThietBi" className="form-label">Kiểu:</label>
                                     <Select
                                         name="type"
@@ -848,60 +817,26 @@ export default function KiemDinhNhomDongHoNuocForm({ className, generalInfoDongH
                                             })
                                         }}
                                     />
-                                </div>
-                                <div className="mb-3 col-12 col-md-6">
-                                    <label htmlFor="namSanXuat" className="form-label">Năm sản xuất:</label>
-                                    <DatePicker
-                                        className={`${ui_vfm['date-picker']}`}
-                                        value={state.namSanXuat ? dayjs(state.namSanXuat) : null}
-                                        views={['year']}
-                                        format="YYYY"
-                                        minDate={dayjs('1900-01-01')}
-                                        maxDate={dayjs().endOf('year')}
-                                        disabled={savedDongHoList.length != 0}
-                                        onChange={(newValue: Dayjs | null) => {
-                                            if (newValue) {
-                                                handleFieldChange('namSanXuat', newValue.toDate());
-                                            } else {
-                                                handleFieldChange('namSanXuat', null); // or handle invalid date
-                                            }
+                                </div> */}
 
-                                        }}
-                                        slotProps={{ textField: { fullWidth: true, style: { backgroundColor: savedDongHoList.length != 0 ? "#e9ecef" : "white" } } }}
-                                    />
-                                </div>
-
-                                <div className="mb-3 col-12 col-md-6">
-                                    <label htmlFor="coSoSanXuat" className="form-label">Cơ sở sản xuất:</label>
-                                    <CreatableSelect
-                                        options={CSSXOptions as unknown as readonly GroupBase<never>[]}
+                                <div className="mb-3 col-12 col-md-8">
+                                    <label htmlFor="deviceName" className="form-label">Tên phương tiện đo:</label>
+                                    <Select
+                                        name="deviceName"
+                                        options={phuongTienDoOptions as unknown as readonly GroupBase<never>[]}
                                         className="basic-multi-select"
-                                        placeholder="Cơ sở sản xuất"
                                         classNamePrefix="select"
+                                        placeholder="-- Chọn tên --"
                                         isClearable
-                                        isDisabled={savedDongHoList.length != 0}
-                                        id="noi_san_xuat"
-                                        value={selectedCssxOption || null}
-                                        isSearchable
-                                        onChange={(selectedOptions: any) => {
-                                            if (selectedOptions) {
-                                                const values = selectedOptions.value;
-
-                                                setSelectedCssxOption(selectedOptions);
-                                                handleFieldChange('coSoSanXuat', values);
-                                            } else {
-                                                setSelectedCssxOption(null);
-                                                handleFieldChange('coSoSanXuat', "");
-                                            }
-                                        }}
+                                        value={phuongTienDoOptions.find(option => option.label == state.phuongTienDo) || null}
+                                        onChange={(selectedOptions: any) => handleFieldChange("phuongTienDo", selectedOptions ? selectedOptions.label : "")}
                                         styles={{
                                             control: (provided) => ({
                                                 ...provided,
                                                 height: '42px',
                                                 minHeight: '42px',
                                                 borderColor: '#dee2e6 !important',
-                                                boxShadow: 'none !important',
-                                                backgroundColor: savedDongHoList.length != 0 ? "#e9ecef" : "white",
+                                                boxShadow: 'none !important'
                                             }),
                                             valueContainer: (provided) => ({
                                                 ...provided,
@@ -913,46 +848,166 @@ export default function KiemDinhNhomDongHoNuocForm({ className, generalInfoDongH
                                                 margin: '0',
                                                 padding: '0'
                                             }),
-                                            indicatorsContainer: (provided) => ({
-                                                ...provided,
-                                                height: '42px',
-                                                display: CSSXOptions.length == 0 ? "none" : "flex",
-                                            }),
                                             menu: (provided) => ({
                                                 ...provided,
-                                                display: CSSXOptions.length == 0 ? "none" : "",
-                                                maxHeight: "250px",
                                                 zIndex: 777
                                             }),
-                                            menuList: (provided) => ({
+                                            indicatorsContainer: (provided) => ({
                                                 ...provided,
-                                                maxHeight: "250px",
-                                            }),
-                                            singleValue: (provided, state) => ({
-                                                ...provided,
-                                                color: state.isDisabled ? '#000' : provided.color,
+                                                height: '42px'
                                             })
                                         }}
                                     />
                                 </div>
-                            </div>
-                            <label className="w-100 fs-5 fw-bold">Đặc trưng kỹ thuật:</label>
-                            <div className="row mx-0 w-100 mb-3">
-                                <div className="mb-3 col-12 col-md-6 col-xxl-4">
-                                    <label htmlFor="sensor" className="form-label">- Kiểu sensor:</label>
+
+                                <div className="mb-3 col-12 col-md-4 d-flex align-items-end pb-1">
+                                    <div className="d-flex align-items-center">
+                                        <ToggleSwitchButton
+                                            value={isCoSensorTransitorRoi}
+                                            onChange={(value: boolean) => setCoSensorTransitorRoi(value)}
+                                            disabled={savedDongHoList.length != 0}
+                                        ></ToggleSwitchButton>
+                                        <span style={{ fontSize: "14px" }} className={`ms-2 ${!isCoSensorTransitorRoi && "text-secondary"}`}>Có Sensor và Transitor rời</span>
+                                    </div>
+                                </div>
+                                <div className={`mb-3 col-12 col-md-6 col-lg-4 ${ui_vfm['wrap-input-field']}`}>
+                                    <label htmlFor="sensor" className="form-label">{isCoSensorTransitorRoi ? "Sensor" : "Kiểu"}:</label>
                                     <input
                                         type="text"
-                                        className="form-control"
+                                        className={`form-control ${ui_vfm['input-field']}`}
                                         id="sensor"
                                         disabled={savedDongHoList.length != 0}
-                                        value={state.kieuSensor || ""}
+                                        value={state.sensor || ""}
                                         onChange={(e) => {
-                                            handleFieldChange('kieuSensor', e.target.value);
+                                            handleFieldChange('sensor', e.target.value);
                                         }}
                                     />
                                 </div>
-                                {(isDHDienTu != null && isDHDienTu) ? <>
-                                    <div className="mb-3 col-12 col-md-6 col-xxl-4">
+                                {isCoSensorTransitorRoi &&
+                                    <div className={`mb-3 col-12 col-md-6 col-lg-4 ${ui_vfm['wrap-input-field']}`}>
+                                        <label htmlFor="transitor" className="form-label">Transitor:</label>
+                                        <input
+                                            type="text"
+                                            className={`form-control ${ui_vfm['input-field']}`}
+                                            id="transitor"
+                                            disabled={savedDongHoList.length != 0}
+                                            value={state.transitor || ""}
+                                            onChange={(e) => {
+                                                handleFieldChange('transitor', e.target.value);
+                                            }}
+                                        />
+                                    </div>
+                                }
+
+                                <div className={`mb-3 col-12 ${isCoSensorTransitorRoi ? "col-md-10" : "col-md-6"} col-lg-4 ${ui_vfm['wrap-input-field']}`}>
+                                    <label htmlFor="serial" className="form-label">Số:</label>
+                                    {/* <input
+                                        type="text"
+                                        className={`form-control ${ui_vfm['input-field']}`}
+                                        id="serial"
+                                        disabled={savedDongHoList.length != 0}
+                                        value={state.serial || ""}
+                                        onChange={(e) => {
+                                            handleFieldChange('serial', e.target.value);
+                                        }}
+                                    /> */}
+                                    <button type="button" className={`btn btn-light`} onClick={() => { setOpenModalSerial(true) }}>Nhập số</button>
+                                </div>
+                                <div className="w-100 m-0 p-0 row">
+                                    <div className={`mb-3 col-12 col-md-10 col-lg-7 ${ui_vfm['wrap-input-field']}`}>
+                                        <label htmlFor="coSoSanXuat" className="form-label">Cơ sở sản xuất:</label>
+                                        <CreatableSelect
+                                            options={CSSXOptions as unknown as readonly GroupBase<never>[]}
+                                            className="basic-multi-select w-100"
+                                            placeholder=""
+                                            classNamePrefix="select"
+                                            isClearable
+                                            isDisabled={savedDongHoList.length != 0}
+                                            id="noi_san_xuat"
+                                            value={selectedCssxOption || null}
+                                            isSearchable
+                                            onChange={(selectedOptions: any) => {
+                                                if (selectedOptions) {
+                                                    const values = selectedOptions.value;
+
+                                                    setSelectedCssxOption(selectedOptions);
+                                                    handleFieldChange('coSoSanXuat', values);
+                                                } else {
+                                                    setSelectedCssxOption(null);
+                                                    handleFieldChange('coSoSanXuat', "");
+                                                }
+                                            }}
+                                            styles={{
+                                                control: (provided) => ({
+                                                    ...provided,
+                                                    height: '42px',
+                                                    minHeight: '42px',
+                                                    boxShadow: 'none !important',
+                                                    border: 'none !important',
+                                                    borderRadius: '0 !important',
+                                                    borderBottom: '1px dotted #000 !important',
+                                                    backgroundColor: savedDongHoList.length != 0 ? "#e9ecef" : "white",
+                                                }),
+                                                valueContainer: (provided) => ({
+                                                    ...provided,
+                                                    height: '42px',
+                                                    padding: '0 8px'
+                                                }),
+                                                input: (provided) => ({
+                                                    ...provided,
+                                                    margin: '0',
+                                                    padding: '0'
+                                                }),
+                                                indicatorsContainer: (provided) => ({
+                                                    ...provided,
+                                                    height: '42px',
+                                                    display: CSSXOptions.length == 0 ? "none" : "flex",
+                                                }),
+                                                menu: (provided) => ({
+                                                    ...provided,
+                                                    display: CSSXOptions.length == 0 ? "none" : "",
+                                                    maxHeight: "250px",
+                                                    zIndex: 777
+                                                }),
+                                                menuList: (provided) => ({
+                                                    ...provided,
+                                                    maxHeight: "250px",
+                                                }),
+                                                singleValue: (provided, state) => ({
+                                                    ...provided,
+                                                    color: state.isDisabled ? '#000' : provided.color,
+                                                })
+                                            }}
+                                        />
+                                    </div>
+                                    <div className={`mb-3 col-12 col-md-10 col-lg-5 ${ui_vfm['wrap-input-field']}`}>
+                                        <label htmlFor="namSanXuat" className="form-label">Năm sản xuất:</label>
+                                        <DatePicker
+                                            className={`${ui_vfm['date-picker']}`}
+                                            value={state.namSanXuat ? dayjs(state.namSanXuat) : null}
+                                            views={['year']}
+                                            format="YYYY"
+                                            minDate={dayjs('1900-01-01')}
+                                            maxDate={dayjs().endOf('year')}
+                                            disabled={savedDongHoList.length != 0}
+                                            onChange={(newValue: Dayjs | null) => {
+                                                if (newValue) {
+                                                    handleFieldChange('namSanXuat', newValue.toDate());
+                                                } else {
+                                                    handleFieldChange('namSanXuat', null); // or handle invalid date
+                                                }
+
+                                            }}
+                                            slotProps={{ textField: { fullWidth: true, style: { backgroundColor: savedDongHoList.length != 0 ? "#e9ecef" : "white" } } }}
+                                        />
+                                    </div>
+                                </div>
+                            </div>
+                            <label className="w-100 fs-5 fw-bold">Đặc trưng kỹ thuật:</label>
+                            <div className="row mx-0 w-100 mb-3">
+
+                                {/* {(isDHDienTu != null && isDHDienTu) ? <>
+                                    <div className={`mb-3 col-12 col-md-6 col-xxl-4 ${ui_vfm['wrap-input-field']}`}>
                                         <label htmlFor="transitor" className="form-label">- Kiểu chỉ thị:</label>
                                         <div className="input-group">
                                             <input
@@ -960,39 +1015,41 @@ export default function KiemDinhNhomDongHoNuocForm({ className, generalInfoDongH
                                                 className="form-control"
                                                 id="transitor"
                                                 disabled={savedDongHoList.length != 0}
-                                                value={state.kieuChiThi || ""}
+                                                value={state.transitor || ""}
                                                 onChange={(e) => {
-                                                    handleFieldChange('kieuChiThi', e.target.value);
+                                                    handleFieldChange('transitor', e.target.value);
                                                 }}
                                             />
                                         </div>
                                     </div>
                                 </> :
                                     <div className="mb-3 col-12 col-md-6 d-xxl-none">
-                                    </div>}
-                                <div className="mb-3 col-12 col-md-6 col-xxl-4">
+                                    </div>} */}
+
+
+                                <div className={`mb-3 col-12 col-lg-7 ${ui_vfm['wrap-input-field']}`}>
                                     <label htmlFor="dn" className="form-label">- Đường kính danh định (DN):</label>
                                     <div className="input-group">
                                         <input
                                             type="text"
-                                            className="form-control"
+                                            className={`form-control ${ui_vfm['input-field']}`}
                                             id="dn"
                                             value={state.dn || ""}
                                             onChange={(e) => handleNumberChange("dn", e.target.value)}
                                             disabled={savedDongHoList.length != 0}
 
                                         />
-                                        <span className="input-group-text">mm</span>
+                                        <span>(mm)</span>
                                     </div>
                                 </div>
-                                <div className="mb-3 col-12 col-md-6 col-xxl-4">
-                                    <label htmlFor="ccx" className="form-label">- Cấp chính xác:</label>
+                                <div className={`mb-3 col-12 col-lg-5 ${ui_vfm['wrap-input-field']}`}>
+                                    <label htmlFor="ccx" className="form-label"><span className="d-lg-none">- </span>Cấp chính xác:</label>
                                     <Select
                                         name="ccx"
                                         options={filteredCcxOptions(state.q3, state.qn)}
-                                        className="basic-multi-select"
+                                        className="basic-multi-select w-100"
                                         classNamePrefix="select"
-                                        placeholder="-- Chọn cấp --"
+                                        placeholder="-- Cấp --"
                                         isDisabled={savedDongHoList.length != 0}
                                         isClearable
                                         value={ccxOptions.find(option => option.value === state.ccx) || null}
@@ -1002,7 +1059,9 @@ export default function KiemDinhNhomDongHoNuocForm({ className, generalInfoDongH
                                                 ...provided,
                                                 height: '42px',
                                                 minHeight: '42px',
-                                                borderColor: '#dee2e6 !important',
+                                                border: 'none !important',
+                                                borderRadius: '0 !important',
+                                                borderBottom: '1px dotted #000 !important',
                                                 boxShadow: 'none !important',
                                                 backgroundColor: savedDongHoList.length != 0 ? "#e9ecef" : "white",
                                             }),
@@ -1032,76 +1091,77 @@ export default function KiemDinhNhomDongHoNuocForm({ className, generalInfoDongH
                                     />
                                 </div>
 
+                                <div className={`mb-3 col-12 col-lg-7 ${ui_vfm['wrap-input-field']}`}>
+                                    <label htmlFor="r" className="form-label">- Tỷ số Q<sub>3</sub>/Q<sub>1</sub> (R):</label>
+                                    <input
+                                        type="text"
+                                        className="form-control"
+                                        id="r"
+                                        value={state.r || ""}
+                                        onChange={(e) => handleNumberChange("r", e.target.value)}
+                                        disabled={savedDongHoList.length != 0}
+                                    />
+                                </div>
                                 {(isDHDienTu != null && isDHDienTu) ? <>
-                                    <div className="mb-3 col-12 col-md-6 col-lg-4 col-xxl-4">
-                                        <label htmlFor="q3" className="form-label">- Q<sub>3</sub>:</label>
+                                    <div className={`mb-3 col-12 col-lg-4 ${ui_vfm['wrap-input-field']}`}>
+                                        <label htmlFor="q3" className="form-label"><span className="d-lg-none">- </span>Q<sub>3</sub>(Q<sub>n</sub>):</label>
                                         <div className="input-group">
                                             <input
                                                 type="text"
-                                                className="form-control"
+                                                className={`form-control ${ui_vfm['input-field']}`}
                                                 id="q3"
                                                 value={state.q3 || ""}
                                                 onChange={(e) => handleNumberChange("q3", e.target.value)}
 
                                                 disabled={savedDongHoList.length != 0}
                                             />
-                                            <span className="input-group-text">m<sup>3</sup>/h</span>
+                                            <span>m<sup>3</sup>/h (kg/h)</span>
                                         </div>
                                     </div>
-                                    <div className="mb-3 col-12 col-md-6 col-lg-4 col-xxl-4">
-                                        <label htmlFor="r" className="form-label">- Tỷ số Q<sub>3</sub>/Q<sub>1</sub> (R):</label>
-                                        <input
-                                            type="text"
-                                            className="form-control"
-                                            id="r"
-                                            value={state.r || ""}
-                                            onChange={(e) => handleNumberChange("r", e.target.value)}
-                                            disabled={savedDongHoList.length != 0}
-                                        />
-                                    </div>
                                 </> : <>
-                                    <div className="mb-3 col-12 col-md-6">
-                                        <label htmlFor="qn" className="form-label">- Q<sub>n</sub>:</label>
+                                    <div className={`mb-3 col-12 col-lg-5 ${ui_vfm['wrap-input-field']}`}>
+                                        <label htmlFor="qn" className="form-label"><span className="d-lg-none">- </span>Q<sub>3</sub>(Q<sub>n</sub>):</label>
                                         <div className="input-group">
                                             <input
-
                                                 type="text"
-                                                className="form-control"
+                                                className={`form-control ${ui_vfm['input-field']}`}
                                                 id="qn"
                                                 value={state.qn || ""}
                                                 onChange={(e) => handleNumberChange("qn", e.target.value)}
                                                 disabled={savedDongHoList.length != 0}
                                             />
-                                            <span className="input-group-text">m<sup>3</sup>/h</span>
+                                            <span>m<sup>3</sup>/h (kg/h)</span>
                                         </div>
                                     </div>
                                 </>}
-                                <div className={`mb-3 col-12 col-md-6 ${isDHDienTu ? "col-lg-4" : ""}`}>
-                                    <label htmlFor="dn" className="form-label">- Độ chia nhỏ nhất (d):</label>
+                                {/* <div className={`mb-3 col-12 col-md-6 ${isDHDienTu ? "col-lg-4" : ""}`}>
+                                    <label htmlFor="dn" className="form-label">Độ chia nhỏ nhất (d):</label>
                                     <input
                                         type="text"
-                                        className="form-control"
+                                        className={`form-control ${ui_vfm['input-field']}`}
                                         id="d"
                                         value={state.d || ""}
                                         onChange={(e) => handleNumberChange("d", e.target.value)}
                                         disabled={savedDongHoList.length != 0}
 
                                     />
-                                </div>
-                                <div className={`mb-3 col-12 col-md-6 ${isDHDienTu ? "col-xxl-4" : ""}`}>
+                                </div> */}
+                                <div className={`col-12 col-lg-10 d-block d-md-flex ${ui_vfm['wrap-input-field']} ${isDHDienTu ? "col-xxl-4" : ""}`}>
                                     <label htmlFor="so_qd_pdm" className="form-label">- Ký hiệu PDM/Số quyết định PDM:</label>
                                     <input
                                         type="text"
-                                        className="form-control"
+                                        className={`form-control ${ui_vfm['input-field']}`}
                                         id="so_qd_pdm"
                                         disabled={savedDongHoList.length != 0}
                                         value={state.soQDPDM || ""}
                                         onChange={(e) => handleFieldChange('soQDPDM', e.target.value)}
                                     />
-                                    {errorPDM && <small className="text-danger">{errorPDM}</small>}
+                                </div>
+                                <div className="w-100 mb-3">
+                                    {errorPDM && <small className="text-danger">*{errorPDM}</small>}
                                 </div>
 
-                                <div className={`mb-3 col-12 col-md-6 col-xxl-4 d-flex align-items-end ${!isManager ? "" : "d-none"}`}>
+                                {/* <div className={`mb-3 col-12 col-md-6 col-xxl-4 d-flex align-items-end ${!isManager ? "" : "d-none"}`}>
 
                                     <Link
                                         href={ACCESS_LINKS.PDM_ADD.src}
@@ -1110,59 +1170,58 @@ export default function KiemDinhNhomDongHoNuocForm({ className, generalInfoDongH
                                     >
                                         Thêm mới PDM
                                     </Link>
-                                </div>
+                                </div> */}
                             </div>
-                            <label className="w-100 fs-5 fw-bold">Chi tiết kiểm định:</label>
                             <div className="row mx-0 w-100 mb-3">
-                                <div className="mb-3 col-12 col-md-6">
+                                {/* <div className={`mb-3 col-12 col-md-6 ${ui_vfm['wrap-input-field']}`}>
                                     <label htmlFor="tenKhachHang" className="form-label">Tên khách hàng:</label>
                                     <input
                                         type="text"
-                                        className="form-control"
+                                            className={`form-control ${ui_vfm['input-field']}`}
                                         id="tenKhachHang"
                                         disabled={savedDongHoList.length != 0}
                                         value={state.tenKhachHang || ""}
                                         onChange={(e) => handleFieldChange('tenKhachHang', e.target.value)}
                                     />
-                                </div>
-                                <div className="mb-3 col-12 col-md-6">
-                                    <label htmlFor="coSoSuDung" className="form-label">Đơn vị phê duyệt mẫu:</label>
+                                </div> */}
+                                <div className={`mb-3 col-12 d-block d-md-flex ${ui_vfm['wrap-input-field']}`}>
+                                    <label htmlFor="coSoSuDung" className="form-label">Cơ sở sử dụng:</label>
                                     <input
                                         type="text"
-                                        className="form-control"
+                                        className={`form-control ${ui_vfm['input-field']}`}
                                         id="coSoSuDung"
                                         disabled={savedDongHoList.length != 0}
                                         value={state.coSoSuDung || ""}
                                         onChange={(e) => handleFieldChange('coSoSuDung', e.target.value)}
                                     />
                                 </div>
-                                <div className="mb-3 col-12 col-xl-6">
+                                {/* <div className="mb-3 col-12 col-xl-6">
                                     <label htmlFor="noi_su_dung" className="form-label">Nơi sử dụng:</label>
                                     <input
                                         type="text"
-                                        className="form-control"
+                                            className={`form-control ${ui_vfm['input-field']}`}
                                         id="noi_su_dung"
                                         disabled={savedDongHoList.length != 0}
                                         value={state.noiSuDung || ""}
                                         onChange={(e) => handleFieldChange('noiSuDung', e.target.value)}
                                     />
                                 </div>
-                                <div className="mb-3 col-12 col-xl-6">
-                                    <label htmlFor="viTri" className="form-label">Địa chỉ nơi sử dụng:</label>
+                                <div className="mb-3 col-12 col-xl-6"> */}
+                                {/* <label htmlFor="viTri" className="form-label">Địa chỉ nơi sử dụng:</label>
                                     <input
                                         type="text"
-                                        className="form-control"
+                                            className={`form-control ${ui_vfm['input-field']}`}
                                         id="viTri"
                                         disabled={savedDongHoList.length != 0}
                                         value={state.viTri || ""}
                                         onChange={(e) => handleFieldChange('viTri', e.target.value)}
                                     />
-                                </div>
-                                <div className="mb-3 col-12 col-md-6">
+                                </div> */}
+                                <div className={`mb-3 col-12 ${ui_vfm['wrap-input-field']}`}>
                                     <label htmlFor="phuongPhapThucHien" className="form-label">Phương pháp thực hiện:</label>
                                     <input
                                         type="text"
-                                        className="form-control"
+                                        className={`form-control ${ui_vfm['input-field']}`}
                                         disabled={savedDongHoList.length != 0}
                                         id="phuongPhapThucHien"
                                         placeholder="Phương pháp thực hiện"
@@ -1170,18 +1229,29 @@ export default function KiemDinhNhomDongHoNuocForm({ className, generalInfoDongH
                                         onChange={(e) => handleFieldChange('phuongPhapThucHien', e.target.value)}
                                     />
                                 </div>
-                                <div className="mb-3 col-12 col-md-6">
+                                <div className={`mb-3 col-12 d-block d-md-flex ${ui_vfm['wrap-input-field']} `}>
                                     <label htmlFor="chuanThietBiSuDung" className="form-label">Chuẩn, thiết bị chính được sử dụng:</label>
                                     <input
                                         type="text"
-                                        className="form-control"
+                                        className={`form-control ${ui_vfm['input-field']}`}
                                         id="chuanThietBiSuDung"
                                         disabled={savedDongHoList.length != 0}
                                         value={state.chuanThietBiSuDung || ""}
                                         onChange={(e) => handleFieldChange('chuanThietBiSuDung', e.target.value)}
                                     />
                                 </div>
-                                <div className="mb-3 col-12 col-md-6">
+                                <div className={`mb-3 col-12 col-lg-8 ${ui_vfm['wrap-input-field']}`}>
+                                    <label htmlFor="nguoi_thuc_hien" className="form-label">Người thực hiện:</label>
+                                    <input
+                                        type="text"
+                                        className={`form-control ${ui_vfm['input-field']}`}
+                                        id="nguoi_thuc_hien"
+                                        disabled={savedDongHoList.length != 0}
+                                        value={state.nguoiThucHien || ""}
+                                        onChange={(e) => handleFieldChange('nguoiThucHien', e.target.value)}
+                                    />
+                                </div>
+                                <div className={`mb-3 col-12 col-lg-4 ${ui_vfm['wrap-input-field']}`}>
                                     <label htmlFor="ngayThucHien" className="form-label">Ngày thực hiện:</label>
                                     <DatePicker
                                         className={`${ui_vfm['date-picker']}`}
@@ -1193,19 +1263,19 @@ export default function KiemDinhNhomDongHoNuocForm({ className, generalInfoDongH
                                         slotProps={{ textField: { fullWidth: true, style: { backgroundColor: savedDongHoList.length != 0 ? "#e9ecef" : "white" } } }}
                                     />
                                 </div>
-                                <div className="mb-3 col-12 col-md-6">
+                                <div className={`mb-3 col-12 ${ui_vfm['wrap-input-field']}`}>
                                     <label htmlFor="noi_su_dung" className="form-label">Địa điểm thực hiện:</label>
                                     <input
                                         type="text"
-                                        className="form-control"
+                                        className={`form-control ${ui_vfm['input-field']}`}
                                         id="dia_diem_thuc_hien"
                                         placeholder={DEFAULT_LOCATION}
                                         disabled={savedDongHoList.length != 0}
-                                        value={state.noiThucHien || ""}
-                                        onChange={(e) => handleFieldChange('noiThucHien', e.target.value)}
+                                        value={state.diaDiemThucHien || ""}
+                                        onChange={(e) => handleFieldChange('diaDiemThucHien', e.target.value)}
                                     />
                                 </div>
-                                <div className="mb-3 col-12 col-md-6">
+                                {/* <div className={`mb-3 col-12 ${ui_vfm['wrap-input-field']}`}>
                                     <label htmlFor="nhietDo" className="form-label">Nhiệt độ:</label>
                                     <div className="input-group">
                                         <input
@@ -1216,10 +1286,10 @@ export default function KiemDinhNhomDongHoNuocForm({ className, generalInfoDongH
                                             value={state.nhietDo || ""}
                                             onChange={(e) => handleNumberChange("nhietDo", e.target.value)}
                                         />
-                                        <span className="input-group-text">°C</span>
+                                        <span>(°C)</span>
                                     </div>
                                 </div>
-                                <div className="mb-3 col-12 col-md-6">
+                                <div className={`mb-3 col-12 ${ui_vfm['wrap-input-field']}`}>
                                     <label htmlFor="doAm" className="form-label">Độ ẩm:</label>
                                     <div className="input-group">
                                         <input
@@ -1230,25 +1300,14 @@ export default function KiemDinhNhomDongHoNuocForm({ className, generalInfoDongH
                                             value={state.doAm || ""}
                                             onChange={(e) => handleNumberChange("doAm", e.target.value)}
                                         />
-                                        <span className="input-group-text">%</span>
+                                        <span>(%)</span>
                                     </div>
-                                </div>
-                                <div className="mb-3 col-12 col-md-6">
-                                    <label htmlFor="nguoi_thuc_hien" className="form-label">Người thực hiện:</label>
-                                    <input
-                                        type="text"
-                                        className="form-control"
-                                        id="nguoi_thuc_hien"
-                                        disabled={savedDongHoList.length != 0}
-                                        value={state.nguoiThucHien || ""}
-                                        onChange={(e) => handleFieldChange('nguoiThucHien', e.target.value)}
-                                    />
-                                </div>
-                                <div className="mb-3 col-12 col-md-6">
+                                </div> */}
+                                <div className={`mb-3 col-12 ${ui_vfm['wrap-input-field']}`}>
                                     <label htmlFor="nguoi_thuc_hien" className="form-label">Người soát lại:</label>
                                     <input
                                         type="text"
-                                        className="form-control"
+                                        className={`form-control ${ui_vfm['input-field']}`}
                                         id="nguoi_soat_lai"
                                         disabled={savedDongHoList.length != 0}
                                         value={state.nguoiSoatLai || ""}
@@ -1258,13 +1317,6 @@ export default function KiemDinhNhomDongHoNuocForm({ className, generalInfoDongH
                             </div>
                         </form>
                     </div>
-                    <div className="w-100 m-0 p-0 d-flex justify-content-center align-items-center gap-4" ref={scrollRef}>
-                        <span className={ui_vfm['end-line']}></span>
-                        <button aria-label={`${isCollapsed ? "Hiện thêm" : "Ẩn bớt"}`} type="button" className={`btn ${ui_vfm['btn-collapse-info']} ${ui_vfm['btn-collapse-end']}`} onClick={toggleCollapse}>
-                            {isCollapsed ? "Hiện thêm" : "Ẩn bớt"}
-                        </button>
-                        <span className={ui_vfm['end-line']}></span>
-                    </div>
                 </div>
 
                 <div className={`m-0 mb-3 bg-white rounded shadow-sm w-100 position-relative`}>
@@ -1272,7 +1324,7 @@ export default function KiemDinhNhomDongHoNuocForm({ className, generalInfoDongH
                         {selectedDongHoIndex != null && showFormTienTrinh && <>
                             {/* Select Nav  */}
                             <div className={`w-100 py-3 px-2 shadow-sm rounded-top bg-main-blue d-flex align-items-center sticky-top justify-content-center`} style={{ top: "60px", zIndex: "900" }}>
-                                
+
                                 <button style={{ top: "50%", left: "10px", transform: "translateY(-50%)" }} className={`btn m-0 py-0 px-0 position-absolute text-white d-flex align-items-center gap-1 border-0 shadow-0`} onClick={() => setSelectedDongHoIndex(null)}>
                                     <FontAwesomeIcon icon={faArrowLeft} style={{ fontSize: "1.6rem" }}></FontAwesomeIcon><span className="d-none d-sm-block">Quay lại</span>
                                 </button>
@@ -1479,7 +1531,7 @@ export default function KiemDinhNhomDongHoNuocForm({ className, generalInfoDongH
                         <div className={`w-100 px-3 row alert alert-warning m-0`}>
                             <h6><i>* Điền đủ các thông tin để hiện Form tiến trình!</i></h6>
                             {errorFields.map((error, index) => (
-                                <div className="col-12 col-sm-6 col-lg-4 col-xxl-3" key={index}><span className="me-2">•</span> {fieldTitles[error as keyof typeof fieldTitles]} là bắt buộc</div>
+                                error && <div className="col-12 col-sm-6 col-lg-4 col-xxl-3" key={index}><span className="me-2">•</span> {fieldTitles[error as keyof typeof fieldTitles]} là bắt buộc</div>
                             ))}
                         </div>
                     </div>
