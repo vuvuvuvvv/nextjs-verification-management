@@ -26,26 +26,24 @@ interface TableDongHoInfoProps {
 
 const InfoFieldTitle = {
     so_giay_chung_nhan: "Số GCN",
-    seri_sensor: "Serial sensor",
-    seri_chi_thi: "Serial chỉ thị",
+    serial: "Số",
     so_tem: "Số tem",
-    hieu_luc_bien_ban: "Hiệu lực biên bản",
     k_factor: "Hệ số K",
+    hieu_luc_bien_ban: "Hiệu lực biên bản",
     ket_qua_check_vo_ngoai: "Kết quả kiếm tra vỏ ngoài",
-    ghi_chu_vo_ngoai: "Ghi chú vỏ ngoài",
-    ma_quan_ly: "Mã quản lý"
+    ket_qua_check_do_kin: "Kết quả kiếm tra vỏ ngoài",
+    ket_qua_check_do_on_dinh_chi_so: "Kết quả kiếm tra vỏ ngoài",
 };
 
 type InfoField = {
     so_giay_chung_nhan?: string;
-    seri_sensor?: string;
-    seri_chi_thi?: string;
+    serial?: string;
     so_tem?: string;
     k_factor?: string;
     hieu_luc_bien_ban?: Date | null;
     ket_qua_check_vo_ngoai?: boolean;
-    ghi_chu_vo_ngoai?: string | null;
-    ma_quan_ly?: string | null;
+    ket_qua_check_do_kin?: boolean;
+    ket_qua_check_do_on_dinh_chi_so?: boolean;
 };
 
 const TableDongHoInfo: React.FC<TableDongHoInfoProps> = React.memo(({
@@ -61,7 +59,7 @@ const TableDongHoInfo: React.FC<TableDongHoInfoProps> = React.memo(({
 
     const handleInputChange = React.useCallback((
         index: number,
-        field: "so_giay_chung_nhan" | "seri_sensor" | "seri_chi_thi" | "so_tem" | "hieu_luc_bien_ban" | "k_factor",
+        field: "so_giay_chung_nhan" | "serial" | "so_tem" | "hieu_luc_bien_ban" | "k_factor",
         value: string | Date
     ) => {
         const updatedErrors = [...errorsList];
@@ -109,7 +107,7 @@ const TableDongHoInfo: React.FC<TableDongHoInfoProps> = React.memo(({
                 }
 
                 if (updatedDongHoList[index].so_giay_chung_nhan && updatedDongHoList[index].so_tem) {
-                    const isDHDienTu = Boolean((dongHoList[index].ccx && ["1", "2"].includes(dongHoList[index].ccx ?? "")) || dongHoList[index].kieu_thiet_bi == "Điện tử");
+                    const isDHDienTu = Boolean((dongHoList[index].ccx && ["1", "2"].includes(dongHoList[index].ccx ?? "")));
                     updatedDongHoList[index].hieu_luc_bien_ban = getLastDayOfMonthInFuture(isDHDienTu, updatedDongHoList[index].ngay_thuc_hien) || null;
                 } else {
                     updatedDongHoList[index].hieu_luc_bien_ban = null;
@@ -132,20 +130,19 @@ const TableDongHoInfo: React.FC<TableDongHoInfoProps> = React.memo(({
 
     const handleOtherFieldChange = React.useCallback((
         index: number,
-        field: "ket_qua_check_vo_ngoai" | "ghi_chu_vo_ngoai" | "ma_quan_ly",
+        field: "ket_qua_check_vo_ngoai" | "ket_qua_check_do_kin" | "ket_qua_check_do_on_dinh_chi_so",
         value: boolean | string
     ) => {
-        const updatedDongHoList = [...dongHoList];
-        if (field == "ket_qua_check_vo_ngoai" && typeof (value) == "boolean") {
-            updatedDongHoList[index].ket_qua_check_vo_ngoai = value;
+        if (typeof (value) == "boolean") {
+            const updatedDongHoList = [...dongHoList];
+
+            updatedDongHoList[index] = {
+                ...updatedDongHoList[index],
+                [field]: value
+            };
+
+            setDongHoList(updatedDongHoList);
         }
-        // if (field == "ghi_chu_vo_ngoai" && typeof (value) == "string") {
-        //     updatedDongHoList[index].ghi_chu_vo_ngoai = value.toString();
-        // }
-        // if (field == "ma_quan_ly" && typeof (value) == "string") {
-        //     updatedDongHoList[index].ma_quan_ly = value.toString();
-        // }
-        setDongHoList(updatedDongHoList);
     },
         [dongHoList, errorsList]
     );
@@ -160,7 +157,7 @@ const TableDongHoInfo: React.FC<TableDongHoInfoProps> = React.memo(({
 
     // const handleEnterKey = (e: React.KeyboardEvent<HTMLInputElement>,
     //     index: number,
-    //     field: "so_giay_chung_nhan" | "seri_sensor" | "seri_chi_thi" | "so_tem",
+    //     field: "so_giay_chung_nhan" | "serial" | "seri_chi_thi" | "so_tem",
     // ) => {
     //     if (e.key === 'Enter') {
 
@@ -189,12 +186,12 @@ const TableDongHoInfo: React.FC<TableDongHoInfoProps> = React.memo(({
             <table className={`table table-bordered mb-0 table-hover ${c_tbIDHInf['process-table']}`}>
                 <thead className="shadow border">
                     <tr className={`${c_tbIDHInf['table-header']}`}>
-                        <th rowSpan={2}>
+                        <th>
                             <div className={`${c_tbIDHInf['table-label']}`}>
                                 STT
                             </div>
                         </th>
-                        <th rowSpan={2}>
+                        <th>
                             <div className={`${c_tbIDHInf['table-label']}`}>
                                 <span>
                                     Trạng thái
@@ -203,29 +200,45 @@ const TableDongHoInfo: React.FC<TableDongHoInfoProps> = React.memo(({
                         </th>
 
                         {!isHieuChuan &&
-                            <th rowSpan={2}>
-                                <div className={`${c_tbIDHInf['table-label']}`}>
-                                    <span>
-                                        Vỏ ngoài
-                                    </span>
-                                </div>
-                            </th>}
+                            <>
+                                <th>
+                                    <div className={`${c_tbIDHInf['table-label']}`}>
+                                        <span>
+                                            Vỏ ngoài
+                                        </span>
+                                    </div>
+                                </th>
+                                <th>
+                                    <div className={`${c_tbIDHInf['table-label']}`}>
+                                        <span>
+                                            Độ kín
+                                        </span>
+                                    </div>
+                                </th>
+                                <th>
+                                    <div className={`${c_tbIDHInf['table-label']}`}>
+                                        <span>
+                                            Độ ổn định chỉ số
+                                        </span>
+                                    </div>
+                                </th>
+                            </>}
 
-                        <th rowSpan={2}>
+                        <th>
                             <div className={`${c_tbIDHInf['table-label']}`}>
                                 <span>
                                     Số giấy CN
                                 </span>
                             </div>
                         </th>
-                        <th rowSpan={2}>
+                        <th>
                             <div className={`${c_tbIDHInf['table-label']}`}>
                                 <span>
                                     Số Tem
                                 </span>
                             </div>
                         </th>
-                        <th rowSpan={2}>
+                        <th>
                             <div className={`${c_tbIDHInf['table-label']}`}>
                                 <span>
                                     Serial Sensor
@@ -233,7 +246,7 @@ const TableDongHoInfo: React.FC<TableDongHoInfoProps> = React.memo(({
                             </div>
                         </th>
                         {isDHDienTu &&
-                            <th rowSpan={2}>
+                            <th>
                                 <div className={`${c_tbIDHInf['table-label']}`}>
                                     <span>
                                         Serial chỉ thị
@@ -242,7 +255,7 @@ const TableDongHoInfo: React.FC<TableDongHoInfoProps> = React.memo(({
                             </th>
                         }
                         {/* {dongHoList.length > 0 && ["Điện tử", "Cơ - Điện từ"].includes(dongHoList[0].kieu_thiet_bi ?? "xx") &&
-                            <th rowSpan={2}>
+                            <th>
                                 <div className={`${c_tbIDHInf['table-label']}`}>
                                     <span>
                                         Hệ số K
@@ -250,7 +263,7 @@ const TableDongHoInfo: React.FC<TableDongHoInfoProps> = React.memo(({
                                 </div>
                             </th>
                         } */}
-                        {isHieuChuan && <th rowSpan={2}>Mã quản lý</th>}
+                        {isHieuChuan && <th>Mã quản lý</th>}
                         {/* <th>
                             <div className={`${c_tbIDHInf['table-label']}`}>
                                 <span>
@@ -265,16 +278,8 @@ const TableDongHoInfo: React.FC<TableDongHoInfoProps> = React.memo(({
                                 </span>
                             </div>
                         </th>
-                        <th rowSpan={2}>
+                        <th>
                         </th>
-                    </tr>
-                    <tr className={`${c_tbIDHInf['table-header']} border-top border-white`}>
-                        <th>Q<sub>III</sub></th>
-                        {isHieuChuan && <th>Mf</th>}
-                        <th>Q<sub>II</sub></th>
-                        {isHieuChuan && <th>Mf</th>}
-                        <th>Q<sub>I</sub></th>
-                        {isHieuChuan && <th>Mf</th>}
                     </tr>
                 </thead>
                 <tbody>
@@ -325,17 +330,42 @@ const TableDongHoInfo: React.FC<TableDongHoInfoProps> = React.memo(({
                                     </td>
 
                                     {!isHieuChuan &&
-                                        <td>
-                                        <div className="d-flex align-items-center">
-                                            <span style={{fontSize: "14px"}} className={`me-2 ${dongHo.ket_qua_check_vo_ngoai && "text-secondary"}`}>Không</span>
-                                            <ToggleSwitchButton
-                                                value={dongHo.ket_qua_check_vo_ngoai ?? false}
-                                                onChange={(value: boolean) => handleOtherFieldChange(index, "ket_qua_check_vo_ngoai", value)}
-                                                disabled={savedDongHoList.some(dh => JSON.stringify(dh) == JSON.stringify(dongHo)) || savedDongHoList.length == dongHoList.length}
-                                            />
-                                            <span style={{fontSize: "14px"}} className={`ms-2 ${!dongHo.ket_qua_check_vo_ngoai && "text-secondary"}`}>Đạt</span>
-                                        </div>
-                                        </td>}
+                                        <>
+                                            <td>
+                                                <div className="d-flex align-items-center">
+                                                    <span style={{ fontSize: "14px" }} className={`me-2 ${dongHo.ket_qua_check_vo_ngoai && "text-secondary"}`}>Không</span>
+                                                    <ToggleSwitchButton
+                                                        value={dongHo.ket_qua_check_vo_ngoai ?? false}
+                                                        onChange={(value: boolean) => handleOtherFieldChange(index, "ket_qua_check_vo_ngoai", value)}
+                                                        disabled={savedDongHoList.some(dh => JSON.stringify(dh) == JSON.stringify(dongHo)) || savedDongHoList.length == dongHoList.length}
+                                                    />
+                                                    <span style={{ fontSize: "14px" }} className={`ms-2 ${!dongHo.ket_qua_check_vo_ngoai && "text-secondary"}`}>Đạt</span>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <div className="d-flex align-items-center">
+                                                    <span style={{ fontSize: "14px" }} className={`me-2 ${dongHo.ket_qua_check_do_kin && "text-secondary"}`}>Không</span>
+                                                    <ToggleSwitchButton
+                                                        value={dongHo.ket_qua_check_do_kin ?? false}
+                                                        onChange={(value: boolean) => handleOtherFieldChange(index, "ket_qua_check_do_kin", value)}
+                                                        disabled={savedDongHoList.some(dh => JSON.stringify(dh) == JSON.stringify(dongHo)) || savedDongHoList.length == dongHoList.length}
+                                                    />
+                                                    <span style={{ fontSize: "14px" }} className={`ms-2 ${!dongHo.ket_qua_check_do_kin && "text-secondary"}`}>Đạt</span>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <div className="d-flex align-items-center">
+                                                    <span style={{ fontSize: "14px" }} className={`me-2 ${dongHo.ket_qua_check_do_on_dinh_chi_so && "text-secondary"}`}>Không</span>
+                                                    <ToggleSwitchButton
+                                                        value={dongHo.ket_qua_check_do_on_dinh_chi_so ?? false}
+                                                        onChange={(value: boolean) => handleOtherFieldChange(index, "ket_qua_check_do_on_dinh_chi_so", value)}
+                                                        disabled={savedDongHoList.some(dh => JSON.stringify(dh) == JSON.stringify(dongHo)) || savedDongHoList.length == dongHoList.length}
+                                                    />
+                                                    <span style={{ fontSize: "14px" }} className={`ms-2 ${!dongHo.ket_qua_check_do_on_dinh_chi_so && "text-secondary"}`}>Đạt</span>
+                                                </div>
+                                            </td>
+                                        </>
+                                    }
                                     <td>
                                         <InputField
                                             index={index}
@@ -357,23 +387,12 @@ const TableDongHoInfo: React.FC<TableDongHoInfoProps> = React.memo(({
                                     <td>
                                         <InputField
                                             index={index}
-                                            onChange={(value) => handleInputChange(index, "seri_sensor", value)}
+                                            onChange={(value) => handleInputChange(index, "serial", value)}
                                             disabled={savedDongHoList.some(dh => JSON.stringify(dh) == JSON.stringify(dongHo)) || savedDongHoList.length == dongHoList.length}
-                                            error={errorsList[index]?.seri_sensor}
-                                            name={`seri_sensor`}
+                                            error={errorsList[index]?.serial}
+                                            name={`serial`}
                                         />
                                     </td>
-                                    {isDHDienTu &&
-                                        <td>
-                                            <InputField
-                                                index={index}
-                                                onChange={(value) => handleInputChange(index, "seri_chi_thi", value)}
-                                                disabled={savedDongHoList.some(dh => JSON.stringify(dh) == JSON.stringify(dongHo)) || savedDongHoList.length == dongHoList.length}
-                                                error={errorsList[index]?.seri_chi_thi}
-                                                name={`seri_chi_thi`}
-                                            />
-                                        </td>
-                                    }
                                     {/* {dongHoList.length > 0 && ["Điện tử", "Cơ - Điện từ"].includes(dongHoList[0].kieu_thiet_bi ?? "xx") &&
                                         <td>
                                             <InputField
@@ -385,14 +404,14 @@ const TableDongHoInfo: React.FC<TableDongHoInfoProps> = React.memo(({
                                         </td>
                                     } */}
 
-                                    {isHieuChuan && <td>
+                                    {/* {isHieuChuan && <td>
                                         <InputField
                                             index={index}
                                             onChange={(value) => handleOtherFieldChange(index, "ma_quan_ly", value)}
                                             disabled={savedDongHoList.some(dh => JSON.stringify(dh) == JSON.stringify(dongHo)) || savedDongHoList.length == dongHoList.length}
                                             name={`ma_quan_ly`}
                                         />
-                                    </td>}
+                                    </td>} */}
 
                                     {/* <td> */}
                                     {/* {dayjs(dongHo.hieu_luc_bien_ban).format('DD-MM-YYYY').toString()} */}

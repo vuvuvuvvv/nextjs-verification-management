@@ -368,12 +368,14 @@ export default function KiemDinhNhomDongHoNuocForm({ className, generalInfoDongH
         let validationErrors = [];
 
         for (const field of fields) {
-            const shouldValidate = (state.ccx && (state.ccx === "1" || state.ccx === "2")) || isDHDienTu
-                ? field.id !== "qn"
-                : (field.id !== "q3" && field.id !== "r");
-
-            if (shouldValidate && !field.value) {
-                validationErrors.push(field.id);
+            if(field) {
+                const shouldValidate = (state.ccx && (state.ccx === "1" || state.ccx === "2")) || isDHDienTu
+                    ? field.id !== "qn"
+                    : (field.id !== "q3" && field.id !== "r");
+    
+                if (shouldValidate && !field.value) {
+                    validationErrors.push(field.id);
+                }
             }
         }
         return validationErrors;
@@ -911,7 +913,7 @@ export default function KiemDinhNhomDongHoNuocForm({ className, generalInfoDongH
                                             handleFieldChange('serial', e.target.value);
                                         }}
                                     /> */}
-                                    <button type="button" className={`btn btn-light`} onClick={() => { setOpenModalSerial(true) }}>Nhập số</button>
+                                    <button type="button" className={`btn btn-secondary`} onClick={() => { setOpenModalSerial(true) }}>Nhập số</button>
                                 </div>
                                 <div className="w-100 m-0 p-0 row">
                                     <div className={`mb-3 col-12 col-md-10 col-lg-7 ${ui_vfm['wrap-input-field']}`}>
@@ -1260,7 +1262,22 @@ export default function KiemDinhNhomDongHoNuocForm({ className, generalInfoDongH
                                         format="DD-MM-YYYY"
                                         maxDate={dayjs().endOf('day')}
                                         onChange={(newValue: Dayjs | null) => handleFieldChange('ngayThucHien', newValue ? newValue.toDate() : null)}
-                                        slotProps={{ textField: { fullWidth: true, style: { backgroundColor: savedDongHoList.length != 0 ? "#e9ecef" : "white" } } }}
+                                        slotProps={{ 
+                                            textField: { 
+                                                fullWidth: true, 
+                                                style: { 
+                                                    padding: 0,
+                                                    backgroundColor: savedDongHoList.length != 0 ? "#e9ecef" : "white" 
+                                                },
+                                                inputProps: {
+                                                    style: {
+                                                        padding: "6pxdạ to",
+                                                        minWidth: "93px", // padding trong input
+                                                    }
+                                                },
+                                            },
+                                        }
+                                    }
                                     />
                                 </div>
                                 <div className={`mb-3 col-12 ${ui_vfm['wrap-input-field']}`}>
@@ -1518,7 +1535,9 @@ export default function KiemDinhNhomDongHoNuocForm({ className, generalInfoDongH
                 </div>
 
                 <div className={`m-0 mb-3 bg-white rounded shadow-sm w-100 position-relative p-3`}>
-                    {showFormTienTrinh && selectedDongHoIndex == null &&
+                    {
+                    // showFormTienTrinh && 
+                    selectedDongHoIndex == null &&
                         <>
                             <TableDongHoInfo
                                 isEditing={isEditing}

@@ -16,4 +16,8 @@ COPY --from=base /app/public public
 COPY --from=base /app/node_modules node_modules
 # ENV NODE_ENV=production
 EXPOSE 3000
+
+# Install polling for hot reaload
+ENV WATCHPACK_POLLING=true
+
 CMD ["npm", "run", "dev"]
