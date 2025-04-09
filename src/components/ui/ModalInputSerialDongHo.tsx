@@ -42,7 +42,7 @@ export default function ModalInputSerialDongHo({ show, handleClose }: ModalInput
                 clearTimeout(debounceRef.current);
             }
 
-            debounceRef.current = useDebounce(() => {
+            debounceRef.current = setTimeout(() => {
                 const newDongHoList = dongHoList.map((dongHo, i) => {
                     return { ...dongHo, serial: arrSerial[i] };
                 })
