@@ -5,18 +5,18 @@ import { faCheck, faTimes } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import Swal from 'sweetalert2';
 import { useDongHoList } from '@/context/ListDongHo';
+import useDebounce from '@/hooks/useDebounce';
 
 interface ModalInputSerialDongHoProps {
-    dongHoList: DongHo[];
     show: boolean;
     handleClose: () => void;
 }
 
-export default function ModalInputSerialDongHo({ dongHoList, show, handleClose }: ModalInputSerialDongHoProps) {
-    const { updateListDongHo, setDongHoList } = useDongHoList();
-    // const [isShow, setIsShow] = useState<boolean | null>(null);
+export default function ModalInputSerialDongHo({ show, handleClose }: ModalInputSerialDongHoProps) {
+    const { dongHoList, updateListDongHo, setDongHoList } = useDongHoList();
     const [arrSerial, setArrSerial] = useState<string[]>(dongHoList && dongHoList.length > 0 ? dongHoList.map((val) => (val.serial ?? "")) : []);
     const arrSerialRef = useRef(arrSerial);
+    const dongHoListRef = useRef(dongHoList);
     const debounceRef = useRef<NodeJS.Timeout | null>(null);
 
     const handleFieldChange = useCallback((index: number, serial: string) => {
@@ -28,12 +28,22 @@ export default function ModalInputSerialDongHo({ dongHoList, show, handleClose }
 
     // Check mảng serial thay đổi => debounce 1s nhập gtri mới vào serial mảng ĐH
     useEffect(() => {
+        if (show) {
+            const newArraySerial = dongHoList.map((val) => val.serial ?? "");
+            setArrSerial(newArraySerial);
+            arrSerialRef.current = newArraySerial;
+            dongHoListRef.current = dongHoList;
+        }
+    }, [show]);
+    
+    // Check mảng serial thay đổi => debounce 1s nhập gtri mới vào serial mảng ĐH
+    useEffect(() => {
         if (arrSerialRef.current != arrSerial) {
             if (debounceRef.current) {
                 clearTimeout(debounceRef.current);
             }
 
-            debounceRef.current = setTimeout(() => {
+            debounceRef.current = useDebounce(() => {
                 const newDongHoList = dongHoList.map((dongHo, i) => {
                     return { ...dongHo, serial: arrSerial[i] };
                 })

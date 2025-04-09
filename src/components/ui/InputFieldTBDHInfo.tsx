@@ -1,6 +1,6 @@
 import { useDongHoList } from "@/context/ListDongHo";
 import { DongHo } from "@lib/types";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 
 const InputField: React.FC<{
     onChange: (val: string) => void;
@@ -8,9 +8,14 @@ const InputField: React.FC<{
     error?: string;
     name: string;
     index: number;
-}> = React.memo(({ onChange, disabled, error, name, index }) => {
+    value?: string;
+}> = React.memo(({ onChange, disabled, error, name, index, value }) => {
     const { dongHoList } = useDongHoList();
-    const [value, setValue] = useState<string>(dongHoList[index][name as keyof DongHo]?.toString() || "");
+    const [val, setValue] = useState<string>(value || "");
+
+    useEffect(() => {
+        setValue(value || "");
+    }, [value]);
 
     const handleEnterKey = (e: React.KeyboardEvent<HTMLInputElement>,
         index: number,
@@ -44,7 +49,7 @@ const InputField: React.FC<{
                 onKeyDown={(e) => handleEnterKey(e, index, name as "so_giay_chung_nhan" | "seri_sensor" | "seri_chi_thi" | "so_tem")}
                 autoComplete="off"
                 type="text"
-                value={value}
+                value={val}
                 disabled={disabled}
                 onChange={(e) => {
                     onChange(e.target.value);

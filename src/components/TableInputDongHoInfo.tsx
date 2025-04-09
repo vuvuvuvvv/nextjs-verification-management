@@ -128,7 +128,7 @@ const TableDongHoInfo: React.FC<TableDongHoInfoProps> = React.memo(({
         [dongHoList, errorsList, setLoading]
     );
 
-    const handleOtherFieldChange = React.useCallback((
+    const handleRadioToggle = React.useCallback((
         index: number,
         field: "ket_qua_check_vo_ngoai" | "ket_qua_check_do_kin" | "ket_qua_check_do_on_dinh_chi_so",
         value: boolean | string
@@ -191,13 +191,21 @@ const TableDongHoInfo: React.FC<TableDongHoInfoProps> = React.memo(({
                                 STT
                             </div>
                         </th>
+                        
                         <th>
+                            <div className={`${c_tbIDHInf['table-label']}`}>
+                                <span>
+                                    Số
+                                </span>
+                            </div>
+                        </th>
+                        {/* <th>
                             <div className={`${c_tbIDHInf['table-label']}`}>
                                 <span>
                                     Trạng thái
                                 </span>
                             </div>
-                        </th>
+                        </th> */}
 
                         {!isHieuChuan &&
                             <>
@@ -238,14 +246,7 @@ const TableDongHoInfo: React.FC<TableDongHoInfoProps> = React.memo(({
                                 </span>
                             </div>
                         </th>
-                        <th>
-                            <div className={`${c_tbIDHInf['table-label']}`}>
-                                <span>
-                                    Serial Sensor
-                                </span>
-                            </div>
-                        </th>
-                        {isDHDienTu &&
+                        {/* {isDHDienTu &&
                             <th>
                                 <div className={`${c_tbIDHInf['table-label']}`}>
                                     <span>
@@ -253,7 +254,7 @@ const TableDongHoInfo: React.FC<TableDongHoInfoProps> = React.memo(({
                                     </span>
                                 </div>
                             </th>
-                        }
+                        } */}
                         {/* {dongHoList.length > 0 && ["Điện tử", "Cơ - Điện từ"].includes(dongHoList[0].kieu_thiet_bi ?? "xx") &&
                             <th>
                                 <div className={`${c_tbIDHInf['table-label']}`}>
@@ -271,15 +272,15 @@ const TableDongHoInfo: React.FC<TableDongHoInfoProps> = React.memo(({
                                 </span>
                             </div>
                         </th> */}
-                        <th colSpan={isHieuChuan ? 6 : 3}>
+                        {/* <th colSpan={isHieuChuan ? 6 : 3}>
                             <div className={`${c_tbIDHInf['table-label']}`}>
                                 <span>
                                     Sai số{isHieuChuan ? " & Mf" : ""}
                                 </span>
                             </div>
-                        </th>
-                        <th>
-                        </th>
+                        </th> */}
+                        {/* <th>
+                        </th> */}
                     </tr>
                 </thead>
                 <tbody>
@@ -288,15 +289,15 @@ const TableDongHoInfo: React.FC<TableDongHoInfoProps> = React.memo(({
                         for (let index = 0; index < dongHoList.length; index++) {
                             const dongHo = dongHoList[index];
 
-                            const duLieuKiemDinhJSON = dongHo.du_lieu_kiem_dinh;
-                            const duLieuKiemDinh = duLieuKiemDinhJSON ?
-                                ((isEditing && typeof duLieuKiemDinhJSON != 'string') ?
-                                    duLieuKiemDinhJSON : JSON.parse(duLieuKiemDinhJSON)
-                                ) : null;
-                            // console.log(decode(dongHo.id), duLieuKiemDinh);
-                            const status = duLieuKiemDinh ? duLieuKiemDinh.ket_qua : null;
-                            const objHss = duLieuKiemDinh ? duLieuKiemDinh.hieu_sai_so : null;
-                            const objMf = duLieuKiemDinh ? duLieuKiemDinh.mf : null;
+                            // const duLieuKiemDinhJSON = dongHo.du_lieu_kiem_dinh;
+                            // const duLieuKiemDinh = duLieuKiemDinhJSON ?
+                            //     ((isEditing && typeof duLieuKiemDinhJSON != 'string') ?
+                            //         duLieuKiemDinhJSON : JSON.parse(duLieuKiemDinhJSON)
+                            //     ) : null;
+                            // // console.log(decode(dongHo.id), duLieuKiemDinh);
+                            // const status = duLieuKiemDinh ? duLieuKiemDinh.ket_qua : null;
+                            // const objHss = duLieuKiemDinh ? duLieuKiemDinh.hieu_sai_so : null;
+                            // const objMf = duLieuKiemDinh ? duLieuKiemDinh.mf : null;
 
                             // const isDHDienTu = Boolean((dongHo.ccx && ["1", "2"].includes(dongHo.ccx)) || dongHo.kieu_thiet_bi == "Điện tử");
 
@@ -308,8 +309,18 @@ const TableDongHoInfo: React.FC<TableDongHoInfoProps> = React.memo(({
                                     }}>
                                         <span>{dongHo.index}</span>
                                         <span><FontAwesomeIcon icon={faEdit} className="text-blue"></FontAwesomeIcon></span>
-                                    </td>
+                                    </td>    
                                     <td>
+                                        <InputField
+                                            index={index}
+                                            value={dongHo.serial ?? ""}
+                                            onChange={(value) => handleInputChange(index, "serial", value)}
+                                            disabled={savedDongHoList.some(dh => JSON.stringify(dh) == JSON.stringify(dongHo)) || savedDongHoList.length == dongHoList.length}
+                                            error={errorsList[index]?.serial}
+                                            name={`serial`}
+                                        />
+                                    </td>
+                                    {/* <td>
                                         <p className="m-0 p-0 text-center w-100" style={{ minWidth: "140px" }}>
                                             {status != null ?
                                                 (status ? "Đạt" : "Không đạt") :
@@ -327,7 +338,7 @@ const TableDongHoInfo: React.FC<TableDongHoInfoProps> = React.memo(({
                                                     ("Chưa " + (isHieuChuan ? "hiệu chuẩn" : "kiểm định"))
                                             }
                                         </p>
-                                    </td>
+                                    </td> */}
 
                                     {!isHieuChuan &&
                                         <>
@@ -336,7 +347,7 @@ const TableDongHoInfo: React.FC<TableDongHoInfoProps> = React.memo(({
                                                     <span style={{ fontSize: "14px" }} className={`me-2 ${dongHo.ket_qua_check_vo_ngoai && "text-secondary"}`}>Không</span>
                                                     <ToggleSwitchButton
                                                         value={dongHo.ket_qua_check_vo_ngoai ?? false}
-                                                        onChange={(value: boolean) => handleOtherFieldChange(index, "ket_qua_check_vo_ngoai", value)}
+                                                        onChange={(value: boolean) => handleRadioToggle(index, "ket_qua_check_vo_ngoai", value)}
                                                         disabled={savedDongHoList.some(dh => JSON.stringify(dh) == JSON.stringify(dongHo)) || savedDongHoList.length == dongHoList.length}
                                                     />
                                                     <span style={{ fontSize: "14px" }} className={`ms-2 ${!dongHo.ket_qua_check_vo_ngoai && "text-secondary"}`}>Đạt</span>
@@ -347,7 +358,7 @@ const TableDongHoInfo: React.FC<TableDongHoInfoProps> = React.memo(({
                                                     <span style={{ fontSize: "14px" }} className={`me-2 ${dongHo.ket_qua_check_do_kin && "text-secondary"}`}>Không</span>
                                                     <ToggleSwitchButton
                                                         value={dongHo.ket_qua_check_do_kin ?? false}
-                                                        onChange={(value: boolean) => handleOtherFieldChange(index, "ket_qua_check_do_kin", value)}
+                                                        onChange={(value: boolean) => handleRadioToggle(index, "ket_qua_check_do_kin", value)}
                                                         disabled={savedDongHoList.some(dh => JSON.stringify(dh) == JSON.stringify(dongHo)) || savedDongHoList.length == dongHoList.length}
                                                     />
                                                     <span style={{ fontSize: "14px" }} className={`ms-2 ${!dongHo.ket_qua_check_do_kin && "text-secondary"}`}>Đạt</span>
@@ -358,7 +369,7 @@ const TableDongHoInfo: React.FC<TableDongHoInfoProps> = React.memo(({
                                                     <span style={{ fontSize: "14px" }} className={`me-2 ${dongHo.ket_qua_check_do_on_dinh_chi_so && "text-secondary"}`}>Không</span>
                                                     <ToggleSwitchButton
                                                         value={dongHo.ket_qua_check_do_on_dinh_chi_so ?? false}
-                                                        onChange={(value: boolean) => handleOtherFieldChange(index, "ket_qua_check_do_on_dinh_chi_so", value)}
+                                                        onChange={(value: boolean) => handleRadioToggle(index, "ket_qua_check_do_on_dinh_chi_so", value)}
                                                         disabled={savedDongHoList.some(dh => JSON.stringify(dh) == JSON.stringify(dongHo)) || savedDongHoList.length == dongHoList.length}
                                                     />
                                                     <span style={{ fontSize: "14px" }} className={`ms-2 ${!dongHo.ket_qua_check_do_on_dinh_chi_so && "text-secondary"}`}>Đạt</span>
@@ -370,7 +381,8 @@ const TableDongHoInfo: React.FC<TableDongHoInfoProps> = React.memo(({
                                         <InputField
                                             index={index}
                                             onChange={(value) => handleInputChange(index, "so_giay_chung_nhan", value)}
-                                            disabled={status == null || (status != null && !status) || savedDongHoList.some(dh => JSON.stringify(dh) == JSON.stringify(dongHo)) || savedDongHoList.length == dongHoList.length}
+                                            // disabled={status == null || (status != null && !status) || savedDongHoList.some(dh => JSON.stringify(dh) == JSON.stringify(dongHo)) || savedDongHoList.length == dongHoList.length}
+                                            disabled={savedDongHoList.some(dh => JSON.stringify(dh) == JSON.stringify(dongHo)) || savedDongHoList.length == dongHoList.length}
                                             error={errorsList[index]?.so_giay_chung_nhan}
                                             name={`so_giay_chung_nhan`}
                                         />
@@ -379,18 +391,10 @@ const TableDongHoInfo: React.FC<TableDongHoInfoProps> = React.memo(({
                                         <InputField
                                             index={index}
                                             onChange={(value) => handleInputChange(index, "so_tem", value)}
-                                            disabled={status == null || (status != null && !status) || savedDongHoList.some(dh => JSON.stringify(dh) == JSON.stringify(dongHo)) || savedDongHoList.length == dongHoList.length}
+                                            // disabled={status == null || (status != null && !status) || savedDongHoList.some(dh => JSON.stringify(dh) == JSON.stringify(dongHo)) || savedDongHoList.length == dongHoList.length}
+                                            disabled={savedDongHoList.some(dh => JSON.stringify(dh) == JSON.stringify(dongHo)) || savedDongHoList.length == dongHoList.length}
                                             error={errorsList[index]?.so_tem}
                                             name={`so_tem`}
-                                        />
-                                    </td>
-                                    <td>
-                                        <InputField
-                                            index={index}
-                                            onChange={(value) => handleInputChange(index, "serial", value)}
-                                            disabled={savedDongHoList.some(dh => JSON.stringify(dh) == JSON.stringify(dongHo)) || savedDongHoList.length == dongHoList.length}
-                                            error={errorsList[index]?.serial}
-                                            name={`serial`}
                                         />
                                     </td>
                                     {/* {dongHoList.length > 0 && ["Điện tử", "Cơ - Điện từ"].includes(dongHoList[0].kieu_thiet_bi ?? "xx") &&
@@ -407,7 +411,7 @@ const TableDongHoInfo: React.FC<TableDongHoInfoProps> = React.memo(({
                                     {/* {isHieuChuan && <td>
                                         <InputField
                                             index={index}
-                                            onChange={(value) => handleOtherFieldChange(index, "ma_quan_ly", value)}
+                                            onChange={(value) => handleRadioToggle(index, "ma_quan_ly", value)}
                                             disabled={savedDongHoList.some(dh => JSON.stringify(dh) == JSON.stringify(dongHo)) || savedDongHoList.length == dongHoList.length}
                                             name={`ma_quan_ly`}
                                         />
@@ -426,10 +430,10 @@ const TableDongHoInfo: React.FC<TableDongHoInfoProps> = React.memo(({
                                             name={"hieu_luc_bien_ban"}
                                         /> */}
                                     {/* </td> */}
-                                    <td>
+                                    {/* <td>
                                         {objHss && objHss[0] && objHss[0].hss != null ? objHss[0].hss + "%" : <span className="text-secondary">-</span>}
-                                    </td>
-                                    {isHieuChuan && <td>
+                                    </td> */}
+                                    {/* {isHieuChuan && <td>
                                         {objMf && objMf[0].mf != null ? objMf[0].mf : <span className="text-secondary">-</span>}
                                     </td>}
 
@@ -445,18 +449,19 @@ const TableDongHoInfo: React.FC<TableDongHoInfoProps> = React.memo(({
                                     </td>
                                     {isHieuChuan && <td>
                                         {objMf && objMf[2].mf != null ? objMf[2].mf : <span className="text-secondary">-</span>}
-                                    </td>}
+                                    </td>} */}
 
-                                    <td>
+                                    {/* <td>
                                         <button onClick={() => {
                                             selectDongHo(index)
                                         }} className={`btn`}>
                                             <FontAwesomeIcon icon={faEdit} className="text-blue"></FontAwesomeIcon>
                                         </button>
-                                    </td>
+                                    </td> */}
                                 </tr>
                             );
                         }
+
                         return rows;
                     })()}
                 </tbody>
