@@ -6,7 +6,7 @@ import React, { createContext, useState, useContext, useEffect, useRef } from 'r
 import Swal from 'sweetalert2';
 import { useUser } from './AppContext';
 import { deleteDongHoDataFromIndexedDB, saveDongHoDataExistsToIndexedDB } from '@lib/system-function';
-import { useKiemDinh } from './KiemDinh';
+import { useKiemDinh } from './KiemDinhContext';
 
 interface DongHoListContextType {
     isHieuChuan: boolean,

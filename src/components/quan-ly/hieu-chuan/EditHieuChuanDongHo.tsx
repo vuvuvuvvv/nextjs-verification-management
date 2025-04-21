@@ -8,7 +8,7 @@ import dynamic from "next/dynamic";
 import { useRouter } from "next/navigation";
 import Swal from "sweetalert2";
 import { ACCESS_LINKS } from "@lib/system-constant";
-import { useDongHoList } from "@/context/ListDongHo";
+import { useDongHoList } from "@/context/ListDongHoContext";
 
 const HieuChuanNhomDongHoNuocForm = dynamic(() => import("@/components/quan-ly/hieu-chuan/HieuChuanNhomDongHoNuocForm"), { ssr: false });
 

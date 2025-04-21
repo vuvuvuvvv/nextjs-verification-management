@@ -12,7 +12,7 @@ const TinhSaiSoTab = dynamic(() => import('@/components/TinhSaiSoTab'));
 const TinhSaiSoForm = dynamic(() => import('@/components/TinhSaiSoForm'));
 const TableDongHoInfo = dynamic(() => import('@/components/TableInputDongHoInfo'));
 
-import { useKiemDinh } from "@/context/KiemDinh";
+import { useKiemDinh } from "@/context/KiemDinhContext";
 import { useUser } from "@/context/AppContext";
 
 import CreatableSelect from 'react-select/creatable';
@@ -30,7 +30,7 @@ import {
 
 import { faArrowLeft, faChevronLeft, faChevronRight, faSave } from "@fortawesome/free-solid-svg-icons";
 import { DongHo } from "@lib/types";
-import { useDongHoList } from "@/context/ListDongHo";
+import { useDongHoList } from "@/context/ListDongHoContext";
 
 import dynamic from "next/dynamic";
 import api from "@/app/api/route";

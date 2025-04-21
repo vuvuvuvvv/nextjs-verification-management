@@ -136,8 +136,8 @@ export type DuLieuMotLanChay = {
     V1: number;
     V2: number;
     Tdh: number;
-    Vc1: number | string;
-    Vc2: number | string;
+    Vc1: number | string | null;
+    Vc2: number | string | null;
     Vc: number | string;
     Tc: number;
     Mf?: number | null;

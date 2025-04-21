@@ -1,25 +1,48 @@
-import { useDongHoList } from "@/context/ListDongHo";
+import { useDongHoList } from "@/context/ListDongHoContext";
 import { DongHo } from "@lib/types";
 import React, { useEffect, useState } from "react";
 
 const InputField: React.FC<{
     onChange: (val: string) => void;
     disabled: boolean;
+    isNumber?: boolean;
     error?: string;
     name: string;
     index: number;
     value?: string;
-}> = React.memo(({ onChange, disabled, error, name, index, value }) => {
+    inputStyle?: React.CSSProperties; // ✅ thêm prop mới
+}> = React.memo(({ onChange, disabled, error, name, index, value, inputStyle, isNumber }) => {
     const { dongHoList } = useDongHoList();
-    const [val, setValue] = useState<string>(value || "");
+    const [val, setValue] = useState<string>(value || (isNumber ? "0" : ""));
 
     useEffect(() => {
         setValue(value || "");
     }, [value]);
 
+
+    const handleNumericInput = (val: string) => {
+        let rawValue = val.replace(/[^0-9.]/g, '');
+    
+        const parts = rawValue.split('.');
+        if (parts.length > 2) {
+            rawValue = parts[0] + '.' + parts.slice(1).join('');
+        }
+    
+        if (rawValue.startsWith('.')) {
+            rawValue = '0' + rawValue;
+        }
+    
+        if (!rawValue.includes('.')) {
+            rawValue = rawValue.replace(/^0+/, '') || '0';
+        }
+    
+        setValue(rawValue);
+    };
+    
+
     const handleEnterKey = (e: React.KeyboardEvent<HTMLInputElement>,
         index: number,
-        field: "so_giay_chung_nhan" | "seri_sensor" | "seri_chi_thi" | "so_tem",
+        field: string,
     ) => {
         if (e.key === 'Enter') {
             if (e.shiftKey) {
@@ -44,19 +67,23 @@ const InputField: React.FC<{
     // todo
 
     return (
-        <div>
+        <>
             <input
-                onKeyDown={(e) => handleEnterKey(e, index, name as "so_giay_chung_nhan" | "seri_sensor" | "seri_chi_thi" | "so_tem")}
+                onKeyDown={(e) => handleEnterKey(e, index, name)}
                 autoComplete="off"
                 type="text"
                 value={val}
                 disabled={disabled}
                 onChange={(e) => {
-                    onChange(e.target.value);
-                    setValue(e.target.value);
+                    if (isNumber) {
+                        handleNumericInput(e.target.value)
+                    } else {
+                        setValue(e.target.value);
+                    }
+                    onChange(e.target.value); 
                 }}
                 className="form-control"
-                style={{ width: "100%", minWidth: "130px" }}
+                style={{ width: "100%", minWidth: "130px", ...inputStyle }}
                 name={name + "-" + index}
             />
             {error && (
@@ -64,7 +91,7 @@ const InputField: React.FC<{
                     {error}
                 </small>
             )}
-        </div>
+        </>
     );
 });
 

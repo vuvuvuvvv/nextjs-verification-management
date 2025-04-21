@@ -9,11 +9,10 @@ const LocalizationProvider = dynamic(() => import('@mui/x-date-pickers/Localizat
 const DatePicker = dynamic(() => import('@mui/x-date-pickers/DatePicker').then(mod => mod.DatePicker));
 const NavTab = dynamic(() => import('@/components/ui/NavTab'));
 const ToggleSwitchButton = dynamic(() => import('@/components/ui/ToggleSwitchButton'));
-const TinhSaiSoTab = dynamic(() => import('@/components/TinhSaiSoTab'));
-const TinhSaiSoForm = dynamic(() => import('@/components/TinhSaiSoForm'));
+
 const TableDongHoInfo = dynamic(() => import('@/components/TableInputDongHoInfo'));
 
-import { useKiemDinh } from "@/context/KiemDinh";
+import { useKiemDinh } from "@/context/KiemDinhContext";
 import { useUser } from "@/context/AppContext";
 
 import CreatableSelect from 'react-select/creatable';
@@ -32,13 +31,14 @@ import {
 } from "@lib/system-constant";
 
 import { faArrowLeft, faArrowRight, faChevronLeft, faChevronRight, faSave } from "@fortawesome/free-solid-svg-icons";
-import { DongHo, PDMData } from "@lib/types";
-import { useDongHoList } from "@/context/ListDongHo";
+import { DongHo, GeneralInfoDongHo, PDMData } from "@lib/types";
+import { useDongHoList } from "@/context/ListDongHoContext";
 
 import dynamic from "next/dynamic";
 import { getPDMByMaTimDongHoPDM } from "@/app/api/pdm/route";
-import api from "@/app/api/route";
-import ModalInputSerialDongHo from "@/components/ui/ModalInputSerialDongHo";
+
+const ModalInputSerialDongHo = dynamic(() => import('@/components/ui/ModalInputSerialDongHo'));
+const ModalKiemDinh = dynamic(() => import('@/components/ui/ModalKiemDinh'));
 
 
 
@@ -101,6 +101,26 @@ function reducer(state: State, action: Action): State {
             return { ...state, [action.field]: action.value };
         case 'SET_MULTIPLE_FIELDS':
             return { ...state, ...action.fields };
+        default:
+            return state;
+    }
+}
+
+interface ModalState {
+    showModalSerial: boolean;
+    showModalKiemDinh: boolean;
+}
+
+type ModalAction =
+    | { type: 'SET_SHOW_MODAL_SERIAL', show: boolean }
+    | { type: 'SET_SHOW_MODAL_KIEM_DINH', show: boolean };
+
+function modalReducer(state: ModalState, action: ModalAction): ModalState {
+    switch (action.type) {
+        case 'SET_SHOW_MODAL_SERIAL':
+            return { ...state, showModalSerial: action.show };
+        case 'SET_SHOW_MODAL_KIEM_DINH':
+            return { ...state, showModalKiemDinh: action.show };
         default:
             return state;
     }
@@ -176,17 +196,22 @@ export default function KiemDinhNhomDongHoNuocForm({ className, generalInfoDongH
     const [selectedCssxOption, setSelectedCssxOption] = useState<{ value: string, label: string } | null>(
         generalInfoDongHo?.co_so_san_xuat ? { value: generalInfoDongHo.co_so_san_xuat, label: generalInfoDongHo.co_so_san_xuat } : null
     );
+    const [CSSXOptions] = useState<{ value: string, label: string }[]>([]);
+
     // const [DHNameOptions, setDHNameOptions] = useState<{ value: string, label: string }[]>([]);
     const [isDHDienTu, setDHDienTu] = useState<boolean>(false);
     const [isCoSensorTransitorRoi, setCoSensorTransitorRoi] = useState<boolean>(false);             // Có sensor và transitor rời
     const [isDHSaved, setDHSaved] = useState<boolean | null>(null);
-    const [CSSXOptions, setCSSXOptions] = useState<{ value: string, label: string }[]>([]);
     const [selectedDongHoIndex, setSelectedDongHoIndex] = useState<number | null>(null);
     const [errorPDM, setErrorPDM] = useState("");
     const [errorFields, setErrorFields] = useState<string[]>([]);
 
     //
     const [state, dispatch] = useReducer(reducer, initialState);
+    const [modalState, modalDispatch] = useReducer(modalReducer, {
+        showModalSerial: false,
+        showModalKiemDinh: false
+    });
 
     const handleFieldChange = (field: keyof State, value: any) => {
         dispatch({ type: 'SET_FIELD', field, value });
@@ -199,7 +224,8 @@ export default function KiemDinhNhomDongHoNuocForm({ className, generalInfoDongH
     const [error, setError] = useState("");
 
     const [showFormTienTrinh, setShowFormTienTrinh] = useState(false);
-    const [isOpenModalSerial, setOpenModalSerial] = useState(false);
+
+    // const [isOpenModalSerial, setOpenModalSerial] = useState(false);
 
     // const router = useRouter();
 
@@ -240,11 +266,11 @@ export default function KiemDinhNhomDongHoNuocForm({ className, generalInfoDongH
     const debounceFieldTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
     // Func: Set saved
-    useEffect(() => {
-        if (savedDongHoList.length > 0 && selectedDongHoIndex) {
-            updateDongHoSaved(getCurrentDongHo(selectedDongHoIndex))
-        }
-    }, [savedDongHoList]);
+    // useEffect(() => {
+    //     if (savedDongHoList.length > 0 && selectedDongHoIndex) {
+    //         updateDongHoSaved(getCurrentDongHo(selectedDongHoIndex))
+    //     }
+    // }, [savedDongHoList]);
 
     const scrollRef = useRef<HTMLDivElement | null>(null);
 
@@ -267,28 +293,29 @@ export default function KiemDinhNhomDongHoNuocForm({ className, generalInfoDongH
             const ma_tim_dong_ho_pdm = convertToUppercaseNonAccent(filterPDM.dn + filterPDM.ccx + filterPDM.sensor + filterPDM.transitor + (state.ccx ? ((["1", "2"].includes(state.ccx) ? (filterPDM.q3 + filterPDM.r) : filterPDM.qn)) : ""));
             const handler = setTimeout(async () => {
                 setLoading(true);
+                // TODO:
                 try {
-                    const res = await getPDMByMaTimDongHoPDM(ma_tim_dong_ho_pdm);
-                    let ppTHTmp = "ĐLVN 17 : 2017"
-                    if (res.status == 200 || res.status == 201) {
-                        const pdm = res.data;
-                        const getDate = new Date(pdm.ngay_qd_pdm)
-                        if (dayjs(pdm.ngay_het_han) < dayjs()) {
-                            setErrorPDM("Số quyết định PDM đã hết hạn.");
-                            ppTHTmp = "FMS - PP - 02";
-                        }
-                        handleMultFieldChange({
-                            phuongPhapThucHien: ppTHTmp,
-                            soQDPDM: pdm.so_qd_pdm + (getDate.getFullYear() ? "-" + getDate.getFullYear() : ""),
-                            coSoSuDung: pdm.don_vi_pdm
-                        });
-                    } else if (res.status == 404) {
-                        setErrorPDM("Không có số PDM phù hợp hoặc số PDM đã hết hạn.")
-                        handleMultFieldChange({ phuongPhapThucHien: "FMS - PP - 02", soQDPDM: "" });
-                    } else {
-                        setErrorPDM("Có lỗi xảy ra khi lấy số quyết định PDM!")
-                        handleFieldChange("soQDPDM", "");
-                    }
+                    //     const res = await getPDMByMaTimDongHoPDM(ma_tim_dong_ho_pdm);
+                    //     let ppTHTmp = "ĐLVN 17 : 2017"
+                    //     if (res.status == 200 || res.status == 201) {
+                    //         const pdm = res.data;
+                    //         const getDate = new Date(pdm.ngay_qd_pdm)
+                    //         if (dayjs(pdm.ngay_het_han) < dayjs()) {
+                    //             setErrorPDM("Số quyết định PDM đã hết hạn.");
+                    //             ppTHTmp = "FMS - PP - 02";
+                    //         }
+                    //         handleMultFieldChange({
+                    //             phuongPhapThucHien: ppTHTmp,
+                    //             soQDPDM: pdm.so_qd_pdm + (getDate.getFullYear() ? "-" + getDate.getFullYear() : ""),
+                    //             coSoSuDung: pdm.don_vi_pdm
+                    //         });
+                    //     } else if (res.status == 404) {
+                    //         setErrorPDM("Không có số PDM phù hợp hoặc số PDM đã hết hạn.")
+                    //         handleMultFieldChange({ phuongPhapThucHien: "FMS - PP - 02", soQDPDM: "" });
+                    //     } else {
+                    //         setErrorPDM("Có lỗi xảy ra khi lấy số quyết định PDM!")
+                    //         handleFieldChange("soQDPDM", "");
+                    //     }
                 } catch (error) {
                     setError("Đã có lỗi xảy ra! Hãy thử lại sau.");
                 } finally {
@@ -389,32 +416,21 @@ export default function KiemDinhNhomDongHoNuocForm({ className, generalInfoDongH
             setErrorPDM("");
             soQDPDMRef.current = state.soQDPDM
         }
+        
+        const tmp_isDHDienTu = Boolean((state.ccx && ["1", "2"].includes(state.ccx)) || state.phuongTienDo == "Đồng hồ đo nước lạnh có cơ cấu điện tử");
 
         // Get q1 q2 || qmin qt
         if (state.ccx && ((state.q3 && state.r) || state.qn)) {
-            const { getQ1OrMin, getQ2Ort } = getQ2OrtAndQ1OrQMin(isDHDienTu, state.ccx, isDHDienTu ? state.q3 : state.qn, isDHDienTu ? state.r : null);
+            const { getQ1OrMin, getQ2Ort } = getQ2OrtAndQ1OrQMin(tmp_isDHDienTu, state.ccx, tmp_isDHDienTu ? state.q3 : state.qn, tmp_isDHDienTu ? state.r : null);
             handleMultFieldChange({ q1Ormin: getQ1OrMin.value, q2Ort: getQ2Ort.value });
         }
 
-
-        // TODO:
-        // setDHDienTu(Boolean((state.ccx && ["1", "2"].includes(state.ccx))));
-        // if (state.kieuThietBi) {
-        //     handleFieldChange("phuongTienDo", ["Điện tử", "Cơ - Điện từ"].includes(state.kieuThietBi) ? "Đồng hồ đo nước lạnh có cơ cấu điện tử" : "Đồng hồ đo nước lạnh cơ khí")
-        // } else {
-        //     handleFieldChange("phuongTienDo", "");
-        // }
+        setDHDienTu(tmp_isDHDienTu);
 
 
         if (infoTimeoutRef.current) {
             clearTimeout(infoTimeoutRef.current);
         }
-
-        // Set error field if it exists after 0.5s from the last typing (For validation & requried input field)
-        infoTimeoutRef.current = setTimeout(() => {
-            setErrorFields(validateFields());
-            updateCurrentDongHo();
-        }, 500);
 
         return () => {
             if (infoTimeoutRef.current) {
@@ -454,65 +470,6 @@ export default function KiemDinhNhomDongHoNuocForm({ className, generalInfoDongH
         // state.doAm,
         // state.noiSuDung,
     ]);
-
-    const getCurrentDongHo = (selectedDongHoIndex: number | null, formHieuSaiSoProp?: { hss: number | null }[]): DongHo => {
-        const checkQ3 = ((state.ccx && (state.ccx == "1" || state.ccx == "2")) || isDHDienTu);
-
-        // TODO: check so_tem, sogcn hieu_luc_bb
-
-        return {
-            index: dongHoList[selectedDongHoIndex ?? 0].index ?? 0,
-
-            id: isEditing ? dongHoList[selectedDongHoIndex ?? 0].id : null,
-            ten_phuong_tien_do: state.phuongTienDo,
-            group_id: !isEditing
-                ? convertToUppercaseNonAccent(state.dn + state.ccx + state.q3 + state.r + state.qn + (state.ngayThucHien ? dayjs(state.ngayThucHien).format('DDMMYYHHmmss') : ''))
-                : convertToUppercaseNonAccent(""
-                    + (generalInfoDongHo?.dn || "")
-                    + (generalInfoDongHo?.ccx || "")
-                    + (generalInfoDongHo?.q3 || "")
-                    + (generalInfoDongHo?.r || "")
-                    + (generalInfoDongHo?.qn || "")
-                    + (generalInfoDongHo?.ngay_thuc_hien ? dayjs(generalInfoDongHo.ngay_thuc_hien).format('DDMMYYHHmmss') : '')),
-            transitor: '',
-            sensor: "",
-            serial: "",
-
-            co_so_san_xuat: state.coSoSanXuat,
-            nam_san_xuat: state.namSanXuat || null,
-
-            dn: state.dn,
-            d: state.d,
-            ccx: state.ccx,
-            q3: checkQ3 ? state.q3 : "",
-            r: state.r,
-            qn: checkQ3 ? "" : state.qn,
-            k_factor: "",
-            so_qd_pdm: state.soQDPDM || "",
-
-            so_tem: "",
-            so_giay_chung_nhan: "",
-
-            co_so_su_dung: state.coSoSuDung || "",
-            phuong_phap_thuc_hien: state.phuongPhapThucHien || "",
-            chuan_thiet_bi_su_dung: state.chuanThietBiSuDung || "",
-
-            nguoi_thuc_hien: state.nguoiThucHien || "",
-            ngay_thuc_hien: state.ngayThucHien,
-
-            dia_diem_thuc_hien: state.diaDiemThucHien || DEFAULT_LOCATION,
-
-            ket_qua_check_vo_ngoai: false,
-            ket_qua_check_do_kin: false,
-            ket_qua_check_do_on_dinh_chi_so: false,
-
-            du_lieu_kiem_dinh: getDuLieuKiemDinhJSON(formHieuSaiSoProp),
-            nguoi_soat_lai: state.nguoiSoatLai || "",
-
-            hieu_luc_bien_ban: null,
-
-        }
-    }
 
     const handleFormHSSChange = (index: number, value: number | null) => {
         const newFormValues = [...formHieuSaiSo];
@@ -565,46 +522,13 @@ export default function KiemDinhNhomDongHoNuocForm({ className, generalInfoDongH
 
     useEffect(() => {
         const handler = setTimeout(() => {
-            updateCurrentDongHo();
+            // updateCurrentDongHo();
         }, 500);
 
         return () => {
             clearTimeout(handler);
         };
     }, [duLieuKiemDinhCacLuuLuong])
-
-    const updateCurrentDongHo = () => {
-        if (selectedDongHoIndex != null) {
-            const currentDongHo = getCurrentDongHo(selectedDongHoIndex);
-            if (currentDongHo != dongHoList[selectedDongHoIndex ?? 0]) {
-                updateListDongHo(currentDongHo, selectedDongHoIndex ?? 0);
-            }
-        }
-    }
-
-    // Handle selection change
-    const handleDongHoChange = (selectedIndex: number) => {
-        if (scrollRef.current) {
-            scrollRef.current.scrollIntoView({ behavior: 'smooth' });
-        }
-        setSelectedDongHoIndex(selectedIndex);
-        updateCurrentDongHo();
-    };
-
-    // Handle previous and next button clicks
-    const handlePrevDongHo = () => {
-        if (selectedDongHoIndex && selectedDongHoIndex > 0) {
-            setSelectedDongHoIndex(selectedDongHoIndex - 1);
-            updateCurrentDongHo();
-        }
-    };
-
-    const handleNextDongHo = () => {
-        if (selectedDongHoIndex && selectedDongHoIndex < dongHoList.length - 1) {
-            setSelectedDongHoIndex(selectedDongHoIndex + 1);
-            updateCurrentDongHo();
-        }
-    };
 
     const handleSaveAllDongHo = () => {
         const dongHoChuaKiemDinh = getDongHoChuaKiemDinh(dongHoList);
@@ -693,133 +617,23 @@ export default function KiemDinhNhomDongHoNuocForm({ className, generalInfoDongH
                 setExitsDHSaved={setExitsDHSaved}
             /> */}
             <ModalInputSerialDongHo
-                show={isOpenModalSerial}
-                handleClose={() => setOpenModalSerial(false)}
-            >
-            </ModalInputSerialDongHo>
+                show={modalState.showModalSerial}
+                handleClose={() => modalDispatch({ type: 'SET_SHOW_MODAL_SERIAL', show: false })}
+            />
+            <ModalKiemDinh
+                show={modalState.showModalKiemDinh}
+                handleClose={() => modalDispatch({ type: 'SET_SHOW_MODAL_KIEM_DINH', show: false })}
+            />
             <div className={`${className ? className : ""} ${ui_vfm['wraper']} container p-0 px-2 py-3 w-100`}>
                 <div className={`row m-0 mb-3 p-3 w-100 bg-white shadow-sm rounded`}>
                     <div className="w-100 m-0 p-0 mb-3 position-relative">
                         <h3 className="text-uppercase fw-bolder text-center mt-3 mb-0">thông tin chung đồng hồ</h3>
                     </div>
-                    {/* <div className={`w-100 p-0 row m-0`}>
-                        <div className={`col-12 p-0 mb-3 ${ui_vfm['seri-number-input']}`}>
-                            <label htmlFor="ten_dong_ho" className={`form-label m-0 fs-5 fw-bold d-block`} style={{ width: "150px" }}>Tên đồng hồ:</label>
-                            <CreatableSelect
-                                options={DHNameOptions as unknown as readonly GroupBase<never>[]}
-                                className="basic-multi-select col-12 col-md-6 px-3"
-                                placeholder="Tên đồng hồ"
-                                classNamePrefix="select"
-                                isClearable
-                                id="ten_dong_ho"
-                                value={selectedTenDHOption || null}
-                                isDisabled={savedDongHoList.length != 0}
-                                isSearchable
-                                onChange={(selectedOptions: any) => {
-                                    if (selectedOptions) {
-                                        const values = selectedOptions.value;
-
-                                        setSelectedTenDHOption(selectedOptions);
-                                        handleFieldChange('tenDongHo', values);
-                                    } else {
-                                        setSelectedTenDHOption(null);
-                                        handleFieldChange('tenDongHo', "");
-                                    }
-                                }}
-                                styles={{
-                                    control: (provided) => ({
-                                        ...provided,
-                                        height: '42px',
-                                        minHeight: '42px',
-                                        borderColor: '#dee2e6 !important',
-                                        boxShadow: 'none !important',
-                                        backgroundColor: savedDongHoList.length != 0 ? "#e9ecef" : "white",
-                                    }),
-                                    valueContainer: (provided) => ({
-                                        ...provided,
-                                        height: '42px',
-                                        padding: '0 8px'
-                                    }),
-                                    input: (provided) => ({
-                                        ...provided,
-                                        margin: '0',
-                                        padding: '0'
-                                    }),
-                                    indicatorsContainer: (provided) => ({
-                                        ...provided,
-                                        height: '42px',
-                                        display: DHNameOptions.length == 0 ? "none" : "flex",
-                                    }),
-                                    menu: (provided) => ({
-                                        ...provided,
-                                        display: DHNameOptions.length == 0 ? "none" : "",
-                                        maxHeight: "250px",
-                                        zIndex: 777
-                                    }),
-                                    menuList: (provided) => ({
-                                        ...provided,
-                                        maxHeight: "250px",
-                                    }),
-                                    singleValue: (provided, state) => ({
-                                        ...provided,
-                                        color: state.isDisabled ? '#000' : provided.color,
-                                    })
-                                }}
-                            />
-                        </div>
-                    </div> */}
                     <div className={`w-100 mt-2 p-0`}>
                         <form className="w-100">
                             <label className="w-100 fs-5 fw-bold">Thông tin thiết bị:</label>
                             <div className="row mx-0 w-100 mb-3">
-                                {/* <div className={`mb-3 col-12 col-md-6 ${ui_vfm['wrap-input-field']}`}>
-                                    <label htmlFor="kieuThietBi" className="form-label">Kiểu:</label>
-                                    <Select
-                                        name="type"
-                                        options={typeOptions as unknown as readonly GroupBase<never>[]}
-                                        className="basic-multi-select"
-                                        placeholder="-- Chọn kiểu --"
-                                        classNamePrefix="select"
-                                        isClearable
-                                        isDisabled={savedDongHoList.length != 0}
-                                        id="kieuThietBi"
-                                        value={typeOptions.find(option => option.value === state.kieuThietBi) || null} // Kiểm tra giá trị
-                                        onChange={(selectedOptions: any) => handleFieldChange('kieuThietBi', selectedOptions ? selectedOptions.value : "")}
-                                        styles={{
-                                            control: (provided) => ({
-                                                ...provided,
-                                                height: '42px',
-                                                minHeight: '42px',
-                                                borderColor: '#dee2e6 !important',
-                                                boxShadow: 'none !important',
-                                                backgroundColor: savedDongHoList.length != 0 ? "#e9ecef" : "white",
-                                            }),
-                                            valueContainer: (provided) => ({
-                                                ...provided,
-                                                height: '42px',
-                                                padding: '0 8px'
-                                            }),
-                                            input: (provided) => ({
-                                                ...provided,
-                                                margin: '0',
-                                                padding: '0'
-                                            }),
-                                            indicatorsContainer: (provided) => ({
-                                                ...provided,
-                                                height: '42px'
-                                            }),
-                                            menu: (provided) => ({
-                                                ...provided,
-                                                zIndex: 777
-                                            }),
-                                            singleValue: (provided, state) => ({
-                                                ...provided,
-                                                color: state.isDisabled ? '#000' : provided.color,
-                                            })
-                                        }}
-                                    />
-                                </div> */}
-
+                                
                                 <div className="mb-3 col-12 col-md-8">
                                     <label htmlFor="deviceName" className="form-label">Tên phương tiện đo:</label>
                                     <Select
@@ -830,7 +644,12 @@ export default function KiemDinhNhomDongHoNuocForm({ className, generalInfoDongH
                                         placeholder="-- Chọn tên --"
                                         isClearable
                                         value={phuongTienDoOptions.find(option => option.label == state.phuongTienDo) || null}
-                                        onChange={(selectedOptions: any) => handleFieldChange("phuongTienDo", selectedOptions ? selectedOptions.label : "")}
+                                        onChange={(selectedOptions: any) => {
+                                            if (selectedOptions && selectedOptions.value && selectedOptions.value == "1") {
+                                                setDHDienTu(true);
+                                            }
+                                            handleFieldChange("phuongTienDo", selectedOptions ? selectedOptions.label : "");
+                                        }}
                                         styles={{
                                             control: (provided) => ({
                                                 ...provided,
@@ -902,17 +721,7 @@ export default function KiemDinhNhomDongHoNuocForm({ className, generalInfoDongH
 
                                 <div className={`mb-3 col-12 ${isCoSensorTransitorRoi ? "col-md-10" : "col-md-6"} col-lg-4 ${ui_vfm['wrap-input-field']}`}>
                                     <label htmlFor="serial" className="form-label">Số:</label>
-                                    {/* <input
-                                        type="text"
-                                        className={`form-control ${ui_vfm['input-field']}`}
-                                        id="serial"
-                                        disabled={savedDongHoList.length != 0}
-                                        value={state.serial || ""}
-                                        onChange={(e) => {
-                                            handleFieldChange('serial', e.target.value);
-                                        }}
-                                    /> */}
-                                    <button type="button" className={`btn btn-secondary`} onClick={() => { setOpenModalSerial(true) }}>Nhập số</button>
+                                    <button type="button" className={`btn btn-secondary`} onClick={() => { modalDispatch({ type: 'SET_SHOW_MODAL_SERIAL', show: true }) }}>Nhập số</button>
                                 </div>
                                 <div className="w-100 m-0 p-0 row">
                                     <div className={`mb-3 col-12 col-md-10 col-lg-7 ${ui_vfm['wrap-input-field']}`}>
@@ -1006,28 +815,6 @@ export default function KiemDinhNhomDongHoNuocForm({ className, generalInfoDongH
                             </div>
                             <label className="w-100 fs-5 fw-bold">Đặc trưng kỹ thuật:</label>
                             <div className="row mx-0 w-100 mb-3">
-
-                                {/* {(isDHDienTu != null && isDHDienTu) ? <>
-                                    <div className={`mb-3 col-12 col-md-6 col-xxl-4 ${ui_vfm['wrap-input-field']}`}>
-                                        <label htmlFor="transitor" className="form-label">- Kiểu chỉ thị:</label>
-                                        <div className="input-group">
-                                            <input
-                                                type="text"
-                                                className="form-control"
-                                                id="transitor"
-                                                disabled={savedDongHoList.length != 0}
-                                                value={state.transitor || ""}
-                                                onChange={(e) => {
-                                                    handleFieldChange('transitor', e.target.value);
-                                                }}
-                                            />
-                                        </div>
-                                    </div>
-                                </> :
-                                    <div className="mb-3 col-12 col-md-6 d-xxl-none">
-                                    </div>} */}
-
-
                                 <div className={`mb-3 col-12 col-lg-7 ${ui_vfm['wrap-input-field']}`}>
                                     <label htmlFor="dn" className="form-label">- Đường kính danh định (DN):</label>
                                     <div className="input-group">
@@ -1091,21 +878,20 @@ export default function KiemDinhNhomDongHoNuocForm({ className, generalInfoDongH
                                         }}
                                     />
                                 </div>
-
-                                <div className={`mb-3 col-12 col-lg-7 ${ui_vfm['wrap-input-field']}`}>
-                                    <label htmlFor="r" className="form-label">- Tỷ số Q<sub>3</sub>/Q<sub>1</sub> (R):</label>
-                                    <input
-                                        type="text"
-                                        className="form-control"
-                                        id="r"
-                                        value={state.r || ""}
-                                        onChange={(e) => handleNumberChange("r", e.target.value)}
-                                        disabled={savedDongHoList.length != 0}
-                                    />
-                                </div>
                                 {(isDHDienTu != null && isDHDienTu) ? <>
+                                    <div className={`mb-3 col-12 col-lg-7 ${ui_vfm['wrap-input-field']}`}>
+                                        <label htmlFor="r" className="form-label">- Tỷ số Q<sub>3</sub>/Q<sub>1</sub> (R):</label>
+                                        <input
+                                            type="text"
+                                            className="form-control"
+                                            id="r"
+                                            value={state.r || ""}
+                                            onChange={(e) => handleNumberChange("r", e.target.value)}
+                                            disabled={savedDongHoList.length != 0}
+                                        />
+                                    </div>
                                     <div className={`mb-3 col-12 col-lg-4 ${ui_vfm['wrap-input-field']}`}>
-                                        <label htmlFor="q3" className="form-label"><span className="d-lg-none">- </span>Q<sub>3</sub>(Q<sub>n</sub>):</label>
+                                        <label htmlFor="q3" className="form-label"><span className="d-lg-none">- </span>Q<sub>3</sub>:</label>
                                         <div className="input-group">
                                             <input
                                                 type="text"
@@ -1121,7 +907,7 @@ export default function KiemDinhNhomDongHoNuocForm({ className, generalInfoDongH
                                     </div>
                                 </> : <>
                                     <div className={`mb-3 col-12 col-lg-5 ${ui_vfm['wrap-input-field']}`}>
-                                        <label htmlFor="qn" className="form-label"><span className="d-lg-none">- </span>Q<sub>3</sub>(Q<sub>n</sub>):</label>
+                                        <label htmlFor="qn" className="form-label"><span className="d-lg-none">- </span>Q<sub>n</sub>:</label>
                                         <div className="input-group">
                                             <input
                                                 type="text"
@@ -1135,18 +921,6 @@ export default function KiemDinhNhomDongHoNuocForm({ className, generalInfoDongH
                                         </div>
                                     </div>
                                 </>}
-                                {/* <div className={`mb-3 col-12 col-md-6 ${isDHDienTu ? "col-lg-4" : ""}`}>
-                                    <label htmlFor="dn" className="form-label">Độ chia nhỏ nhất (d):</label>
-                                    <input
-                                        type="text"
-                                        className={`form-control ${ui_vfm['input-field']}`}
-                                        id="d"
-                                        value={state.d || ""}
-                                        onChange={(e) => handleNumberChange("d", e.target.value)}
-                                        disabled={savedDongHoList.length != 0}
-
-                                    />
-                                </div> */}
                                 <div className={`col-12 col-lg-10 d-block d-md-flex ${ui_vfm['wrap-input-field']} ${isDHDienTu ? "col-xxl-4" : ""}`}>
                                     <label htmlFor="so_qd_pdm" className="form-label">- Ký hiệu PDM/Số quyết định PDM:</label>
                                     <input
@@ -1158,33 +932,8 @@ export default function KiemDinhNhomDongHoNuocForm({ className, generalInfoDongH
                                         onChange={(e) => handleFieldChange('soQDPDM', e.target.value)}
                                     />
                                 </div>
-                                <div className="w-100 mb-3">
-                                    {errorPDM && <small className="text-danger">*{errorPDM}</small>}
-                                </div>
-
-                                {/* <div className={`mb-3 col-12 col-md-6 col-xxl-4 d-flex align-items-end ${!isManager ? "" : "d-none"}`}>
-
-                                    <Link
-                                        href={ACCESS_LINKS.PDM_ADD.src}
-                                        className="btn btn-success px-3 py-2 text-white"
-                                        style={{ width: "max-content", height: "max-content" }}
-                                    >
-                                        Thêm mới PDM
-                                    </Link>
-                                </div> */}
                             </div>
                             <div className="row mx-0 w-100 mb-3">
-                                {/* <div className={`mb-3 col-12 col-md-6 ${ui_vfm['wrap-input-field']}`}>
-                                    <label htmlFor="tenKhachHang" className="form-label">Tên khách hàng:</label>
-                                    <input
-                                        type="text"
-                                            className={`form-control ${ui_vfm['input-field']}`}
-                                        id="tenKhachHang"
-                                        disabled={savedDongHoList.length != 0}
-                                        value={state.tenKhachHang || ""}
-                                        onChange={(e) => handleFieldChange('tenKhachHang', e.target.value)}
-                                    />
-                                </div> */}
                                 <div className={`mb-3 col-12 d-block d-md-flex ${ui_vfm['wrap-input-field']}`}>
                                     <label htmlFor="coSoSuDung" className="form-label">Cơ sở sử dụng:</label>
                                     <input
@@ -1196,28 +945,6 @@ export default function KiemDinhNhomDongHoNuocForm({ className, generalInfoDongH
                                         onChange={(e) => handleFieldChange('coSoSuDung', e.target.value)}
                                     />
                                 </div>
-                                {/* <div className="mb-3 col-12 col-xl-6">
-                                    <label htmlFor="noi_su_dung" className="form-label">Nơi sử dụng:</label>
-                                    <input
-                                        type="text"
-                                            className={`form-control ${ui_vfm['input-field']}`}
-                                        id="noi_su_dung"
-                                        disabled={savedDongHoList.length != 0}
-                                        value={state.noiSuDung || ""}
-                                        onChange={(e) => handleFieldChange('noiSuDung', e.target.value)}
-                                    />
-                                </div>
-                                <div className="mb-3 col-12 col-xl-6"> */}
-                                {/* <label htmlFor="viTri" className="form-label">Địa chỉ nơi sử dụng:</label>
-                                    <input
-                                        type="text"
-                                            className={`form-control ${ui_vfm['input-field']}`}
-                                        id="viTri"
-                                        disabled={savedDongHoList.length != 0}
-                                        value={state.viTri || ""}
-                                        onChange={(e) => handleFieldChange('viTri', e.target.value)}
-                                    />
-                                </div> */}
                                 <div className={`mb-3 col-12 ${ui_vfm['wrap-input-field']}`}>
                                     <label htmlFor="phuongPhapThucHien" className="form-label">Phương pháp thực hiện:</label>
                                     <input
@@ -1292,34 +1019,6 @@ export default function KiemDinhNhomDongHoNuocForm({ className, generalInfoDongH
                                         onChange={(e) => handleFieldChange('diaDiemThucHien', e.target.value)}
                                     />
                                 </div>
-                                {/* <div className={`mb-3 col-12 ${ui_vfm['wrap-input-field']}`}>
-                                    <label htmlFor="nhietDo" className="form-label">Nhiệt độ:</label>
-                                    <div className="input-group">
-                                        <input
-                                            type="text"
-                                            className="form-control"
-                                            id="nhietDo"
-                                            disabled={savedDongHoList.length != 0}
-                                            value={state.nhietDo || ""}
-                                            onChange={(e) => handleNumberChange("nhietDo", e.target.value)}
-                                        />
-                                        <span>(°C)</span>
-                                    </div>
-                                </div>
-                                <div className={`mb-3 col-12 ${ui_vfm['wrap-input-field']}`}>
-                                    <label htmlFor="doAm" className="form-label">Độ ẩm:</label>
-                                    <div className="input-group">
-                                        <input
-                                            type="text"
-                                            className="form-control"
-                                            id="doAm"
-                                            disabled={savedDongHoList.length != 0}
-                                            value={state.doAm || ""}
-                                            onChange={(e) => handleNumberChange("doAm", e.target.value)}
-                                        />
-                                        <span>(%)</span>
-                                    </div>
-                                </div> */}
                                 <div className={`mb-3 col-12 ${ui_vfm['wrap-input-field']}`}>
                                     <label htmlFor="nguoi_thuc_hien" className="form-label">Người soát lại:</label>
                                     <input
@@ -1335,205 +1034,6 @@ export default function KiemDinhNhomDongHoNuocForm({ className, generalInfoDongH
                         </form>
                     </div>
                 </div>
-
-                <div className={`m-0 mb-3 bg-white rounded shadow-sm w-100 position-relative`}>
-                    <div className="w-100 m-0 mb-3 p-0 position-relative">
-                        {selectedDongHoIndex != null && showFormTienTrinh && <>
-                            {/* Select Nav  */}
-                            <div className={`w-100 py-3 px-2 shadow-sm rounded-top bg-main-blue d-flex align-items-center sticky-top justify-content-center`} style={{ top: "60px", zIndex: "900" }}>
-
-                                <button style={{ top: "50%", left: "10px", transform: "translateY(-50%)" }} className={`btn m-0 py-0 px-0 position-absolute text-white d-flex align-items-center gap-1 border-0 shadow-0`} onClick={() => setSelectedDongHoIndex(null)}>
-                                    <FontAwesomeIcon icon={faArrowLeft} style={{ fontSize: "1.6rem" }}></FontAwesomeIcon><span className="d-none d-sm-block">Quay lại</span>
-                                </button>
-                                <button aria-label="Đồng hồ trước" className="btn bg-white m-0 p-0 px-2 d-flex align-items-center justify-content-center" style={{ height: "42px", width: "42px" }} onClick={() => {
-                                    handlePrevDongHo()
-                                }}>
-                                    <FontAwesomeIcon icon={faChevronLeft} style={{ fontSize: "1.6rem" }} className="fa-2x text-blue"></FontAwesomeIcon>
-                                </button>
-
-                                <div className="mx-2">
-                                    <Select
-                                        name="selectDongHo"
-                                        options={dongHoList.map((dongHo, index) => ({ value: index, label: "Đồng hồ " + (index + 1) }))} // Assuming each dong ho has a 'name' property
-                                        className="basic-multi-select"
-                                        classNamePrefix="select"
-                                        placeholder="- Chọn đồng hồ -"
-                                        value={selectedDongHoIndex !== null ? { value: selectedDongHoIndex, label: "Đồng hồ " + (selectedDongHoIndex + 1) + (isDHSaved ? " (Đã lưu)" : "") } : null} // Đặt giá trị dựa trên state
-                                        onChange={(selectedOptions) => {
-                                            if (selectedOptions) {
-                                                handleDongHoChange(selectedOptions.value);
-                                            }
-                                        }} // Pass the index
-                                        styles={{
-                                            control: (provided) => ({
-                                                ...provided,
-                                                minWidth: "180px",
-                                                width: "30vw",
-                                                height: '42px',
-                                                minHeight: '42px',
-                                                borderColor: '#dee2e6 !important',
-                                                boxShadow: 'none !important',
-                                                overflow: "hidden"
-                                            }),
-                                            valueContainer: (provided) => ({
-                                                ...provided,
-                                                height: '42px',
-                                                padding: '0 8px',
-                                                color: "#000 !important",
-                                            }),
-                                            input: (provided) => ({
-                                                ...provided,
-                                                margin: '0',
-                                                padding: '0'
-                                            }),
-                                            indicatorsContainer: (provided) => ({
-                                                ...provided,
-                                                height: '42px',
-                                                width: '34px'
-                                            }),
-                                            menu: (provided) => ({
-                                                ...provided,
-                                                zIndex: 777
-                                            }),
-                                            singleValue: (provided, state) => ({
-                                                ...provided,
-                                                color: state.isDisabled ? '#000' : provided.color,
-                                            })
-                                        }}
-                                    />
-                                </div>
-
-                                <button aria-label="Đồng hồ tiếp theo" className="btn bg-white m-0 p-0 px-2 d-flex align-items-center justify-content-center" style={{ height: "42px", width: "42px" }} onClick={() => {
-                                    handleNextDongHo()
-                                }}>
-                                    <FontAwesomeIcon icon={faChevronRight} style={{ fontSize: "1.6rem" }} className="fa-2x text-blue"></FontAwesomeIcon>
-                                </button>
-                            </div>
-                            {/* End select nav  */}
-
-                            <div className={`w-100 p-2`}>
-                                {dongHoList[selectedDongHoIndex] ? (
-                                    <>
-                                        <div className={`w-100 p-2`}>
-                                            <div className={`w-100 ${showFormTienTrinh ? "" : "d-none"}`}>
-                                                <h5 className="p-0">Đo lường:</h5>
-                                                <NavTab buttonControl={true} gotoFirstTab={isFirstTabLL} tabContent={[
-                                                    {
-                                                        title: <>{isDHDienTu != null && isDHDienTu ? "0.3*" : ""}Q<sub>{isDHDienTu != null && isDHDienTu ? "3" : "n"}</sub></>,
-                                                        content: <TinhSaiSoTab isDHDienTu={isDHDienTu} onFormHSSChange={(value: number | null) => handleFormHSSChange(0, value)}
-                                                            isDisable={savedDongHoList.some(dh => JSON.stringify(dh) == JSON.stringify(dongHoList[selectedDongHoIndex]))}
-                                                            d={state.d ? state.d : ""} q={{
-                                                                title: isDHDienTu != null && isDHDienTu ? TITLE_LUU_LUONG.q3 : TITLE_LUU_LUONG.qn,
-                                                                value: (state.q3) ? state.q3 : ((state.qn) ? state.qn : "")
-                                                            }} className="" tabIndex={1} Form={TinhSaiSoForm as any} />
-                                                    },
-                                                    {
-                                                        title: <>Q<sub>{isDHDienTu != null && isDHDienTu ? "2" : "t"}</sub></>,
-                                                        content: <TinhSaiSoTab onFormHSSChange={(value: number | null) => handleFormHSSChange(1, value)}
-                                                            isDisable={savedDongHoList.some(dh => JSON.stringify(dh) == JSON.stringify(dongHoList[selectedDongHoIndex]))}
-                                                            d={state.d ? state.d : ""} q={{
-                                                                title: isDHDienTu != null && isDHDienTu ? TITLE_LUU_LUONG.q2 : TITLE_LUU_LUONG.qt,
-                                                                value: (state.q2Ort) ? state.q2Ort.toString() : ""
-                                                            }} tabIndex={2} Form={TinhSaiSoForm as any} />
-                                                    },
-                                                    {
-                                                        title: <>Q<sub>{isDHDienTu != null && isDHDienTu ? "1" : "min"}</sub></>,
-                                                        content: <TinhSaiSoTab onFormHSSChange={(value: number | null) => handleFormHSSChange(2, value)}
-                                                            isDisable={savedDongHoList.some(dh => JSON.stringify(dh) == JSON.stringify(dongHoList[selectedDongHoIndex]))}
-                                                            d={state.d ? state.d : ""} q={{
-                                                                title: isDHDienTu != null && isDHDienTu ? TITLE_LUU_LUONG.q1 : TITLE_LUU_LUONG.qmin,
-                                                                value: (state.q1Ormin) ? state.q1Ormin.toString() : ""
-                                                            }} tabIndex={3} Form={TinhSaiSoForm as any} />
-                                                    },
-                                                ]} />
-                                            </div>
-                                            <div className={`w-100 m-0 p-2 d-flex gap-2 justify-content-center ${isDHSaved != null && isDHSaved ? "" : "d-none"}`}>
-                                                <button aria-label="Đồng hồ đã lưu" className={`btn py-2 px-3 btn-secondary`} disabled={isDHSaved != null && isDHSaved}>
-                                                    Đồng hồ đã lưu
-                                                </button>
-                                            </div>
-                                        </div>
-                                    </>
-                                ) : (
-                                    <p className="py-4 w-100 text-center"><i>CHƯA CHỌN ĐỒNG HỒ</i></p>
-                                )}
-                            </div>
-
-                            {/* Select Nav  */}
-                            {/* <div className={`w-100 rounded-bottom p-3 bg-light-grey d-flex align-items-center justify-content-center ${dongHoList.length <= 1 ? "d-none" : ""}`}>
-                                <button aria-label="Đồng hồ trước" className="btn bg-white m-0 p-0 px-2 d-flex align-items-center justify-content-center" style={{ height: "42px", width: "42px" }}
-                                    onClick={() => {
-                                        handlePrevDongHo()
-                                    }}>
-                                    <FontAwesomeIcon icon={faArrowLeft} style={{ fontSize: "1.6rem" }} className="fa-2x text-blue"></FontAwesomeIcon>
-                                </button>
-
-                                <div className="mx-2">
-                                    <Select
-                                        name="selectDongHo"
-                                        options={dongHoList.map((dongHo, index) => ({ value: index, label: "Đồng hồ " + (index + 1) }))}
-                                        className="basic-multi-select"
-                                        classNamePrefix="select"
-                                        placeholder="- Chọn đồng hồ -"
-                                        value={selectedDongHoIndex !== null ? { value: selectedDongHoIndex, label: "Đồng hồ " + (selectedDongHoIndex + 1) + (isDHSaved != null && isDHSaved ? " (Đã lưu)" : "") } : null}
-                                        onChange={(selectedOptions) => {
-                                            if (selectedOptions) {
-                                                handleDongHoChange(selectedOptions.value);
-                                            }
-                                        }} // Pass the index
-                                        menuPlacement="top"
-                                        styles={{
-                                            control: (provided) => ({
-                                                ...provided,
-                                                minWidth: "180px",
-                                                width: "30vw",
-                                                height: '42px',
-                                                minHeight: '42px',
-                                                borderColor: '#dee2e6 !important',
-                                                boxShadow: 'none !important',
-                                                backgroundColor: "white",
-                                                overflow: "hidden"
-                                            }),
-                                            valueContainer: (provided) => ({
-                                                ...provided,
-                                                height: '42px',
-                                                padding: '0 8px',
-                                                color: "#000 !important",
-                                            }),
-                                            input: (provided) => ({
-                                                ...provided,
-                                                margin: '0',
-                                                padding: '0'
-                                            }),
-                                            indicatorsContainer: (provided) => ({
-                                                ...provided,
-                                                height: '42px',
-                                                width: '34px'
-                                            }),
-                                            menu: (provided) => ({
-                                                ...provided,
-                                                zIndex: 777
-                                            }),
-                                            singleValue: (provided, state) => ({
-                                                ...provided,
-                                                color: state.isDisabled ? '#000' : provided.color,
-                                            })
-                                        }}
-                                    />
-                                </div>
-
-                                <button aria-label="Đồng hồ tiếp theo" className="btn bg-white m-0 p-0 px-2 d-flex align-items-center justify-content-center" style={{ height: "42px", width: "42px" }}
-                                    onClick={() => {
-                                        handleNextDongHo()
-                                    }}>
-                                    <FontAwesomeIcon icon={faArrowRight} style={{ fontSize: "1.6rem" }} className="fa-2x text-blue"></FontAwesomeIcon>
-                                </button>
-                            </div> */}
-                        </>}
-                        {/* End select nav  */}
-                    </div>
-                </div>
-
                 <div className={`m-0 mb-3 bg-white rounded shadow-sm w-100 position-relative p-3`}>
                     {
                         // showFormTienTrinh && 
@@ -1556,23 +1056,14 @@ export default function KiemDinhNhomDongHoNuocForm({ className, generalInfoDongH
                     </div>
 
                     <div className={`w-100 px-2 px-md-3 d-flex gap-2 align-items-center justify-content-end ${savedDongHoList.length == dongHoList.length || !showFormTienTrinh ? "d-none" : ""}`}>
-                        <button aria-label={dongHoList.length <= 1 ? "Lưu đồng hồ" : "Lưu toàn bộ"} className="btn btn-success py-2 px-4" disabled={loading || !showFormTienTrinh} onClick={handleSaveAllDongHo}>
-                            {/* {loading ?
-                                <><span className="spinner-border spinner-border-sm me-2" aria-hidden="true"></span></> :
-                                <><FontAwesomeIcon icon={faSave} className="me-2"></FontAwesomeIcon></>
-                            } {isEditing ? "Lưu thay đổi" : (dongHoList.length <= 1 ? "Lưu đồng hồ" : "Lưu toàn bộ")} */}
+                        <button aria-label={dongHoList.length <= 1 ? "Lưu đồng hồ" : "Lưu toàn bộ"} className="btn btn-success py-2 px-4" disabled={loading || !showFormTienTrinh}
+                            onClick={() => {
+                                modalDispatch({ type: 'SET_SHOW_MODAL_KIEM_DINH', show: true })
+                            }}>
+            
                             Bắt đầu kiểm định
                         </button>
                     </div>
-
-                    {/* <div className={`w-100 px-2 px-md-3 d-flex gap-2 align-items-center justify-content-end ${savedDongHoList.length == dongHoList.length || !showFormTienTrinh ? "d-none" : ""}`}>
-                        <button aria-label={dongHoList.length <= 1 ? "Lưu đồng hồ" : "Lưu toàn bộ"} className="btn btn-success py-2 px-4" disabled={loading || !showFormTienTrinh} onClick={handleSaveAllDongHo}>
-                            {loading ?
-                                <><span className="spinner-border spinner-border-sm me-2" aria-hidden="true"></span></> :
-                                <><FontAwesomeIcon icon={faSave} className="me-2"></FontAwesomeIcon></>
-                            } {isEditing ? "Lưu thay đổi" : (dongHoList.length <= 1 ? "Lưu đồng hồ" : "Lưu toàn bộ")}
-                        </button>
-                    </div> */}
                 </div>
             </div>
         </LocalizationProvider >
