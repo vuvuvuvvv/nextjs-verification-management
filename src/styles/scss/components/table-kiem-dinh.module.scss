@@ -8,7 +8,7 @@
 
     .process-table {
         border-color: #707070 !important;
-    min-width: 891px !important;
+        min-width: 891px !important;
 
         thead {
             position: sticky;
@@ -16,7 +16,8 @@
             transform: translate(0px, 0px);
             z-index: 9;
 
-            th, td {
+            th,
+            td {
                 background-color: $light_blue !important;
             }
         }
@@ -142,5 +143,29 @@
                 }
             }
         }
+    }
+}
+
+.group-switch-button {
+    border-bottom: 1px solid $grey;
+    margin-bottom: 10px;
+    padding: 2px 5px;
+
+    button {
+        border-radius: 0;
+        margin: 0;
+        outline: none !important;
+        border-radius: none !important;
+        min-width: 60px;
+        transition: 0.3s;
+    }
+
+    .active {
+        background-color: $blue;
+        color: #fff;
+    }
+
+    :not(.active) {
+        background-color: $light_grey;
     }
 }

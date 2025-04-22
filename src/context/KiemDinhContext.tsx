@@ -3,6 +3,13 @@ import { isDongHoDatTieuChuan } from '@lib/system-function';
 import { DuLieuChayDongHo, DuLieuChayDiemLuuLuong, DuLieuMotLanChay, DuLieuCacLanChay, VChuanDongBoCacLL } from '@lib/types';
 import React, { createContext, useState, useContext, ReactNode, useRef, useEffect } from 'react';
 
+type LuuLuong  = {
+    isDHDienTu: boolean,
+    q3Orn: { title: string; value: string } | null,
+    q2Ort: { title: string; value: string } | null,
+    q1Ormin: { title: string; value: string } | null
+};
+
 interface KiemDinhContextType {
     duLieuKiemDinhCacLuuLuong: DuLieuChayDongHo;
     initialDuLieuKiemDinhCacLuuLuong: DuLieuChayDongHo;
@@ -15,6 +22,8 @@ interface KiemDinhContextType {
     ketQua: boolean | null;
     setKetQua: (ketQua: boolean | null) => void;
     lanChayMoi: DuLieuCacLanChay;
+    luuLuong: LuuLuong | null;
+    setLuuLuong: (luuLuong: LuuLuong) => void;
     updateLuuLuong: (q: { title: string; value: string }, duLieuChay: DuLieuCacLanChay) => void;
 
     setDuLieuKiemDinhCacLuuLuong: (duLieu: DuLieuChayDongHo) => void;
@@ -76,7 +85,53 @@ export const KiemDinhProvider = ({ children }: { children: ReactNode }) => {
     ];
 
     const [duLieuKiemDinhCacLuuLuong, setDuLieuKiemDinhCacLuuLuong] = useState<DuLieuChayDongHo>(initialDuLieuKiemDinhCacLuuLuong);
+
     const previousDuLieuRef = useRef<DuLieuChayDongHo>(duLieuKiemDinhCacLuuLuong);
+    
+    // Lưu dữ liệu Q1 2 3 if isDHDienTu hoặc Qn t min
+    const [luuLuong, setLuuLuong] = useState<LuuLuong | null>(null);
+    const luuLuongRef = useRef(luuLuong);
+
+    useEffect(()=> {
+        if(luuLuong && luuLuong != luuLuongRef.current) {
+            const q3n = luuLuong.q3Orn;
+            const q2t = luuLuong.q2Ort;
+            const q1min = luuLuong.q1Ormin;
+            // getDuLieuChayCuaLuuLuong
+            if(q3n && q2t && q1min) {
+                setDuLieuKiemDinhCacLuuLuong(prevState => {
+                    const newState : DuLieuChayDongHo = {
+                        [q3n.title]: {
+                            value: parseFloat(q3n.value) ?? 0,
+                            lan_chay: getDuLieuChayCuaLuuLuong(q3n)
+                        },
+                        [q2t.title]: {
+                            value: parseFloat(q2t.value) ?? 0,
+                            lan_chay: getDuLieuChayCuaLuuLuong(q2t)
+                        },
+                        [q1min.title]: {
+                            value: parseFloat(q1min.value) ?? 0,
+                            lan_chay: getDuLieuChayCuaLuuLuong(q1min)
+                        },
+                        [!luuLuong.isDHDienTu ? TITLE_LUU_LUONG.q3 : TITLE_LUU_LUONG.qn]: null,
+                        [!luuLuong.isDHDienTu ? TITLE_LUU_LUONG.q2 : TITLE_LUU_LUONG.qt]: null,
+                        [!luuLuong.isDHDienTu ? TITLE_LUU_LUONG.q1 : TITLE_LUU_LUONG.qmin]: null,
+                    };
+    
+                    // Check if the new state is different from the previous state
+                    if (previousDuLieuRef.current != newState) {
+                        previousDuLieuRef.current = newState;
+                        return newState;
+                    }
+                    return prevState;
+                });
+            }
+        }
+    }, [luuLuong])
+
+    useEffect(()=> {
+        console.log(duLieuKiemDinhCacLuuLuong);
+    }, [duLieuKiemDinhCacLuuLuong])
 
     const [formHieuSaiSo, setFormHieuSaiSo] = useState<{ hss: number | null }[]>(initialFormHieuSaiSo);
     const [formMf, setFormMf] = useState<{ mf: number | null }[]>(initialFormMf);
@@ -537,6 +592,8 @@ export const KiemDinhProvider = ({ children }: { children: ReactNode }) => {
                     }
                 };
             },
+            luuLuong,
+            setLuuLuong,
             xoaLanChayCuaLuuLuong,
             resetLanChay,
             getDuLieuKiemDinhJSON,

@@ -25,7 +25,7 @@ export const getFullSoGiayCN = (soGiayCN: string, ngayThucHien: Date, isHieuChua
 }
 
 export const getQ2OrtAndQ1OrQMin = (isDHDienTu: boolean, ccx: string | null, q: string | null, r: string | null) => {
-    if (isDHDienTu != null && ccx && q) {
+    if (ccx && q) {
         const heso = {
             "A": {
                 "qt": (parseFloat(q) < 15) ? 0.1 : 0.3,
@@ -50,11 +50,11 @@ export const getQ2OrtAndQ1OrQMin = (isDHDienTu: boolean, ccx: string | null, q: 
 
             return {
                 getQ1OrMin: {
-                    title: isDHDienTu != null && isDHDienTu ? TITLE_LUU_LUONG.q1 : TITLE_LUU_LUONG.qmin,
+                    title:  isDHDienTu ? TITLE_LUU_LUONG.q1 : TITLE_LUU_LUONG.qmin,
                     value: parseFloat(qmin.toFixed(3))
                 },
                 getQ2Ort: {
-                    title: isDHDienTu != null && isDHDienTu ? TITLE_LUU_LUONG.q1 : TITLE_LUU_LUONG.qmin,
+                    title: isDHDienTu ? TITLE_LUU_LUONG.q2 : TITLE_LUU_LUONG.qt,
                     value: parseFloat(qt.toFixed(3))
                 },
             };
@@ -65,11 +65,11 @@ export const getQ2OrtAndQ1OrQMin = (isDHDienTu: boolean, ccx: string | null, q: 
 
                 return {
                     getQ1OrMin: {
-                        title: isDHDienTu != null && isDHDienTu ? TITLE_LUU_LUONG.q1 : TITLE_LUU_LUONG.qmin,
+                        title: isDHDienTu ? TITLE_LUU_LUONG.q1 : TITLE_LUU_LUONG.qmin,
                         value: (heso_qmin) ? parseFloat(q) * heso_qmin : null
                     },
                     getQ2Ort: {
-                        title: isDHDienTu != null && isDHDienTu ? TITLE_LUU_LUONG.q1 : TITLE_LUU_LUONG.qmin,
+                        title: isDHDienTu ? TITLE_LUU_LUONG.q2 : TITLE_LUU_LUONG.qt,
                         value: (heso_qt) ? parseFloat(q) * heso_qt : null
                     },
                 };

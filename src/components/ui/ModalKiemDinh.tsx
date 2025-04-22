@@ -8,14 +8,26 @@ import c_tbKD from "@styles/scss/components/table-kiem-dinh.module.scss";
 
 import { useDongHoList } from '@/context/ListDongHoContext';
 import InputField from './InputFieldTBDHInfo';
+import { useKiemDinh } from '@/context/KiemDinhContext';
 interface ModalKiemDinhProps {
     show: boolean;
     handleClose: () => void;
 }
 
+type ActiveLL = { title: string; value: string } | null;
+
 export default function ModalKiemDinh({ show, handleClose }: ModalKiemDinhProps) {
+    const { luuLuong, getDuLieuChayCuaLuuLuong } = useKiemDinh();
     const { dongHoList, savedDongHoList } = useDongHoList();
     const [isUsingBinhChuan, setUsingBinhChuan] = useState(false);
+
+    const [activeLL, setActiveLL] = useState<ActiveLL>(luuLuong && luuLuong.q3Orn);
+
+    useEffect(() => {console.log(activeLL)}, [activeLL])
+
+    const handleSwitchLL = (ll: ActiveLL) => {
+        if(ll) setActiveLL(ll);
+    };
 
     return (
         <Modal show={show} dialogClassName={`modal-kiem-dinh`} onHide={handleClose}>
@@ -30,12 +42,35 @@ export default function ModalKiemDinh({ show, handleClose }: ModalKiemDinhProps)
                         disabled={savedDongHoList.length != 0}
                     /><span className={`${isUsingBinhChuan ? "text-dark" : "text-secondary"}`}>Sử dụng bình chuẩn</span>
                 </div>
+                <div className={`${c_tbKD['group-switch-button']}`} >
+                    <button
+                        type="button"
+                        className={`btn ${activeLL && activeLL === (luuLuong && luuLuong.q3Orn ? luuLuong.q3Orn : null) ? c_tbKD['active'] : ""}`}
+                        onClick={() => handleSwitchLL(luuLuong?.q3Orn ?? null)}
+                    >
+                        {luuLuong && luuLuong.q3Orn ? luuLuong.q3Orn.title : ""}
+                    </button>
+                    <button
+                        type="button"
+                        className={`btn ${activeLL && activeLL === (luuLuong && luuLuong.q2Ort ? luuLuong.q2Ort : null) ? c_tbKD['active'] : ""}`}
+                        onClick={() => handleSwitchLL(luuLuong?.q2Ort ?? null)}
+                    >
+                        {luuLuong && luuLuong.q2Ort ? luuLuong.q2Ort.title : ""}
+                    </button>
+                    <button
+                        type="button"
+                        className={`btn ${activeLL && activeLL === (luuLuong && luuLuong.q1Ormin ? luuLuong.q1Ormin : null) ? c_tbKD['active'] : ""}`}
+                        onClick={() => handleSwitchLL(luuLuong?.q1Ormin ?? null)}
+                    >
+                        {luuLuong && luuLuong.q1Ormin ? luuLuong.q1Ormin.title : ""}
+                    </button>
+                </div>
                 <div className={`w-100 m-0 mb-3 px-1 ${c_tbKD['wrap-process-table']} `}>
 
                     <table className={`table table-bordered mb-0 ${c_tbKD['process-table']}`}>
                         <thead className="">
                             <tr>
-                                <th colSpan={2} rowSpan={2}>Q= <br /><span>(m<sup>3</sup>/h)</span></th>
+                                <th colSpan={2} rowSpan={2}>Q={activeLL?.value}<br /><span>(m<sup>3</sup>/h)</span></th>
                                 <th colSpan={4}>Số chỉ trên đồng hồ</th>
                                 <th colSpan={!isUsingBinhChuan ? 4 : 2}>Số chỉ trên chuẩn</th>
                                 <th rowSpan={2}>δ</th>
@@ -78,11 +113,12 @@ export default function ModalKiemDinh({ show, handleClose }: ModalKiemDinhProps)
                                     const dongHo = dongHoList[index];
 
                                     const duLieuKiemDinhJSON = dongHo.du_lieu_kiem_dinh;
-                                    const duLieuKiemDinh = duLieuKiemDinhJSON ?
-                                        ((typeof duLieuKiemDinhJSON != 'string') ?
-                                            duLieuKiemDinhJSON : JSON.parse(duLieuKiemDinhJSON)
-                                        ) : null;
-                                    // console.log(index,": ", duLieuKiemDinh);
+                                    // const duLieuKiemDinh = duLieuKiemDinhJSON ?
+                                    //     ((typeof duLieuKiemDinhJSON != 'string') ?
+                                    //         duLieuKiemDinhJSON : JSON.parse(duLieuKiemDinhJSON)
+                                    //     ) : null;
+                                    if(activeLL)
+                                    console.log(index,": ", getDuLieuChayCuaLuuLuong(activeLL));
                                     // const status = duLieuKiemDinh ? duLieuKiemDinh.ket_qua : null;
                                     // const objHss = duLieuKiemDinh ? duLieuKiemDinh.hieu_sai_so : null;
                                     // const objMf = duLieuKiemDinh ? duLieuKiemDinh.mf : null;
@@ -183,7 +219,7 @@ export default function ModalKiemDinh({ show, handleClose }: ModalKiemDinhProps)
                                                     value={dongHo.serial ?? ""}
                                                     // onChange={(value) => handleInputChange(index, "serial", value)}
                                                     onChange={(value) => { }}
-                                                    disabled={savedDongHoList.some(dh => JSON.stringify(dh) == JSON.stringify(dongHo)) || savedDongHoList.length == dongHoList.length}
+                                                    disabled={savedDongHoList.some(dh => JSON.stringify(dh) == JSON.stringify(dongHo)) || savedDongHoList.length == dongHoList.length || !isUsingBinhChuan}
                                                     // error={errorsList[index]?.serial}
                                                     name={`vc`}
                                                 />

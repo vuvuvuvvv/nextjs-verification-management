@@ -190,7 +190,8 @@ export default function KiemDinhNhomDongHoNuocForm({ className, generalInfoDongH
         setFormHieuSaiSo, setKetQua,
         initialFormHieuSaiSo,
         initialDuLieuKiemDinhCacLuuLuong,
-        duLieuKiemDinhCacLuuLuong
+        duLieuKiemDinhCacLuuLuong,
+        setLuuLuong
     } = useKiemDinh();
 
     const [selectedCssxOption, setSelectedCssxOption] = useState<{ value: string, label: string } | null>(
@@ -372,7 +373,7 @@ export default function KiemDinhNhomDongHoNuocForm({ className, generalInfoDongH
 
         // { value: state.dn, id: "dn" },
         // { value: state.d, id: "d" },
-        // { value: state.ccx, id: "ccx" },
+        { value: state.ccx, id: "ccx" },
         // { value: state.q3, id: "q3" },
         // { value: state.r, id: "r" },
         // { value: state.qn, id: "qn" },
@@ -420,8 +421,14 @@ export default function KiemDinhNhomDongHoNuocForm({ className, generalInfoDongH
         const tmp_isDHDienTu = Boolean((state.ccx && ["1", "2"].includes(state.ccx)) || state.phuongTienDo == "Đồng hồ đo nước lạnh có cơ cấu điện tử");
 
         // Get q1 q2 || qmin qt
-        if (state.ccx && ((state.q3 && state.r) || state.qn)) {
+        if ((state.phuongTienDo || state.ccx) && ((state.q3 && state.r) || state.qn)) {
             const { getQ1OrMin, getQ2Ort } = getQ2OrtAndQ1OrQMin(tmp_isDHDienTu, state.ccx, tmp_isDHDienTu ? state.q3 : state.qn, tmp_isDHDienTu ? state.r : null);
+            setLuuLuong({
+                isDHDienTu: tmp_isDHDienTu,
+                q3Orn: {title: tmp_isDHDienTu ? TITLE_LUU_LUONG.q3 : TITLE_LUU_LUONG.qn, value: tmp_isDHDienTu ? state.q3 : state.qn},
+                q2Ort: {title: getQ2Ort.title, value: (getQ2Ort.value)?.toString() || ""},
+                q1Ormin: {title: getQ1OrMin.title, value: (getQ1OrMin.value)?.toString() || ""}
+            })
             handleMultFieldChange({ q1Ormin: getQ1OrMin.value, q2Ort: getQ2Ort.value });
         }
 
