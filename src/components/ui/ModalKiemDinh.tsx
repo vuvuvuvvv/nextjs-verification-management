@@ -21,12 +21,16 @@ export default function ModalKiemDinh({ show, handleClose }: ModalKiemDinhProps)
     const { dongHoList, savedDongHoList } = useDongHoList();
     const [isUsingBinhChuan, setUsingBinhChuan] = useState(false);
 
-    const [activeLL, setActiveLL] = useState<ActiveLL>(luuLuong && luuLuong.q3Orn);
+    const [activeLL, setActiveLL] = useState<ActiveLL>(null);
 
-    useEffect(() => {console.log(activeLL)}, [activeLL])
+    useEffect(() => {
+        if (luuLuong && activeLL == null) {
+            setActiveLL(luuLuong.q3Orn)
+        }
+    }, [luuLuong])
 
     const handleSwitchLL = (ll: ActiveLL) => {
-        if(ll) setActiveLL(ll);
+        if (ll) setActiveLL(ll);
     };
 
     return (
@@ -107,139 +111,142 @@ export default function ModalKiemDinh({ show, handleClose }: ModalKiemDinhProps)
                             </tr>
                         </thead>
                         <tbody>
-                            {(() => {
-                                const rows = [];
+                            {activeLL && (() => {
+                                const rows: JSX.Element[] = [];
                                 for (let index = 0; index < dongHoList.length; index++) {
                                     const dongHo = dongHoList[index];
 
-                                    const duLieuKiemDinhJSON = dongHo.du_lieu_kiem_dinh;
+                                    // const duLieuKiemDinhJSON = dongHo.du_lieu_kiem_dinh;
                                     // const duLieuKiemDinh = duLieuKiemDinhJSON ?
                                     //     ((typeof duLieuKiemDinhJSON != 'string') ?
                                     //         duLieuKiemDinhJSON : JSON.parse(duLieuKiemDinhJSON)
                                     //     ) : null;
-                                    if(activeLL)
-                                    console.log(index,": ", getDuLieuChayCuaLuuLuong(activeLL));
+
+
+                                    const duLieuCacLanChay = getDuLieuChayCuaLuuLuong(activeLL, index);
                                     // const status = duLieuKiemDinh ? duLieuKiemDinh.ket_qua : null;
                                     // const objHss = duLieuKiemDinh ? duLieuKiemDinh.hieu_sai_so : null;
                                     // const objMf = duLieuKiemDinh ? duLieuKiemDinh.mf : null;
 
                                     // const isDHDienTu = Boolean((dongHo.ccx && ["1", "2"].includes(dongHo.ccx)) || dongHo.kieu_thiet_bi == "Điện tử");
 
-                                    rows.push(
-                                        <tr key={index}>
-                                            {/* Check so lan => rowS */}
-                                            <td rowSpan={1} style={{ padding: "10px" }} onClick={() => {
-                                                // selectDongHo(index)
-                                            }}>
-                                                <span>ĐH {dongHo.index}</span>
-                                            </td>
-                                            <td>
-                                                {/* so lan */}
-                                                1
-                                            </td>
-                                            <td>
-                                                <InputField
-                                                    index={index}
-                                                    isNumber={true}
-                                                    value={dongHo.serial ?? ""}
-                                                    // onChange={(value) => handleInputChange(index, "serial", value)}
-                                                    onChange={(value) => { }}
-                                                    disabled={savedDongHoList.some(dh => JSON.stringify(dh) == JSON.stringify(dongHo)) || savedDongHoList.length == dongHoList.length}
-                                                    // error={errorsList[index]?.serial}
-                                                    name={`v1`}
-                                                />
-                                            </td>
-                                            <td>
-                                                <InputField
-                                                    index={index}
-                                                    isNumber={true}
-                                                    value={dongHo.serial ?? ""}
-                                                    // onChange={(value) => handleInputChange(index, "serial", value)}
-                                                    onChange={(value) => { }}
-                                                    disabled={savedDongHoList.some(dh => JSON.stringify(dh) == JSON.stringify(dongHo)) || savedDongHoList.length == dongHoList.length}
-                                                    // error={errorsList[index]?.serial}
-                                                    name={`v2`}
-                                                />
-                                            </td>
-                                            <td>
-                                                <InputField
-                                                    index={index}
-                                                    isNumber={true}
-                                                    value={dongHo.serial ?? ""}
-                                                    // onChange={(value) => handleInputChange(index, "serial", value)}
-                                                    onChange={(value) => { }}
-                                                    disabled={savedDongHoList.some(dh => JSON.stringify(dh) == JSON.stringify(dongHo)) || savedDongHoList.length == dongHoList.length}
-                                                    // error={errorsList[index]?.serial}
-                                                    name={`vdh`}
-                                                />
-                                            </td>
-                                            <td>
-                                                <InputField
-                                                    index={index}
-                                                    isNumber={true}
-                                                    value={dongHo.serial ?? ""}
-                                                    // onChange={(value) => handleInputChange(index, "serial", value)}
-                                                    onChange={(value) => { }}
-                                                    disabled={savedDongHoList.some(dh => JSON.stringify(dh) == JSON.stringify(dongHo)) || savedDongHoList.length == dongHoList.length}
-                                                    // error={errorsList[index]?.serial}
-                                                    name={`tdh`}
-                                                />
-                                            </td>
+                                    Object.entries(duLieuCacLanChay).map(([key, dl], i) => {
+                                        const rowIndex = index * Object.keys(duLieuCacLanChay).length + i;
 
-                                            {!isUsingBinhChuan && <>
+                                        rows.push(
+                                            <tr key={index + "_" + i}>
+                                                {i == 0 && <td rowSpan={Object.keys(duLieuCacLanChay).length} style={{ padding: "10px" }}>
+                                                    <span>ĐH {dongHo.index}</span>
+                                                </td>}
+
+                                                <td>
+                                                    {i + 1}
+                                                </td>
                                                 <td>
                                                     <InputField
-                                                        index={index}
+                                                        index={rowIndex}
                                                         isNumber={true}
-                                                        value={dongHo.serial ?? ""}
+                                                        value={dl.V1.toString()}
                                                         // onChange={(value) => handleInputChange(index, "serial", value)}
                                                         onChange={(value) => { }}
                                                         disabled={savedDongHoList.some(dh => JSON.stringify(dh) == JSON.stringify(dongHo)) || savedDongHoList.length == dongHoList.length}
                                                         // error={errorsList[index]?.serial}
-                                                        name={`vc1`}
+                                                        name={`v1`}
                                                     />
                                                 </td>
                                                 <td>
                                                     <InputField
-                                                        index={index}
+                                                        index={rowIndex}
                                                         isNumber={true}
-                                                        value={dongHo.serial ?? ""}
+                                                        value={dl.V2.toString()}
                                                         // onChange={(value) => handleInputChange(index, "serial", value)}
                                                         onChange={(value) => { }}
                                                         disabled={savedDongHoList.some(dh => JSON.stringify(dh) == JSON.stringify(dongHo)) || savedDongHoList.length == dongHoList.length}
                                                         // error={errorsList[index]?.serial}
-                                                        name={`vc2`}
+                                                        name={`v2`}
                                                     />
                                                 </td>
-                                            </>}
-                                            <td>
-                                                <InputField
-                                                    index={index}
-                                                    isNumber={true}
-                                                    value={dongHo.serial ?? ""}
-                                                    // onChange={(value) => handleInputChange(index, "serial", value)}
-                                                    onChange={(value) => { }}
-                                                    disabled={savedDongHoList.some(dh => JSON.stringify(dh) == JSON.stringify(dongHo)) || savedDongHoList.length == dongHoList.length || !isUsingBinhChuan}
-                                                    // error={errorsList[index]?.serial}
-                                                    name={`vc`}
-                                                />
-                                            </td>
-                                            <td>
-                                                <InputField
-                                                    index={index}
-                                                    isNumber={true}
-                                                    value={dongHo.serial ?? ""}
-                                                    // onChange={(value) => handleInputChange(index, "serial", value)}
-                                                    onChange={(value) => { }}
-                                                    disabled={savedDongHoList.some(dh => JSON.stringify(dh) == JSON.stringify(dongHo)) || savedDongHoList.length == dongHoList.length}
-                                                    // error={errorsList[index]?.serial}
-                                                    name={`tc`}
-                                                />
-                                            </td>
-                                            <td style={{ width: "50px" }}>1</td>
-                                            <td style={{ width: "50px" }}>1</td>
-                                        </tr>
-                                    );
+                                                <td>
+                                                    <InputField
+                                                        index={rowIndex}
+                                                        isNumber={true}
+                                                        value={(dl.V1 - dl.V2).toString()}
+                                                        // onChange={(value) => handleInputChange(index, "serial", value)}
+                                                        onChange={(value) => { }}
+                                                        disabled={savedDongHoList.some(dh => JSON.stringify(dh) == JSON.stringify(dongHo)) || savedDongHoList.length == dongHoList.length}
+                                                        // error={errorsList[index]?.serial}
+                                                        name={`vdh`}
+                                                    />
+                                                </td>
+                                                <td>
+                                                    <InputField
+                                                        index={rowIndex}
+                                                        isNumber={true}
+                                                        value={dl.Tdh.toString()}
+                                                        // onChange={(value) => handleInputChange(index, "serial", value)}
+                                                        onChange={(value) => { }}
+                                                        disabled={savedDongHoList.some(dh => JSON.stringify(dh) == JSON.stringify(dongHo)) || savedDongHoList.length == dongHoList.length}
+                                                        // error={errorsList[index]?.serial}
+                                                        name={`tdh`}
+                                                    />
+                                                </td>
+
+                                                {!isUsingBinhChuan && <>
+                                                    <td>
+                                                        <InputField
+                                                            index={rowIndex}
+                                                            isNumber={true}
+                                                            value={(dl.Vc1 ? dl.Vc1 : 0).toString()}
+                                                            // onChange={(value) => handleInputChange(index, "serial", value)}
+                                                            onChange={(value) => { }}
+                                                            disabled={savedDongHoList.some(dh => JSON.stringify(dh) == JSON.stringify(dongHo)) || savedDongHoList.length == dongHoList.length}
+                                                            // error={errorsList[index]?.serial}
+                                                            name={`vc1`}
+                                                        />
+                                                    </td>
+                                                    <td>
+                                                        <InputField
+                                                            index={rowIndex}
+                                                            isNumber={true}
+                                                            value={(dl.Vc2 ? dl.Vc2 : 0).toString()}
+                                                            // onChange={(value) => handleInputChange(index, "serial", value)}
+                                                            onChange={(value) => { }}
+                                                            disabled={savedDongHoList.some(dh => JSON.stringify(dh) == JSON.stringify(dongHo)) || savedDongHoList.length == dongHoList.length}
+                                                            // error={errorsList[index]?.serial}
+                                                            name={`vc2`}
+                                                        />
+                                                    </td>
+                                                </>}
+                                                <td>
+                                                    <InputField
+                                                        index={rowIndex}
+                                                        isNumber={true}
+                                                        value={dl.Vc.toString()}
+                                                        // onChange={(value) => handleInputChange(index, "serial", value)}
+                                                        onChange={(value) => { }}
+                                                        disabled={savedDongHoList.some(dh => JSON.stringify(dh) == JSON.stringify(dongHo)) || savedDongHoList.length == dongHoList.length || !isUsingBinhChuan}
+                                                        // error={errorsList[index]?.serial}
+                                                        name={`vc`}
+                                                    />
+                                                </td>
+                                                <td>
+                                                    <InputField
+                                                        index={rowIndex}
+                                                        isNumber={true}
+                                                        value={dl.Tc.toString()}
+                                                        // onChange={(value) => handleInputChange(index, "serial", value)}
+                                                        onChange={(value) => { }}
+                                                        disabled={savedDongHoList.some(dh => JSON.stringify(dh) == JSON.stringify(dongHo)) || savedDongHoList.length == dongHoList.length}
+                                                        // error={errorsList[index]?.serial}
+                                                        name={`tc`}
+                                                    />
+                                                </td>
+                                                <td style={{ width: "50px" }}>1</td>
+                                                <td style={{ width: "50px" }}>1</td>
+                                            </tr>
+                                        );
+                                    });
+
                                 }
 
                                 return rows;

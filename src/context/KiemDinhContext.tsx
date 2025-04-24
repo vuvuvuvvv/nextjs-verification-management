@@ -2,6 +2,7 @@ import { TITLE_LUU_LUONG } from '@lib/system-constant';
 import { isDongHoDatTieuChuan } from '@lib/system-function';
 import { DuLieuChayDongHo, DuLieuChayDiemLuuLuong, DuLieuMotLanChay, DuLieuCacLanChay, VChuanDongBoCacLL } from '@lib/types';
 import React, { createContext, useState, useContext, ReactNode, useRef, useEffect } from 'react';
+import { useDongHoList } from './ListDongHoContext';
 
 type LuuLuong  = {
     isDHDienTu: boolean,
@@ -29,7 +30,7 @@ interface KiemDinhContextType {
     setDuLieuKiemDinhCacLuuLuong: (duLieu: DuLieuChayDongHo) => void;
     updateSoDongHoChuan: (q: { title: string; value: string }, index: number, field: keyof DuLieuMotLanChay, value: string) => void;
     removeKiemDinh: (id: string) => void;
-    getDuLieuChayCuaLuuLuong: (q: { title: string; value: string }) => DuLieuCacLanChay;
+    getDuLieuChayCuaLuuLuong: (q: { title: string; value: string }, indexDongHo: number) => DuLieuCacLanChay;
     themLanChayCuaLuuLuong: (q: { title: string; value: string }) => DuLieuCacLanChay;
     xoaLanChayCuaLuuLuong: (q: { title: string; value: string }, id: number | string) => DuLieuCacLanChay;
     resetLanChay: (q: { title: string; value: string }) => DuLieuCacLanChay;
@@ -40,6 +41,8 @@ interface KiemDinhContextType {
 const KiemDinhContext = createContext<KiemDinhContextType | undefined>(undefined);
 
 export const KiemDinhProvider = ({ children }: { children: ReactNode }) => {
+    const {dongHoList} = useDongHoList();
+
     const [randomT, setRandomT] = useState(parseFloat((Math.random() * (25 - 22) + 22).toFixed(1)));
 
     const lanChayMoi: DuLieuCacLanChay = {
@@ -98,34 +101,34 @@ export const KiemDinhProvider = ({ children }: { children: ReactNode }) => {
             const q2t = luuLuong.q2Ort;
             const q1min = luuLuong.q1Ormin;
             // getDuLieuChayCuaLuuLuong
-            if(q3n && q2t && q1min) {
-                setDuLieuKiemDinhCacLuuLuong(prevState => {
-                    const newState : DuLieuChayDongHo = {
-                        [q3n.title]: {
-                            value: parseFloat(q3n.value) ?? 0,
-                            lan_chay: getDuLieuChayCuaLuuLuong(q3n)
-                        },
-                        [q2t.title]: {
-                            value: parseFloat(q2t.value) ?? 0,
-                            lan_chay: getDuLieuChayCuaLuuLuong(q2t)
-                        },
-                        [q1min.title]: {
-                            value: parseFloat(q1min.value) ?? 0,
-                            lan_chay: getDuLieuChayCuaLuuLuong(q1min)
-                        },
-                        [!luuLuong.isDHDienTu ? TITLE_LUU_LUONG.q3 : TITLE_LUU_LUONG.qn]: null,
-                        [!luuLuong.isDHDienTu ? TITLE_LUU_LUONG.q2 : TITLE_LUU_LUONG.qt]: null,
-                        [!luuLuong.isDHDienTu ? TITLE_LUU_LUONG.q1 : TITLE_LUU_LUONG.qmin]: null,
-                    };
+            // if(q3n && q2t && q1min) {
+            //     setDuLieuKiemDinhCacLuuLuong(prevState => {
+            //         const newState : DuLieuChayDongHo = {
+            //             [q3n.title]: {
+            //                 value: parseFloat(q3n.value) ?? 0,
+            //                 lan_chay: getDuLieuChayCuaLuuLuong(q3n)
+            //             },
+            //             [q2t.title]: {
+            //                 value: parseFloat(q2t.value) ?? 0,
+            //                 lan_chay: getDuLieuChayCuaLuuLuong(q2t)
+            //             },
+            //             [q1min.title]: {
+            //                 value: parseFloat(q1min.value) ?? 0,
+            //                 lan_chay: getDuLieuChayCuaLuuLuong(q1min)
+            //             },
+            //             [!luuLuong.isDHDienTu ? TITLE_LUU_LUONG.q3 : TITLE_LUU_LUONG.qn]: null,
+            //             [!luuLuong.isDHDienTu ? TITLE_LUU_LUONG.q2 : TITLE_LUU_LUONG.qt]: null,
+            //             [!luuLuong.isDHDienTu ? TITLE_LUU_LUONG.q1 : TITLE_LUU_LUONG.qmin]: null,
+            //         };
     
-                    // Check if the new state is different from the previous state
-                    if (previousDuLieuRef.current != newState) {
-                        previousDuLieuRef.current = newState;
-                        return newState;
-                    }
-                    return prevState;
-                });
-            }
+            //         // Check if the new state is different from the previous state
+            //         if (previousDuLieuRef.current != newState) {
+            //             previousDuLieuRef.current = newState;
+            //             return newState;
+            //         }
+            //         return prevState;
+            //     });
+            // }
         }
     }, [luuLuong])
 
@@ -222,8 +225,18 @@ export const KiemDinhProvider = ({ children }: { children: ReactNode }) => {
         });
     };
 
-    const getDuLieuChayCuaLuuLuong = (q: { title: string; value: string }) => {
-        let data = duLieuKiemDinhCacLuuLuong[q.title]?.lan_chay;
+    const getDuLieuChayCuaLuuLuong = (q: { title: string; value: string }, indexDongHo: number) => {
+
+        const dongHo = dongHoList[indexDongHo];
+
+        const duLieuKiemDinhJSON = dongHo.du_lieu_kiem_dinh;
+        const duLieuKiemDinh = duLieuKiemDinhJSON ?
+            ((typeof duLieuKiemDinhJSON != 'string') ?
+                duLieuKiemDinhJSON : JSON.parse(duLieuKiemDinhJSON)
+            ) : null;
+
+
+        let data : Record<number, DuLieuMotLanChay> | undefined = duLieuKiemDinhCacLuuLuong[q.title]?.lan_chay;
 
         if (data) {
             const newDLKD = Object.entries(data).reduce((acc: Record<number, DuLieuMotLanChay>, [key, val]) => {
@@ -568,8 +581,8 @@ export const KiemDinhProvider = ({ children }: { children: ReactNode }) => {
             setDuLieuKiemDinhCacLuuLuong,
             setKetQua,
             themLanChayCuaLuuLuong,
-            getDuLieuChayCuaLuuLuong: (q: { title: string; value: string; }) => {
-                return getDuLieuChayCuaLuuLuong(q) || {
+            getDuLieuChayCuaLuuLuong: (q: { title: string; value: string; }, indexDongHo: number) => {
+                return getDuLieuChayCuaLuuLuong(q, indexDongHo) || {
                     1: {
                         V1: 0,
                         V2: 0,

@@ -22,23 +22,23 @@ const InputField: React.FC<{
 
     const handleNumericInput = (val: string) => {
         let rawValue = val.replace(/[^0-9.]/g, '');
-    
+
         const parts = rawValue.split('.');
         if (parts.length > 2) {
             rawValue = parts[0] + '.' + parts.slice(1).join('');
         }
-    
+
         if (rawValue.startsWith('.')) {
             rawValue = '0' + rawValue;
         }
-    
+
         if (!rawValue.includes('.')) {
             rawValue = rawValue.replace(/^0+/, '') || '0';
         }
-    
+
         setValue(rawValue);
     };
-    
+
 
     const handleEnterKey = (e: React.KeyboardEvent<HTMLInputElement>,
         index: number,
@@ -47,19 +47,15 @@ const InputField: React.FC<{
         if (e.key === 'Enter') {
             if (e.shiftKey) {
                 const prevIndex = index - 1;
-                if (prevIndex >= 0) {
-                    const prevInput = document.querySelector(`input[name="${field}-${prevIndex}"]`) as HTMLInputElement;
-                    if (prevInput) {
-                        prevInput.focus();
-                    }
+                const prevInput = document.querySelector(`input[name="${field}-${prevIndex}"]`) as HTMLInputElement;
+                if (prevInput) {
+                    prevInput.focus();
                 }
             } else {
                 const nextIndex = index + 1;
-                if (nextIndex < dongHoList.length) {
-                    const nextInput = document.querySelector(`input[name="${field}-${nextIndex}"]`) as HTMLInputElement;
-                    if (nextInput) {
-                        nextInput.focus();
-                    }
+                const nextInput = document.querySelector(`input[name="${field}-${nextIndex}"]`) as HTMLInputElement;
+                if (nextInput) {
+                    nextInput.focus();
                 }
             }
         }
@@ -80,7 +76,7 @@ const InputField: React.FC<{
                     } else {
                         setValue(e.target.value);
                     }
-                    onChange(e.target.value); 
+                    onChange(e.target.value);
                 }}
                 className="form-control"
                 style={{ width: "100%", minWidth: "130px", ...inputStyle }}
