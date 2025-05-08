@@ -502,41 +502,6 @@ export default function KiemDinhNhomDongHoNuocForm({ className, generalInfoDongH
         setDHSaved(savedDongHoList.some(dh => JSON.stringify(dh) == JSON.stringify(dongHoSelected)))
     }
 
-    // Gán giá trị khi slect dongHo
-    useEffect(() => {
-        // setFirsttabLL(true);
-        if (selectedDongHoIndex) {
-            const dongHoSelected = dongHoList[selectedDongHoIndex]
-            const duLieuKiemDinhJSON = dongHoSelected.du_lieu_kiem_dinh;
-
-            if (duLieuKiemDinhJSON) {
-                const duLieuKiemDinh = duLieuKiemDinhJSON ?
-                    ((isEditing && typeof duLieuKiemDinhJSON != 'string') ?
-                        duLieuKiemDinhJSON : JSON.parse(duLieuKiemDinhJSON)
-                    ) : null;
-                setDuLieuKiemDinhCacLuuLuong(duLieuKiemDinh.du_lieu || initialDuLieuKiemDinhCacLuuLuong);
-                setFormHieuSaiSo(duLieuKiemDinh.hieu_sai_so || initialFormHieuSaiSo);
-                const newKetQua = isDongHoDatTieuChuan(duLieuKiemDinh.hieu_sai_so);
-                setKetQua(newKetQua || null);
-            } else {
-                setFormHieuSaiSo(initialFormHieuSaiSo);
-                setDuLieuKiemDinhCacLuuLuong(initialDuLieuKiemDinhCacLuuLuong);
-            }
-
-            updateDongHoSaved(dongHoSelected);
-        }
-    }, [selectedDongHoIndex]);
-
-    useEffect(() => {
-        const handler = setTimeout(() => {
-            // updateCurrentDongHo();
-        }, 500);
-
-        return () => {
-            clearTimeout(handler);
-        };
-    }, [duLieuKiemDinhCacLuuLuong])
-
     const handleSaveAllDongHo = () => {
         const dongHoChuaKiemDinh = getDongHoChuaKiemDinh(dongHoList);
         const dongHoDaKiemDinhCount = dongHoList.length - dongHoChuaKiemDinh.length;

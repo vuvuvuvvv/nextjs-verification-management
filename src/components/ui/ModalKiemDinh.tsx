@@ -9,6 +9,7 @@ import c_tbKD from "@styles/scss/components/table-kiem-dinh.module.scss";
 import { useDongHoList } from '@/context/ListDongHoContext';
 import InputField from './InputFieldTBDHInfo';
 import { useKiemDinh } from '@/context/KiemDinhContext';
+import { DuLieuMotLanChay } from '@lib/types';
 interface ModalKiemDinhProps {
     show: boolean;
     handleClose: () => void;
@@ -17,11 +18,11 @@ interface ModalKiemDinhProps {
 type ActiveLL = { title: string; value: string } | null;
 
 export default function ModalKiemDinh({ show, handleClose }: ModalKiemDinhProps) {
-    const { luuLuong, getDuLieuChayCuaLuuLuong } = useKiemDinh();
+    const { luuLuong, getDuLieuChayCuaLuuLuong, updateLuuLuong } = useKiemDinh();
     const { dongHoList, savedDongHoList } = useDongHoList();
     const [isUsingBinhChuan, setUsingBinhChuan] = useState(false);
 
-    const [activeLL, setActiveLL] = useState<ActiveLL>(null);
+    const [activeLL, setActiveLL] = useState<ActiveLL | null>(null);
 
     useEffect(() => {
         if (luuLuong && activeLL == null) {
@@ -32,6 +33,25 @@ export default function ModalKiemDinh({ show, handleClose }: ModalKiemDinhProps)
     const handleSwitchLL = (ll: ActiveLL) => {
         if (ll) setActiveLL(ll);
     };
+
+    const debounceRef = useRef<NodeJS.Timeout | null>(null)
+
+    const handleChange = (
+        soLan: number,
+        indexDongHo: number,
+        newDL: DuLieuMotLanChay
+    ) => {
+        if (debounceRef.current) {
+            clearTimeout(debounceRef.current);
+        }
+
+        debounceRef.current = setTimeout(async () => {
+            if (activeLL) {
+                const oldDL = getDuLieuChayCuaLuuLuong(activeLL, indexDongHo);
+                updateLuuLuong(activeLL, { ...oldDL, [soLan]: newDL })
+            }
+        }, 700);
+    }
 
     return (
         <Modal show={show} dialogClassName={`modal-kiem-dinh`} onHide={handleClose}>
@@ -113,32 +133,18 @@ export default function ModalKiemDinh({ show, handleClose }: ModalKiemDinhProps)
                         <tbody>
                             {activeLL && (() => {
                                 const rows: JSX.Element[] = [];
-                                for (let index = 0; index < dongHoList.length; index++) {
-                                    const dongHo = dongHoList[index];
+                                for (let indexDongHo = 0; indexDongHo < dongHoList.length; indexDongHo++) {
+                                    const dongHo = dongHoList[indexDongHo];
 
-                                    // const duLieuKiemDinhJSON = dongHo.du_lieu_kiem_dinh;
-                                    // const duLieuKiemDinh = duLieuKiemDinhJSON ?
-                                    //     ((typeof duLieuKiemDinhJSON != 'string') ?
-                                    //         duLieuKiemDinhJSON : JSON.parse(duLieuKiemDinhJSON)
-                                    //     ) : null;
-
-
-                                    const duLieuCacLanChay = getDuLieuChayCuaLuuLuong(activeLL, index);
-                                    // const status = duLieuKiemDinh ? duLieuKiemDinh.ket_qua : null;
-                                    // const objHss = duLieuKiemDinh ? duLieuKiemDinh.hieu_sai_so : null;
-                                    // const objMf = duLieuKiemDinh ? duLieuKiemDinh.mf : null;
-
-                                    // const isDHDienTu = Boolean((dongHo.ccx && ["1", "2"].includes(dongHo.ccx)) || dongHo.kieu_thiet_bi == "Điện tử");
-
+                                    const duLieuCacLanChay = getDuLieuChayCuaLuuLuong(activeLL, indexDongHo);
                                     Object.entries(duLieuCacLanChay).map(([key, dl], i) => {
-                                        const rowIndex = index * Object.keys(duLieuCacLanChay).length + i;
+                                        const rowIndex = indexDongHo * Object.keys(duLieuCacLanChay).length + i;
 
                                         rows.push(
-                                            <tr key={index + "_" + i}>
+                                            <tr key={indexDongHo + "_" + i}>
                                                 {i == 0 && <td rowSpan={Object.keys(duLieuCacLanChay).length} style={{ padding: "10px" }}>
                                                     <span>ĐH {dongHo.index}</span>
                                                 </td>}
-
                                                 <td>
                                                     {i + 1}
                                                 </td>
@@ -148,7 +154,7 @@ export default function ModalKiemDinh({ show, handleClose }: ModalKiemDinhProps)
                                                         isNumber={true}
                                                         value={dl.V1.toString()}
                                                         // onChange={(value) => handleInputChange(index, "serial", value)}
-                                                        onChange={(value) => { }}
+                                                        onChange={(value) => { handleChange((i + 1), indexDongHo, { ...dl, V1: value }) }}
                                                         disabled={savedDongHoList.some(dh => JSON.stringify(dh) == JSON.stringify(dongHo)) || savedDongHoList.length == dongHoList.length}
                                                         // error={errorsList[index]?.serial}
                                                         name={`v1`}
@@ -160,7 +166,7 @@ export default function ModalKiemDinh({ show, handleClose }: ModalKiemDinhProps)
                                                         isNumber={true}
                                                         value={dl.V2.toString()}
                                                         // onChange={(value) => handleInputChange(index, "serial", value)}
-                                                        onChange={(value) => { }}
+                                                        onChange={(value) => { handleChange((i + 1), indexDongHo, { ...dl, V2: value }) }}
                                                         disabled={savedDongHoList.some(dh => JSON.stringify(dh) == JSON.stringify(dongHo)) || savedDongHoList.length == dongHoList.length}
                                                         // error={errorsList[index]?.serial}
                                                         name={`v2`}
@@ -172,8 +178,7 @@ export default function ModalKiemDinh({ show, handleClose }: ModalKiemDinhProps)
                                                         isNumber={true}
                                                         value={(dl.V1 - dl.V2).toString()}
                                                         // onChange={(value) => handleInputChange(index, "serial", value)}
-                                                        onChange={(value) => { }}
-                                                        disabled={savedDongHoList.some(dh => JSON.stringify(dh) == JSON.stringify(dongHo)) || savedDongHoList.length == dongHoList.length}
+                                                        disabled={true}
                                                         // error={errorsList[index]?.serial}
                                                         name={`vdh`}
                                                     />
@@ -184,7 +189,7 @@ export default function ModalKiemDinh({ show, handleClose }: ModalKiemDinhProps)
                                                         isNumber={true}
                                                         value={dl.Tdh.toString()}
                                                         // onChange={(value) => handleInputChange(index, "serial", value)}
-                                                        onChange={(value) => { }}
+                                                        onChange={(value) => { handleChange((i + 1), indexDongHo, { ...dl, Tdh: value }) }}
                                                         disabled={savedDongHoList.some(dh => JSON.stringify(dh) == JSON.stringify(dongHo)) || savedDongHoList.length == dongHoList.length}
                                                         // error={errorsList[index]?.serial}
                                                         name={`tdh`}
@@ -198,7 +203,7 @@ export default function ModalKiemDinh({ show, handleClose }: ModalKiemDinhProps)
                                                             isNumber={true}
                                                             value={(dl.Vc1 ? dl.Vc1 : 0).toString()}
                                                             // onChange={(value) => handleInputChange(index, "serial", value)}
-                                                            onChange={(value) => { }}
+                                                            onChange={(value) => { handleChange((i + 1), indexDongHo, { ...dl, Vc1: value }) }}
                                                             disabled={savedDongHoList.some(dh => JSON.stringify(dh) == JSON.stringify(dongHo)) || savedDongHoList.length == dongHoList.length}
                                                             // error={errorsList[index]?.serial}
                                                             name={`vc1`}
@@ -210,7 +215,7 @@ export default function ModalKiemDinh({ show, handleClose }: ModalKiemDinhProps)
                                                             isNumber={true}
                                                             value={(dl.Vc2 ? dl.Vc2 : 0).toString()}
                                                             // onChange={(value) => handleInputChange(index, "serial", value)}
-                                                            onChange={(value) => { }}
+                                                            onChange={(value) => { handleChange((i + 1), indexDongHo, { ...dl, Vc2: value }) }}
                                                             disabled={savedDongHoList.some(dh => JSON.stringify(dh) == JSON.stringify(dongHo)) || savedDongHoList.length == dongHoList.length}
                                                             // error={errorsList[index]?.serial}
                                                             name={`vc2`}
@@ -223,7 +228,7 @@ export default function ModalKiemDinh({ show, handleClose }: ModalKiemDinhProps)
                                                         isNumber={true}
                                                         value={dl.Vc.toString()}
                                                         // onChange={(value) => handleInputChange(index, "serial", value)}
-                                                        onChange={(value) => { }}
+                                                        onChange={(value) => { handleChange((i + 1), indexDongHo, { ...dl, Vc: value }) }}
                                                         disabled={savedDongHoList.some(dh => JSON.stringify(dh) == JSON.stringify(dongHo)) || savedDongHoList.length == dongHoList.length || !isUsingBinhChuan}
                                                         // error={errorsList[index]?.serial}
                                                         name={`vc`}
@@ -235,7 +240,7 @@ export default function ModalKiemDinh({ show, handleClose }: ModalKiemDinhProps)
                                                         isNumber={true}
                                                         value={dl.Tc.toString()}
                                                         // onChange={(value) => handleInputChange(index, "serial", value)}
-                                                        onChange={(value) => { }}
+                                                        onChange={(value) => { handleChange((i + 1), indexDongHo, { ...dl, Tc: value }) }}
                                                         disabled={savedDongHoList.some(dh => JSON.stringify(dh) == JSON.stringify(dongHo)) || savedDongHoList.length == dongHoList.length}
                                                         // error={errorsList[index]?.serial}
                                                         name={`tc`}

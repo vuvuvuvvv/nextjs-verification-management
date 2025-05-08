@@ -3,7 +3,7 @@ import { DongHo } from "@lib/types";
 import React, { useEffect, useState } from "react";
 
 const InputField: React.FC<{
-    onChange: (val: string) => void;
+    onChange?: (val: number) => void;
     disabled: boolean;
     isNumber?: boolean;
     error?: string;
@@ -18,6 +18,12 @@ const InputField: React.FC<{
     useEffect(() => {
         setValue(value || "");
     }, [value]);
+
+    useEffect(() => {
+        if(val && onChange) {
+            onChange(Number(val) ?? 0);
+        }
+    }, [val]);
 
 
     const handleNumericInput = (val: string) => {
@@ -76,7 +82,6 @@ const InputField: React.FC<{
                     } else {
                         setValue(e.target.value);
                     }
-                    onChange(e.target.value);
                 }}
                 className="form-control"
                 style={{ width: "100%", minWidth: "130px", ...inputStyle }}
