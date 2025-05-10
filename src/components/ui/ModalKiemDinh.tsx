@@ -10,6 +10,7 @@ import { useDongHoList } from '@/context/ListDongHoContext';
 import InputField from './InputFieldTBDHInfo';
 import { useKiemDinh } from '@/context/KiemDinhContext';
 import { DuLieuMotLanChay } from '@lib/types';
+import { getHieuSaiSo, getSaiSoDongHo } from '@lib/system-function';
 interface ModalKiemDinhProps {
     show: boolean;
     handleClose: () => void;
@@ -51,7 +52,17 @@ export default function ModalKiemDinh({ show, handleClose }: ModalKiemDinhProps)
         //         updateLuuLuong(activeLL, { ...oldDL, [soLan]: newDL }, indexDongHo)
         //     }
         // }, 700);
-        
+
+        if (!isUsingBinhChuan) {
+            const vc1 = newDL.Vc1 ? parseFloat(newDL.Vc1.toString()) : null;
+            const vc2 = newDL.Vc2 ? parseFloat(newDL.Vc2.toString()) : null;
+
+            newDL = {
+                ...newDL,
+                Vc: (vc1 && vc2 && vc2 > vc1 ? vc2 - vc1 : 0)
+            }
+        }
+
         if (activeLL) {
             const oldDL = getDuLieuChayCuaLuuLuong(activeLL, indexDongHo);
             updateLuuLuong(activeLL, { ...oldDL, [soLan]: newDL }, indexDongHo)
@@ -142,8 +153,12 @@ export default function ModalKiemDinh({ show, handleClose }: ModalKiemDinhProps)
                                     const dongHo = dongHoList[indexDongHo];
 
                                     const duLieuCacLanChay = getDuLieuChayCuaLuuLuong(activeLL, indexDongHo);
+
+                                    const hss = getHieuSaiSo(duLieuCacLanChay);
+
                                     Object.entries(duLieuCacLanChay).map(([key, dl], i) => {
                                         const rowIndex = indexDongHo * Object.keys(duLieuCacLanChay).length + i;
+                                        const ss = parseFloat((getSaiSoDongHo(dl) ?? 0).toFixed(2));
 
                                         rows.push(
                                             <tr key={indexDongHo + "_" + i}>
@@ -256,8 +271,10 @@ export default function ModalKiemDinh({ show, handleClose }: ModalKiemDinhProps)
                                                         name={`tc`}
                                                     />
                                                 </td>
-                                                <td style={{ width: "50px" }}>1</td>
-                                                <td style={{ width: "50px" }}>1</td>
+                                                <td style={{ width: "50px", padding: "6px" }}>{ss}</td>
+                                                {i == 0 && <td rowSpan={Object.keys(duLieuCacLanChay).length} style={{ width: "50px", padding: "6px" }}>
+                                                    {parseFloat((hss ?? 0).toFixed(2))}
+                                                </td>}
                                             </tr>
                                         );
                                     });
