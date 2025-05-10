@@ -184,7 +184,6 @@ export default function KiemDinhNhomDongHoNuocForm({ className, generalInfoDongH
     } = useDongHoList();
 
     const {
-        getDuLieuKiemDinhJSON,
         formHieuSaiSo,
         setDuLieuKiemDinhCacLuuLuong,
         setFormHieuSaiSo, setKetQua,

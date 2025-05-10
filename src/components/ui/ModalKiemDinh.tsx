@@ -45,12 +45,17 @@ export default function ModalKiemDinh({ show, handleClose }: ModalKiemDinhProps)
             clearTimeout(debounceRef.current);
         }
 
-        debounceRef.current = setTimeout(async () => {
-            if (activeLL) {
-                const oldDL = getDuLieuChayCuaLuuLuong(activeLL, indexDongHo);
-                updateLuuLuong(activeLL, { ...oldDL, [soLan]: newDL })
-            }
-        }, 700);
+        // debounceRef.current = setTimeout(async () => {
+        //     if (activeLL) {
+        //         const oldDL = getDuLieuChayCuaLuuLuong(activeLL, indexDongHo);
+        //         updateLuuLuong(activeLL, { ...oldDL, [soLan]: newDL }, indexDongHo)
+        //     }
+        // }, 700);
+        
+        if (activeLL) {
+            const oldDL = getDuLieuChayCuaLuuLuong(activeLL, indexDongHo);
+            updateLuuLuong(activeLL, { ...oldDL, [soLan]: newDL }, indexDongHo)
+        }
     }
 
     return (
@@ -176,7 +181,7 @@ export default function ModalKiemDinh({ show, handleClose }: ModalKiemDinhProps)
                                                     <InputField
                                                         index={rowIndex}
                                                         isNumber={true}
-                                                        value={(dl.V1 - dl.V2).toString()}
+                                                        value={(dl.V2 > dl.V1) ? (dl.V2 - dl.V1).toString() : "0"}
                                                         // onChange={(value) => handleInputChange(index, "serial", value)}
                                                         disabled={true}
                                                         // error={errorsList[index]?.serial}
@@ -226,7 +231,12 @@ export default function ModalKiemDinh({ show, handleClose }: ModalKiemDinhProps)
                                                     <InputField
                                                         index={rowIndex}
                                                         isNumber={true}
-                                                        value={dl.Vc.toString()}
+                                                        value={
+                                                            isUsingBinhChuan ? dl.Vc.toString()
+                                                                : (
+                                                                    (dl.Vc2 && dl.Vc1 && dl.Vc2 > dl.Vc1) ?
+                                                                        (parseFloat(dl.Vc2.toString()) - parseFloat(dl.Vc1.toString())).toString()
+                                                                        : "0")}
                                                         // onChange={(value) => handleInputChange(index, "serial", value)}
                                                         onChange={(value) => { handleChange((i + 1), indexDongHo, { ...dl, Vc: value }) }}
                                                         disabled={savedDongHoList.some(dh => JSON.stringify(dh) == JSON.stringify(dongHo)) || savedDongHoList.length == dongHoList.length || !isUsingBinhChuan}

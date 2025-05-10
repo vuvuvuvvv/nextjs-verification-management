@@ -107,25 +107,25 @@ export const getVToiThieu = (q: string | number, d: string | number) => {
     }
 }
 
-export const getHieuSaiSo = (formValues: TinhSaiSoValueTabs) => {
-    try {
-        const hasErrorFormValues = Object.values(formValues).some(({ V1, V2 }) => (Number(V1) === 0 && Number(V2) === 0) || Number(V2) - Number(V1) <= 0);
-        if (hasErrorFormValues) return null;
-        const values = Object.values(formValues)
-            .map(getSaiSoDongHo)
-            .filter(value => value !== null);
+// export const getHieuSaiSo = (formValues: TinhSaiSoValueTabs) => {
+//     try {
+//         const hasErrorFormValues = Object.values(formValues).some(({ V1, V2 }) => (Number(V1) === 0 && Number(V2) === 0) || Number(V2) - Number(V1) <= 0);
+//         if (hasErrorFormValues) return null;
+//         const values = Object.values(formValues)
+//             .map(getSaiSoDongHo)
+//             .filter(value => value !== null);
 
-        if (values.length === 0) return null;
+//         if (values.length === 0) return null;
 
-        const result = values.reduce((acc, curr, index) => {
-            return index === 0 ? curr : acc - curr;
-        }, 0);
+//         const result = values.reduce((acc, curr, index) => {
+//             return index === 0 ? curr : acc - curr;
+//         }, 0);
 
-        return Number(result.toFixed(3));
-    } catch (e) {
-        return null;
-    }
-}
+//         return Number(result.toFixed(3));
+//     } catch (e) {
+//         return null;
+//     }
+// }
 
 export const isDongHoDatTieuChuan = (formHieuSaiSo: { hss: number | null }[]) => {
     const lan1 = formHieuSaiSo[0].hss;

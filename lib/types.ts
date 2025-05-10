@@ -39,7 +39,6 @@ export interface RegisterCredentials {
     email: string;
 }
 
-
 export interface PDM {
     ma_tim_dong_ho_pdm: string | null,
     ten_dong_ho: string | null,
@@ -58,7 +57,6 @@ export interface PDM {
     ngay_het_han: Date | null,
     anh_pdm: string | null,
 }
-
 
 export interface PDMFilterParameters {
     // ma_tim_dong_ho_pdm: string | null,
@@ -167,7 +165,7 @@ export type DuLieuCacLanChay = Record<number, DuLieuMotLanChay>
 */
 export type DuLieuChayDiemLuuLuong = {
     value: number | null;
-    lan_chay: Record<number, DuLieuMotLanChay>;
+    lan_chay: DuLieuCacLanChay;
 };
 
 // Tùy theo loại đồng hồ chia ra chạy q 123 hoặc n t min:

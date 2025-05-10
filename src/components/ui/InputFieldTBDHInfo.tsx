@@ -1,8 +1,6 @@
-import { useDongHoList } from "@/context/ListDongHoContext";
-import { DongHo } from "@lib/types";
 import React, { useEffect, useState } from "react";
 
-const InputField: React.FC<{
+interface InputFieldProps {
     onChange?: (val: number) => void;
     disabled: boolean;
     isNumber?: boolean;
@@ -10,82 +8,74 @@ const InputField: React.FC<{
     name: string;
     index: number;
     value?: string;
-    inputStyle?: React.CSSProperties; // ✅ thêm prop mới
-}> = React.memo(({ onChange, disabled, error, name, index, value, inputStyle, isNumber }) => {
-    const { dongHoList } = useDongHoList();
-    const [val, setValue] = useState<string>(value || (isNumber ? "0" : ""));
+    inputStyle?: React.CSSProperties;
+}
 
+const InputField: React.FC<InputFieldProps> = React.memo(({
+    onChange,
+    disabled,
+    error,
+    name,
+    index,
+    value = "",
+    inputStyle,
+    isNumber,
+}) => {
+    const [val, setVal] = useState<string>(value);
+
+    // Khi prop `value` thay đổi từ parent thì sync lại
     useEffect(() => {
-        setValue(value || "");
+        setVal(value);
     }, [value]);
 
-    useEffect(() => {
-        if(val && onChange) {
-            onChange(Number(val) ?? 0);
-        }
-    }, [val]);
-
-
-    const handleNumericInput = (val: string) => {
-        let rawValue = val.replace(/[^0-9.]/g, '');
-
-        const parts = rawValue.split('.');
+    // Sanitize chỉ chứa số và dấu chấm
+    const sanitizeNumber = (raw: string) => {
+        let cleaned = raw.replace(/[^0-9.]/g, "");
+        const parts = cleaned.split(".");
         if (parts.length > 2) {
-            rawValue = parts[0] + '.' + parts.slice(1).join('');
+            cleaned = parts[0] + "." + parts.slice(1).join("");
         }
-
-        if (rawValue.startsWith('.')) {
-            rawValue = '0' + rawValue;
-        }
-
-        if (!rawValue.includes('.')) {
-            rawValue = rawValue.replace(/^0+/, '') || '0';
-        }
-
-        setValue(rawValue);
+        if (cleaned.startsWith(".")) cleaned = "0" + cleaned;
+        if (!cleaned.includes(".")) cleaned = cleaned.replace(/^0+/, "") || "0";
+        return cleaned;
     };
 
-
-    const handleEnterKey = (e: React.KeyboardEvent<HTMLInputElement>,
-        index: number,
-        field: string,
-    ) => {
-        if (e.key === 'Enter') {
-            if (e.shiftKey) {
-                const prevIndex = index - 1;
-                const prevInput = document.querySelector(`input[name="${field}-${prevIndex}"]`) as HTMLInputElement;
-                if (prevInput) {
-                    prevInput.focus();
-                }
-            } else {
-                const nextIndex = index + 1;
-                const nextInput = document.querySelector(`input[name="${field}-${nextIndex}"]`) as HTMLInputElement;
-                if (nextInput) {
-                    nextInput.focus();
-                }
-            }
-        }
+    // Gọi onChange khi user rời khỏi ô (onBlur)
+    const handleBlur = () => {
+        if (!onChange) return;
+        const num = isNumber ? Number(val) || 0 : NaN;
+        onChange(num);
     };
-    // todo
+
+    // Nhấn Enter để focus lên/xuống
+    const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+        if (e.key !== "Enter") return;
+        const offset = e.shiftKey ? -1 : 1;
+        const nextName = `${name}-${index + offset}`;
+        const nextInput = document.querySelector(
+            `input[name="${nextName}"]`
+        ) as HTMLInputElement;
+        nextInput?.focus();
+    };
 
     return (
         <>
             <input
-                onKeyDown={(e) => handleEnterKey(e, index, name)}
-                autoComplete="off"
+                name={`${name}-${index}`}
                 type="text"
                 value={val}
                 disabled={disabled}
-                onChange={(e) => {
-                    if (isNumber) {
-                        handleNumericInput(e.target.value)
-                    } else {
-                        setValue(e.target.value);
-                    }
+                onChange={e => {
+                    const next = isNumber
+                        ? sanitizeNumber(e.target.value)
+                        : e.target.value;
+                    setVal(next);
                 }}
+                onBlur={handleBlur}
+                onKeyDown={handleKeyDown}
                 className="form-control"
-                style={{ width: "100%", minWidth: "130px", ...inputStyle }}
-                name={name + "-" + index}
+                style={{ width: "100%", minWidth: 130, ...inputStyle }}
+                autoComplete="off"
             />
             {error && (
                 <small className="w-100 text-center text-danger">

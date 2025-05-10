@@ -195,7 +195,7 @@ export const DongHoListProvider = ({ dbName, children }: DongHoListProviderProps
     }, [savedDongHoList]);
 
     useEffect(() => {
-        console.log(dongHoList);
+        // console.log(dongHoList);
     }, [dongHoList]);
 
     const getGeneralInfo = (dongHo: DongHo): GeneralInfoDongHo => {

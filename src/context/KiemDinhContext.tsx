@@ -25,7 +25,7 @@ interface KiemDinhContextType {
     lanChayMoi: DuLieuCacLanChay;
     luuLuong: LuuLuong | null;
     setLuuLuong: (luuLuong: LuuLuong) => void;
-    updateLuuLuong: (q: { title: string; value: string }, duLieuChay: DuLieuCacLanChay) => void;
+    updateLuuLuong: (q: { title: string; value: string }, duLieuChay: DuLieuCacLanChay, indexDongHo: number) => void;
 
     setDuLieuKiemDinhCacLuuLuong: (duLieu: DuLieuChayDongHo) => void;
     updateSoDongHoChuan: (q: { title: string; value: string }, index: number, field: keyof DuLieuMotLanChay, value: string) => void;
@@ -44,6 +44,8 @@ export const KiemDinhProvider = ({ children }: { children: ReactNode }) => {
     const { dongHoList, setDongHoList } = useDongHoList();
 
     const [randomT, setRandomT] = useState(parseFloat((Math.random() * (25 - 22) + 22).toFixed(1)));
+
+    const debounceSetDHListRef = useRef<NodeJS.Timeout | null>(null)
 
     const lanChayMoi: DuLieuCacLanChay = {
         1: {
@@ -163,60 +165,35 @@ export const KiemDinhProvider = ({ children }: { children: ReactNode }) => {
         }
     }
 
-    const updateLuuLuong = (q: { title: string; value: string }, duLieuChay: DuLieuCacLanChay | null = null) => {
-        if (duLieuChay == null) {
-            duLieuChay = {
-                1: {
-                    V1: 0,
-                    V2: 0,
-                    Vc1: "0",
-                    Vc2: "0",
-                    Vc: "0",
-                    Tdh: randomT,
-                    Tc: randomT,
-                    ...(vChuanDongBoCacLL?.[q.title]?.[1] || {})
-                },
-                2: {
-                    V1: 0,
-                    V2: 0,
-                    Vc1: "0",
-                    Vc2: "0",
-                    Vc: "0",
-                    Tdh: randomT,
-                    Tc: randomT
-                },
-            }
+    const updateLuuLuong = (q: { title: string; value: string }, duLieuChay: DuLieuCacLanChay | null = null, indexDongHo: number) => {
+        const dongHo = dongHoList[indexDongHo] ?? null;
+
+        const duLieuKiemDinhJSON = dongHo.du_lieu_kiem_dinh;
+        const duLieuKiemDinh = duLieuKiemDinhJSON ?
+            ((typeof duLieuKiemDinhJSON != 'string') ?
+                duLieuKiemDinhJSON : JSON.parse(duLieuKiemDinhJSON)
+            ) : null;
+        const du_lieu = { ...duLieuKiemDinh.du_lieu, [q.title]: {
+            value: q.value,
+            lan_chay: duLieuChay
+        } }
+        const newDLKD = {
+            ...duLieuKiemDinh,
+            du_lieu: du_lieu
+        };
+
+        const newDHList = [...dongHoList];
+        newDHList[indexDongHo] = { ...dongHo, du_lieu_kiem_dinh: JSON.stringify(newDLKD) };
+        if (debounceSetDHListRef.current) {
+            clearTimeout(debounceSetDHListRef.current);
         }
-        const value = isNaN(Number(q.value)) ? 0 : Number(q.value);
-        const keyOfLuuLuongDHDienTu = [TITLE_LUU_LUONG.q3, TITLE_LUU_LUONG.q2, TITLE_LUU_LUONG.q1];
-        if (q.title) {
-            let key = q.title;
-            const isDHDienTu = keyOfLuuLuongDHDienTu.includes(q.title);
 
+        // debounceSetDHListRef.current = setTimeout(() => { 
+        //     setDongHoList(newDHList);
+        //  }, 1000);
+        
+        setDongHoList(newDHList);
 
-            const newState = {
-                ...prevState,
-                [key]: {
-                    value: value,
-                    lan_chay: {
-                        ...duLieuChay
-                    }
-                },
-                [!isDHDienTu ? TITLE_LUU_LUONG.q3 : TITLE_LUU_LUONG.qn]: null,
-                [!isDHDienTu ? TITLE_LUU_LUONG.q2 : TITLE_LUU_LUONG.qt]: null,
-                [!isDHDienTu ? TITLE_LUU_LUONG.q1 : TITLE_LUU_LUONG.qmin]: null,
-            };
-
-            // Check if the new state is different from the previous state
-            if (previousDuLieuRef.current != newState) {
-                previousDuLieuRef.current = newState;
-                return newState;
-            }
-
-            setDuLieuKiemDinhCacLuuLuong(prevState => {
-                return prevState;
-            });
-        }
     };
 
     const removeKiemDinh = (id: string) => {
@@ -236,9 +213,8 @@ export const KiemDinhProvider = ({ children }: { children: ReactNode }) => {
             ((typeof duLieuKiemDinhJSON != 'string') ?
                 duLieuKiemDinhJSON : JSON.parse(duLieuKiemDinhJSON)
             ) : null;
-        console.log(duLieuKiemDinh);
 
-        let data: Record<number, DuLieuMotLanChay> | undefined = duLieuKiemDinh.du_lieu[q.title]?.lan_chay;
+        let data: Record<number, DuLieuMotLanChay> | null = duLieuKiemDinh.du_lieu[q.title]?.lan_chay;
 
         if (data) {
             const newDLKD = Object.entries(data).reduce((acc: Record<number, DuLieuMotLanChay>, [key, val]) => {
@@ -251,14 +227,13 @@ export const KiemDinhProvider = ({ children }: { children: ReactNode }) => {
             }, {})
             return newDLKD;
         }
-
         return {
             1: {
                 V1: 0,
                 V2: 0,
-                Vc1: "0",
-                Vc2: "0",
-                Vc: "0",
+                Vc1: 0,
+                Vc2: 0,
+                Vc: 0,
                 Tdh: randomT,
                 Tc: randomT,
                 ...(vChuanDongBoCacLL?.[q.title]?.[1] || {})
@@ -266,9 +241,9 @@ export const KiemDinhProvider = ({ children }: { children: ReactNode }) => {
             2: {
                 V1: 0,
                 V2: 0,
-                Vc1: "0",
-                Vc2: "0",
-                Vc: "0",
+                Vc1: 0,
+                Vc2: 0,
+                Vc: 0,
                 Tdh: randomT,
                 Tc: randomT,
                 ...(vChuanDongBoCacLL?.[q.title]?.[2] || {})
