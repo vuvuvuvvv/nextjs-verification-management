@@ -1,5 +1,5 @@
 import { TITLE_LUU_LUONG } from '@lib/system-constant';
-import { isDongHoDatTieuChuan } from '@lib/system-function';
+import { getHieuSaiSo, isDongHoDatTieuChuan } from '@lib/system-function';
 import { DuLieuChayDongHo, DuLieuChayDiemLuuLuong, DuLieuMotLanChay, DuLieuCacLanChay, VChuanDongBoCacLL } from '@lib/types';
 import React, { createContext, useState, useContext, ReactNode, useRef, useEffect } from 'react';
 import { useDongHoList } from './ListDongHoContext';
@@ -143,20 +143,20 @@ export const KiemDinhProvider = ({ children }: { children: ReactNode }) => {
     const [ketQua, setKetQua] = useState<boolean | null>(null);
     const [vChuanDongBoCacLL, setVChuanDongBoCacLL] = useState<VChuanDongBoCacLL>({})
 
-    const updateSoDongHoChuan = (q: { title: string; value: string }, index: number, field: keyof DuLieuMotLanChay, value: string) => {
+    const updateSoDongHoChuan = (q: { title: string; value: string }, soLan: number, field: keyof DuLieuMotLanChay, value: string) => {
         const qValue = isNaN(Number(q.value)) ? 0 : Number(q.value);
-        if (q.title && qValue && index > 0 && field && value) {
+        if (q.title && qValue && soLan > 0 && field && value) {
             let key = q.title;
 
             setVChuanDongBoCacLL(prevState => {
                 const prevVLL = prevState[key] || null;
-                const prevV = prevVLL ? prevVLL[index] : null;
-                const nextVL = prevVLL ? prevVLL[index + 1] : null;
+                const prevV = prevVLL ? prevVLL[soLan] : null;
+                const nextVL = prevVLL ? prevVLL[soLan + 1] : null;
                 const newState: VChuanDongBoCacLL = {
                     ...prevState,
                     [key]: {
                         ...prevVLL,
-                        [index]: prevV ? { ...prevV, [field]: value } : { [field]: value },
+                        [soLan]: prevV ? { ...prevV, [field]: value } : { [field]: value },
                         // [index + 1]: nextVL ? { ...nextVL, Vc1: value } : { Vc1: value, Vc2: "-1" },
                     }
                 };
@@ -164,6 +164,15 @@ export const KiemDinhProvider = ({ children }: { children: ReactNode }) => {
             });
         }
     }
+
+    const indexMap: Record<string, number> = {
+        'Q3': 0,
+        'Qn': 0,
+        'Q2': 1,
+        'Qt': 1,
+        'Q1': 2,
+        'Qmin': 2
+    };
 
     const updateLuuLuong = (q: { title: string; value: string }, duLieuChay: DuLieuCacLanChay | null = null, indexDongHo: number) => {
         const dongHo = dongHoList[indexDongHo] ?? null;
@@ -173,14 +182,28 @@ export const KiemDinhProvider = ({ children }: { children: ReactNode }) => {
             ((typeof duLieuKiemDinhJSON != 'string') ?
                 duLieuKiemDinhJSON : JSON.parse(duLieuKiemDinhJSON)
             ) : null;
-        const du_lieu = { ...duLieuKiemDinh.du_lieu, [q.title]: {
-            value: q.value,
-            lan_chay: duLieuChay
-        } }
+
+        // Cập nhật dữ liệu chạy
+        const du_lieu = {
+            ...duLieuKiemDinh.du_lieu, [q.title]: {
+                value: q.value,
+                lan_chay: duLieuChay
+            }
+        }
+
+        // Tính hiệu sai số
+        const tmpHss = duLieuKiemDinh.hieu_sai_so;
+        const index = indexMap[q.title];
+        tmpHss[index].hss = duLieuChay ? getHieuSaiSo(duLieuChay) : null;
+
+        // Cập nhật dữ liệu cho Dữ liệu kiểm định
         const newDLKD = {
-            ...duLieuKiemDinh,
-            du_lieu: du_lieu
+            du_lieu: du_lieu,
+            hieu_sai_so: [...tmpHss],
+            ket_qua: isDongHoDatTieuChuan(tmpHss)
         };
+
+        console.log(newDLKD);
 
         const newDHList = [...dongHoList];
         newDHList[indexDongHo] = { ...dongHo, du_lieu_kiem_dinh: JSON.stringify(newDLKD) };
@@ -191,7 +214,7 @@ export const KiemDinhProvider = ({ children }: { children: ReactNode }) => {
         // debounceSetDHListRef.current = setTimeout(() => { 
         //     setDongHoList(newDHList);
         //  }, 1000);
-        
+
         setDongHoList(newDHList);
 
     };

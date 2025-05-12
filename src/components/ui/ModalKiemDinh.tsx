@@ -9,7 +9,7 @@ import c_tbKD from "@styles/scss/components/table-kiem-dinh.module.scss";
 import { useDongHoList } from '@/context/ListDongHoContext';
 import InputField from './InputFieldTBDHInfo';
 import { useKiemDinh } from '@/context/KiemDinhContext';
-import { DuLieuMotLanChay } from '@lib/types';
+import { DuLieuCacLanChay, DuLieuMotLanChay } from '@lib/types';
 import { getHieuSaiSo, getSaiSoDongHo } from '@lib/system-function';
 interface ModalKiemDinhProps {
     show: boolean;
@@ -40,7 +40,8 @@ export default function ModalKiemDinh({ show, handleClose }: ModalKiemDinhProps)
     const handleChange = (
         soLan: number,
         indexDongHo: number,
-        newDL: DuLieuMotLanChay
+        newDL: DuLieuMotLanChay,
+        field: keyof DuLieuMotLanChay
     ) => {
         if (debounceRef.current) {
             clearTimeout(debounceRef.current);
@@ -61,11 +62,42 @@ export default function ModalKiemDinh({ show, handleClose }: ModalKiemDinhProps)
                 ...newDL,
                 Vc: (vc1 && vc2 && vc2 > vc1 ? vc2 - vc1 : 0)
             }
+        } else {
+            newDL = {
+                ...newDL,
+                Vc1: "0",
+                Vc2: "0"
+            }
         }
 
         if (activeLL) {
             const oldDL = getDuLieuChayCuaLuuLuong(activeLL, indexDongHo);
-            updateLuuLuong(activeLL, { ...oldDL, [soLan]: newDL }, indexDongHo)
+
+
+            // Tạo 1 bản sao để cập nhật lần chạy hiện tại
+            let updatedDL: DuLieuCacLanChay = { ...oldDL, [soLan]: newDL };
+            const nextSoLan = soLan + 1;
+            if (oldDL[nextSoLan]) {
+                if (field === "V2") {
+                    updatedDL[nextSoLan] = {
+                        ...oldDL[nextSoLan],
+                        // Cập nhật V1 của lần chạy tiếp theo
+                        V1: parseFloat(newDL.V2.toString())
+                    };
+                }
+                if (field === "Vc2") {
+                    updatedDL[nextSoLan] = {
+                        ...oldDL[nextSoLan],
+                        // Cập nhật Vc1 của lần chạy tiếp theo
+                        Vc1: parseFloat((newDL.Vc2 ?? 0).toString())
+                    };
+                }
+            }
+            updateLuuLuong(activeLL, updatedDL, indexDongHo);
+
+
+
+            // updateLuuLuong(activeLL, { ...oldDL, [soLan]: newDL }, indexDongHo)
         }
     }
 
@@ -174,7 +206,7 @@ export default function ModalKiemDinh({ show, handleClose }: ModalKiemDinhProps)
                                                         isNumber={true}
                                                         value={dl.V1.toString()}
                                                         // onChange={(value) => handleInputChange(index, "serial", value)}
-                                                        onChange={(value) => { handleChange((i + 1), indexDongHo, { ...dl, V1: value }) }}
+                                                        onChange={(value) => { handleChange((i + 1), indexDongHo, { ...dl, V1: value }, "V1") }}
                                                         disabled={savedDongHoList.some(dh => JSON.stringify(dh) == JSON.stringify(dongHo)) || savedDongHoList.length == dongHoList.length}
                                                         // error={errorsList[index]?.serial}
                                                         name={`v1`}
@@ -186,7 +218,7 @@ export default function ModalKiemDinh({ show, handleClose }: ModalKiemDinhProps)
                                                         isNumber={true}
                                                         value={dl.V2.toString()}
                                                         // onChange={(value) => handleInputChange(index, "serial", value)}
-                                                        onChange={(value) => { handleChange((i + 1), indexDongHo, { ...dl, V2: value }) }}
+                                                        onChange={(value) => { handleChange((i + 1), indexDongHo, { ...dl, V2: value }, "V2") }}
                                                         disabled={savedDongHoList.some(dh => JSON.stringify(dh) == JSON.stringify(dongHo)) || savedDongHoList.length == dongHoList.length}
                                                         // error={errorsList[index]?.serial}
                                                         name={`v2`}
@@ -209,7 +241,7 @@ export default function ModalKiemDinh({ show, handleClose }: ModalKiemDinhProps)
                                                         isNumber={true}
                                                         value={dl.Tdh.toString()}
                                                         // onChange={(value) => handleInputChange(index, "serial", value)}
-                                                        onChange={(value) => { handleChange((i + 1), indexDongHo, { ...dl, Tdh: value }) }}
+                                                        onChange={(value) => { handleChange((i + 1), indexDongHo, { ...dl, Tdh: value }, "Tdh") }}
                                                         disabled={savedDongHoList.some(dh => JSON.stringify(dh) == JSON.stringify(dongHo)) || savedDongHoList.length == dongHoList.length}
                                                         // error={errorsList[index]?.serial}
                                                         name={`tdh`}
@@ -223,7 +255,7 @@ export default function ModalKiemDinh({ show, handleClose }: ModalKiemDinhProps)
                                                             isNumber={true}
                                                             value={(dl.Vc1 ? dl.Vc1 : 0).toString()}
                                                             // onChange={(value) => handleInputChange(index, "serial", value)}
-                                                            onChange={(value) => { handleChange((i + 1), indexDongHo, { ...dl, Vc1: value }) }}
+                                                            onChange={(value) => { handleChange((i + 1), indexDongHo, { ...dl, Vc1: value }, "Vc1") }}
                                                             disabled={savedDongHoList.some(dh => JSON.stringify(dh) == JSON.stringify(dongHo)) || savedDongHoList.length == dongHoList.length}
                                                             // error={errorsList[index]?.serial}
                                                             name={`vc1`}
@@ -235,7 +267,7 @@ export default function ModalKiemDinh({ show, handleClose }: ModalKiemDinhProps)
                                                             isNumber={true}
                                                             value={(dl.Vc2 ? dl.Vc2 : 0).toString()}
                                                             // onChange={(value) => handleInputChange(index, "serial", value)}
-                                                            onChange={(value) => { handleChange((i + 1), indexDongHo, { ...dl, Vc2: value }) }}
+                                                            onChange={(value) => { handleChange((i + 1), indexDongHo, { ...dl, Vc2: value }, "Vc2") }}
                                                             disabled={savedDongHoList.some(dh => JSON.stringify(dh) == JSON.stringify(dongHo)) || savedDongHoList.length == dongHoList.length}
                                                             // error={errorsList[index]?.serial}
                                                             name={`vc2`}
@@ -253,7 +285,7 @@ export default function ModalKiemDinh({ show, handleClose }: ModalKiemDinhProps)
                                                                         (parseFloat(dl.Vc2.toString()) - parseFloat(dl.Vc1.toString())).toString()
                                                                         : "0")}
                                                         // onChange={(value) => handleInputChange(index, "serial", value)}
-                                                        onChange={(value) => { handleChange((i + 1), indexDongHo, { ...dl, Vc: value }) }}
+                                                        onChange={(value) => { handleChange((i + 1), indexDongHo, { ...dl, Vc: value }, "Vc") }}
                                                         disabled={savedDongHoList.some(dh => JSON.stringify(dh) == JSON.stringify(dongHo)) || savedDongHoList.length == dongHoList.length || !isUsingBinhChuan}
                                                         // error={errorsList[index]?.serial}
                                                         name={`vc`}
@@ -265,7 +297,7 @@ export default function ModalKiemDinh({ show, handleClose }: ModalKiemDinhProps)
                                                         isNumber={true}
                                                         value={dl.Tc.toString()}
                                                         // onChange={(value) => handleInputChange(index, "serial", value)}
-                                                        onChange={(value) => { handleChange((i + 1), indexDongHo, { ...dl, Tc: value }) }}
+                                                        onChange={(value) => { handleChange((i + 1), indexDongHo, { ...dl, Tc: value }, "Tc") }}
                                                         disabled={savedDongHoList.some(dh => JSON.stringify(dh) == JSON.stringify(dongHo)) || savedDongHoList.length == dongHoList.length}
                                                         // error={errorsList[index]?.serial}
                                                         name={`tc`}

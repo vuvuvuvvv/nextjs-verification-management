@@ -128,13 +128,13 @@ export const getHieuSaiSo = (formValues: DuLieuCacLanChay) => {
 }
 
 export const isDongHoDatTieuChuan = (formHieuSaiSo: { hss: number | null }[]) => {
-    const lan1 = formHieuSaiSo[0].hss;
-    const lan2 = formHieuSaiSo[1].hss;
-    const lan3 = formHieuSaiSo[2].hss;
+    const Q3n = formHieuSaiSo[0].hss;
+    const Q2t = formHieuSaiSo[1].hss;
+    const Q1min = formHieuSaiSo[2].hss;
 
-    if (lan1 !== null && lan2 !== null && lan3 !== null) {
-        // return (isQ3) ? (lan1 >= -2 && lan2 >= -2 && lan3 >= -5) : (lan1 <= 2 && lan2 <= 2 && lan3 <= 5)
-        return (lan1 >= -2 && lan2 >= -2 && lan3 >= -5 && lan1 <= 2 && lan2 <= 2 && lan3 <= 5)
+    if (Q3n !== null && Q2t !== null && Q1min !== null) {
+        // return (isQ3) ? (Q3n >= -2 && Q2t >= -2 && Q1min >= -5) : (Q3n <= 2 && Q2t <= 2 && Q1min <= 5)
+        return (Q3n >= -2 && Q3n <= 2 && Q2t >= -2 && Q2t <= 2 && Q1min >= -5  && Q1min <= 5)
     }
     return null;
 }
