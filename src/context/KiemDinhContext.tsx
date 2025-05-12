@@ -1,6 +1,6 @@
 import { TITLE_LUU_LUONG } from '@lib/system-constant';
 import { getHieuSaiSo, isDongHoDatTieuChuan } from '@lib/system-function';
-import { DuLieuChayDongHo, DuLieuChayDiemLuuLuong, DuLieuMotLanChay, DuLieuCacLanChay, VChuanDongBoCacLL } from '@lib/types';
+import { DuLieuChayDongHo, DuLieuChayDiemLuuLuong, DuLieuMotLanChay, DuLieuCacLanChay, VChuanDongBoCacLL, DongHo } from '@lib/types';
 import React, { createContext, useState, useContext, ReactNode, useRef, useEffect } from 'react';
 import { useDongHoList } from './ListDongHoContext';
 
@@ -31,8 +31,8 @@ interface KiemDinhContextType {
     updateSoDongHoChuan: (q: { title: string; value: string }, index: number, field: keyof DuLieuMotLanChay, value: string) => void;
     removeKiemDinh: (id: string) => void;
     getDuLieuChayCuaLuuLuong: (q: { title: string; value: string }, indexDongHo: number) => DuLieuCacLanChay;
-    themLanChayCuaLuuLuong: (q: { title: string; value: string }) => DuLieuCacLanChay;
-    xoaLanChayCuaLuuLuong: (q: { title: string; value: string }, id: number | string) => DuLieuCacLanChay;
+    themLanChayCuaLuuLuong: (q: { title: string; value: string }) => void;
+    xoaLanChayCuaLuuLuong: (q: { title: string; value: string }) => void;
     resetLanChay: (q: { title: string; value: string }) => DuLieuCacLanChay;
     getDuLieuKiemDinhJSON: (formHieuSaiSoProp?: { hss: number | null }[]) => string;
     vChuanDongBoCacLL: VChuanDongBoCacLL;
@@ -46,26 +46,19 @@ export const KiemDinhProvider = ({ children }: { children: ReactNode }) => {
     const [randomT, setRandomT] = useState(parseFloat((Math.random() * (25 - 22) + 22).toFixed(1)));
 
     const debounceSetDHListRef = useRef<NodeJS.Timeout | null>(null)
+    const formValues = {
+        V1: 0,
+        V2: 0,
+        Vc1: 0,
+        Vc2: 0,
+        Vc: 0,
+        Tdh: randomT,
+        Tc: randomT
+    };
 
     const lanChayMoi: DuLieuCacLanChay = {
-        1: {
-            V1: 0,
-            V2: 0,
-            Vc1: 0,
-            Vc2: 0,
-            Vc: 0,
-            Tdh: randomT,
-            Tc: randomT
-        },
-        2: {
-            V1: 0,
-            V2: 0,
-            Vc1: 0,
-            Vc2: 0,
-            Vc: 0,
-            Tdh: randomT,
-            Tc: randomT
-        },
+        1: formValues,
+        2: formValues,
     };
 
     const initialDuLieuKiemDinhCacLuuLuong: DuLieuChayDongHo = {
@@ -134,9 +127,9 @@ export const KiemDinhProvider = ({ children }: { children: ReactNode }) => {
         }
     }, [luuLuong])
 
-    useEffect(() => {
-        console.log("1", dongHoList);
-    }, [duLieuKiemDinhCacLuuLuong])
+    // useEffect(() => {
+    //     console.log("1", dongHoList);
+    // }, [duLieuKiemDinhCacLuuLuong])
 
     const [formHieuSaiSo, setFormHieuSaiSo] = useState<{ hss: number | null }[]>(initialFormHieuSaiSo);
     const [formMf, setFormMf] = useState<{ mf: number | null }[]>(initialFormMf);
@@ -185,35 +178,89 @@ export const KiemDinhProvider = ({ children }: { children: ReactNode }) => {
 
         // Cập nhật dữ liệu chạy
         const du_lieu = {
-            ...duLieuKiemDinh.du_lieu, [q.title]: {
+            ...duLieuKiemDinh.du_lieu,
+            [q.title]: {
                 value: q.value,
                 lan_chay: duLieuChay
             }
         }
 
         // Tính hiệu sai số
-        const tmpHss = duLieuKiemDinh.hieu_sai_so;
+        const tmpHssDH = duLieuKiemDinh.hieu_sai_so;
         const index = indexMap[q.title];
-        tmpHss[index].hss = duLieuChay ? getHieuSaiSo(duLieuChay) : null;
+        tmpHssDH[index].hss = duLieuChay ? getHieuSaiSo(duLieuChay) : null;
 
         // Cập nhật dữ liệu cho Dữ liệu kiểm định
         const newDLKD = {
             du_lieu: du_lieu,
-            hieu_sai_so: [...tmpHss],
-            ket_qua: isDongHoDatTieuChuan(tmpHss)
+            hieu_sai_so: [...tmpHssDH],
+            ket_qua: isDongHoDatTieuChuan(tmpHssDH)
         };
 
-        console.log(newDLKD);
+        // const newDHList = [...dongHoList];
 
-        const newDHList = [...dongHoList];
+        const newDHList = dongHoList.map((dh, i) => {
+
+            const dlkdJSON = dh.du_lieu_kiem_dinh;
+            const dlkd = dlkdJSON ?
+                ((typeof dlkdJSON != 'string') ?
+                    dlkdJSON : JSON.parse(dlkdJSON)
+                ) : null;
+
+
+            const oldLC = getDuLieuChayCuaLuuLuong(q, i);
+            let newDLC: DuLieuCacLanChay;
+            if (duLieuChay) {
+                newDLC = Object.entries(duLieuChay).reduce((acc, [soLanStr, dl]) => {
+                    const soLan = Number(soLanStr);
+                    const old = oldLC[soLan];
+
+                    if (old) {
+                        acc[soLan] = {
+                            ...old,
+                            Vc1: dl.Vc1,
+                            Vc2: dl.Vc2,
+                            Vc: dl.Vc
+                        };
+                    }
+
+                    return acc;
+                }, {} as DuLieuCacLanChay);
+            } else {
+                newDLC = oldLC
+            }
+            const new_dl = {
+                ...dlkd.du_lieu,
+                [q.title]: {
+                    value: q.value,
+                    lan_chay: newDLC
+                }
+            }
+
+            // Tính hiệu sai số
+            const tmpHssDHList = dlkd.hieu_sai_so;
+            const index = indexMap[q.title];
+            tmpHssDHList[index].hss = duLieuChay ? getHieuSaiSo(newDLC) : null;
+
+            // Cập nhật dữ liệu cho Dữ liệu kiểm định
+            const newDLKDDHList = {
+                du_lieu: new_dl,
+                hieu_sai_so: [...tmpHssDHList],
+                ket_qua: isDongHoDatTieuChuan(tmpHssDHList)
+            };
+
+            return {
+                ...dh,
+                du_lieu_kiem_dinh: JSON.stringify(newDLKDDHList)
+            }
+        });
+
+
+
         newDHList[indexDongHo] = { ...dongHo, du_lieu_kiem_dinh: JSON.stringify(newDLKD) };
         if (debounceSetDHListRef.current) {
             clearTimeout(debounceSetDHListRef.current);
         }
-
-        // debounceSetDHListRef.current = setTimeout(() => { 
-        //     setDongHoList(newDHList);
-        //  }, 1000);
 
         setDongHoList(newDHList);
 
@@ -227,7 +274,7 @@ export const KiemDinhProvider = ({ children }: { children: ReactNode }) => {
         });
     };
 
-    const getDuLieuChayCuaLuuLuong = (q: { title: string; value: string }, indexDongHo: number) => {
+    const getDuLieuChayCuaLuuLuong = (q: { title: string; value: string }, indexDongHo: number): DuLieuCacLanChay => {
 
         const dongHo = dongHoList[indexDongHo];
 
@@ -275,220 +322,134 @@ export const KiemDinhProvider = ({ children }: { children: ReactNode }) => {
     }
 
     const themLanChayCuaLuuLuong = (q: { title: string; value: string }) => {
-        let updatedData: DuLieuChayDongHo = duLieuKiemDinhCacLuuLuong;
-        if (q.title) {
-            let key = q.title;
-            if (duLieuKiemDinhCacLuuLuong[key] == null) {
-                duLieuKiemDinhCacLuuLuong[key] = {
-                    value: Number(q.value) | 0,
-                    lan_chay: {
-                        1: {
-                            V1: 0,
-                            V2: 0,
-                            Vc1: 0,
-                            Vc2: 0,
-                            Vc: 0,
-                            Tdh: randomT,
-                            Tc: randomT,
-                            ...(vChuanDongBoCacLL?.[q.title]?.[1] || {})
-                        },
-                        2: {
-                            V1: 0,
-                            V2: 0,
-                            Vc1: 0,
-                            Vc2: 0,
-                            Vc: 0,
-                            Tdh: randomT,
-                            Tc: randomT,
-                            ...(vChuanDongBoCacLL?.[q.title]?.[2] || {})
-                        },
-                    }
+        const isQ123 = [TITLE_LUU_LUONG.q3, TITLE_LUU_LUONG.q2, TITLE_LUU_LUONG.q1].includes(q.title);
+        const isQntmin = [TITLE_LUU_LUONG.qn, TITLE_LUU_LUONG.qt, TITLE_LUU_LUONG.qmin].includes(q.title);
+
+        if (isQ123 || isQntmin) {
+            const newDHList = dongHoList.map((dh, indexDH) => {
+
+                const dlkdJSON = dh.du_lieu_kiem_dinh;
+                const dlkd = dlkdJSON ?
+                    ((typeof dlkdJSON != 'string') ?
+                        dlkdJSON : JSON.parse(dlkdJSON)
+                    ) : null;
+
+                const tmpHssDH = dlkd.hieu_sai_so;
+
+                const titles = isQ123
+                    ? [TITLE_LUU_LUONG.q3, TITLE_LUU_LUONG.q2, TITLE_LUU_LUONG.q1]
+                    : [TITLE_LUU_LUONG.qn, TITLE_LUU_LUONG.qt, TITLE_LUU_LUONG.qmin];
+
+                const new_dl = Object.fromEntries(
+                    Object.entries(dlkd.du_lieu).map(([qTitle, dlChay]) => {
+                        const dl = dlChay as DuLieuChayDiemLuuLuong;
+                        if (titles.includes(qTitle)) {
+                            const oldLanChay = dl.lan_chay;
+                            const nextKey = String(Object.keys(oldLanChay).length + 1);
+                            const newLanChay = {
+                                ...oldLanChay,
+                                [nextKey]: formValues,
+                            };
+
+
+                            const index = indexMap[qTitle];
+                            tmpHssDH[index].hss = newLanChay ? getHieuSaiSo(newLanChay) : null;
+
+                            return [
+                                qTitle,
+                                {
+                                    ...dl,
+                                    lan_chay: newLanChay,
+                                },
+                            ];
+                        }
+
+                        return [qTitle, dlChay];
+                    })
+                );
+
+                const newDLKDDHList = {
+                    du_lieu: new_dl,
+                    hieu_sai_so: [...tmpHssDH],
+                    ket_qua: isDongHoDatTieuChuan(tmpHssDH)
                 };
-            }
 
-            let data = duLieuKiemDinhCacLuuLuong[key]?.lan_chay;
-
-            if (data) {
-                let latest_V2 = data[Number(Object.keys(data)[Object.entries(data).length - 1])].V2
-                let latest_Vc2 = data[Number(Object.keys(data)[Object.entries(data).length - 1])].Vc2
-                let latest_Vc = data[Number(Object.keys(data)[Object.entries(data).length - 1])].Vc
-                const newIndexOfLanChay = Number(Object.keys(data)[Object.entries(data).length - 1]) + 1;
-                setDuLieuKiemDinhCacLuuLuong(prevState => {
-                    const existingData = prevState[key] || {
-                        value: 0,
-                        lan_chay: {
-                            1: {
-                                V1: 0,
-                                V2: 0,
-                                Vc1: 0,
-                                Vc2: 0,
-                                Vc: 0,
-                                Tdh: randomT,
-                                Tc: randomT,
-                                ...(vChuanDongBoCacLL?.[q.title]?.[1] || {})
-                            },
-                            2: {
-                                V1: 0,
-                                V2: 0,
-                                Vc1: 0,
-                                Vc2: 0,
-                                Vc: 0,
-                                Tdh: randomT,
-                                Tc: randomT,
-                                ...(vChuanDongBoCacLL?.[q.title]?.[2] || {})
-                            }
-                        }
-                    };
-                    updatedData = {
-                        ...prevState,
-                        [key]: {
-                            ...existingData,
-                            lan_chay: {
-                                ...data,
-                                [newIndexOfLanChay]: {
-                                    V1: latest_V2 || 0,
-                                    V2: 0,
-                                    Vc1: latest_Vc2 || 0,
-                                    Vc2: 0,
-                                    // TODO:
-                                    Vc: latest_Vc || 0,
-                                    Tdh: randomT,
-                                    Tc: randomT,
-                                    ...(vChuanDongBoCacLL?.[q.title]?.[newIndexOfLanChay] || {})
-                                }
-                            }
-                        }
-                    }
-                    return updatedData;
-                });
-            }
-        }
-        if (updatedData[q.title] == null) {
-            updatedData[q.title] = {
-                value: 0,
-                lan_chay: {
-                    1: {
-                        V1: 0,
-                        V2: 0,
-                        Vc1: 0,
-                        Vc2: 0,
-                        Vc: 0,
-                        Tdh: randomT,
-                        Tc: randomT,
-                        ...(vChuanDongBoCacLL?.[q.title]?.[1] || {})
-                    },
-                    2: {
-                        V1: 0,
-                        V2: 0,
-                        Vc1: 0,
-                        Vc2: 0,
-                        Vc: 0,
-                        Tdh: randomT,
-                        Tc: randomT,
-                        ...(vChuanDongBoCacLL?.[q.title]?.[2] || {})
-                    }
+                return {
+                    ...dh,
+                    du_lieu_kiem_dinh: JSON.stringify(newDLKDDHList)
                 }
-            };
+            });
+            setDongHoList(newDHList);
         }
-        return updatedData[q.title]?.lan_chay as DuLieuCacLanChay;
+
     };
 
-    const xoaLanChayCuaLuuLuong = (q: { title: string; value: string }, id: number | string) => {
-        let updatedData: DuLieuChayDongHo = duLieuKiemDinhCacLuuLuong;
-        const getId = typeof id === 'string' ? parseInt(id) : id;
-        if (q.title) {
-            let key = q.title;
-            let data = duLieuKiemDinhCacLuuLuong[key]?.lan_chay;
+    const xoaLanChayCuaLuuLuong = (q: { title: string; value: string }) => {
+        const isQ123 = [TITLE_LUU_LUONG.q3, TITLE_LUU_LUONG.q2, TITLE_LUU_LUONG.q1].includes(q.title);
+        const isQntmin = [TITLE_LUU_LUONG.qn, TITLE_LUU_LUONG.qt, TITLE_LUU_LUONG.qmin].includes(q.title);
 
+        if (isQ123 || isQntmin) {
+            const newDHList = dongHoList.map((dh, indexDH) => {
+                const dlkdJSON = dh.du_lieu_kiem_dinh;
+                const dlkd = dlkdJSON
+                    ? typeof dlkdJSON !== "string"
+                        ? dlkdJSON
+                        : JSON.parse(dlkdJSON)
+                    : null;
 
-            if (data) {
-                setDuLieuKiemDinhCacLuuLuong(prevState => {
-                    const existingData = prevState[key] || {
-                        value: 0, lan_chay: {
-                            1: {
-                                V1: 0,
-                                V2: 0,
-                                Vc1: 0,
-                                Vc2: 0,
-                                Vc: 0,
-                                Tdh: randomT,
-                                Tc: randomT,
-                                ...(vChuanDongBoCacLL?.[q.title]?.[1] || {})
-                            },
-                            2: {
-                                V1: 0,
-                                V2: 0,
-                                Vc1: 0,
-                                Vc2: 0,
-                                Vc: 0,
-                                Tdh: randomT,
-                                Tc: randomT,
-                                ...(vChuanDongBoCacLL?.[q.title]?.[2] || {})
+                const tmpHssDH = dlkd.hieu_sai_so;
+
+                const titles = isQ123
+                    ? [TITLE_LUU_LUONG.q3, TITLE_LUU_LUONG.q2, TITLE_LUU_LUONG.q1]
+                    : [TITLE_LUU_LUONG.qn, TITLE_LUU_LUONG.qt, TITLE_LUU_LUONG.qmin];
+
+                const new_dl = Object.fromEntries(
+                    Object.entries(dlkd.du_lieu).map(([qTitle, dlChay]) => {
+                        const dl = dlChay as DuLieuChayDiemLuuLuong;
+                        if (titles.includes(qTitle)) {
+                            const oldLanChay = dl.lan_chay;
+                            const keys = Object.keys(oldLanChay);
+
+                            // Chỉ xóa nếu có nhiều hơn 2 lần chạy
+                            if (keys.length <= 2) {
+                                return [qTitle, dl];
                             }
-                        }
-                    };
-                    let existingLanChay = prevState[key]?.lan_chay || {
-                        1: {
-                            V1: 0,
-                            V2: 0,
-                            Vc1: 0,
-                            Vc2: 0,
-                            Vc: 0,
-                            Tdh: randomT,
-                            Tc: randomT,
-                            ...(vChuanDongBoCacLL?.[q.title]?.[1] || {})
-                        },
-                        2: {
-                            V1: 0,
-                            V2: 0,
-                            Vc1: 0,
-                            Vc2: 0,
-                            Vc: 0,
-                            Tdh: randomT,
-                            Tc: randomT,
-                            ...(vChuanDongBoCacLL?.[q.title]?.[2] || {})
-                        }
-                    };
 
-                    if ((existingLanChay as Record<number, DuLieuMotLanChay>)[getId]) {
-                        delete (existingLanChay as Record<number, DuLieuMotLanChay>)[getId];
-                    }
+                            const nextKey = Number(keys.length.toString()) ?? -1;
+                            const { [nextKey]: _, ...remainingLanChay } = oldLanChay;
 
-                    let updatedData = {
-                        ...prevState,
-                        [key]: {
-                            ...existingData,
-                            lan_chay: {
-                                ...existingLanChay,
-                            }
+                            const index = indexMap[qTitle];
+                            tmpHssDH[index].hss = getHieuSaiSo(remainingLanChay);
+
+                            return [
+                                qTitle,
+                                {
+                                    ...dl,
+                                    lan_chay: remainingLanChay,
+                                },
+                            ];
                         }
-                    };
 
-                    return updatedData;
-                });
-            }
+                        return [qTitle, dlChay];
+                    })
+                );
+
+                const newDLKDDHList = {
+                    du_lieu: new_dl,
+                    hieu_sai_so: [...tmpHssDH],
+                    ket_qua: isDongHoDatTieuChuan(tmpHssDH)
+                };
+
+                return {
+                    ...dh,
+                    du_lieu_kiem_dinh: JSON.stringify(newDLKDDHList)
+                };
+            });
+
+            setDongHoList(newDHList);
         }
-        return updatedData[q.title]?.lan_chay as DuLieuCacLanChay || {
-            1: {
-                V1: 0,
-                V2: 0,
-                Vc1: 0,
-                Vc2: 0,
-                Tdh: randomT,
-                Tc: randomT,
-                ...(vChuanDongBoCacLL?.[q.title]?.[1] || {})
-            },
-            2: {
-                V1: 0,
-                V2: 0,
-                Vc1: 0,
-                Vc2: 0,
-                Tdh: randomT,
-                Tc: randomT,
-                ...(vChuanDongBoCacLL?.[q.title]?.[2] || {})
-            }
-        };
     };
+
 
     const resetLanChay = (q: { title: string; value: string }) => {
         let updatedData: DuLieuChayDongHo = duLieuKiemDinhCacLuuLuong;

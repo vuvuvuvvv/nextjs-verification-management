@@ -11,6 +11,8 @@ import InputField from './InputFieldTBDHInfo';
 import { useKiemDinh } from '@/context/KiemDinhContext';
 import { DuLieuCacLanChay, DuLieuMotLanChay } from '@lib/types';
 import { getHieuSaiSo, getSaiSoDongHo } from '@lib/system-function';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faAdd, faRemove } from '@fortawesome/free-solid-svg-icons';
 interface ModalKiemDinhProps {
     show: boolean;
     handleClose: () => void;
@@ -19,7 +21,7 @@ interface ModalKiemDinhProps {
 type ActiveLL = { title: string; value: string } | null;
 
 export default function ModalKiemDinh({ show, handleClose }: ModalKiemDinhProps) {
-    const { luuLuong, getDuLieuChayCuaLuuLuong, updateLuuLuong } = useKiemDinh();
+    const { luuLuong, getDuLieuChayCuaLuuLuong, updateLuuLuong, themLanChayCuaLuuLuong, xoaLanChayCuaLuuLuong } = useKiemDinh();
     const { dongHoList, savedDongHoList } = useDongHoList();
     const [isUsingBinhChuan, setUsingBinhChuan] = useState(false);
 
@@ -47,13 +49,6 @@ export default function ModalKiemDinh({ show, handleClose }: ModalKiemDinhProps)
             clearTimeout(debounceRef.current);
         }
 
-        // debounceRef.current = setTimeout(async () => {
-        //     if (activeLL) {
-        //         const oldDL = getDuLieuChayCuaLuuLuong(activeLL, indexDongHo);
-        //         updateLuuLuong(activeLL, { ...oldDL, [soLan]: newDL }, indexDongHo)
-        //     }
-        // }, 700);
-
         if (!isUsingBinhChuan) {
             const vc1 = newDL.Vc1 ? parseFloat(newDL.Vc1.toString()) : null;
             const vc2 = newDL.Vc2 ? parseFloat(newDL.Vc2.toString()) : null;
@@ -72,8 +67,6 @@ export default function ModalKiemDinh({ show, handleClose }: ModalKiemDinhProps)
 
         if (activeLL) {
             const oldDL = getDuLieuChayCuaLuuLuong(activeLL, indexDongHo);
-
-
             // Tạo 1 bản sao để cập nhật lần chạy hiện tại
             let updatedDL: DuLieuCacLanChay = { ...oldDL, [soLan]: newDL };
             const nextSoLan = soLan + 1;
@@ -107,12 +100,22 @@ export default function ModalKiemDinh({ show, handleClose }: ModalKiemDinhProps)
                 <Modal.Title>Kiểm định</Modal.Title>
             </Modal.Header>
             <Modal.Body className='px-0'>
-                <div className='w-100 d-flex align-items-center gap-3 px-3 mb-3'>
-                    <ToggleSwitchButton
-                        value={isUsingBinhChuan}
-                        onChange={(value: boolean) => setUsingBinhChuan(value)}
-                        disabled={savedDongHoList.length != 0}
-                    /><span className={`${isUsingBinhChuan ? "text-dark" : "text-secondary"}`}>Sử dụng bình chuẩn</span>
+                <div className='w-100 d-flex align-items-center justify-content-between gap-3 px-3 mb-3'>
+                    <div className=' d-flex align-items-center gap-2'>
+                        <ToggleSwitchButton
+                            value={isUsingBinhChuan}
+                            onChange={(value: boolean) => setUsingBinhChuan(value)}
+                            disabled={savedDongHoList.length != 0}
+                        /><span className={`${isUsingBinhChuan ? "text-dark" : "text-secondary"}`}>Sử dụng bình chuẩn</span>
+                    </div>
+                    <div className=' d-flex align-items-center gap-2'>
+                        <button className='btn btn-success' onClick={() => { if (activeLL) themLanChayCuaLuuLuong(activeLL) }}>
+                            <FontAwesomeIcon icon={faAdd} className='me-1' />Thêm 1 lần
+                        </button>
+                        <button className='btn btn-secondary' onClick={() => { if (activeLL) xoaLanChayCuaLuuLuong(activeLL) }}>
+                            <FontAwesomeIcon icon={faRemove} className='me-1' />Xóa 1 lần
+                        </button>
+                    </div>
                 </div>
                 <div className={`${c_tbKD['group-switch-button']}`} >
                     <button
