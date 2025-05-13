@@ -247,7 +247,7 @@ export const getDongHoByGroupId = async (group_id: string) => {
 
 export const getDongHoExistsByInfo = async (info: string) => {
     try {
-        const url = `${API_DONGHO_URL}/dong-ho-info/${info.toString()}`;
+        const url = `${API_DONGHO_URL}/dongho-info/${info.toString()}`;
 
         const response = await api.get(url.toString(), { withCredentials: true });
 

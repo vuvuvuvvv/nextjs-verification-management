@@ -6,7 +6,6 @@ import React, { createContext, useState, useContext, useEffect, useRef } from 'r
 import Swal from 'sweetalert2';
 import { useUser } from './AppContext';
 import { deleteDongHoDataFromIndexedDB, saveDongHoDataExistsToIndexedDB } from '@lib/system-function';
-import { useKiemDinh } from './KiemDinh';
 
 interface DongHoListContextType {
     isHieuChuan: boolean,
@@ -196,7 +195,7 @@ export const DongHoListProvider = ({ dbName, children }: DongHoListProviderProps
     }, [savedDongHoList]);
 
     useEffect(() => {
-        console.log(dongHoList);
+        // console.log(dongHoList);
     }, [dongHoList]);
 
     const getGeneralInfo = (dongHo: DongHo): GeneralInfoDongHo => {

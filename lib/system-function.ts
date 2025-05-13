@@ -1,5 +1,5 @@
 import dayjs from "dayjs";
-import { DongHo, DuLieuMotLanChay, PDMData, TinhSaiSoValueTabs } from "./types";
+import { DongHo, DuLieuCacLanChay, DuLieuMotLanChay, PDMData, TinhSaiSoValueTabs } from "./types";
 import { getAllDongHoNamesExist } from "@/app/api/dongho/route";
 import { INDEXED_DB_NAME, PERMISSION_TITLES, PERMISSION_VALUES, PERMISSIONS, TITLE_LUU_LUONG } from "./system-constant";
 
@@ -25,7 +25,7 @@ export const getFullSoGiayCN = (soGiayCN: string, ngayThucHien: Date, isHieuChua
 }
 
 export const getQ2OrtAndQ1OrQMin = (isDHDienTu: boolean, ccx: string | null, q: string | null, r: string | null) => {
-    if (isDHDienTu != null && ccx && q) {
+    if (ccx && q) {
         const heso = {
             "A": {
                 "qt": (parseFloat(q) < 15) ? 0.1 : 0.3,
@@ -50,11 +50,11 @@ export const getQ2OrtAndQ1OrQMin = (isDHDienTu: boolean, ccx: string | null, q: 
 
             return {
                 getQ1OrMin: {
-                    title: isDHDienTu != null && isDHDienTu ? TITLE_LUU_LUONG.q1 : TITLE_LUU_LUONG.qmin,
+                    title:  isDHDienTu ? TITLE_LUU_LUONG.q1 : TITLE_LUU_LUONG.qmin,
                     value: parseFloat(qmin.toFixed(3))
                 },
                 getQ2Ort: {
-                    title: isDHDienTu != null && isDHDienTu ? TITLE_LUU_LUONG.q1 : TITLE_LUU_LUONG.qmin,
+                    title: isDHDienTu ? TITLE_LUU_LUONG.q2 : TITLE_LUU_LUONG.qt,
                     value: parseFloat(qt.toFixed(3))
                 },
             };
@@ -65,11 +65,11 @@ export const getQ2OrtAndQ1OrQMin = (isDHDienTu: boolean, ccx: string | null, q: 
 
                 return {
                     getQ1OrMin: {
-                        title: isDHDienTu != null && isDHDienTu ? TITLE_LUU_LUONG.q1 : TITLE_LUU_LUONG.qmin,
+                        title: isDHDienTu ? TITLE_LUU_LUONG.q1 : TITLE_LUU_LUONG.qmin,
                         value: (heso_qmin) ? parseFloat(q) * heso_qmin : null
                     },
                     getQ2Ort: {
-                        title: isDHDienTu != null && isDHDienTu ? TITLE_LUU_LUONG.q1 : TITLE_LUU_LUONG.qmin,
+                        title: isDHDienTu ? TITLE_LUU_LUONG.q2 : TITLE_LUU_LUONG.qt,
                         value: (heso_qt) ? parseFloat(q) * heso_qt : null
                     },
                 };
@@ -107,7 +107,7 @@ export const getVToiThieu = (q: string | number, d: string | number) => {
     }
 }
 
-export const getHieuSaiSo = (formValues: TinhSaiSoValueTabs) => {
+export const getHieuSaiSo = (formValues: DuLieuCacLanChay) => {
     try {
         const hasErrorFormValues = Object.values(formValues).some(({ V1, V2 }) => (Number(V1) === 0 && Number(V2) === 0) || Number(V2) - Number(V1) <= 0);
         if (hasErrorFormValues) return null;
@@ -118,7 +118,7 @@ export const getHieuSaiSo = (formValues: TinhSaiSoValueTabs) => {
         if (values.length === 0) return null;
 
         const result = values.reduce((acc, curr, index) => {
-            return index === 0 ? curr : acc - curr;
+            return index === 0 ? curr : curr - acc;
         }, 0);
 
         return Number(result.toFixed(3));
@@ -128,13 +128,13 @@ export const getHieuSaiSo = (formValues: TinhSaiSoValueTabs) => {
 }
 
 export const isDongHoDatTieuChuan = (formHieuSaiSo: { hss: number | null }[]) => {
-    const lan1 = formHieuSaiSo[0].hss;
-    const lan2 = formHieuSaiSo[1].hss;
-    const lan3 = formHieuSaiSo[2].hss;
+    const Q3n = formHieuSaiSo[0].hss;
+    const Q2t = formHieuSaiSo[1].hss;
+    const Q1min = formHieuSaiSo[2].hss;
 
-    if (lan1 !== null && lan2 !== null && lan3 !== null) {
-        // return (isQ3) ? (lan1 >= -2 && lan2 >= -2 && lan3 >= -5) : (lan1 <= 2 && lan2 <= 2 && lan3 <= 5)
-        return (lan1 >= -2 && lan2 >= -2 && lan3 >= -5 && lan1 <= 2 && lan2 <= 2 && lan3 <= 5)
+    if (Q3n !== null && Q2t !== null && Q1min !== null) {
+        // return (isQ3) ? (Q3n >= -2 && Q2t >= -2 && Q1min >= -5) : (Q3n <= 2 && Q2t <= 2 && Q1min <= 5)
+        return (Q3n >= -2 && Q3n <= 2 && Q2t >= -2 && Q2t <= 2 && Q1min >= -5  && Q1min <= 5)
     }
     return null;
 }

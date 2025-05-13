@@ -267,7 +267,7 @@ export default function DetailKiemDinhNhomDongHo({ nhomDongHo }: DetailKiemDinhN
     }
 
     if (!nhomDongHoData.current || generalInfo == null) {
-        return <Loading></Loading>;
+        return <div className="container py-3 text-center">Không có dữ liệu hiển thị</div>;
     }
 
     return <div className="w-100 m-0 mb-4 p-2">
