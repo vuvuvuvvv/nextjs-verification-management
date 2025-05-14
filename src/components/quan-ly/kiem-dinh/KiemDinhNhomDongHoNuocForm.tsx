@@ -178,22 +178,12 @@ export default function KiemDinhNhomDongHoNuocForm({ className, generalInfoDongH
     };
 
     const { dongHoList,
-        createListDongHo,
-        getDongHoDaKiemDinh,
-        updateListDongHo,
-        getDongHoChuaKiemDinh,
         savedDongHoList,
-        setSavedDongHoList,
+        amount,
         setDongHoList
     } = useDongHoList();
 
     const {
-        formHieuSaiSo,
-        setDuLieuKiemDinhCacLuuLuong,
-        setFormHieuSaiSo, setKetQua,
-        initialFormHieuSaiSo,
-        initialDuLieuKiemDinhCacLuuLuong,
-        duLieuKiemDinhCacLuuLuong,
         setLuuLuong
     } = useKiemDinh();
 
@@ -219,6 +209,7 @@ export default function KiemDinhNhomDongHoNuocForm({ className, generalInfoDongH
     });
 
     const handleFieldChange = (field: keyof State, value: any) => {
+        console.log(field);
         if (isCoSensorTransitorRoi && (field == "sensor" || field == "transitor")) {
             dispatch({ type: 'SET_FIELD', field: 'transitor', value: '' });
         }
@@ -229,16 +220,53 @@ export default function KiemDinhNhomDongHoNuocForm({ className, generalInfoDongH
         dispatch({ type: 'SET_MULTIPLE_FIELDS', fields });
     };
 
+    const getGeneralInfoDongHo = () => {
+        return {
+            ten_phuong_tien_do: state.phuongTienDo,
+    
+            transitor: state.transitor,
+            sensor: state.sensor,
+            serial: state.serial,
+    
+            co_so_san_xuat: state.coSoSanXuat,
+            nam_san_xuat: state.namSanXuat,
+
+            group_id: "", // todo
+    
+            dn: state.dn,
+            d: state.d,
+            ccx: state.ccx,
+            q3: state.q3,
+            r: state.r,
+            qn: state.qn,
+            so_qd_pdm: state.soQDPDM,
+    
+            co_so_su_dung: state.coSoSuDung,
+            phuong_phap_thuc_hien: state.phuongPhapThucHien,
+            chuan_thiet_bi_su_dung: state.chuanThietBiSuDung,
+    
+            nguoi_thuc_hien: state.nguoiThucHien,
+            ngay_thuc_hien: state.ngayThucHien,
+    
+            dia_diem_thuc_hien: state.diaDiemThucHien,
+    
+            ket_qua_check_vo_ngoai: state.ketQuaCheckVoNgoai,
+            ket_qua_check_do_kin: state.ketQuaCheckDoKin,
+            ket_qua_check_do_on_dinh_chi_so: state.ketQuaCheckDoOnDinhChiSo,
+    
+            nguoi_soat_lai: state.nguoiSoatLai,
+    
+            // viTri: state.vi_tri,
+            // nhietDo: state.nhiet_do || '',
+            // doAm: state.do_am || '',
+            noi_su_dung: state.noiSuDung,
+            ten_khach_hang: state.tenKhachHang
+        };
+    }
+
     const [error, setError] = useState("");
 
     const [showFormTienTrinh, setShowFormTienTrinh] = useState(false);
-
-    // const [isOpenModalSerial, setOpenModalSerial] = useState(false);
-
-    // const router = useRouter();
-
-    const [isFirstTabLL] = useState<boolean>(false);
-    // const fetchCalled = useRef(false);
 
     const [loading, setLoading] = useState<boolean>(false);
 
@@ -273,16 +301,8 @@ export default function KiemDinhNhomDongHoNuocForm({ className, generalInfoDongH
 
     const debounceFieldTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
-    // Func: Set saved
-    // useEffect(() => {
-    //     if (savedDongHoList.length > 0 && selectedDongHoIndex) {
-    //         updateDongHoSaved(getCurrentDongHo(selectedDongHoIndex))
-    //     }
-    // }, [savedDongHoList]);
-
-    const scrollRef = useRef<HTMLDivElement | null>(null);
-
     const soQDPDMRef = useRef(state.soQDPDM);
+    const isCoSensorTransitorRoiRef = useRef(isCoSensorTransitorRoi);
 
     const filterPDM = useMemo(() => ({
         dn: state.dn,
@@ -394,7 +414,6 @@ export default function KiemDinhNhomDongHoNuocForm({ className, generalInfoDongH
     ];
 
     useEffect(() => {
-        console.log("errorFields", errorFields);
         setShowFormTienTrinh(errorFields.length == 0)
     }, [errorFields]);
 
@@ -422,8 +441,9 @@ export default function KiemDinhNhomDongHoNuocForm({ className, generalInfoDongH
             soQDPDMRef.current = state.soQDPDM
         }
 
-        if (isCoSensorTransitorRoi) {
-
+        if (isCoSensorTransitorRoiRef.current != isCoSensorTransitorRoi) {
+            isCoSensorTransitorRoiRef.current = isCoSensorTransitorRoi;
+            dispatch({ type: 'SET_FIELD', field: 'transitor', value: '' });
         }
 
         const tmp_isDHDienTu = Boolean((state.ccx && ["1", "2"].includes(state.ccx)) || state.phuongTienDo == "Đồng hồ đo nước lạnh có cơ cấu điện tử");
@@ -439,6 +459,19 @@ export default function KiemDinhNhomDongHoNuocForm({ className, generalInfoDongH
             })
             handleMultFieldChange({ q1Ormin: getQ1OrMin.value, q2Ort: getQ2Ort.value });
         }
+
+        if(debounceFieldTimeoutRef.current) {
+            clearTimeout(debounceFieldTimeoutRef.current);
+        }
+
+        console.log(getGeneralInfoDongHo());
+
+        debounceFieldTimeoutRef.current = setTimeout(() => {
+            const newDHList = dongHoList.map((dh, i) => {
+                return {...dh, ...getGeneralInfoDongHo};
+            });
+            setDongHoList(newDHList);
+        }, 700);
 
         setErrorFields(validateFields());
         setDHDienTu(tmp_isDHDienTu);
@@ -535,7 +568,7 @@ export default function KiemDinhNhomDongHoNuocForm({ className, generalInfoDongH
                             onClick={() => { modalDispatch({ type: 'SET_SHOW_MODAL_SO_LUONG_DONG_HO', show: true }) }}
                         >
                             <FontAwesomeIcon icon={faCog} className="me-2" />
-                            Số lượng đồng hồ
+                            Số đồng hồ: {amount}
                         </button>
                     </div>
                     <div className="w-100 m-0 p-0 mb-3 position-relative">
@@ -638,7 +671,17 @@ export default function KiemDinhNhomDongHoNuocForm({ className, generalInfoDongH
                                 <div className="w-100 m-0 p-0 row">
                                     <div className={`mb-3 col-12 col-md-10 col-lg-7 ${ui_vfm['wrap-input-field']}`}>
                                         <label htmlFor="coSoSanXuat" className="form-label">Cơ sở sản xuất:</label>
-                                        <CreatableSelect
+                                        <input
+                                            type="text"
+                                            className={`form-control ${ui_vfm['input-field']}`}
+                                            id="coSoSanXuat"
+                                            disabled={savedDongHoList.length != 0}
+                                            value={state.coSoSanXuat || ""}
+                                            onChange={(e) => {
+                                                handleFieldChange('coSoSanXuat', e.target.value);
+                                            }}
+                                        />
+                                        {/* <CreatableSelect
                                             options={CSSXOptions as unknown as readonly GroupBase<never>[]}
                                             className="basic-multi-select w-100"
                                             placeholder=""
@@ -700,7 +743,7 @@ export default function KiemDinhNhomDongHoNuocForm({ className, generalInfoDongH
                                                     color: state.isDisabled ? '#000' : provided.color,
                                                 })
                                             }}
-                                        />
+                                        /> */}
                                     </div>
                                     <div className={`mb-3 col-12 col-md-10 col-lg-5 ${ui_vfm['wrap-input-field']}`}>
                                         <label htmlFor="namSanXuat" className="form-label">Năm sản xuất:</label>

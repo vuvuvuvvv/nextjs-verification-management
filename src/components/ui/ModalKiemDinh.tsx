@@ -69,7 +69,7 @@ export default function ModalKiemDinh({ show, handleClose }: ModalKiemDinhProps)
 
             newDL = {
                 ...newDL,
-                Vc: (vc1 && vc2 && vc2 > vc1 ? vc2 - vc1 : 0)
+                Vc: (vc1 && vc2 && vc2 > vc1 ? parseFloat((vc2 - vc1).toFixed(4)) : 0)
             }
         } else {
             newDL = {
@@ -109,6 +109,7 @@ export default function ModalKiemDinh({ show, handleClose }: ModalKiemDinhProps)
     }
 
     const handleSaveAllDongHo = () => {
+        console.log(dongHoList);
         const dongHoChuaKiemDinh = getDongHoChuaKiemDinh(dongHoList);
         const dongHoDaKiemDinhCount = dongHoList.length - dongHoChuaKiemDinh.length;
         if (dongHoChuaKiemDinh.length === 0) {
@@ -134,7 +135,7 @@ export default function ModalKiemDinh({ show, handleClose }: ModalKiemDinhProps)
                             Swal.showLoading();
                             createListDongHo(dongHoToSave).then((isSuccessful) => {
                                 if (isSuccessful) {
-                                    window.location.href = ACCESS_LINKS.DHN.src;
+                                    // window.location.href = ACCESS_LINKS.DHN.src;
                                 }
                             });
                         }
@@ -316,7 +317,7 @@ export default function ModalKiemDinh({ show, handleClose }: ModalKiemDinhProps)
                                                         <InputField
                                                             index={rowIndex}
                                                             isNumber={true}
-                                                            value={(dl.V2 > dl.V1) ? (dl.V2 - dl.V1).toString() : "0"}
+                                                            value={(dl.V2 > dl.V1) ? Number((dl.V2 - dl.V1).toFixed(4)).toString() : "0"}
                                                             // onChange={(value) => handleInputChange(index, "serial", value)}
                                                             disabled={true}
                                                             // error={errorsList[index]?.serial}
@@ -366,12 +367,7 @@ export default function ModalKiemDinh({ show, handleClose }: ModalKiemDinhProps)
                                                         <InputField
                                                             index={rowIndex}
                                                             isNumber={true}
-                                                            value={
-                                                                isUsingBinhChuan ? dl.Vc.toString()
-                                                                    : (
-                                                                        (dl.Vc2 && dl.Vc1 && dl.Vc2 > dl.Vc1) ?
-                                                                            (parseFloat(dl.Vc2.toString()) - parseFloat(dl.Vc1.toString())).toString()
-                                                                            : "0")}
+                                                            value={(dl.Vc ? dl.Vc : 0).toString()}
                                                             // onChange={(value) => handleInputChange(index, "serial", value)}
                                                             onChange={(value) => { handleChange((i + 1), indexDongHo, { ...dl, Vc: value }, "Vc") }}
                                                             disabled={savedDongHoList.some(dh => JSON.stringify(dh) == JSON.stringify(dongHo)) || savedDongHoList.length == dongHoList.length || !isUsingBinhChuan}
@@ -411,6 +407,7 @@ export default function ModalKiemDinh({ show, handleClose }: ModalKiemDinhProps)
                     <button
                         type="button"
                         className={`btn btn-success`}
+                        onClick={handleSaveAllDongHo}
                     >
                         <FontAwesomeIcon icon={faSave} className='me-2' />
                         Lưu

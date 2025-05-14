@@ -1,8 +1,9 @@
 import { TITLE_LUU_LUONG } from '@lib/system-constant';
-import { getHieuSaiSo, isDongHoDatTieuChuan } from '@lib/system-function';
+import { getHieuSaiSo, getLastDayOfMonthInFuture, isDongHoDatTieuChuan } from '@lib/system-function';
 import { DuLieuChayDongHo, DuLieuChayDiemLuuLuong, DuLieuMotLanChay, DuLieuCacLanChay, VChuanDongBoCacLL, DongHo } from '@lib/types';
 import React, { createContext, useState, useContext, ReactNode, useRef, useEffect } from 'react';
 import { useDongHoList } from './ListDongHoContext';
+import dayjs from 'dayjs';
 
 type LuuLuong = {
     isDHDienTu: boolean,
@@ -307,14 +308,16 @@ export const KiemDinhProvider = ({ children }: { children: ReactNode }) => {
                 hieu_sai_so: [...tmpHssDHList],
                 ket_qua: isDongHoDatTieuChuan(tmpHssDHList)
             };
+            
+            const ngayThucHien: Date = dongHo.ngay_thuc_hien ?? dayjs().toDate();
+
 
             return {
                 ...dh,
+                hieu_luc_bien_ban: isDongHoDatTieuChuan(tmpHssDH) ? getLastDayOfMonthInFuture((new_dl[TITLE_LUU_LUONG.q3] != null), dongHo.ngay_thuc_hien ?? ngayThucHien) : null,
                 du_lieu_kiem_dinh: JSON.stringify(newDLKDDHList)
             }
         });
-
-
 
         newDHList[indexDongHo] = { ...dongHo, du_lieu_kiem_dinh: JSON.stringify(newDLKD) };
         if (debounceSetDHListRef.current) {
@@ -402,8 +405,6 @@ export const KiemDinhProvider = ({ children }: { children: ReactNode }) => {
                 const new_dl = Object.fromEntries(
                     Object.entries(dlkd.du_lieu).map(([qTitle, dlChay]) => {
                         const dl = dlChay as DuLieuChayDiemLuuLuong;
-                        console.log(dlkd.du_lieu);
-                        console.log(dl);
                         if (titles.includes(qTitle)) {
                             const oldLanChay = dl.lan_chay;
                             const nextKey = String(Object.keys(oldLanChay).length + 1);

@@ -5,7 +5,8 @@ import dayjs from "dayjs";
 import React, { useState, useReducer, useEffect, useRef } from "react";
 import c_tbIDHInf from "@styles/scss/components/table-input-dongho-info.module.scss";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faEdit, faCogs} from "@fortawesome/free-solid-svg-icons";
+import { faEdit, faCogs } from "@fortawesome/free-solid-svg-icons";
+import { getFullSoGiayCN } from "@lib/system-function";
 
 const ToggleSwitchButton = dynamic(() => import('@/components/ui/ToggleSwitchButton'));
 const InputField = dynamic(() => import('@/components/ui//InputFieldTBDHInfo'));
@@ -395,6 +396,7 @@ const TableDongHoInfo: React.FC<TableDongHoInfoProps> = React.memo(({
                                                 error={errorsList[index]?.so_giay_chung_nhan}
                                                 name={`so_giay_chung_nhan`}
                                             />
+                                            {(dongHo.so_giay_chung_nhan && dongHo.ngay_thuc_hien) && <small style={{ fontSize: "12px" }}>{getFullSoGiayCN(dongHo.so_giay_chung_nhan, dongHo.ngay_thuc_hien)}</small>}
                                         </td>
                                         <td>
                                             <InputField

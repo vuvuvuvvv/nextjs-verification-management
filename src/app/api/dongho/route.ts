@@ -311,7 +311,7 @@ export const getDongHoExistsByInfo = async (info: string) => {
 export const createDongHo = async (dongho: DongHo) => {
     try {
         const response = await api.post(API_DONGHO_URL, dongho, { withCredentials: true });
-
+        console.log(dongho)
         if (response.status == 201) {
             return {
                 "status": response.status,

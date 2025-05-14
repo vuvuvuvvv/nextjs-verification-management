@@ -13,6 +13,11 @@ const AUTH_PATHS = [
     ACCESS_LINKS.AUTH_VERIFY.src,
 ];
 
+const EXCLUDE_PATHS = [
+    ACCESS_LINKS.HC_DHN.src,
+    ACCESS_LINKS.PDM.src,
+];
+
 export async function middleware(req: NextRequest) {
     const { pathname, searchParams } = new URL(req.url);
 
@@ -71,7 +76,10 @@ export async function middleware(req: NextRequest) {
     //     return NextResponse.redirect(redirectUrl);
     // }
 
-    if (AUTH_PATHS.some(authPath => pathname.includes(authPath))) {
+    if (
+        AUTH_PATHS.some(authPath => pathname.includes(authPath))
+        || EXCLUDE_PATHS.some(authPath => pathname.includes(authPath))
+    ) {
         return NextResponse.redirect(new URL(ACCESS_LINKS.HOME.src, req.url));
     }
 

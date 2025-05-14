@@ -29,16 +29,16 @@ export default function DetailKiemDinhDongHo({ dongHo }: DetailKiemDinhDongHoPro
 
     useEffect(() => {
         if (dongHo) {
-            setListKeys(dongHo.q3 ? ["Q3", "Q2", "Q1"] : dongHo.qn ? ['Qn', "Qt", "Qmin"] : null);
+            setListKeys(dongHo.q3 ? ["Q3", "Q2", "Q1"] : (dongHo.qn ? ['Qn', "Qt", "Qmin"] : null));
             const duLieuKiemDinhJSON = dongHo.du_lieu_kiem_dinh;
             const duLieuKiemDinh = duLieuKiemDinhJSON ?
                 ((typeof duLieuKiemDinhJSON != 'string') ?
                     duLieuKiemDinhJSON : JSON.parse(duLieuKiemDinhJSON)
                 ) : null;
-
             if (duLieuKiemDinh?.du_lieu) {
                 const dlKiemDinh = duLieuKiemDinh.du_lieu;
                 setDuLieuKiemDinhCacLuuLuong(dlKiemDinh);
+                console.log(dlKiemDinh);
             }
 
             if (duLieuKiemDinh?.hieu_sai_so) {
@@ -46,13 +46,17 @@ export default function DetailKiemDinhDongHo({ dongHo }: DetailKiemDinhDongHoPro
             }
 
             setKetQua(duLieuKiemDinh.ket_qua);
+            console.log(dongHo.q3 ? ["Q3", "Q2", "Q1"] : (dongHo.qn ? ['Qn', "Qt", "Qmin"] : null));
         }
     }, [dongHo]);
 
     const renderDulieuLuuLuong = () => {
         if (listKeys && duLieuKiemDinhCacLuuLuong) {
             return listKeys.map((key, index) => {
+                console.log(listKeys);
+
                 const value = duLieuKiemDinhCacLuuLuong[key] as DuLieuChayDiemLuuLuong;
+                console.log(value);
                 if (value?.value) {
                     let indexHead = true;
                     let jsxStart, jsxEnd;
@@ -236,23 +240,13 @@ export default function DetailKiemDinhDongHo({ dongHo }: DetailKiemDinhDongHoPro
                         </div>
                     </div>
                     <div className="w-100 mb-3">
-                        <p className="fs-5 fw-bold text-center text-uppercase m-0">Kết quả kiểm tra</p>
-                        <div className="w-100 m-0 p-0 row mb-3">
-                            <div className="col-12 col-md-5 col-lg-4 m-0 p-0">
-                                <span>1. Kết quả kiểm tra bên ngoài:</span>
-                            </div>
-                            <div className="col-12 col-md-7 col-lg-8 px-4 px-md-0">
-                                <ul className="list-unstyled m-0 p-0">
-                                    <li>- Nhãn hiệu: <b>Đạt</b></li>
-                                    <li>- Phụ kiện: <b>Đạt</b></li>
-                                    <li>- Bộ phận chỉ thị: <b>Đạt</b></li>
-                                </ul>
-                            </div>
-                        </div>
+                        <p className="fs-5 fw-bold text-center text-uppercase m-0">Kết quả kiểm định</p>
+                        <p className="m-0">1. Kết quả kiểm tra bên ngoài: <b>{dongHo.ket_qua_check_vo_ngoai ? "Đạt" : "Không đạt"}</b></p>
                         <p className="m-0">2. Kết quả kiểm tra kỹ thuật:</p>
                         <div className="w-100 mb-3 px-4 px-md-5">
                             <ul className="list-unstyled m-0 p-0">
-                                <li>- Kiểm tra khả năng hoạt động của hệ thống: <b>{ketQua ? "Đạt" : "Không đạt"}</b></li>
+                                <li>- Kiểm tra độ kín: <b>{dongHo.ket_qua_check_do_kin ? "Đạt" : "Không đạt"}</b></li>
+                                <li>- Kiểm tra độ ổn định số chỉ: <b>{dongHo.ket_qua_check_do_on_dinh_chi_so ? "Đạt" : "Không đạt"}</b></li>
                             </ul>
                         </div>
                         <p>3. Kết quả kiểm tra đo lường: </p>
