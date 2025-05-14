@@ -26,7 +26,8 @@ interface KiemDinhContextType {
     luuLuong: LuuLuong | null;
     setLuuLuong: (luuLuong: LuuLuong) => void;
     updateLuuLuong: (q: { title: string; value: string }, duLieuChay: DuLieuCacLanChay, indexDongHo: number) => void;
-
+    addMoreDongHo: (amount: number) => void;
+    removeMoreDongHo: (amount: number) => void;
     setDuLieuKiemDinhCacLuuLuong: (duLieu: DuLieuChayDongHo) => void;
     updateSoDongHoChuan: (q: { title: string; value: string }, index: number, field: keyof DuLieuMotLanChay, value: string) => void;
     removeKiemDinh: (id: string) => void;
@@ -89,12 +90,70 @@ export const KiemDinhProvider = ({ children }: { children: ReactNode }) => {
     // Lưu dữ liệu Q1 2 3 if isDHDienTu hoặc Qn t min
     const [luuLuong, setLuuLuong] = useState<LuuLuong | null>(null);
     const luuLuongRef = useRef(luuLuong);
+    const debounceLLRef = useRef<NodeJS.Timeout | null>(null);
 
     useEffect(() => {
         if (luuLuong && luuLuong != luuLuongRef.current) {
-            const q3n = luuLuong.q3Orn;
-            const q2t = luuLuong.q2Ort;
-            const q1min = luuLuong.q1Ormin;
+            if (debounceLLRef.current) {
+                clearTimeout(debounceLLRef.current);
+            }
+
+            debounceLLRef.current = setTimeout(() => {
+                const q3n = luuLuong.q3Orn;
+                const q2t = luuLuong.q2Ort;
+                const q1min = luuLuong.q1Ormin;
+
+                const LLValues = {
+                    [luuLuong.isDHDienTu ? TITLE_LUU_LUONG.q3 : TITLE_LUU_LUONG.qn]: q3n,
+                    [luuLuong.isDHDienTu ? TITLE_LUU_LUONG.q2 : TITLE_LUU_LUONG.qt]: q2t,
+                    [luuLuong.isDHDienTu ? TITLE_LUU_LUONG.q1 : TITLE_LUU_LUONG.qmin]: q1min
+                }
+
+                const newDHList = dongHoList.map((dh, indexDH) => {
+
+                    const dlkdJSON = dh.du_lieu_kiem_dinh;
+                    const dlkd = dlkdJSON ?
+                        ((typeof dlkdJSON != 'string') ?
+                            dlkdJSON : JSON.parse(dlkdJSON)
+                        ) : null;
+
+                    const tmpHssDH = dlkd.hieu_sai_so;
+
+                    const titles = luuLuong.isDHDienTu
+                        ? [TITLE_LUU_LUONG.q3, TITLE_LUU_LUONG.q2, TITLE_LUU_LUONG.q1]
+                        : [TITLE_LUU_LUONG.qn, TITLE_LUU_LUONG.qt, TITLE_LUU_LUONG.qmin];
+
+                    const new_dl = Object.fromEntries(
+                        Object.entries(dlkd.du_lieu).map(([qTitle, dlChay]) => {
+                            if (!titles.includes(qTitle)) {
+                                return [qTitle, null];
+                            }
+                            const dl = dlChay as DuLieuChayDiemLuuLuong ?? {
+                                value: LLValues[qTitle] ?? null,
+                                lan_chay: lanChayMoi
+                            };
+                            dl.value = LLValues[qTitle]?.value !== undefined
+                                ? (isNaN(Number(LLValues[qTitle]?.value)) ? null : Number(LLValues[qTitle]?.value))
+                                : dl.value;
+
+                            return [qTitle, dl];
+                        })
+                    );
+
+
+                    const newDLKDDHList = {
+                        du_lieu: new_dl,
+                        hieu_sai_so: [...tmpHssDH],
+                        ket_qua: isDongHoDatTieuChuan(tmpHssDH)
+                    };
+
+                    return {
+                        ...dh,
+                        du_lieu_kiem_dinh: JSON.stringify(newDLKDDHList)
+                    }
+                });
+                setDongHoList(newDHList);
+            }, 700);
             // getDuLieuChayCuaLuuLuong
             // if(q3n && q2t && q1min) {
             //     setDuLieuKiemDinhCacLuuLuong(prevState => {
@@ -343,6 +402,8 @@ export const KiemDinhProvider = ({ children }: { children: ReactNode }) => {
                 const new_dl = Object.fromEntries(
                     Object.entries(dlkd.du_lieu).map(([qTitle, dlChay]) => {
                         const dl = dlChay as DuLieuChayDiemLuuLuong;
+                        console.log(dlkd.du_lieu);
+                        console.log(dl);
                         if (titles.includes(qTitle)) {
                             const oldLanChay = dl.lan_chay;
                             const nextKey = String(Object.keys(oldLanChay).length + 1);
@@ -450,6 +511,80 @@ export const KiemDinhProvider = ({ children }: { children: ReactNode }) => {
         }
     };
 
+    const addMoreDongHo = (amount: number) => {
+        const oldAmount = dongHoList.length;
+        if (amount > 0 && oldAmount > 0) {
+            const newAmount = Math.abs(oldAmount - amount)
+
+            const newDongHoList = [...dongHoList];
+            for (let i = 0; i < newAmount; i++) {
+                const esistsDongHo = dongHoList[0];
+
+                let newDLC: DuLieuChayDongHo | undefined = undefined;
+                newDLC = {
+                    [TITLE_LUU_LUONG.q3]: null,
+                    [TITLE_LUU_LUONG.q2]: null,
+                    [TITLE_LUU_LUONG.q1]: null,
+                    [TITLE_LUU_LUONG.qn]: null,
+                    [TITLE_LUU_LUONG.qt]: null,
+                    [TITLE_LUU_LUONG.qmin]: null,
+                }
+
+                if (esistsDongHo.du_lieu_kiem_dinh) {
+                    const dlkd = typeof esistsDongHo.du_lieu_kiem_dinh === 'string'
+                        ? JSON.parse(esistsDongHo.du_lieu_kiem_dinh)
+                        : esistsDongHo.du_lieu_kiem_dinh;
+                    newDLC = Object.entries(dlkd.du_lieu).reduce((acc, [qTitle, value]) => {
+                        // console.log(dlkd);
+                        const dlChay = value as DuLieuChayDiemLuuLuong;
+                        if (dlChay && dlChay.lan_chay) {
+                            const oldLanChay = dlChay.lan_chay;
+                            const newLanChay = Object.entries(oldLanChay).reduce((acc, [soLanStr, dl]) => {
+                                const soLan = Number(soLanStr);
+
+                                acc[soLan] = {
+                                    ...dl,
+                                    V1: 0,
+                                    V2: 0
+                                };
+
+                                return acc;
+                            }, {} as DuLieuCacLanChay);
+                            acc[qTitle] = {
+                                ...dlChay,
+                                lan_chay: newLanChay
+                            };
+                        }
+                        return acc;
+                    }, {} as DuLieuChayDongHo);
+                }
+                newDongHoList.push({
+                    ...esistsDongHo,
+                    index: oldAmount + i + 1,
+                    du_lieu_kiem_dinh: JSON.stringify({
+                        hieu_sai_so: [
+                            { hss: null },
+                            { hss: null },
+                            { hss: null }
+                        ],
+                        du_lieu: newDLC,
+                        ket_qua: null
+                    }),
+                });
+            }
+            setDongHoList(newDongHoList);
+        }
+    }
+
+    const removeMoreDongHo = (amount: number) => {
+        const newDHList = [...dongHoList];
+        const newAmount = Math.abs(newDHList.length - amount);
+        if (newAmount > 0) {
+            newDHList.splice(newDHList.length - newAmount, newAmount);
+        }
+        setDongHoList(newDHList);
+    }
+
 
     const resetLanChay = (q: { title: string; value: string }) => {
         let updatedData: DuLieuChayDongHo = duLieuKiemDinhCacLuuLuong;
@@ -536,6 +671,8 @@ export const KiemDinhProvider = ({ children }: { children: ReactNode }) => {
             formHieuSaiSo,
             lanChayMoi,
             ketQua,
+            addMoreDongHo,
+            removeMoreDongHo,
             updateLuuLuong,
             removeKiemDinh,
             updateSoDongHoChuan,

@@ -1,7 +1,7 @@
 @import "@styles/scss/variables/global.variables.scss";
 
 .wrap-process-table {
-    max-height: 410px !important;
+    max-height: 86% !important;
     overflow-x: auto;
     border-bottom: 1px solid $light_grey;
     // box-shadow: 0 0rem 1rem rgba(0, 0, 0, 0.15);
@@ -71,7 +71,7 @@
                 td {
                     &:not(:nth-child(1)) {
                         padding: 0;
-                        background-color: #fff !important;
+                        background-color: $light_grey !important;
                     }
 
                     &:nth-child(1) {
@@ -88,7 +88,7 @@
                         border: none;
                         outline: none;
                         box-shadow: none;
-                        border-radius: none;
+                        border-radius: unset !important;
                         padding: 6px;
                     }
                 }

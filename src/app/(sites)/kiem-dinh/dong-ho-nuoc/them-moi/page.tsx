@@ -29,14 +29,16 @@ export default function AddNewDongHoNuoc({ className }: AddNewDongHoNuocProps) {
     const hasShownModal = useRef(false);
 
     const handleNumberChange = (setter: (value: number) => void) => (e: React.ChangeEvent<HTMLInputElement>) => {
-        let value = e.target.value.replace(/,/g, '.');
-        if (/^\d*\.?\d*$/.test(value)) {
+        let value = e.target.value;
+        if (/^\d*$/.test(value)) {
             if (Number(value) > 100) {
                 setQnt(100);
                 setError("Tối đa 100.");
                 setTimeout(() => {
                     setError(null);
                 }, 3000);
+            } else if(value && Number(value) <= 0) {
+                setter(1);
             } else {
                 setter(Number(value));
             }

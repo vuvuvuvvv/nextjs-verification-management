@@ -268,7 +268,7 @@ export default React.memo(function PDMManagement({ className, listDHNamesExist }
                             </label>
                         </div> */}
 
-                            <div className="col-12 mb-3 col-md-6 col-xl-4 d-flex">
+                            {/* <div className="col-12 mb-3 col-md-6 col-xl-4 d-flex">
                                 <label className={`${c_vfml['form-label']}`} htmlFor="ten_dong_ho">
                                     Tên đồng hồ
                                     <Select
@@ -331,7 +331,7 @@ export default React.memo(function PDMManagement({ className, listDHNamesExist }
                                         }}
                                     />
                                 </label>
-                            </div>
+                            </div> */}
 
                             {/* <div className="col-12 mb-3 col-md-6 col-xl-4 d-flex">
                                 <label className={`${c_vfml['form-label']}`} htmlFor="ma_tim_dong_ho_pdm">
@@ -346,6 +346,34 @@ export default React.memo(function PDMManagement({ className, listDHNamesExist }
                                     />
                                 </label>
                             </div> */}
+
+                            <div className="col-12 mb-3 col-md-6 col-xl-4">
+                                <label className={`${c_vfml['form-label']}`} htmlFor="sensor">
+                                    Sensor:
+                                    <input
+                                        type="text"
+                                        id="sensor"
+                                        className="form-control"
+                                        placeholder="Nhập sensor"
+                                        value={state.filterForm.sensor || ""}
+                                        onChange={(e) => handleFilterChange('sensor', e.target.value)}
+                                    />
+                                </label>
+                            </div>
+
+                            <div className="col-12 mb-3 col-md-6 col-xl-4">
+                                <label className={`${c_vfml['form-label']}`} htmlFor="transmitter">
+                                    Transmitter:
+                                    <input
+                                        type="text"
+                                        id="transmitter"
+                                        className="form-control"
+                                        placeholder="Nhập transmitter"
+                                        value={state.filterForm.transmitter || ""}
+                                        onChange={(e) => handleFilterChange('transmitter', e.target.value)}
+                                    />
+                                </label>
+                            </div>
 
                             <div className="col-12 mb-3 col-md-6 col-xl-4">
                                 <label className={`${c_vfml['form-label']}`} htmlFor="so_qd_pdm">
@@ -376,7 +404,7 @@ export default React.memo(function PDMManagement({ className, listDHNamesExist }
                             </div>
 
 
-                            <div className="col-12 mb-3 col-md-6 col-xl-4">
+                            {/* <div className="col-12 mb-3 col-md-6 col-xl-4">
                                 <label className={`${c_vfml['form-label']}`}>
                                     Trạng thái:
                                     <Select
@@ -429,7 +457,8 @@ export default React.memo(function PDMManagement({ className, listDHNamesExist }
                                         }}
                                     />
                                 </label>
-                            </div>
+                            </div> */}
+
                             {/* <div className="col-12 mb-3 col-md-6 col-xl-4">
                                 <label className={`${c_vfml['form-label']}`}>
                                     Số lượng bản ghi:

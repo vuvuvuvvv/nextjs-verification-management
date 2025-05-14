@@ -56,7 +56,7 @@ export default function ModalInputSerialDongHo({ show, handleClose }: ModalInput
     return (
         <Modal show={show} className='pe-0' onHide={handleClose} centered scrollable>
             <Modal.Header closeButton>
-                <Modal.Title>Nhập Số đồng hồ</Modal.Title>
+                <Modal.Title>Nhập Serial đồng hồ</Modal.Title>
             </Modal.Header>
             <Modal.Body>
                 <ul className='w-100 m-0 list-unstyled px-1' style={{

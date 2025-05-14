@@ -12,6 +12,7 @@ interface DongHoListContextType {
     dongHoList: DongHo[];
     setDongHoList: (listDongHo: DongHo[]) => void;
     setEditing: React.Dispatch<React.SetStateAction<boolean>>;
+    amount: number;
     setAmount: React.Dispatch<React.SetStateAction<number>>;
     addToListDongHo: (dongHo: DongHo) => void;
     updateListDongHo: (updatedDongHo: DongHo, index: number) => void;
@@ -49,7 +50,7 @@ export const DongHoListProvider = ({ dbName, children }: DongHoListProviderProps
         index: i + 1,
 
         group_id: "",
-        
+
         transitor: "",
         sensor: "",
         serial: "",
@@ -81,7 +82,8 @@ export const DongHoListProvider = ({ dbName, children }: DongHoListProviderProps
         ket_qua_check_do_kin: false,
         ket_qua_check_do_on_dinh_chi_so: false,
 
-        // noi_su_dung: DEFAULT_LOCATION,
+        noi_su_dung: DEFAULT_LOCATION,
+        ten_khach_hang: "",
         // vi_tri: "",
         // nhiet_do: "",
         // do_am: "",
@@ -115,19 +117,19 @@ export const DongHoListProvider = ({ dbName, children }: DongHoListProviderProps
             return Array.from({ length: amount }, (_, i) => ({
                 id: null,
                 ten_phuong_tien_do: "",
-        
+
                 is_hieu_chuan: isHieuChuan.current,
                 index: i + 1,
-        
+
                 group_id: "",
-                
+
                 transitor: "",
                 sensor: "",
                 serial: "",
-        
+
                 co_so_san_xuat: "",
                 nam_san_xuat: null,
-        
+
                 dn: "",
                 d: "",
                 ccx: null,
@@ -136,27 +138,28 @@ export const DongHoListProvider = ({ dbName, children }: DongHoListProviderProps
                 qn: "",
                 k_factor: "",
                 so_qd_pdm: "",
-        
+
                 so_giay_chung_nhan: "",
                 so_tem: "",
-        
+
                 co_so_su_dung: "",
                 phuong_phap_thuc_hien: "ĐLVN 17 : 2017",
                 chuan_thiet_bi_su_dung: "Đồng hồ chuẩn đo nước và Bình chuẩn",
                 nguoi_thuc_hien: "",
                 ngay_thuc_hien: new Date(),
-        
+
                 dia_diem_thuc_hien: "",
-        
+
                 ket_qua_check_vo_ngoai: false,
                 ket_qua_check_do_kin: false,
                 ket_qua_check_do_on_dinh_chi_so: false,
-        
-                // noi_su_dung: DEFAULT_LOCATION,
+
+                noi_su_dung: DEFAULT_LOCATION,
+                ten_khach_hang: "",
                 // vi_tri: "",
                 // nhiet_do: "",
                 // do_am: "",
-        
+
                 du_lieu_kiem_dinh: JSON.stringify({
                     hieu_sai_so: [
                         { hss: null },
@@ -174,7 +177,7 @@ export const DongHoListProvider = ({ dbName, children }: DongHoListProviderProps
                     ket_qua: null
                 }),
                 nguoi_soat_lai: "",
-        
+
                 hieu_luc_bien_ban: null,
             }));
         })
@@ -225,7 +228,8 @@ export const DongHoListProvider = ({ dbName, children }: DongHoListProviderProps
             // vi_tri: dongHo.vi_tri,
             // nhiet_do: dongHo.nhiet_do,
             // do_am: dongHo.do_am,
-            // noi_su_dung: dongHo.noi_su_dung,
+            noi_su_dung: dongHo.noi_su_dung,
+            ten_khach_hang: dongHo.ten_khach_hang,
 
             nguoi_soat_lai: dongHo.nguoi_soat_lai,
             dia_diem_thuc_hien: dongHo.dia_diem_thuc_hien,
@@ -379,6 +383,7 @@ export const DongHoListProvider = ({ dbName, children }: DongHoListProviderProps
             generalInfoDongHo,
             setEditing,
             setDongHoList: (list: DongHo[]) => setDongHoList(list ?? []),
+            amount,
             setAmount,
             addToListDongHo,
             // updateDongHoFieldsInList,

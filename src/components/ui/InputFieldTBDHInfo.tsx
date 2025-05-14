@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 
 interface InputFieldProps {
-    onChange?: (val: number) => void;
+    onChange?: (val: number | string) => void;
     disabled: boolean;
     isNumber?: boolean;
     error?: string;
@@ -43,7 +43,7 @@ const InputField: React.FC<InputFieldProps> = React.memo(({
     // Gọi onChange khi user rời khỏi ô (onBlur)
     const handleBlur = () => {
         if (!onChange) return;
-        const num = isNumber ? Number(val) || 0 : NaN;
+        const num = isNumber ? Number(val) : val;
         onChange(num);
     };
 

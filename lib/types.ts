@@ -217,7 +217,8 @@ export interface DongHo {
     // vi_tri: string | null,
     // nhiet_do: string | null,
     // do_am: string | null,
-    // noi_su_dung: string | null,
+    ten_khach_hang: string | null,
+    noi_su_dung: string | null,
 
     dia_diem_thuc_hien: string | null;
     
@@ -259,7 +260,8 @@ export interface GeneralInfoDongHo {
     // vi_tri: string | null,
     // nhiet_do: string | null,
     // do_am: string | null,
-    // noi_su_dung: string | null,
+    noi_su_dung: string | null,
+    ten_khach_hang: string | null,
 
 
     nguoi_soat_lai: string | null,
