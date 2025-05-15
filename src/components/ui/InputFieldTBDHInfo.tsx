@@ -9,6 +9,7 @@ interface InputFieldProps {
     index: number;
     value?: string;
     inputStyle?: React.CSSProperties;
+    className?: string;
 }
 
 const InputField: React.FC<InputFieldProps> = React.memo(({
@@ -20,6 +21,7 @@ const InputField: React.FC<InputFieldProps> = React.memo(({
     value = "",
     inputStyle,
     isNumber,
+    className,
 }) => {
     const [val, setVal] = useState<string>(value);
 
@@ -73,7 +75,7 @@ const InputField: React.FC<InputFieldProps> = React.memo(({
                 }}
                 onBlur={handleBlur}
                 onKeyDown={handleKeyDown}
-                className="form-control"
+                className={`form-control ${className}`}
                 style={{ width: "100%", minWidth: 130, ...inputStyle }}
                 autoComplete="off"
             />

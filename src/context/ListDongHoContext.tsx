@@ -307,14 +307,13 @@ export const DongHoListProvider = ({ dbName, children }: DongHoListProviderProps
         for (let i = 0; i < listDongHo.length; i++) {
             const dongHo = listDongHo[i];
             try {
-                console.log(listDongHo)
-                // const res = !isEditing ? await createDongHo(dongHo) : await updateDongHo(dongHo);
-                // if (res.status === 201 || res.status === 200) {
-                //     successMessages.push(`ĐH${(dongHoList.indexOf(dongHo)) + 1}: Lưu thành công`);
-                //     setSavedDongHoList(prevList => [...prevList, dongHo]);
-                // } else {
-                //     errorMessages.push(`ĐH${(dongHoList.indexOf(dongHo)) + 1}: ${res.msg || "Chưa thể khởi tạo"}`);
-                // }
+                const res = !isEditing ? await createDongHo(dongHo) : await updateDongHo(dongHo);
+                if (res.status === 201 || res.status === 200) {
+                    successMessages.push(`ĐH${(dongHoList.indexOf(dongHo)) + 1}: Lưu thành công`);
+                    setSavedDongHoList(prevList => [...prevList, dongHo]);
+                } else {
+                    errorMessages.push(`ĐH${(dongHoList.indexOf(dongHo)) + 1}: ${res.msg || "Chưa thể khởi tạo"}`);
+                }
             } catch (error: any) {
                 errorMessages.push(`ĐH${(dongHoList.indexOf(dongHo)) + 1}: ${error.message || "Chưa thể khởi tạo"}`);
             }

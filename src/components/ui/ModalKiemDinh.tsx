@@ -18,12 +18,13 @@ import ModalInputSoLuongDongHo from './ModalInputSoLuongDongHo';
 import { ACCESS_LINKS } from '@lib/system-constant';
 interface ModalKiemDinhProps {
     show: boolean;
+    isEditing?: boolean;
     handleClose: () => void;
 }
 
 type ActiveLL = { title: string; value: string } | null;
 
-export default function ModalKiemDinh({ show, handleClose }: ModalKiemDinhProps) {
+export default function ModalKiemDinh({ show, isEditing = false, handleClose }: ModalKiemDinhProps) {
     const [showModal, setShowModal] = useState(show);
     const [showModalNhapSoLuong, setShowModalNhapSoLuong] = useState(false);
     const { luuLuong, getDuLieuChayCuaLuuLuong, updateLuuLuong, themLanChayCuaLuuLuong, xoaLanChayCuaLuuLuong } = useKiemDinh();
@@ -34,6 +35,7 @@ export default function ModalKiemDinh({ show, handleClose }: ModalKiemDinhProps)
         savedDongHoList,
     } = useDongHoList();
     const [isUsingBinhChuan, setUsingBinhChuan] = useState(false);
+    const [usingBinhChuanFlag, setUsingBinhChuanFlag] = useState(false);
 
     const [activeLL, setActiveLL] = useState<ActiveLL | null>(null);
 
@@ -52,6 +54,19 @@ export default function ModalKiemDinh({ show, handleClose }: ModalKiemDinhProps)
     };
 
     const debounceRef = useRef<NodeJS.Timeout | null>(null)
+    const debounceFlagUsingBinhChuanRef = useRef<NodeJS.Timeout | null>(null)
+
+    const handleFlagBinhChuan = () => {
+        if (debounceFlagUsingBinhChuanRef.current) {
+            clearTimeout(debounceFlagUsingBinhChuanRef.current);
+        }
+
+        debounceFlagUsingBinhChuanRef.current = setTimeout(() => {
+            setUsingBinhChuanFlag(true);
+            setUsingBinhChuan(true);
+        }, 300);
+
+    }
 
     const handleChange = (
         soLan: number,
@@ -135,7 +150,7 @@ export default function ModalKiemDinh({ show, handleClose }: ModalKiemDinhProps)
                             Swal.showLoading();
                             createListDongHo(dongHoToSave).then((isSuccessful) => {
                                 if (isSuccessful) {
-                                    // window.location.href = ACCESS_LINKS.DHN.src;
+                                    window.location.href = ACCESS_LINKS.DHN.src;
                                 }
                             });
                         }
@@ -281,6 +296,10 @@ export default function ModalKiemDinh({ show, handleClose }: ModalKiemDinhProps)
                                             const rowIndex = indexDongHo * Object.keys(duLieuCacLanChay).length + i;
                                             const ss = parseFloat((getSaiSoDongHo(dl) ?? 0).toFixed(2));
 
+                                            if (isEditing && !usingBinhChuanFlag && (!dl.Vc1 && !dl.Vc2 || dl.Vc2 == 0 && dl.Vc1 == 0)) {
+                                                handleFlagBinhChuan();
+                                            }
+
                                             rows.push(
                                                 <tr key={indexDongHo + "_" + i}>
                                                     {i == 0 && <td rowSpan={Object.keys(duLieuCacLanChay).length} style={{ padding: "10px" }}>
@@ -306,7 +325,7 @@ export default function ModalKiemDinh({ show, handleClose }: ModalKiemDinhProps)
                                                             index={rowIndex}
                                                             isNumber={true}
                                                             value={dl.V2.toString()}
-                                                            // onChange={(value) => handleInputChange(index, "serial", value)}
+                                                            className={`${(dl.V2 > dl.V1) ? "" : "bg-warning"}`}
                                                             onChange={(value) => { handleChange((i + 1), indexDongHo, { ...dl, V2: Number(value) }, "V2") }}
                                                             disabled={savedDongHoList.some(dh => JSON.stringify(dh) == JSON.stringify(dongHo)) || savedDongHoList.length == dongHoList.length}
                                                             // error={errorsList[index]?.serial}
@@ -317,6 +336,7 @@ export default function ModalKiemDinh({ show, handleClose }: ModalKiemDinhProps)
                                                         <InputField
                                                             index={rowIndex}
                                                             isNumber={true}
+                                                            className={`${(dl.V2 > dl.V1) ? "" : "bg-danger text-white"}`}
                                                             value={(dl.V2 > dl.V1) ? Number((dl.V2 - dl.V1).toFixed(4)).toString() : "0"}
                                                             // onChange={(value) => handleInputChange(index, "serial", value)}
                                                             disabled={true}
@@ -354,6 +374,7 @@ export default function ModalKiemDinh({ show, handleClose }: ModalKiemDinhProps)
                                                             <InputField
                                                                 index={rowIndex}
                                                                 isNumber={true}
+                                                                className={`${(dl.Vc2 && dl.Vc1 && dl.Vc2 > dl.Vc1) ? "" : "bg-warning"}`}
                                                                 value={(dl.Vc2 ? dl.Vc2 : 0).toString()}
                                                                 // onChange={(value) => handleInputChange(index, "serial", value)}
                                                                 onChange={(value) => { handleChange((i + 1), indexDongHo, { ...dl, Vc2: value }, "Vc2") }}
@@ -368,7 +389,7 @@ export default function ModalKiemDinh({ show, handleClose }: ModalKiemDinhProps)
                                                             index={rowIndex}
                                                             isNumber={true}
                                                             value={(dl.Vc ? dl.Vc : 0).toString()}
-                                                            // onChange={(value) => handleInputChange(index, "serial", value)}
+                                                            className={`${(isUsingBinhChuan || dl.Vc2 && dl.Vc1 && dl.Vc2 > dl.Vc1) ? "" : "bg-danger text-white"}`}
                                                             onChange={(value) => { handleChange((i + 1), indexDongHo, { ...dl, Vc: value }, "Vc") }}
                                                             disabled={savedDongHoList.some(dh => JSON.stringify(dh) == JSON.stringify(dongHo)) || savedDongHoList.length == dongHoList.length || !isUsingBinhChuan}
                                                             // error={errorsList[index]?.serial}

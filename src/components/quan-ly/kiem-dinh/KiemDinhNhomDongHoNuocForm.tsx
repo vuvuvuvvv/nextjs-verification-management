@@ -27,7 +27,7 @@ import {
     TITLE_LUU_LUONG, typeOptions
 } from "@lib/system-constant";
 
-import { DongHo, GeneralInfoDongHo } from "@lib/types";
+import { DongHo, DuLieuChayDiemLuuLuong, GeneralInfoDongHo } from "@lib/types";
 import { useDongHoList } from "@/context/ListDongHoContext";
 
 import dynamic from "next/dynamic";
@@ -48,6 +48,7 @@ interface KiemDinhNhomDongHoNuocFormProps {
 
 interface State {
     phuongTienDo: string;
+    groupId: string;
 
     transitor: string;
     sensor: string;
@@ -135,6 +136,16 @@ export default function KiemDinhNhomDongHoNuocForm({ className, generalInfoDongH
 
     const initialState: State = {
         phuongTienDo: generalInfoDongHo?.ten_phuong_tien_do || "",
+        groupId: !isEditing
+            ? ""
+            : convertToUppercaseNonAccent(""
+                + (generalInfoDongHo?.ten_khach_hang || "") + "_"
+                + (generalInfoDongHo?.dn || "")
+                + (generalInfoDongHo?.ccx || "")
+                + (generalInfoDongHo?.q3 || "")
+                + (generalInfoDongHo?.r || "")
+                + (generalInfoDongHo?.qn || "")
+                + (generalInfoDongHo?.ngay_thuc_hien ? dayjs(generalInfoDongHo.ngay_thuc_hien).format('DDMMYYHHmmss') : '')),
 
         transitor: generalInfoDongHo?.transitor || "",
         sensor: generalInfoDongHo?.sensor || "",
@@ -158,11 +169,11 @@ export default function KiemDinhNhomDongHoNuocForm({ className, generalInfoDongH
         nguoiThucHien: generalInfoDongHo?.nguoi_thuc_hien || user?.fullname || "",
         ngayThucHien: generalInfoDongHo?.ngay_thuc_hien || new Date(),
 
-        diaDiemThucHien: generalInfoDongHo?.dia_diem_thuc_hien || "",
+        diaDiemThucHien: generalInfoDongHo?.dia_diem_thuc_hien || DEFAULT_LOCATION || "",
 
-        ketQuaCheckVoNgoai: false,
-        ketQuaCheckDoKin: false,
-        ketQuaCheckDoOnDinhChiSo: false,
+        ketQuaCheckVoNgoai: generalInfoDongHo?.ket_qua_check_vo_ngoai ?? false,
+        ketQuaCheckDoKin: generalInfoDongHo?.ket_qua_check_do_kin ?? false,
+        ketQuaCheckDoOnDinhChiSo: generalInfoDongHo?.ket_qua_check_do_on_dinh_chi_so ?? false,
 
         nguoiSoatLai: generalInfoDongHo?.nguoi_soat_lai || "",
 
@@ -184,17 +195,14 @@ export default function KiemDinhNhomDongHoNuocForm({ className, generalInfoDongH
     } = useDongHoList();
 
     const {
-        setLuuLuong
+        setLuuLuong,
+        lanChayMoi
     } = useKiemDinh();
-
-    const [selectedCssxOption, setSelectedCssxOption] = useState<{ value: string, label: string } | null>(
-        generalInfoDongHo?.co_so_san_xuat ? { value: generalInfoDongHo.co_so_san_xuat, label: generalInfoDongHo.co_so_san_xuat } : null
-    );
-    const [CSSXOptions] = useState<{ value: string, label: string }[]>([]);
-
     // const [DHNameOptions, setDHNameOptions] = useState<{ value: string, label: string }[]>([]);
-    const [isDHDienTu, setDHDienTu] = useState<boolean>(false);
-    const [isCoSensorTransitorRoi, setCoSensorTransitorRoi] = useState<boolean>(false);             // Có sensor và transitor rời
+    const [isDHDienTu, setDHDienTu] = useState<boolean>(false); const [isCoSensorTransitorRoi, setCoSensorTransitorRoi] = useState<boolean>(
+        isEditing ? Boolean(generalInfoDongHo?.q3 && generalInfoDongHo?.r && !generalInfoDongHo?.qn) : false
+    );
+    // Có sensor và transitor rời
     const [isDHSaved, setDHSaved] = useState<boolean | null>(null);
     const [selectedDongHoIndex, setSelectedDongHoIndex] = useState<number | null>(null);
     const [errorPDM, setErrorPDM] = useState("");
@@ -209,7 +217,6 @@ export default function KiemDinhNhomDongHoNuocForm({ className, generalInfoDongH
     });
 
     const handleFieldChange = (field: keyof State, value: any) => {
-        console.log(field);
         if (isCoSensorTransitorRoi && (field == "sensor" || field == "transitor")) {
             dispatch({ type: 'SET_FIELD', field: 'transitor', value: '' });
         }
@@ -219,50 +226,6 @@ export default function KiemDinhNhomDongHoNuocForm({ className, generalInfoDongH
     const handleMultFieldChange = (fields: Partial<State>) => {
         dispatch({ type: 'SET_MULTIPLE_FIELDS', fields });
     };
-
-    const getGeneralInfoDongHo = () => {
-        return {
-            ten_phuong_tien_do: state.phuongTienDo,
-    
-            transitor: state.transitor,
-            sensor: state.sensor,
-            serial: state.serial,
-    
-            co_so_san_xuat: state.coSoSanXuat,
-            nam_san_xuat: state.namSanXuat,
-
-            group_id: "", // todo
-    
-            dn: state.dn,
-            d: state.d,
-            ccx: state.ccx,
-            q3: state.q3,
-            r: state.r,
-            qn: state.qn,
-            so_qd_pdm: state.soQDPDM,
-    
-            co_so_su_dung: state.coSoSuDung,
-            phuong_phap_thuc_hien: state.phuongPhapThucHien,
-            chuan_thiet_bi_su_dung: state.chuanThietBiSuDung,
-    
-            nguoi_thuc_hien: state.nguoiThucHien,
-            ngay_thuc_hien: state.ngayThucHien,
-    
-            dia_diem_thuc_hien: state.diaDiemThucHien,
-    
-            ket_qua_check_vo_ngoai: state.ketQuaCheckVoNgoai,
-            ket_qua_check_do_kin: state.ketQuaCheckDoKin,
-            ket_qua_check_do_on_dinh_chi_so: state.ketQuaCheckDoOnDinhChiSo,
-    
-            nguoi_soat_lai: state.nguoiSoatLai,
-    
-            // viTri: state.vi_tri,
-            // nhietDo: state.nhiet_do || '',
-            // doAm: state.do_am || '',
-            noi_su_dung: state.noiSuDung,
-            ten_khach_hang: state.tenKhachHang
-        };
-    }
 
     const [error, setError] = useState("");
 
@@ -434,6 +397,15 @@ export default function KiemDinhNhomDongHoNuocForm({ className, generalInfoDongH
         return validationErrors;
     };
 
+    type LuuLuong = {
+        isDHDienTu: boolean,
+        q3Orn: { title: string; value: string } | null,
+        q2Ort: { title: string; value: string } | null,
+        q1Ormin: { title: string; value: string } | null
+    };
+
+    const luuLuongRef = useRef<LuuLuong | null>(null);
+
     useEffect(() => {
         // Set error messgae Phe duyet mai
         if (soQDPDMRef.current != state.soQDPDM) {
@@ -441,34 +413,142 @@ export default function KiemDinhNhomDongHoNuocForm({ className, generalInfoDongH
             soQDPDMRef.current = state.soQDPDM
         }
 
+        const groupId = convertToUppercaseNonAccent(""
+            + (state.tenKhachHang || "") + "_"
+            + (state.dn || "")
+            + (state.ccx || "")
+            + (state.q3 || "")
+            + (state.r || "")
+            + (state.qn || "")
+            + (state.ngayThucHien ? dayjs(state.ngayThucHien).format('DDMMYYHHmmss') : ''));
+        dispatch({ type: 'SET_FIELD', field: 'groupId', value: groupId });
+
         if (isCoSensorTransitorRoiRef.current != isCoSensorTransitorRoi) {
             isCoSensorTransitorRoiRef.current = isCoSensorTransitorRoi;
             dispatch({ type: 'SET_FIELD', field: 'transitor', value: '' });
         }
 
         const tmp_isDHDienTu = Boolean((state.ccx && ["1", "2"].includes(state.ccx)) || state.phuongTienDo == "Đồng hồ đo nước lạnh có cơ cấu điện tử");
-
+        let newDHList = [...dongHoList];
         // Get q1 q2 || qmin qt
         if ((state.phuongTienDo || state.ccx) && ((state.q3 && state.r) || state.qn)) {
             const { getQ1OrMin, getQ2Ort } = getQ2OrtAndQ1OrQMin(tmp_isDHDienTu, state.ccx, tmp_isDHDienTu ? state.q3 : state.qn, tmp_isDHDienTu ? state.r : null);
-            setLuuLuong({
+            const luuLuong = {
                 isDHDienTu: tmp_isDHDienTu,
                 q3Orn: { title: tmp_isDHDienTu ? TITLE_LUU_LUONG.q3 : TITLE_LUU_LUONG.qn, value: tmp_isDHDienTu ? state.q3 : state.qn },
                 q2Ort: { title: getQ2Ort.title, value: (getQ2Ort.value)?.toString() || "" },
                 q1Ormin: { title: getQ1OrMin.title, value: (getQ1OrMin.value)?.toString() || "" }
-            })
+            };
+            if (luuLuong && luuLuong != luuLuongRef.current) {
+                luuLuongRef.current = luuLuong;
+
+                const q3n = luuLuong.q3Orn;
+                const q2t = luuLuong.q2Ort;
+                const q1min = luuLuong.q1Ormin;
+
+                const LLValues = {
+                    [luuLuong.isDHDienTu ? TITLE_LUU_LUONG.q3 : TITLE_LUU_LUONG.qn]: q3n,
+                    [luuLuong.isDHDienTu ? TITLE_LUU_LUONG.q2 : TITLE_LUU_LUONG.qt]: q2t,
+                    [luuLuong.isDHDienTu ? TITLE_LUU_LUONG.q1 : TITLE_LUU_LUONG.qmin]: q1min
+                }
+
+                newDHList = newDHList.map((dh, indexDH) => {
+
+                    const dlkdJSON = dh.du_lieu_kiem_dinh;
+                    const dlkd = dlkdJSON ?
+                        ((typeof dlkdJSON != 'string') ?
+                            dlkdJSON : JSON.parse(dlkdJSON)
+                        ) : null;
+
+                    const tmpHssDH = dlkd.hieu_sai_so;
+
+                    const titles = luuLuong.isDHDienTu
+                        ? [TITLE_LUU_LUONG.q3, TITLE_LUU_LUONG.q2, TITLE_LUU_LUONG.q1]
+                        : [TITLE_LUU_LUONG.qn, TITLE_LUU_LUONG.qt, TITLE_LUU_LUONG.qmin];
+
+                    const new_dl = Object.fromEntries(
+                        Object.entries(dlkd.du_lieu).map(([qTitle, dlChay]) => {
+                            if (!titles.includes(qTitle)) {
+                                return [qTitle, null];
+                            }
+                            const dl = dlChay as DuLieuChayDiemLuuLuong ?? {
+                                value: LLValues[qTitle] ?? null,
+                                lan_chay: lanChayMoi
+                            };
+                            dl.value = LLValues[qTitle]?.value !== undefined
+                                ? (isNaN(Number(LLValues[qTitle]?.value)) ? null : Number(LLValues[qTitle]?.value))
+                                : dl.value;
+
+                            return [qTitle, dl];
+                        })
+                    );
+
+
+                    const newDLKDDHList = {
+                        du_lieu: new_dl,
+                        hieu_sai_so: [...tmpHssDH],
+                        ket_qua: isDongHoDatTieuChuan(tmpHssDH)
+                    };
+
+                    return {
+                        ...dh,
+                        du_lieu_kiem_dinh: JSON.stringify(newDLKDDHList)
+                    }
+                });
+            }
+
+            setLuuLuong(luuLuong);
             handleMultFieldChange({ q1Ormin: getQ1OrMin.value, q2Ort: getQ2Ort.value });
         }
 
-        if(debounceFieldTimeoutRef.current) {
+        if (debounceFieldTimeoutRef.current) {
             clearTimeout(debounceFieldTimeoutRef.current);
         }
 
-        console.log(getGeneralInfoDongHo());
-
         debounceFieldTimeoutRef.current = setTimeout(() => {
-            const newDHList = dongHoList.map((dh, i) => {
-                return {...dh, ...getGeneralInfoDongHo};
+            newDHList = dongHoList.map((dh, i) => {
+                return {
+                    ...dh,
+                    ten_phuong_tien_do: state.phuongTienDo,
+
+                    transitor: state.transitor,
+                    sensor: state.sensor,
+                    serial: state.serial,
+
+                    co_so_san_xuat: state.coSoSanXuat,
+                    nam_san_xuat: state.namSanXuat,
+
+                    group_id: state.groupId, // todo
+
+                    dn: state.dn,
+                    d: state.d,
+                    ccx: state.ccx,
+                    q3: state.q3,
+                    r: state.r,
+                    qn: state.qn,
+                    so_qd_pdm: state.soQDPDM,
+
+                    co_so_su_dung: state.coSoSuDung,
+                    phuong_phap_thuc_hien: state.phuongPhapThucHien,
+                    chuan_thiet_bi_su_dung: state.chuanThietBiSuDung,
+
+                    nguoi_thuc_hien: state.nguoiThucHien,
+                    ngay_thuc_hien: state.ngayThucHien,
+
+                    dia_diem_thuc_hien: state.diaDiemThucHien,
+
+                    ket_qua_check_vo_ngoai: state.ketQuaCheckVoNgoai,
+                    ket_qua_check_do_kin: state.ketQuaCheckDoKin,
+                    ket_qua_check_do_on_dinh_chi_so: state.ketQuaCheckDoOnDinhChiSo,
+
+                    nguoi_soat_lai: state.nguoiSoatLai,
+
+                    // viTri: state.vi_tri,
+                    // nhietDo: state.nhiet_do || '',
+                    // doAm: state.do_am || '',
+                    noi_su_dung: state.noiSuDung,
+                    ten_khach_hang: state.tenKhachHang
+                };
             });
             setDongHoList(newDHList);
         }, 700);
@@ -556,6 +636,7 @@ export default function KiemDinhNhomDongHoNuocForm({ className, generalInfoDongH
             />
             <ModalKiemDinh
                 show={modalState.showModalKiemDinh}
+                isEditing={isEditing}
                 handleClose={() => modalDispatch({ type: 'SET_SHOW_MODAL_KIEM_DINH', show: false })}
             />
             <div className={`${className ? className : ""} ${ui_vfm['wraper']} container p-0 px-2 py-3 w-100`}>
@@ -625,7 +706,7 @@ export default function KiemDinhNhomDongHoNuocForm({ className, generalInfoDongH
                                     />
                                 </div>
 
-                                <div className="mb-3 col-12 col-md-4 d-flex align-items-end pb-1">
+                                {!isEditing && <div className="mb-3 col-12 col-md-4 d-flex align-items-end pb-1">
                                     <div className="d-flex align-items-center">
                                         <ToggleSwitchButton
                                             value={isCoSensorTransitorRoi}
@@ -634,8 +715,10 @@ export default function KiemDinhNhomDongHoNuocForm({ className, generalInfoDongH
                                         ></ToggleSwitchButton>
                                         <span style={{ fontSize: "14px" }} className={`ms-2 ${!isCoSensorTransitorRoi && "text-secondary"}`}>Có Sensor và Transitor rời</span>
                                     </div>
-                                </div>
-                                <div className={`mb-3 col-12 col-md-6 col-lg-4 ${isCoSensorTransitorRoi ? "col-lg-4" : "col-lg-8"} ${ui_vfm['wrap-input-field']}`}>
+                                </div>}
+
+
+                                <div className={`mb-3 col-12 col-md-6 col-lg-4 ${isCoSensorTransitorRoi && !isEditing ? "col-lg-4" : "col-lg-5"} ${ui_vfm['wrap-input-field']}`}>
                                     <label htmlFor="sensor" className="form-label">{isCoSensorTransitorRoi ? "Sensor" : "Kiểu"}:</label>
                                     <input
                                         type="text"
@@ -649,7 +732,7 @@ export default function KiemDinhNhomDongHoNuocForm({ className, generalInfoDongH
                                     />
                                 </div>
                                 {isCoSensorTransitorRoi &&
-                                    <div className={`mb-3 col-12 col-md-6 col-lg-4 ${ui_vfm['wrap-input-field']}`}>
+                                    <div className={`mb-3 col-12 col-md-6 col-lg-5 ${ui_vfm['wrap-input-field']}`}>
                                         <label htmlFor="transitor" className="form-label">Transitor:</label>
                                         <input
                                             type="text"
@@ -664,7 +747,7 @@ export default function KiemDinhNhomDongHoNuocForm({ className, generalInfoDongH
                                     </div>
                                 }
 
-                                <div className={`mb-3 col-12 ${isCoSensorTransitorRoi ? "col-md-10" : "col-md-6"} col-lg-4 ${ui_vfm['wrap-input-field']}`}>
+                                <div className={`mb-3 col-12 ${!isEditing ? (isCoSensorTransitorRoi ? "col-md-10 col-lg-4" : "col-md-6 col-lg-4") : "col-md-3 col-lg-2"} ${ui_vfm['wrap-input-field']}`}>
                                     <label htmlFor="serial" className="form-label">Số:</label>
                                     <button type="button" className={`btn btn-secondary`} onClick={() => { modalDispatch({ type: 'SET_SHOW_MODAL_SERIAL', show: true }) }}>Nhập số</button>
                                 </div>
