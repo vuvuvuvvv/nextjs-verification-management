@@ -45,7 +45,7 @@ export default function Page({ params }: { params: { id: string } }) {
                 (oldPdmData.ten_dong_ho || "") +
                 (oldPdmData.dn || "") +
                 (oldPdmData.ccx || "") +
-                (oldPdmData.kieu_sensor || "") +
+                (oldPdmData.sensor || "") +
                 (oldPdmData.transmitter || "") +
                 (oldPdmData.q3 || "") +
                 (oldPdmData.r || "") +
@@ -56,7 +56,7 @@ export default function Page({ params }: { params: { id: string } }) {
                 (pdmData.ten_dong_ho || "") +
                 (pdmData.dn || "") +
                 (pdmData.ccx || "") +
-                (pdmData.kieu_sensor || "") +
+                (pdmData.sensor || "") +
                 (pdmData.transmitter || "") +
                 (pdmData.q3 || "") +
                 (pdmData.r || "") +
@@ -128,7 +128,7 @@ export default function Page({ params }: { params: { id: string } }) {
                     (res.data.ten_dong_ho || "") +
                     (res.data.dn || "") +
                     (res.data.ccx || "") +
-                    (res.data.kieu_sensor || "") +
+                    (res.data.sensor || "") +
                     (res.data.transmitter || "") +
                     (res.data.q3 || "") +
                     (res.data.r || "") +
@@ -379,16 +379,16 @@ export default function Page({ params }: { params: { id: string } }) {
                                             />
                                         </div>
                                     )}
-                                    {pdmData?.kieu_sensor && (
+                                    {pdmData?.sensor && (
                                         <div className="mb-3 col-12 col-md-6">
-                                            <label htmlFor="kieu_sensor" className="form-label">- Kiểu sensor:</label>
+                                            <label htmlFor="sensor" className="form-label">- Kiểu sensor:</label>
                                             <input
                                                 type="text"
                                                 className="form-control"
-                                                id="kieu_sensor"
-                                                name="kieu_sensor"
+                                                id="sensor"
+                                                name="sensor"
                                                 placeholder="Kiểu sensor"
-                                                value={pdmData.kieu_sensor}
+                                                value={pdmData.sensor}
                                                 onChange={handleInputChange}
                                             />
                                         </div>
@@ -552,10 +552,10 @@ export default function Page({ params }: { params: { id: string } }) {
                                             <span className="fs-5 fw-light">{pdmData.r.replace('.0', '')}</span>
                                         </div>
                                     )}
-                                    {pdmData?.kieu_sensor && (
+                                    {pdmData?.sensor && (
                                         <div className="mb-3 col-12 col-md-6 col-xl-6">
                                             <label className="form-label fw-bold me-3">- Kiểu sensor:</label>
-                                            <span className="fs-5 fw-light">{pdmData.kieu_sensor}</span>
+                                            <span className="fs-5 fw-light">{pdmData.sensor}</span>
                                         </div>
                                     )}
                                     {pdmData?.transmitter && (

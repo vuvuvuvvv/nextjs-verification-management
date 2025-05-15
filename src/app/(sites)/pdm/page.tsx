@@ -14,7 +14,7 @@ interface PDMProps {
 }
 
 export default function PDM({ className }: PDMProps) {
-    const [loading, setLoading] = useState<boolean>(true);
+    const [loading, setLoading] = useState<boolean>(false);
     const [listDHNamesExist, setDHNameOptions] = useState<string[]>([]);
     const fetchCalled = useRef(false);
     const [error, setError] = useState("");
@@ -47,27 +47,6 @@ export default function PDM({ className }: PDMProps) {
             });
         }
     }, [error]);
-
-    useEffect(() => {
-        if (fetchCalled.current) return;
-        fetchCalled.current = true;
-
-        const fetchData = async () => {
-            try {
-                const res = await api.get(`${BASE_API_URL}/dongho/get-distinct-names-and-locations`);
-                const listNames: string[] = res.data.ten_dong_ho
-                const uniqueNames = listNames.filter((value, index, self) => self.indexOf(value) === index);
-                const sortedNames = uniqueNames.sort((a, b) => a.localeCompare(b));
-                setDHNameOptions(sortedNames || []);
-            } catch (error) {
-                setError("Có lỗi xảy ra khi lấy tên đồng hồ! Hãy thử lại sau.");
-            } finally {
-                setLoading(false);
-            }
-        };
-
-        fetchData();
-    }, []);
 
     if (loading) {
         return <Loading></Loading>;

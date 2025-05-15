@@ -10,8 +10,6 @@ interface ToggleSwitchProps {
 
 const ToggleSwitchButton: FC<ToggleSwitchProps> = ({ value, onChange, disabled = false }) => {
     return (
-        <div className="d-flex align-items-center">
-            <span style={{fontSize: "14px"}} className={`me-2 ${value && "text-secondary"}`}>Không</span>
             <div className="form-check form-switch">
                 <input
                     className="form-check-input"
@@ -24,8 +22,6 @@ const ToggleSwitchButton: FC<ToggleSwitchProps> = ({ value, onChange, disabled =
                     style={{width: "55px", height: "30px"}}
                 />
             </div>
-            <span style={{fontSize: "14px"}} className={`ms-2 ${!value && "text-secondary"}`}>Đạt</span>
-        </div>
     );
 };
 

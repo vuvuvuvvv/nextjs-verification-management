@@ -26,7 +26,6 @@ import Swal from "sweetalert2";
 import { getDongHoByFilter } from "@/app/api/dongho/route";
 import { decode, getNameOfRole } from "@lib/system-function";
 import { useUser } from "@/context/AppContext";
-import { Button } from "react-bootstrap";
 import ModalMultDongHoPermissionMng from "@/components/ui/ModalMultDongHoPermissionMng";
 
 const Loading = React.lazy(() => import("@/components/Loading"));
@@ -34,14 +33,13 @@ const Loading = React.lazy(() => import("@/components/Loading"));
 
 interface DongHoNuocMngProps {
     className?: string,
-    isBiggerThan15?: boolean,
     isAuthorizing?: boolean,
     setSelectedDongHo?: React.Dispatch<React.SetStateAction<DongHo | null>>;
     clearNDHPropData?: () => void;
     dataList?: DongHo[]
 }
 
-export default function DongHoNuocMng({ className, isBiggerThan15 = false, isAuthorizing = false, setSelectedDongHo, clearNDHPropData, dataList = [] }: DongHoNuocMngProps) {
+export default function DongHoNuocMng({ className, isAuthorizing = false, setSelectedDongHo, clearNDHPropData, dataList = [] }: DongHoNuocMngProps) {
     const { user, isViewer, isSuperAdmin, getCurrentRole } = useUser();
     const [data, setRootData] = useState<DongHo[]>([]);
     const rootData = useRef<DongHo[]>([]);
@@ -86,12 +84,10 @@ export default function DongHoNuocMng({ className, isBiggerThan15 = false, isAut
 
     const [filterForm, setFilterForm] = useState<DongHoFilterParameters>({
         so_giay_chung_nhan: "",
-        seri_sensor: "",
-        type: "",
+        kieu_moden: "",
         ccx: "",
         nguoi_thuc_hien: "",
-        ten_khach_hang: "",
-        status: "",
+        serial: "",
         ngay_kiem_dinh_from: null,
         ngay_kiem_dinh_to: null,
         limit: limit,
@@ -209,12 +205,10 @@ export default function DongHoNuocMng({ className, isBiggerThan15 = false, isAut
     const handleResetFilter = () => {
         const blankFilterForm: DongHoFilterParameters = {
             so_giay_chung_nhan: "",
-            seri_sensor: "",
-            type: "",
+            serial: "",
+            kieu_moden: "",
             ccx: "",
             nguoi_thuc_hien: "",
-            ten_khach_hang: "",
-            status: "",
             ngay_kiem_dinh_from: null,
             ngay_kiem_dinh_to: null,
             last_seen: "",
@@ -279,18 +273,31 @@ export default function DongHoNuocMng({ className, isBiggerThan15 = false, isAut
                         <div className={`row m-0 px-md-3 w-100 mb-3 ${c_vfml['search-process']}`}>
                             {isAuthorizing ?
                                 <div className={`col-12 mb-3 col-xl-4 d-flex ${isAuthorizing ? "col-md-4 col-lg-4" : "col-md-6"}`}>
-                                    <label className={`${c_vfml['form-label']}`} htmlFor="seri_sensor">
-                                        Serial Sensor:
+                                    <label className={`${c_vfml['form-label']}`} htmlFor="serial">
+                                        Số:
                                         <input
                                             type="text"
-                                            id="seri_sensor"
+                                            id="serial"
                                             className="form-control"
                                             placeholder="Nhập serial"
-                                            value={filterForm.seri_sensor}
-                                            onChange={(e) => handleFilterChange('seri_sensor', e.target.value)}
+                                            value={filterForm.serial}
+                                            onChange={(e) => handleFilterChange('serial', e.target.value)}
                                         />
                                     </label>
                                 </div> : <>
+                                    <div className="col-12 mb-3 col-md-6 col-lg-4">
+                                        <label className={`${c_vfml['form-label']}`} htmlFor="kieu_moden">
+                                            Kiểu:
+                                            <input
+                                                type="text"
+                                                id="kieu_moden"
+                                                className="form-control"
+                                                placeholder="Nhập tên khách hàng"
+                                                value={filterForm.kieu_moden}
+                                                onChange={(e) => handleFilterChange('kieu_moden', e.target.value)}
+                                            />
+                                        </label>
+                                    </div>
                                     <div className="col-12 mb-3 col-md-6 col-lg-4 d-flex">
                                         <label className={`${c_vfml['form-label']}`} htmlFor="so_giay_chung_nhan">
                                             Số giấy chứng nhận:
@@ -301,19 +308,6 @@ export default function DongHoNuocMng({ className, isBiggerThan15 = false, isAut
                                                 placeholder="Nhập số giấy"
                                                 value={filterForm.so_giay_chung_nhan}
                                                 onChange={(e) => handleFilterChange('so_giay_chung_nhan', e.target.value)}
-                                            />
-                                        </label>
-                                    </div>
-                                    <div className="col-12 mb-3 col-md-6 col-lg-4">
-                                        <label className={`${c_vfml['form-label']}`} htmlFor="ten_khach_hang">
-                                            Tên khách hàng:
-                                            <input
-                                                type="text"
-                                                id="ten_khach_hang"
-                                                className="form-control"
-                                                placeholder="Nhập tên khách hàng"
-                                                value={filterForm.ten_khach_hang}
-                                                onChange={(e) => handleFilterChange('ten_khach_hang', e.target.value)}
                                             />
                                         </label>
                                     </div>
@@ -438,7 +432,7 @@ export default function DongHoNuocMng({ className, isBiggerThan15 = false, isAut
                                                     <th>
                                                         <div>
                                                             <span>
-                                                                Serial Sensor
+                                                                Kiểu
                                                             </span>
                                                         </div>
                                                     </th>
@@ -457,13 +451,6 @@ export default function DongHoNuocMng({ className, isBiggerThan15 = false, isAut
                                                         <div>
                                                             <span>
                                                                 Số giấy CN
-                                                            </span>
-                                                        </div>
-                                                    </th>
-                                                    <th>
-                                                        <div>
-                                                            <span>
-                                                                Tên khách hàng
                                                             </span>
                                                         </div>
                                                     </th>
@@ -512,7 +499,8 @@ export default function DongHoNuocMng({ className, isBiggerThan15 = false, isAut
                                                     <td className="text-center">{decode(dongHo.id || "")}</td>
                                                     {isAuthorizing ?
                                                         <>
-                                                            <td onClick={() => setSelectedDongHo?.(dongHo)}>{dongHo.seri_sensor || "Không có serial sensor"}</td>
+                                                            {/* TODO */}
+                                                            <td onClick={() => setSelectedDongHo?.(dongHo)}>{dongHo.sensor || "Không có sensor"}</td>
                                                             <td onClick={() => setSelectedDongHo?.(dongHo)}>{dayjs(dongHo.ngay_thuc_hien).format('DD-MM-YYYY')}</td>
                                                             <td onClick={() => setSelectedDongHo?.(dongHo)}>{getNameOfRole(isSuperAdmin ? getCurrentRole() : (dongHo?.current_permission || ""))}</td>
                                                             <td>
@@ -523,7 +511,6 @@ export default function DongHoNuocMng({ className, isBiggerThan15 = false, isAut
                                                         </> :
                                                         <>
                                                             <td>{dongHo.so_giay_chung_nhan}</td>
-                                                            <td>{dongHo.ten_khach_hang}</td>
                                                             <td>{dongHo.nguoi_thuc_hien}</td>
                                                             <td>{dayjs(dongHo.ngay_thuc_hien).format('DD-MM-YYYY')}</td>
                                                             <td>

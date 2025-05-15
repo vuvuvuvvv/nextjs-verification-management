@@ -1,65 +1,90 @@
-import { useDongHoList } from "@/context/ListDongHo";
-import { DongHo } from "@lib/types";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 
-const InputField: React.FC<{
-    onChange: (val: string) => void;
+interface InputFieldProps {
+    onChange?: (val: number | string) => void;
     disabled: boolean;
+    isNumber?: boolean;
     error?: string;
     name: string;
     index: number;
-}> = React.memo(({ onChange, disabled, error, name, index }) => {
-    const { dongHoList } = useDongHoList();
-    const [value, setValue] = useState<string>(dongHoList[index][name as keyof DongHo]?.toString() || "");
+    value?: string;
+    inputStyle?: React.CSSProperties;
+    className?: string;
+}
 
-    const handleEnterKey = (e: React.KeyboardEvent<HTMLInputElement>,
-        index: number,
-        field: "so_giay_chung_nhan" | "seri_sensor" | "seri_chi_thi" | "so_tem",
-    ) => {
-        if (e.key === 'Enter') {
-            if (e.shiftKey) {
-                const prevIndex = index - 1;
-                if (prevIndex >= 0) {
-                    const prevInput = document.querySelector(`input[name="${field}-${prevIndex}"]`) as HTMLInputElement;
-                    if (prevInput) {
-                        prevInput.focus();
-                    }
-                }
-            } else {
-                const nextIndex = index + 1;
-                if (nextIndex < dongHoList.length) {
-                    const nextInput = document.querySelector(`input[name="${field}-${nextIndex}"]`) as HTMLInputElement;
-                    if (nextInput) {
-                        nextInput.focus();
-                    }
-                }
-            }
+const InputField: React.FC<InputFieldProps> = React.memo(({
+    onChange,
+    disabled,
+    error,
+    name,
+    index,
+    value = "",
+    inputStyle,
+    isNumber,
+    className,
+}) => {
+    const [val, setVal] = useState<string>(value);
+
+    // Khi prop `value` thay đổi từ parent thì sync lại
+    useEffect(() => {
+        setVal(value);
+    }, [value]);
+
+    // Sanitize chỉ chứa số và dấu chấm
+    const sanitizeNumber = (raw: string) => {
+        let cleaned = raw.replace(/[^0-9.]/g, "");
+        const parts = cleaned.split(".");
+        if (parts.length > 2) {
+            cleaned = parts[0] + "." + parts.slice(1).join("");
         }
+        if (cleaned.startsWith(".")) cleaned = "0" + cleaned;
+        if (!cleaned.includes(".")) cleaned = cleaned.replace(/^0+/, "") || "0";
+        return cleaned;
     };
-    // todo
+
+    // Gọi onChange khi user rời khỏi ô (onBlur)
+    const handleBlur = () => {
+        if (!onChange) return;
+        const num = isNumber ? Number(val) : val;
+        onChange(num);
+    };
+
+    // Nhấn Enter để focus lên/xuống
+    const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+        if (e.key !== "Enter") return;
+        const offset = e.shiftKey ? -1 : 1;
+        const nextName = `${name}-${index + offset}`;
+        const nextInput = document.querySelector(
+            `input[name="${nextName}"]`
+        ) as HTMLInputElement;
+        nextInput?.focus();
+    };
 
     return (
-        <div>
+        <>
             <input
-                onKeyDown={(e) => handleEnterKey(e, index, name as "so_giay_chung_nhan" | "seri_sensor" | "seri_chi_thi" | "so_tem")}
-                autoComplete="off"
+                name={`${name}-${index}`}
                 type="text"
-                value={value}
+                value={val}
                 disabled={disabled}
-                onChange={(e) => {
-                    onChange(e.target.value);
-                    setValue(e.target.value);
+                onChange={e => {
+                    const next = isNumber
+                        ? sanitizeNumber(e.target.value)
+                        : e.target.value;
+                    setVal(next);
                 }}
-                className="form-control"
-                style={{ width: "100%", minWidth: "130px" }}
-                name={name + "-" + index}
+                onBlur={handleBlur}
+                onKeyDown={handleKeyDown}
+                className={`form-control ${className}`}
+                style={{ width: "100%", minWidth: 130, ...inputStyle }}
+                autoComplete="off"
             />
             {error && (
                 <small className="w-100 text-center text-danger">
                     {error}
                 </small>
             )}
-        </div>
+        </>
     );
 });
 

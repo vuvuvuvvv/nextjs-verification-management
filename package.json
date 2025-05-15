@@ -28,6 +28,7 @@
     "js-cookie": "^3.0.5",
     "jsonwebtoken": "^9.0.2",
     "jwt-decode": "^4.0.0",
+    "mitt": "^3.0.1",
     "next": "14.2.4",
     "next-auth": "^4.24.7",
     "nextjs-verification-management": "file:",
@@ -37,6 +38,8 @@
     "react-datetime-picker": "^6.0.1",
     "react-dom": "^18",
     "react-select": "^5.8.0",
+    "react-virtualized-auto-sizer": "^1.0.26",
+    "react-window": "^1.8.11",
     "sass": "^1.77.6",
     "styled-components": "^6.1.11",
     "sweetalert2": "^11.12.1"
@@ -48,6 +51,8 @@
     "@types/node": "^20",
     "@types/react": "^18",
     "@types/react-dom": "^18",
+    "@types/react-virtualized-auto-sizer": "^1.0.4",
+    "@types/react-window": "^1.8.8",
     "typescript": "^5"
   }
 }
