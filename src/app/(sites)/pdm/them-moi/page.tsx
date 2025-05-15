@@ -94,39 +94,6 @@ export default function AddNewPDM({ className }: AddNewPDMProps) {
         errorMaTimDHPDM
     ]);
 
-    // Query dongho name
-    useEffect(() => {
-        if (fetchDHNameCalled.current) return;
-        fetchDHNameCalled.current = true;
-
-        const fetchData = async () => {
-            try {
-                const res = await api.get(`${BASE_API_URL}/dongho/get-distinct-names-and-locations`);
-                const listNames: string[] = res.data.ten_dong_ho ?? [];
-                const uniqueNames = listNames.filter((value, index, self) => self.indexOf(value) === index);
-                const sortedNames = uniqueNames.sort((a, b) => a.localeCompare(b));
-                setDHNameOptions(sortedNames && sortedNames.length > 0 ? [
-                    ...sortedNames
-                        .filter(name => name && name.trim() !== "")
-                        .map((name) => ({ value: name, label: name }))
-                ] : []);
-
-                const listCSSX: string[] = res.data.noi_san_xuat ?? [];
-                const uniqueCSSX = listCSSX.filter((value, index, self) => self.indexOf(value) === index);
-                const sortedCSSX = uniqueCSSX.sort((a, b) => a.localeCompare(b));
-                setCSSXOptions(sortedCSSX && sortedCSSX.length > 0 ? [
-                    ...sortedCSSX
-                        .filter(name => name && name.trim() !== "")
-                        .map((name) => ({ value: name, label: name }))
-                ] : []);
-            } catch (error) {
-                setError("Đã có lỗi xảy ra! Hãy thử lại sau.");
-            }
-        };
-
-        fetchData();
-    }, []);
-
     useEffect(() => {
         if (error) {
             Swal.fire({
@@ -185,7 +152,7 @@ export default function AddNewPDM({ className }: AddNewPDMProps) {
             noi_san_xuat: noiSanXuat,
             dn: DN,
             ccx: CCX,
-            kieu_sensor: kieuSensor,
+            sensor: kieuSensor,
             transmitter: kieuChiThi,
             qn: qn,
             q3: q3,

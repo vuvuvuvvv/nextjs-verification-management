@@ -1,17 +1,12 @@
-import { useDongHoList } from "@/context/ListDongHo";
+import { useDongHoList } from "@/context/ListDongHoContext";
 import { Dayjs } from "dayjs";
 import dynamic from "next/dynamic";
 import dayjs from "dayjs";
-import React, { useEffect, useRef, useState } from "react";
+import React, { useState, useReducer, useEffect, useRef } from "react";
 import c_tbIDHInf from "@styles/scss/components/table-input-dongho-info.module.scss";
-import { DatePicker } from "@mui/x-date-pickers/DatePicker";
-import { getDongHoExistsByInfo } from "@/app/api/dongho/route";
-import { decode, getLastDayOfMonthInFuture } from "@lib/system-function";
-import { TITLE_LUU_LUONG } from "@lib/system-constant";
-import DatePickerField from "./ui/DatePickerTBDHInfo";
-import { DongHo } from "@lib/types";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faEdit } from "@fortawesome/free-solid-svg-icons";
+import { faEdit, faCogs } from "@fortawesome/free-solid-svg-icons";
+import { getFullSoGiayCN } from "@lib/system-function";
 
 const ToggleSwitchButton = dynamic(() => import('@/components/ui/ToggleSwitchButton'));
 const InputField = dynamic(() => import('@/components/ui//InputFieldTBDHInfo'));
@@ -24,28 +19,44 @@ interface TableDongHoInfoProps {
     selectDongHo: (value: number) => void;
 }
 
+type StateCheck = {
+    ket_qua_check_vo_ngoai: boolean;
+    ket_qua_check_do_kin: boolean;
+    ket_qua_check_do_on_dinh_chi_so: boolean;
+};
+
+type Action =
+    | { type: 'SET_KET_QUA_CHECK_VO_NGOAI'; payload: boolean }
+    | { type: 'SET_KET_QUA_CHECK_DO_KIN'; payload: boolean }
+    | { type: 'SET_KET_QUA_CHECK_DO_ON_DINH_CHI_SO'; payload: boolean };
+
+const initialStateCheck: StateCheck = {
+    ket_qua_check_vo_ngoai: false,
+    ket_qua_check_do_kin: false,
+    ket_qua_check_do_on_dinh_chi_so: false,
+};
+
+
 const InfoFieldTitle = {
     so_giay_chung_nhan: "Số GCN",
-    seri_sensor: "Serial sensor",
-    seri_chi_thi: "Serial chỉ thị",
+    serial: "Số",
     so_tem: "Số tem",
-    hieu_luc_bien_ban: "Hiệu lực biên bản",
     k_factor: "Hệ số K",
+    hieu_luc_bien_ban: "Hiệu lực biên bản",
     ket_qua_check_vo_ngoai: "Kết quả kiếm tra vỏ ngoài",
-    ghi_chu_vo_ngoai: "Ghi chú vỏ ngoài",
-    ma_quan_ly: "Mã quản lý"
+    ket_qua_check_do_kin: "Kết quả kiếm tra vỏ ngoài",
+    ket_qua_check_do_on_dinh_chi_so: "Kết quả kiếm tra vỏ ngoài",
 };
 
 type InfoField = {
     so_giay_chung_nhan?: string;
-    seri_sensor?: string;
-    seri_chi_thi?: string;
+    serial?: string;
     so_tem?: string;
     k_factor?: string;
     hieu_luc_bien_ban?: Date | null;
     ket_qua_check_vo_ngoai?: boolean;
-    ghi_chu_vo_ngoai?: string | null;
-    ma_quan_ly?: string | null;
+    ket_qua_check_do_kin?: boolean;
+    ket_qua_check_do_on_dinh_chi_so?: boolean;
 };
 
 const TableDongHoInfo: React.FC<TableDongHoInfoProps> = React.memo(({
@@ -57,387 +68,357 @@ const TableDongHoInfo: React.FC<TableDongHoInfoProps> = React.memo(({
 }) => {
     const { dongHoList, setDongHoList, savedDongHoList, isHieuChuan } = useDongHoList();
     const [errorsList, setErrorsList] = useState<InfoField[]>([]);
-    const [debounceTimeout, setDebounceTimeout] = useState<NodeJS.Timeout | null>(null);
+    const [dropdownOpen, setDropdownOpen] = useState<boolean>(false);
+    const debounceDongHoRef = React.useRef<NodeJS.Timeout | null>(null);
+
+
+    const kiemDinhReducer = (state: StateCheck, action: Action): StateCheck => {
+        switch (action.type) {
+            case 'SET_KET_QUA_CHECK_VO_NGOAI':
+                return { ...state, ket_qua_check_vo_ngoai: action.payload };
+            case 'SET_KET_QUA_CHECK_DO_KIN':
+                return { ...state, ket_qua_check_do_kin: action.payload };
+            case 'SET_KET_QUA_CHECK_DO_ON_DINH_CHI_SO':
+                return { ...state, ket_qua_check_do_on_dinh_chi_so: action.payload };
+            default:
+                return state;
+        }
+    };
+
+    const [stateCheck, dispatch] = useReducer(kiemDinhReducer, initialStateCheck);
+    const isManualChangeRef = useRef(false);
+    const prevStateRef = useRef<StateCheck>(stateCheck);
+    const dongHoListRef = useRef(dongHoList);
 
     const handleInputChange = React.useCallback((
         index: number,
-        field: "so_giay_chung_nhan" | "seri_sensor" | "seri_chi_thi" | "so_tem" | "hieu_luc_bien_ban" | "k_factor",
+        field: "so_giay_chung_nhan" | "serial" | "so_tem" | "hieu_luc_bien_ban",
         value: string | Date
     ) => {
         const updatedErrors = [...errorsList];
         const updatedDongHoList = [...dongHoList];
 
-        if (field == "hieu_luc_bien_ban") {
-            updatedDongHoList[index].hieu_luc_bien_ban = dayjs(value, 'DD-MM-YYYY').isValid() ? dayjs(value, 'DD-MM-YYYY').toDate() : null;
-            setDongHoList(updatedDongHoList);
-        } else if (!["k_factor", "seri_chi_thi"].includes(field)) {
-            if (debounceTimeout) {
-                clearTimeout(debounceTimeout);
-            }
+        if (field === "hieu_luc_bien_ban") {
+            updatedDongHoList[index].hieu_luc_bien_ban = dayjs(value, 'DD-MM-YYYY').isValid()
+                ? dayjs(value, 'DD-MM-YYYY').toDate()
+                : null;
 
-            const handler = setTimeout(async () => {
-                if (value) {
-                    const title = InfoFieldTitle[field as keyof InfoField];
-                    if (!updatedErrors[index]) {
-                        updatedErrors[index] = {}
-                    };
-                    setLoading(true)
-                    try {
-                        const exists = dongHoList.some((dongHo, i) => {
-                            return dongHo[field] === value && i !== index;
-                        });
-                        if (exists) {
-                            updatedErrors[index][field] = title + " đã tồn tại!";
-                        } else {
-                            const res = await getDongHoExistsByInfo(value.toString());
-                            if (res?.status === 200 || res?.status === 201) {
-                                updatedErrors[index][field] = title + " đã tồn tại!";
-                            } else if (res?.status === 404) {
-                                updatedErrors[index][field] = "";
-                            } else {
-                                updatedErrors[index][field] = "Có lỗi xảy ra khi kiểm tra " + title + "!";
-                            }
-                        }
-                    } catch (error) {
-                        updatedErrors[index][field] = "Đã có lỗi xảy ra! Hãy thử lại sau.";
-                    } finally {
-                        setLoading(false);
-                    }
+            if (debounceDongHoRef.current) clearTimeout(debounceDongHoRef.current);
+            debounceDongHoRef.current = setTimeout(() => {
+                setDongHoList([...updatedDongHoList]);
+            }, 300);
 
-                } else {
-                    updatedErrors[index][field] = "";
-                }
-
-                if (updatedDongHoList[index].so_giay_chung_nhan && updatedDongHoList[index].so_tem) {
-                    const isDHDienTu = Boolean((dongHoList[index].ccx && ["1", "2"].includes(dongHoList[index].ccx ?? "")) || dongHoList[index].kieu_thiet_bi == "Điện tử");
-                    updatedDongHoList[index].hieu_luc_bien_ban = getLastDayOfMonthInFuture(isDHDienTu, updatedDongHoList[index].ngay_thuc_hien) || null;
-                } else {
-                    updatedDongHoList[index].hieu_luc_bien_ban = null;
-                }
-
-                updatedDongHoList[index][field] = value.toString();
-                setErrorsList(updatedErrors);
-            }, 500);
-
-            setDebounceTimeout(handler);
-            setErrorsList(updatedErrors);
         } else {
             updatedDongHoList[index][field] = value.toString();
+            if (debounceDongHoRef.current) clearTimeout(debounceDongHoRef.current);
+            debounceDongHoRef.current = setTimeout(() => {
+                setDongHoList([...updatedDongHoList]);
+            }, 300);
         }
+    }, [dongHoList, errorsList, setLoading]);
 
-        setDongHoList(updatedDongHoList);
-    },
-        [dongHoList, errorsList, setLoading]
-    );
-
-    const handleOtherFieldChange = React.useCallback((
+    const handleRadioToggle = React.useCallback((
         index: number,
-        field: "ket_qua_check_vo_ngoai" | "ghi_chu_vo_ngoai" | "ma_quan_ly",
+        field: "ket_qua_check_vo_ngoai" | "ket_qua_check_do_kin" | "ket_qua_check_do_on_dinh_chi_so",
         value: boolean | string
     ) => {
-        const updatedDongHoList = [...dongHoList];
-        if (field == "ket_qua_check_vo_ngoai" && typeof (value) == "boolean") {
-            updatedDongHoList[index].ket_qua_check_vo_ngoai = value;
+        if (typeof (value) == "boolean") {
+            const updatedDongHoList = [...dongHoList];
+
+            updatedDongHoList[index] = {
+                ...updatedDongHoList[index],
+                [field]: value
+            };
+
+            setDongHoList(updatedDongHoList);
         }
-        if (field == "ghi_chu_vo_ngoai" && typeof (value) == "string") {
-            updatedDongHoList[index].ghi_chu_vo_ngoai = value.toString();
-        }
-        if (field == "ma_quan_ly" && typeof (value) == "string") {
-            updatedDongHoList[index].ma_quan_ly = value.toString();
-        }
-        setDongHoList(updatedDongHoList);
     },
         [dongHoList, errorsList]
     );
 
+
     useEffect(() => {
-        return () => {
-            if (debounceTimeout) {
-                clearTimeout(debounceTimeout);
+        if (!isManualChangeRef.current && prevStateRef.current != stateCheck) {
+            const prevState = prevStateRef.current;
+
+            const changedKey = Object.keys(stateCheck).find((key) => {
+                return stateCheck[key as keyof StateCheck] !== prevState[key as keyof StateCheck];
+            });
+
+            if (changedKey) {
+                isManualChangeRef.current = false;
+                const newValue = stateCheck[changedKey as keyof StateCheck];
+                const newDHList = [
+                    ...dongHoList.map((dh) => ({
+                        ...dh,
+                        [changedKey]: newValue
+                    }))
+                ];
+
+                setDongHoList(newDHList);
             }
-        };
-    }, [debounceTimeout]);
+        } else if (JSON.stringify(dongHoListRef.current) !== JSON.stringify(dongHoList)) {
 
-    // const handleEnterKey = (e: React.KeyboardEvent<HTMLInputElement>,
-    //     index: number,
-    //     field: "so_giay_chung_nhan" | "seri_sensor" | "seri_chi_thi" | "so_tem",
-    // ) => {
-    //     if (e.key === 'Enter') {
+            const updates: Partial<StateCheck> = {};
 
-    //         if (e.shiftKey) {
-    //             const prevIndex = index - 1;
-    //             if (prevIndex >= 0) {
-    //                 const prevInput = document.querySelector(`input[name="${field}-${prevIndex}"]`) as HTMLInputElement;
-    //                 if (prevInput) {
-    //                     prevInput.focus();
-    //                 }
-    //             }
-    //         } else {
-    //             const nextIndex = index + 1;
-    //             if (nextIndex < dongHoList.length)
-    //                 const nextInput = document.querySelector(`input[name="${field}-${nextIndex}"]`) as HTMLInputElement;
-    //                 if (nextInput) {
-    //                     nextInput.focus();
-    //                 }
-    //             }
-    //         }
-    //     }
-    // };
+            if (
+                stateCheck.ket_qua_check_vo_ngoai &&
+                dongHoList.some(dh => dh.ket_qua_check_vo_ngoai === false)
+            ) {
+                updates.ket_qua_check_vo_ngoai = false;
+            }
+
+            if (
+                stateCheck.ket_qua_check_do_kin &&
+                dongHoList.some(dh => dh.ket_qua_check_do_kin === false)
+            ) {
+                updates.ket_qua_check_do_kin = false;
+            }
+
+            if (
+                stateCheck.ket_qua_check_do_on_dinh_chi_so &&
+                dongHoList.some(dh => dh.ket_qua_check_do_on_dinh_chi_so === false)
+            ) {
+                updates.ket_qua_check_do_on_dinh_chi_so = false;
+            }
+
+            isManualChangeRef.current = false;
+            // Chỉ dispatch khi có update
+            if (Object.keys(updates).length > 0) {
+                for (const [key, value] of Object.entries(updates)) {
+                    if (stateCheck[key as keyof StateCheck]) {
+                        isManualChangeRef.current = true;
+                        dispatch({
+                            type: `SET_${key.toUpperCase()}` as Action["type"],
+                            payload: value as boolean,
+                        });
+                    }
+                }
+            }
+        }
+        // Cập nhật lại previous state sau mỗi render
+        prevStateRef.current = stateCheck;
+    }, [stateCheck, dongHoList]);
 
     return (
-        <div className={`w-100 m-0 mb-3 p-0 ${c_tbIDHInf['wrap-process-table']} ${className ? className : ""}`}>
-            <table className={`table table-bordered mb-0 table-hover ${c_tbIDHInf['process-table']}`}>
-                <thead className="shadow border">
-                    <tr className={`${c_tbIDHInf['table-header']}`}>
-                        <th rowSpan={2}>
-                            <div className={`${c_tbIDHInf['table-label']}`}>
-                                STT
-                            </div>
-                        </th>
-                        <th rowSpan={2}>
+        <div className={`w-100 m-0 mb-3 p-0 ${className ? className : ""}`}>
+            <div className="dropdown mb-3 d-flex justify-content-end">
+                <button
+                    className="btn btn-secondary dropdown-toggle"
+                    type="button"
+                    onClick={() => setDropdownOpen(!dropdownOpen)}
+                    aria-expanded={dropdownOpen}
+                    data-bs-toggle="dropdown"
+                >
+                    <FontAwesomeIcon icon={faCogs} className="me-2" />
+                    Cài đặt tất cả
+                </button>
+
+                <div className={`dropdown-menu p-3 ${dropdownOpen ? "show" : ""}`} style={{ minWidth: "300px" }}>
+                    <h6 className="dropdown-header">Cài đặt tất cả:</h6>
+                    <div className="d-flex flex-column">
+                        {/* 1. Vỏ ngoài */}
+                        <div className="d-flex align-items-center px-2 py-1">
+                            <p className="p-0 m-0 me-3">Vỏ ngoài:</p>
+                            <span style={{ fontSize: "14px" }} className={`me-2 ${stateCheck.ket_qua_check_vo_ngoai && "text-secondary"}`}>Không</span>
+                            <ToggleSwitchButton
+                                value={stateCheck.ket_qua_check_vo_ngoai ?? false}
+                                onChange={(value: boolean) => {
+                                    dispatch({ type: 'SET_KET_QUA_CHECK_VO_NGOAI', payload: value });
+                                }}
+                            />
+                            <span style={{ fontSize: "14px" }} className={`ms-2 ${!stateCheck.ket_qua_check_vo_ngoai && "text-secondary"}`}>Đạt</span>
+                        </div>
+
+                        {/* 2. Độ kín */}
+                        <div className="d-flex align-items-center px-2 py-1">
+                            <p className="p-0 m-0 me-3">Độ kín:</p>
+                            <span style={{ fontSize: "14px" }} className={`me-2 ${stateCheck.ket_qua_check_do_kin && "text-secondary"}`}>Không</span>
+                            <ToggleSwitchButton
+                                value={stateCheck.ket_qua_check_do_kin ?? false}
+                                onChange={(value: boolean) => {
+                                    dispatch({ type: 'SET_KET_QUA_CHECK_DO_KIN', payload: value });
+                                }}
+                            />
+                            <span style={{ fontSize: "14px" }} className={`ms-2 ${!stateCheck.ket_qua_check_do_kin && "text-secondary"}`}>Đạt</span>
+                        </div>
+
+                        {/* 3. Độ ổn định chỉ số */}
+                        <div className="d-flex align-items-center px-2 py-1">
+                            <p className="p-0 m-0 me-3">Độ ổn định chỉ số:</p>
+                            <span style={{ fontSize: "14px" }} className={`me-2 ${stateCheck.ket_qua_check_do_on_dinh_chi_so && "text-secondary"}`}>Không</span>
+                            <ToggleSwitchButton
+                                value={stateCheck.ket_qua_check_do_on_dinh_chi_so ?? false}
+                                onChange={(value: boolean) => {
+                                    dispatch({ type: 'SET_KET_QUA_CHECK_DO_ON_DINH_CHI_SO', payload: value });
+                                }}
+                            />
+                            <span style={{ fontSize: "14px" }} className={`ms-2 ${!stateCheck.ket_qua_check_do_on_dinh_chi_so && "text-secondary"}`}>Đạt</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div className={`w-100 m-0 p-0 mb-3 ${c_tbIDHInf['wrap-process-table']}`}>
+                <table className={`table table-bordered mb-0 table-hover ${c_tbIDHInf['process-table']}`}>
+                    <thead className="shadow border">
+                        <tr className={`${c_tbIDHInf['table-header']}`}>
+                            <th>
+                                <div className={`${c_tbIDHInf['table-label']}`}>
+                                    STT
+                                </div>
+                            </th>
+
+                            <th>
+                                <div className={`${c_tbIDHInf['table-label']}`}>
+                                    <span>
+                                        Số
+                                    </span>
+                                </div>
+                            </th>
+                            {/* <th>
                             <div className={`${c_tbIDHInf['table-label']}`}>
                                 <span>
                                     Trạng thái
                                 </span>
                             </div>
-                        </th>
-
-                        {!isHieuChuan &&
-                            <th rowSpan={2}>
-                                <div className={`${c_tbIDHInf['table-label']}`}>
-                                    <span>
-                                        Vỏ ngoài
-                                    </span>
-                                </div>
-                            </th>}
-
-                        <th rowSpan={2}>
-                            <div className={`${c_tbIDHInf['table-label']}`}>
-                                <span>
-                                    Số giấy CN
-                                </span>
-                            </div>
-                        </th>
-                        <th rowSpan={2}>
-                            <div className={`${c_tbIDHInf['table-label']}`}>
-                                <span>
-                                    Số Tem
-                                </span>
-                            </div>
-                        </th>
-                        <th rowSpan={2}>
-                            <div className={`${c_tbIDHInf['table-label']}`}>
-                                <span>
-                                    Serial Sensor
-                                </span>
-                            </div>
-                        </th>
-                        {isDHDienTu &&
-                            <th rowSpan={2}>
-                                <div className={`${c_tbIDHInf['table-label']}`}>
-                                    <span>
-                                        Serial chỉ thị
-                                    </span>
-                                </div>
-                            </th>
-                        }
-                        {dongHoList.length > 0 && ["Điện tử", "Cơ - Điện từ"].includes(dongHoList[0].kieu_thiet_bi ?? "xx") &&
-                            <th rowSpan={2}>
-                                <div className={`${c_tbIDHInf['table-label']}`}>
-                                    <span>
-                                        Hệ số K
-                                    </span>
-                                </div>
-                            </th>
-                        }
-                        {isHieuChuan && <th rowSpan={2}>Mã quản lý</th>}
-                        {/* <th>
-                            <div className={`${c_tbIDHInf['table-label']}`}>
-                                <span>
-                                    Hiệu lực đến
-                                </span>
-                            </div>
                         </th> */}
-                        <th colSpan={isHieuChuan ? 6 : 3}>
-                            <div className={`${c_tbIDHInf['table-label']}`}>
-                                <span>
-                                    Sai số{isHieuChuan ? " & Mf" : ""}
-                                </span>
-                            </div>
-                        </th>
-                        <th rowSpan={2}>
-                        </th>
-                    </tr>
-                    <tr className={`${c_tbIDHInf['table-header']} border-top border-white`}>
-                        <th>Q<sub>III</sub></th>
-                        {isHieuChuan && <th>Mf</th>}
-                        <th>Q<sub>II</sub></th>
-                        {isHieuChuan && <th>Mf</th>}
-                        <th>Q<sub>I</sub></th>
-                        {isHieuChuan && <th>Mf</th>}
-                    </tr>
-                </thead>
-                <tbody>
-                    {(() => {
-                        const rows = [];
-                        for (let index = 0; index < dongHoList.length; index++) {
-                            const dongHo = dongHoList[index];
 
-                            const duLieuKiemDinhJSON = dongHo.du_lieu_kiem_dinh;
-                            const duLieuKiemDinh = duLieuKiemDinhJSON ?
-                                ((isEditing && typeof duLieuKiemDinhJSON != 'string') ?
-                                    duLieuKiemDinhJSON : JSON.parse(duLieuKiemDinhJSON)
-                                ) : null;
-                            // console.log(decode(dongHo.id), duLieuKiemDinh);
-                            const status = duLieuKiemDinh ? duLieuKiemDinh.ket_qua : null;
-                            const objHss = duLieuKiemDinh ? duLieuKiemDinh.hieu_sai_so : null;
-                            const objMf = duLieuKiemDinh ? duLieuKiemDinh.mf : null;
+                            {!isHieuChuan &&
+                                <>
+                                    <th>
+                                        <div className={`${c_tbIDHInf['table-label']}`}>
+                                            <span>
+                                                Vỏ ngoài
+                                            </span>
+                                        </div>
+                                    </th>
+                                    <th>
+                                        <div className={`${c_tbIDHInf['table-label']}`}>
+                                            <span>
+                                                Độ kín
+                                            </span>
+                                        </div>
+                                    </th>
+                                    <th>
+                                        <div className={`${c_tbIDHInf['table-label']}`}>
+                                            <span>
+                                                Độ ổn định chỉ số
+                                            </span>
+                                        </div>
+                                    </th>
+                                </>}
 
-                            // const isDHDienTu = Boolean((dongHo.ccx && ["1", "2"].includes(dongHo.ccx)) || dongHo.kieu_thiet_bi == "Điện tử");
+                            <th>
+                                <div className={`${c_tbIDHInf['table-label']}`}>
+                                    <span>
+                                        Số giấy CN
+                                    </span>
+                                </div>
+                            </th>
+                            <th>
+                                <div className={`${c_tbIDHInf['table-label']}`}>
+                                    <span>
+                                        Số Tem
+                                    </span>
+                                </div>
+                            </th>
+                        </tr>
 
-                            rows.push(
-                                <tr key={index}>
+                    </thead>
+                    <tbody>
+                        {(() => {
+                            const rows = [];
+                            for (let index = 0; index < dongHoList.length; index++) {
+                                const dongHo = dongHoList[index];
+                                rows.push(
+                                    <tr key={index}>
 
-                                    <td style={{ cursor: "pointer" }} onClick={() => {
-                                        selectDongHo(index)
-                                    }}>
-                                        <span>{dongHo.index}</span>
-                                        <span><FontAwesomeIcon icon={faEdit} className="text-blue"></FontAwesomeIcon></span>
-                                    </td>
-                                    <td>
-                                        <p className="m-0 p-0 text-center w-100" style={{ minWidth: "140px" }}>
-                                            {status != null ?
-                                                (status ? "Đạt" : "Không đạt") :
-                                                objHss ?
-                                                    (
-                                                        objHss[0].hss == null &&
-                                                            objHss[1].hss == null &&
-                                                            objHss[2].hss == null ?
-                                                            ("Chưa " + (isHieuChuan ? "hiệu chuẩn" : "kiểm định")) :
-                                                            "Còn: " +
-                                                            (objHss[0].hss == null ? (isDHDienTu ? TITLE_LUU_LUONG.q3 : TITLE_LUU_LUONG.qn) + " " : "") +
-                                                            (objHss[1].hss == null ? (isDHDienTu ? TITLE_LUU_LUONG.q2 : TITLE_LUU_LUONG.qt) + " " : "") +
-                                                            (objHss[2].hss == null ? (isDHDienTu ? TITLE_LUU_LUONG.q1 : TITLE_LUU_LUONG.qmin) : "")
-                                                    ) :
-                                                    ("Chưa " + (isHieuChuan ? "hiệu chuẩn" : "kiểm định"))
-                                            }
-                                        </p>
-                                    </td>
-
-                                    {!isHieuChuan &&
-                                        <td>
-                                            <ToggleSwitchButton
-                                                value={dongHo.ket_qua_check_vo_ngoai ?? false}
-                                                onChange={(value: boolean) => handleOtherFieldChange(index, "ket_qua_check_vo_ngoai", value)}
-                                                disabled={savedDongHoList.some(dh => JSON.stringify(dh) == JSON.stringify(dongHo)) || savedDongHoList.length == dongHoList.length}
-                                            />
-                                        </td>}
-                                    <td>
-                                        <InputField
-                                            index={index}
-                                            onChange={(value) => handleInputChange(index, "so_giay_chung_nhan", value)}
-                                            disabled={status == null || (status != null && !status) || savedDongHoList.some(dh => JSON.stringify(dh) == JSON.stringify(dongHo)) || savedDongHoList.length == dongHoList.length}
-                                            error={errorsList[index]?.so_giay_chung_nhan}
-                                            name={`so_giay_chung_nhan`}
-                                        />
-                                    </td>
-                                    <td>
-                                        <InputField
-                                            index={index}
-                                            onChange={(value) => handleInputChange(index, "so_tem", value)}
-                                            disabled={status == null || (status != null && !status) || savedDongHoList.some(dh => JSON.stringify(dh) == JSON.stringify(dongHo)) || savedDongHoList.length == dongHoList.length}
-                                            error={errorsList[index]?.so_tem}
-                                            name={`so_tem`}
-                                        />
-                                    </td>
-                                    <td>
-                                        <InputField
-                                            index={index}
-                                            onChange={(value) => handleInputChange(index, "seri_sensor", value)}
-                                            disabled={savedDongHoList.some(dh => JSON.stringify(dh) == JSON.stringify(dongHo)) || savedDongHoList.length == dongHoList.length}
-                                            error={errorsList[index]?.seri_sensor}
-                                            name={`seri_sensor`}
-                                        />
-                                    </td>
-                                    {isDHDienTu &&
-                                        <td>
-                                            <InputField
-                                                index={index}
-                                                onChange={(value) => handleInputChange(index, "seri_chi_thi", value)}
-                                                disabled={savedDongHoList.some(dh => JSON.stringify(dh) == JSON.stringify(dongHo)) || savedDongHoList.length == dongHoList.length}
-                                                error={errorsList[index]?.seri_chi_thi}
-                                                name={`seri_chi_thi`}
-                                            />
-                                        </td>
-                                    }
-                                    {dongHoList.length > 0 && ["Điện tử", "Cơ - Điện từ"].includes(dongHoList[0].kieu_thiet_bi ?? "xx") &&
-                                        <td>
-                                            <InputField
-                                                index={index}
-                                                onChange={(value) => handleInputChange(index, "k_factor", value)}
-                                                disabled={savedDongHoList.some(dh => JSON.stringify(dh) == JSON.stringify(dongHo)) || savedDongHoList.length == dongHoList.length}
-                                                name={`k_factor`}
-                                            />
-                                        </td>
-                                    }
-
-                                    {isHieuChuan && <td>
-                                        <InputField
-                                            index={index}
-                                            onChange={(value) => handleOtherFieldChange(index, "ma_quan_ly", value)}
-                                            disabled={savedDongHoList.some(dh => JSON.stringify(dh) == JSON.stringify(dongHo)) || savedDongHoList.length == dongHoList.length}
-                                            name={`ma_quan_ly`}
-                                        />
-                                    </td>}
-
-                                    {/* <td> */}
-                                    {/* {dayjs(dongHo.hieu_luc_bien_ban).format('DD-MM-YYYY').toString()} */}
-                                    {/* {dongHo.hieu_luc_bien_ban?.toString() || ""} */}
-
-                                    {/* <DatePickerField
-                                            value={dayjs(dongHo.hieu_luc_bien_ban)}
-                                            className={`${c_tbIDHInf['date-picker']}`}
-                                            // disabled={status == null || (status != null && !status) || savedDongHoList.some(dh => JSON.stringify(dh) == JSON.stringify(dongHo)) || savedDongHoList.length == dongHoList.length}
-                                            // onChange={(newValue: Dayjs | null) => handleInputChange(index, "hieu_luc_bien_ban", newValue ? newValue.format('DD-MM-YYYY') : '')}
-                                            minDate={dayjs().endOf('day')}
-                                            name={"hieu_luc_bien_ban"}
-                                        /> */}
-                                    {/* </td> */}
-                                    <td>
-                                        {objHss && objHss[0] && objHss[0].hss != null ? objHss[0].hss + "%" : <span className="text-secondary">-</span>}
-                                    </td>
-                                    {isHieuChuan && <td>
-                                        {objMf && objMf[0].mf != null ? objMf[0].mf : <span className="text-secondary">-</span>}
-                                    </td>}
-
-                                    <td>
-                                        {objHss && objHss[1] && objHss[1].hss != null ? objHss[1].hss + "%" : <span className="text-secondary">-</span>}
-                                    </td>
-                                    {isHieuChuan && <td>
-                                        {objMf && objMf[1].mf != null ? objMf[1].mf : <span className="text-secondary">-</span>}
-                                    </td>}
-
-                                    <td>
-                                        {objHss && objHss[2] && objHss[2].hss != null ? objHss[2].hss + "%" : <span className="text-secondary">-</span>}
-                                    </td>
-                                    {isHieuChuan && <td>
-                                        {objMf && objMf[2].mf != null ? objMf[2].mf : <span className="text-secondary">-</span>}
-                                    </td>}
-
-                                    <td>
-                                        <button onClick={() => {
+                                        <td style={{ cursor: "pointer" }} onClick={() => {
                                             selectDongHo(index)
-                                        }} className={`btn`}>
-                                            <FontAwesomeIcon icon={faEdit} className="text-blue"></FontAwesomeIcon>
-                                        </button>
-                                    </td>
-                                </tr>
-                            );
-                        }
-                        return rows;
-                    })()}
-                </tbody>
-            </table>
+                                        }}>
+                                            <span>{dongHo.index}</span>
+                                            <span><FontAwesomeIcon icon={faEdit} className="text-blue"></FontAwesomeIcon></span>
+                                        </td>
+                                        <td>
+                                            <InputField
+                                                index={index}
+                                                value={dongHo.serial ?? ""}
+                                                onChange={(value) => handleInputChange(index, "serial", value.toString())}
+                                                disabled={savedDongHoList.some(dh => JSON.stringify(dh) == JSON.stringify(dongHo)) || savedDongHoList.length == dongHoList.length}
+                                                error={errorsList[index]?.serial}
+                                                name={`serial`}
+                                            />
+                                        </td>
+
+                                        {!isHieuChuan &&
+                                            <>
+                                                <td>
+                                                    <div className="d-flex align-items-center">
+                                                        <span style={{ fontSize: "14px" }} className={`me-2 ${dongHo.ket_qua_check_vo_ngoai && "text-secondary"}`}>Không</span>
+                                                        <ToggleSwitchButton
+                                                            value={dongHo.ket_qua_check_vo_ngoai != null ? dongHo.ket_qua_check_vo_ngoai : false}
+                                                            onChange={(value: boolean) => handleRadioToggle(index, "ket_qua_check_vo_ngoai", value)}
+                                                            disabled={savedDongHoList.some(dh => JSON.stringify(dh) == JSON.stringify(dongHo)) || savedDongHoList.length == dongHoList.length}
+                                                        />
+                                                        <span style={{ fontSize: "14px" }} className={`ms-2 ${!dongHo.ket_qua_check_vo_ngoai && "text-secondary"}`}>Đạt</span>
+                                                    </div>
+                                                </td>
+                                                <td>
+                                                    <div className="d-flex align-items-center">
+                                                        <span style={{ fontSize: "14px" }} className={`me-2 ${dongHo.ket_qua_check_do_kin && "text-secondary"}`}>Không</span>
+                                                        <ToggleSwitchButton
+                                                            value={dongHo.ket_qua_check_do_kin != null ? dongHo.ket_qua_check_do_kin : false}
+                                                            onChange={(value: boolean) => handleRadioToggle(index, "ket_qua_check_do_kin", value)}
+                                                            disabled={savedDongHoList.some(dh => JSON.stringify(dh) == JSON.stringify(dongHo)) || savedDongHoList.length == dongHoList.length}
+                                                        />
+                                                        <span style={{ fontSize: "14px" }} className={`ms-2 ${!dongHo.ket_qua_check_do_kin && "text-secondary"}`}>Đạt</span>
+                                                    </div>
+                                                </td>
+                                                <td>
+                                                    <div className="d-flex align-items-center">
+                                                        <span style={{ fontSize: "14px" }} className={`me-2 ${dongHo.ket_qua_check_do_on_dinh_chi_so && "text-secondary"}`}>Không</span>
+                                                        <ToggleSwitchButton
+                                                            value={dongHo.ket_qua_check_do_on_dinh_chi_so != null ? dongHo.ket_qua_check_do_on_dinh_chi_so : false}
+                                                            onChange={(value: boolean) => handleRadioToggle(index, "ket_qua_check_do_on_dinh_chi_so", value)}
+                                                            disabled={savedDongHoList.some(dh => JSON.stringify(dh) == JSON.stringify(dongHo)) || savedDongHoList.length == dongHoList.length}
+                                                        />
+                                                        <span style={{ fontSize: "14px" }} className={`ms-2 ${!dongHo.ket_qua_check_do_on_dinh_chi_so && "text-secondary"}`}>Đạt</span>
+                                                    </div>
+                                                </td>
+                                            </>
+                                        }
+                                        <td>
+                                            <InputField
+                                                index={index}
+                                                onChange={(value) => handleInputChange(index, "so_giay_chung_nhan", value.toString())}
+                                                value={dongHo.so_giay_chung_nhan ?? ""}
+                                                // disabled={status == null || (status != null && !status) || savedDongHoList.some(dh => JSON.stringify(dh) == JSON.stringify(dongHo)) || savedDongHoList.length == dongHoList.length}
+                                                disabled={savedDongHoList.some(dh => JSON.stringify(dh) == JSON.stringify(dongHo)) || savedDongHoList.length == dongHoList.length}
+                                                error={errorsList[index]?.so_giay_chung_nhan}
+                                                name={`so_giay_chung_nhan`}
+                                            />
+                                            {(dongHo.so_giay_chung_nhan && dongHo.ngay_thuc_hien) && <small style={{ fontSize: "12px" }}>{getFullSoGiayCN(dongHo.so_giay_chung_nhan, dongHo.ngay_thuc_hien)}</small>}
+                                        </td>
+                                        <td>
+                                            <InputField
+                                                index={index}
+                                                onChange={(value) => handleInputChange(index, "so_tem", value.toString())}
+                                                value={dongHo.so_tem ?? ""}
+                                                // disabled={status == null || (status != null && !status) || savedDongHoList.some(dh => JSON.stringify(dh) == JSON.stringify(dongHo)) || savedDongHoList.length == dongHoList.length}
+                                                disabled={savedDongHoList.some(dh => JSON.stringify(dh) == JSON.stringify(dongHo)) || savedDongHoList.length == dongHoList.length}
+                                                error={errorsList[index]?.so_tem}
+                                                name={`so_tem`}
+                                            />
+                                        </td>
+                                    </tr>
+                                );
+                            }
+
+                            return rows;
+                        })()}
+                    </tbody>
+                </table>
+            </div>
         </div>
     );
 });

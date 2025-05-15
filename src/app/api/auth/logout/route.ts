@@ -1,4 +1,5 @@
 import api from '@/app/api/route';
+import { eventEmitter } from '@lib/eventEmitter';
 import { BASE_API_URL } from '@lib/system-constant';
 import Cookies from 'js-cookie';
 
@@ -42,4 +43,5 @@ export const logout = async () => {
             };
         }
     }
+    // eventEmitter.emit("logout");
 };

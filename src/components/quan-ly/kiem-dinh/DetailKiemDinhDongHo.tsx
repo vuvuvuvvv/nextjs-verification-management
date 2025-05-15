@@ -8,7 +8,7 @@ import { DongHo, DuLieuChayDiemLuuLuong, DuLieuChayDongHo } from "@lib/types";
 import { Fragment, useEffect, useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faDownload, faEdit, faFileExcel } from "@fortawesome/free-solid-svg-icons";
-import { downloadBB, downloadGCN } from "@/app/api/download/route";
+import { downloadBBExcel, downloadBBPDF, downloadGCN } from "@/app/api/download/route";
 import Swal from "sweetalert2";
 import { ACCESS_LINKS, TITLE_LUU_LUONG } from "@lib/system-constant";
 import Link from "next/link";
@@ -29,16 +29,16 @@ export default function DetailKiemDinhDongHo({ dongHo }: DetailKiemDinhDongHoPro
 
     useEffect(() => {
         if (dongHo) {
-            setListKeys(dongHo.q3 ? ["Q3", "Q2", "Q1"] : dongHo.qn ? ['Qn', "Qt", "Qmin"] : null);
+            setListKeys(dongHo.q3 ? ["Q3", "Q2", "Q1"] : (dongHo.qn ? ['Qn', "Qt", "Qmin"] : null));
             const duLieuKiemDinhJSON = dongHo.du_lieu_kiem_dinh;
             const duLieuKiemDinh = duLieuKiemDinhJSON ?
                 ((typeof duLieuKiemDinhJSON != 'string') ?
                     duLieuKiemDinhJSON : JSON.parse(duLieuKiemDinhJSON)
                 ) : null;
-
             if (duLieuKiemDinh?.du_lieu) {
                 const dlKiemDinh = duLieuKiemDinh.du_lieu;
                 setDuLieuKiemDinhCacLuuLuong(dlKiemDinh);
+                console.log(dlKiemDinh);
             }
 
             if (duLieuKiemDinh?.hieu_sai_so) {
@@ -46,13 +46,17 @@ export default function DetailKiemDinhDongHo({ dongHo }: DetailKiemDinhDongHoPro
             }
 
             setKetQua(duLieuKiemDinh.ket_qua);
+            console.log(dongHo.q3 ? ["Q3", "Q2", "Q1"] : (dongHo.qn ? ['Qn', "Qt", "Qmin"] : null));
         }
     }, [dongHo]);
 
     const renderDulieuLuuLuong = () => {
         if (listKeys && duLieuKiemDinhCacLuuLuong) {
             return listKeys.map((key, index) => {
+                console.log(listKeys);
+
                 const value = duLieuKiemDinhCacLuuLuong[key] as DuLieuChayDiemLuuLuong;
+                console.log(value);
                 if (value?.value) {
                     let indexHead = true;
                     let jsxStart, jsxEnd;
@@ -141,9 +145,16 @@ export default function DetailKiemDinhDongHo({ dongHo }: DetailKiemDinhDongHoPro
         }
     }, [message]);
 
-    const handleDownloadBB = async () => {
+    const handleDownloadBBExcel = async () => {
         if (dongHo.id) {
-            const result = await downloadBB(dongHo);
+            const result = await downloadBBExcel(dongHo);
+            setMessage(result.msg);
+        }
+    }
+
+    const handleDownloadBBPDF = async () => {
+        if (dongHo.id) {
+            const result = await downloadBBPDF(dongHo);
             setMessage(result.msg);
         }
     }
@@ -160,7 +171,7 @@ export default function DetailKiemDinhDongHo({ dongHo }: DetailKiemDinhDongHoPro
     }
 
     return <div className="container-fluid m-0 p-2">
-        <title>{dongHo?.ten_dong_ho}</title>
+        <title>{dongHo?.ten_phuong_tien_do}</title>
         {dongHo ? (
             <div className="w-100 container my-3 p-0">
                 <div className={`w-100 mb-3 mx-0 d-flex align-items-center justify-content-center justify-content-md-end p-0`}>
@@ -169,7 +180,7 @@ export default function DetailKiemDinhDongHo({ dongHo }: DetailKiemDinhDongHoPro
                     </Link>
                     {ketQua != null && <>
                         <span style={{ cursor: "unset" }} className={`btn bg-grey text-white rounded-start rounded-end-0 ${(dongHo.so_giay_chung_nhan && dongHo.so_tem && ketQua == true) || (ketQua == false) ? "d-inline" : "d-none"}`}><FontAwesomeIcon icon={faDownload}></FontAwesomeIcon> Nhiều:</span>
-                        <button aria-label="Tải biên bản kiểm định" className={`btn bg-main-green rounded-0 ${(dongHo.so_giay_chung_nhan && dongHo.so_tem && ketQua == true) ? "" : "rounded-end"} text-white ${(dongHo.so_giay_chung_nhan && dongHo.so_tem && ketQua == true) || (ketQua == false) ? "d-inline" : "d-none"}`} onClick={handleDownloadBB}>
+                        <button aria-label="Tải biên bản kiểm định" className={`btn bg-main-green rounded-0 ${(dongHo.so_giay_chung_nhan && dongHo.so_tem && ketQua == true) ? "" : "rounded-end"} text-white ${(dongHo.so_giay_chung_nhan && dongHo.so_tem && ketQua == true) || (ketQua == false) ? "d-inline" : "d-none"}`} onClick={handleDownloadBBExcel}>
                             <FontAwesomeIcon icon={faFileExcel} className="me-1"></FontAwesomeIcon> Biên bản
                         </button>
                         <button aria-label="Tải giấy chứng nhận kiểm định" className={`btn border-start rounded-start-0 rounded-end bg-main-green text-white ${(dongHo.so_giay_chung_nhan && dongHo.so_tem && ketQua == true) ? "d-inline" : "d-none"}`} onClick={handleDownloadGCN}>
@@ -187,25 +198,22 @@ export default function DetailKiemDinhDongHo({ dongHo }: DetailKiemDinhDongHoPro
                             <p>Số tem: <b>{dongHo.so_tem ? dongHo.so_tem : "Chưa có số tem"}</b></p>
                         </div>
                         <div className="col-12">
-                            <p>Tên đồng hồ: <b>{dongHo.ten_dong_ho || "Chưa có tên đồng hồ"}</b></p>
-                        </div>
-                        <div className="col-12">
-                            <p>Tên phương tiện đo: <b>{dongHo.phuong_tien_do || "Chưa có tên phương tiện đo"}</b></p>
+                            <p>Tên phương tiện đo: <b>{dongHo.ten_phuong_tien_do || "Chưa có tên phương tiện đo"}</b></p>
                         </div>
                         <div className="col-12">
                             <p>Nơi sản xuất: <b>{dongHo.co_so_san_xuat || "Chưa có nơi sản xuất"}</b></p>
                         </div>
-                        {(dongHo.kieu_sensor || dongHo.seri_sensor || dongHo.kieu_chi_thi || dongHo.seri_chi_thi)
+                        {/* {(dongHo.sensor || dongHo.seri_sensor || dongHo.transitor || dongHo.seri_chi_thi)
                             && <div className="col-12 mb-3">
                                 <p className="m-0">Kiểu sản xuất:</p>
                                 <div className="w-100 row m-0 px-3">
-                                    <div className="col-12 col-md-6 m-0 p-0">{(dongHo.kieu_sensor) && <>Kiểu sensor: <b>{dongHo.kieu_sensor}</b></>}</div>
+                                    <div className="col-12 col-md-6 m-0 p-0">{(dongHo.sensor) && <>Kiểu sensor: <b>{dongHo.sensor}</b></>}</div>
                                     <div className="col-12 col-md-6 m-0 p-0">{(dongHo.seri_sensor) && <>Serial sensor: <b>{dongHo.seri_sensor}</b></>}</div>
-                                    <div className="col-12 col-md-6 m-0 p-0">{(dongHo.kieu_chi_thi) && <>Kiểu chỉ thị: <b>{dongHo.kieu_chi_thi}</b></>}</div>
+                                    <div className="col-12 col-md-6 m-0 p-0">{(dongHo.transitor) && <>Kiểu chỉ thị: <b>{dongHo.transitor}</b></>}</div>
                                     <div className="col-12 col-md-6 m-0 p-0">{(dongHo.seri_chi_thi) && <>Serial chỉ thị: <b>{dongHo.seri_chi_thi}</b></>}</div>
                                 </div>
                             </div>
-                        }
+                        } */}
                     </div>
                     <div className="row mb-3">
                         <div className="col-12 col-md-4">
@@ -221,7 +229,7 @@ export default function DetailKiemDinhDongHo({ dongHo }: DetailKiemDinhDongHoPro
                         </div>
                     </div>
                     <div className="row mb-3">
-                        <p>Cơ sở sử dụng: <b>{dongHo.noi_su_dung || "Chưa có cơ sở sử dụng"}</b></p>
+                        <p>Cơ sở sử dụng: <b>{dongHo.co_so_su_dung || "Chưa có cơ sở sử dụng"}</b></p>
                     </div>
                     <div className="row mb-3">
                         <p>Phương pháp thực hiện: <b>{dongHo.phuong_phap_thuc_hien || "Chưa có phương pháp thực hiện"}</b></p>
@@ -235,27 +243,17 @@ export default function DetailKiemDinhDongHo({ dongHo }: DetailKiemDinhDongHoPro
                             <p>Ngày thực hiện: <b>{dayjs(dongHo.ngay_thuc_hien).format("DD/MM/YYYY")}</b></p>
                         </div>
                         <div className="col-12">
-                            <p>Địa điểm thực hiện: <b>{dongHo.noi_thuc_hien || "Chưa có địa điểm thực hiện"}</b></p>
+                            <p>Địa điểm thực hiện: <b>{dongHo.dia_diem_thuc_hien || "Chưa có địa điểm thực hiện"}</b></p>
                         </div>
                     </div>
                     <div className="w-100 mb-3">
-                        <p className="fs-5 fw-bold text-center text-uppercase m-0">Kết quả kiểm tra</p>
-                        <div className="w-100 m-0 p-0 row mb-3">
-                            <div className="col-12 col-md-5 col-lg-4 m-0 p-0">
-                                <span>1. Kết quả kiểm tra bên ngoài:</span>
-                            </div>
-                            <div className="col-12 col-md-7 col-lg-8 px-4 px-md-0">
-                                <ul className="list-unstyled m-0 p-0">
-                                    <li>- Nhãn hiệu: <b>Đạt</b></li>
-                                    <li>- Phụ kiện: <b>Đạt</b></li>
-                                    <li>- Bộ phận chỉ thị: <b>Đạt</b></li>
-                                </ul>
-                            </div>
-                        </div>
+                        <p className="fs-5 fw-bold text-center text-uppercase m-0">Kết quả kiểm định</p>
+                        <p className="m-0">1. Kết quả kiểm tra bên ngoài: <b>{dongHo.ket_qua_check_vo_ngoai ? "Đạt" : "Không đạt"}</b></p>
                         <p className="m-0">2. Kết quả kiểm tra kỹ thuật:</p>
                         <div className="w-100 mb-3 px-4 px-md-5">
                             <ul className="list-unstyled m-0 p-0">
-                                <li>- Kiểm tra khả năng hoạt động của hệ thống: <b>{ketQua ? "Đạt" : "Không đạt"}</b></li>
+                                <li>- Kiểm tra độ kín: <b>{dongHo.ket_qua_check_do_kin ? "Đạt" : "Không đạt"}</b></li>
+                                <li>- Kiểm tra độ ổn định số chỉ: <b>{dongHo.ket_qua_check_do_on_dinh_chi_so ? "Đạt" : "Không đạt"}</b></li>
                             </ul>
                         </div>
                         <p>3. Kết quả kiểm tra đo lường: </p>

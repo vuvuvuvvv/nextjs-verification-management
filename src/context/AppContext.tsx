@@ -8,6 +8,7 @@ import { User } from '@lib/types';
 import Loading from '@/components/Loading';
 import { ACCESS_LINKS, PERMISSIONS } from '@lib/system-constant';
 import { logout } from '@/app/api/auth/logout/route';
+import { eventEmitter } from '@lib/eventEmitter';
 
 // Define user type
 
@@ -41,7 +42,45 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
     const isManager = user?.role === PERMISSIONS.MANAGER || isDirector;
 
-    const isViewer =  user?.role === PERMISSIONS.VIEWER || !isManager;
+    const isViewer = user?.role === PERMISSIONS.VIEWER || !isManager;
+
+    const _logout = () => {
+        Swal.fire({
+            icon: "error",
+            title: "Phiên đăng nhập hết hạn!",
+            text: "Mời đăng nhập lại.",
+            showClass: {
+                popup: `
+                        animate__animated
+                        animate__fadeInUp
+                        animate__faster
+                      `
+            },
+            hideClass: {
+                popup: `
+                        animate__animated
+                        animate__fadeOutDown
+                        animate__faster
+                      `
+            },
+            confirmButtonColor: "#0980de",
+            confirmButtonText: "OK"
+        }).then(() => {
+            logoutUser();
+        });
+    }
+
+    useEffect(() => {
+        const handleLogout = () => {
+            _logout();
+        };
+
+        eventEmitter.on('logout', handleLogout);
+
+        return () => {
+            eventEmitter.off('logout', handleLogout);
+        };
+    }, []);
 
     useEffect(() => {
         const getUserFromCookie = Cookies.get('user');
@@ -51,54 +90,8 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
                 setUser(cookieUser);
                 setLoading(false);
             } catch (error) {
-                Swal.fire({
-                    icon: "error",
-                    title: "Phiên đăng nhập hết hạn!",
-                    text: "Mời đăng nhập lại.",
-                    showClass: {
-                        popup: `
-                            animate__animated
-                            animate__fadeInUp
-                            animate__faster
-                          `
-                    },
-                    hideClass: {
-                        popup: `
-                            animate__animated
-                            animate__fadeOutDown
-                            animate__faster
-                          `
-                    },
-                    confirmButtonColor: "#0980de",
-                    confirmButtonText: "OK"
-                }).then(() => {
-                    logoutUser();
-                });
+                _logout();
             }
-        } else {
-            Swal.fire({
-                icon: "error",
-                title: "Phiên đăng nhập hết hạn!",
-                text: "Mời đăng nhập lại.",
-                showClass: {
-                    popup: `
-                        animate__animated
-                        animate__fadeInUp
-                        animate__faster
-                      `
-                },
-                hideClass: {
-                    popup: `
-                        animate__animated
-                        animate__fadeOutDown
-                        animate__faster
-                      `
-                },
-                confirmButtonColor: "#0980de",
-                confirmButtonText: "OK"
-            }).then(() => {
-                logoutUser();
-            });
         }
     }, [Cookies.get('user')]);
 

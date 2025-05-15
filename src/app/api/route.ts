@@ -2,6 +2,7 @@ import axios from 'axios';
 import Cookies from 'js-cookie';
 import { logout } from './auth/logout/route';
 import { BASE_API_URL } from '@lib/system-constant';
+import { eventEmitter } from '@lib/eventEmitter';
 
 const API_AUTH_URL = `${BASE_API_URL}/auth`;
 let isRefreshing = false;
@@ -75,6 +76,7 @@ api.interceptors.response.use(
                     processQueue(null, data.access_token);
                     resolve(axios(originalRequest));
                 }).catch((err) => {
+                    eventEmitter.emit("logout");
                     processQueue(err, null);
                     reject(err);
                 }).finally(() => {

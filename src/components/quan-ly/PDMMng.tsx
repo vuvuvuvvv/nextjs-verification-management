@@ -58,7 +58,9 @@ type Action =
     | { type: 'SET_CURRENT_PAGE', payload: number }
     | { type: 'SET_TOTAL_RECORDS', payload: number }
     | { type: 'SET_TOTAL_PAGE', payload: number }
-    | { type: 'SET_FILTER_FORM', payload: PDMFilterParameters };
+    | { type: 'SET_FILTER_FORM', payload: PDMFilterParameters }
+    | { type: 'SET_FIELD', field: keyof State, value: any }
+    | { type: 'SET_MULTIPLE_FIELDS', fields: Partial<State> };
 
 const initialState: State = {
     data: [],
@@ -110,6 +112,10 @@ function reducer(state: State, action: Action): State {
             return { ...state, totalPage: action.payload };
         case 'SET_FILTER_FORM':
             return { ...state, filterForm: action.payload };
+        case 'SET_FIELD':
+            return { ...state, [action.field]: action.value };
+        case 'SET_MULTIPLE_FIELDS':
+            return { ...state, ...action.fields };
         default:
             return state;
     }
@@ -161,9 +167,13 @@ export default React.memo(function PDMManagement({ className, listDHNamesExist }
         try {
             const res = await getPDMByFilter(filterFormProps ? filterFormProps : state.filterForm);
             if (res.status === 200 || res.status === 201) {
-                dispatch({ type: 'SET_DATA', payload: res.data.data || [] });
-                dispatch({ type: 'SET_TOTAL_PAGE', payload: res.data.total_page || 1 });
-                dispatch({ type: 'SET_TOTAL_RECORDS', payload: res.data.total_records || 0 });
+
+                dispatch({ type: 'SET_MULTIPLE_FIELDS', fields: {
+                    data: res.data.data || [],
+                    totalPage: res.data.total_page || 1,
+                    totalRecords: res.data.total_records || 0
+                } });
+
                 if (filterFormProps) {
                     dispatch({ type: 'SET_FILTER_FORM', payload: filterFormProps });
                 }
@@ -179,10 +189,12 @@ export default React.memo(function PDMManagement({ className, listDHNamesExist }
         }
     }, [state.filterForm]);
 
-    if (!fetchedRef.current) {
-        _fetchPDM();
-        fetchedRef.current = true;
-    }
+    useEffect(() => {
+        if (!fetchedRef.current) {
+            _fetchPDM();
+            fetchedRef.current = true;
+        }
+    })
 
     const handleFilterChange = (key: keyof PDMFilterParameters, value: any) => {
         dispatch({
@@ -203,8 +215,10 @@ export default React.memo(function PDMManagement({ className, listDHNamesExist }
             last_seen: ""
         };
         _fetchPDM(blankFilterForm);
-        dispatch({ type: 'SET_SELECTED_TEN_DH_OPTION', payload: "" });
-        dispatch({ type: 'SET_CURRENT_PAGE', payload: 1 });
+        dispatch({type: "SET_MULTIPLE_FIELDS", fields: {
+            selectedTenDHOption: "",
+            currentPage: 1
+        }})
     };
 
     const handleSearch = () => {
@@ -254,7 +268,7 @@ export default React.memo(function PDMManagement({ className, listDHNamesExist }
                             </label>
                         </div> */}
 
-                            <div className="col-12 mb-3 col-md-6 col-xl-4 d-flex">
+                            {/* <div className="col-12 mb-3 col-md-6 col-xl-4 d-flex">
                                 <label className={`${c_vfml['form-label']}`} htmlFor="ten_dong_ho">
                                     Tên đồng hồ
                                     <Select
@@ -317,7 +331,7 @@ export default React.memo(function PDMManagement({ className, listDHNamesExist }
                                         }}
                                     />
                                 </label>
-                            </div>
+                            </div> */}
 
                             {/* <div className="col-12 mb-3 col-md-6 col-xl-4 d-flex">
                                 <label className={`${c_vfml['form-label']}`} htmlFor="ma_tim_dong_ho_pdm">
@@ -332,6 +346,34 @@ export default React.memo(function PDMManagement({ className, listDHNamesExist }
                                     />
                                 </label>
                             </div> */}
+
+                            <div className="col-12 mb-3 col-md-6 col-xl-4">
+                                <label className={`${c_vfml['form-label']}`} htmlFor="sensor">
+                                    Sensor:
+                                    <input
+                                        type="text"
+                                        id="sensor"
+                                        className="form-control"
+                                        placeholder="Nhập sensor"
+                                        value={state.filterForm.sensor || ""}
+                                        onChange={(e) => handleFilterChange('sensor', e.target.value)}
+                                    />
+                                </label>
+                            </div>
+
+                            <div className="col-12 mb-3 col-md-6 col-xl-4">
+                                <label className={`${c_vfml['form-label']}`} htmlFor="transmitter">
+                                    Transmitter:
+                                    <input
+                                        type="text"
+                                        id="transmitter"
+                                        className="form-control"
+                                        placeholder="Nhập transmitter"
+                                        value={state.filterForm.transmitter || ""}
+                                        onChange={(e) => handleFilterChange('transmitter', e.target.value)}
+                                    />
+                                </label>
+                            </div>
 
                             <div className="col-12 mb-3 col-md-6 col-xl-4">
                                 <label className={`${c_vfml['form-label']}`} htmlFor="so_qd_pdm">
@@ -362,7 +404,7 @@ export default React.memo(function PDMManagement({ className, listDHNamesExist }
                             </div>
 
 
-                            <div className="col-12 mb-3 col-md-6 col-xl-4">
+                            {/* <div className="col-12 mb-3 col-md-6 col-xl-4">
                                 <label className={`${c_vfml['form-label']}`}>
                                     Trạng thái:
                                     <Select
@@ -415,7 +457,8 @@ export default React.memo(function PDMManagement({ className, listDHNamesExist }
                                         }}
                                     />
                                 </label>
-                            </div>
+                            </div> */}
+
                             {/* <div className="col-12 mb-3 col-md-6 col-xl-4">
                                 <label className={`${c_vfml['form-label']}`}>
                                     Số lượng bản ghi:
@@ -650,7 +693,7 @@ export default React.memo(function PDMManagement({ className, listDHNamesExist }
                                                 <td>{item.ten_dong_ho}</td>
                                                 <td>{item.dn}</td>
                                                 <td>{item.ccx}</td>
-                                                <td>{item.kieu_sensor}</td>
+                                                <td>{item.sensor}</td>
                                                 <td>{item.transmitter}</td>
                                                 <td>{item.q3 ? <>Q<sub>III</sub>= {item.q3}</> : <>Q<sub>n</sub>= {item.qn}</>}</td>
                                                 <td>{item.r}</td>

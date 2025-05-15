@@ -85,7 +85,7 @@ export const INDEXED_DB_HIEU_CHUAN_NAME = "HieuChuan"
 export const BASE_API_URL = process.env.NEXT_PUBLIC_API_URL;
 
 // Acess links:
-const KD_PDM = "/kiem-dinh/pdm"
+const _PDM = "/pdm"
 const KD_DHN = "/kiem-dinh/dong-ho-nuoc"
 const HC_DHN = "/hieu-chuan/dong-ho-nuoc"
 // const KD_DHN = KD_DHN + "/q-bigger-than-15"
@@ -160,15 +160,15 @@ export const ACCESS_LINKS = {
         title: "Chi tiết kiểm định nhóm"
     },
     PDM : {
-        src: KD_PDM,
+        src: _PDM,
         title: "Phê duyệt mẫu"
     },
     PDM_DETAIL : {
-        src: KD_PDM + "/chi-tiet",
+        src: _PDM + "/chi-tiet",
         title: "Chi tiết phê duyệt mẫu"
     },
     PDM_ADD : {
-        src: KD_PDM + "/them-moi",
+        src: _PDM + "/them-moi",
         title: "Thêm mới phê duyệt mẫu"
     },
     // Hiệu chuẩn
