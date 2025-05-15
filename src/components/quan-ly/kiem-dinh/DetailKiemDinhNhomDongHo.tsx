@@ -9,7 +9,7 @@ import { Fragment, useEffect, useRef, useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faDownload, faEdit, faFileExcel } from "@fortawesome/free-solid-svg-icons";
 import Swal from "sweetalert2";
-import { downloadBB, downloadGCN } from "@/app/api/download/route";
+import { downloadBBExcel, downloadGCN } from "@/app/api/download/route";
 import { ACCESS_LINKS, TITLE_LUU_LUONG } from "@lib/system-constant";
 import Link from "next/link";
 
@@ -90,7 +90,7 @@ export default function DetailKiemDinhNhomDongHo({ nhomDongHo }: DetailKiemDinhN
             try {
                 let res;
                 if (typeToDownload === DOWNLOAD_TYPE.BB) {
-                    res = await downloadBB(dongHo);
+                    res = await downloadBBExcel(dongHo);
                 } else {
                     res = await downloadGCN(dongHo);
                 }
@@ -117,11 +117,16 @@ export default function DetailKiemDinhNhomDongHo({ nhomDongHo }: DetailKiemDinhN
         setSelectedDongHo([]);
     }
 
-    const handleDownloadBB = async (dongHo: DongHo) => {
+    const handleDownloadBBExcel = async (dongHo: DongHo) => {
         if (dongHo.id) {
-            const result = await downloadBB(dongHo);
+            const result = await downloadBBExcel(dongHo);
             setMessage(result.msg);
         }
+    }
+
+    const handleMultDownloadBBExcel = async () => {
+        setTypeToDownload(DOWNLOAD_TYPE.BB);
+        setShowModalSelectDongHoToDownload(true);
     }
 
     const handleDownloadGCN = async (dongHo: DongHo) => {
@@ -129,11 +134,6 @@ export default function DetailKiemDinhNhomDongHo({ nhomDongHo }: DetailKiemDinhN
             const result = await downloadGCN(dongHo);
             setMessage(result.msg);
         }
-    }
-
-    const handleMultDownloadBB = async () => {
-        setTypeToDownload(DOWNLOAD_TYPE.BB);
-        setShowModalSelectDongHoToDownload(true);
     }
 
     const handleMultDownloadGCN = async () => {
@@ -168,7 +168,7 @@ export default function DetailKiemDinhNhomDongHo({ nhomDongHo }: DetailKiemDinhN
                 qn: dongHo.qn,
                 so_qd_pdm: dongHo.so_qd_pdm ?? null,
 
-                // ten_khach_hang: dongHo.ten_khach_hang,
+                ten_khach_hang: dongHo.ten_khach_hang,
                 co_so_su_dung: dongHo.co_so_su_dung,
                 phuong_phap_thuc_hien: dongHo.phuong_phap_thuc_hien,
                 
@@ -179,7 +179,7 @@ export default function DetailKiemDinhNhomDongHo({ nhomDongHo }: DetailKiemDinhN
                 // vi_tri: dongHo.vi_tri,
                 // nhiet_do: dongHo.nhiet_do,
                 // do_am: dongHo.do_am,
-                // noi_su_dung: dongHo.noi_su_dung,
+                noi_su_dung: dongHo.noi_su_dung,
                 
                 nguoi_soat_lai: dongHo.dia_diem_thuc_hien,
                 dia_diem_thuc_hien: dongHo.dia_diem_thuc_hien,
@@ -286,7 +286,7 @@ export default function DetailKiemDinhNhomDongHo({ nhomDongHo }: DetailKiemDinhN
                         <FontAwesomeIcon icon={faEdit}></FontAwesomeIcon> All
                     </Link>
                     <span style={{ cursor: "unset" }} className="m-0 btn border-0 py-2 bg-grey text-white rounded-end-0"><FontAwesomeIcon icon={faDownload}></FontAwesomeIcon> Nhiều:</span>
-                    <button aria-label="Tải biên bản kiểm định" className="btn bg-main-green rounded-0 border-0 py-2 text-white" onClick={handleMultDownloadBB}>
+                    <button aria-label="Tải biên bản kiểm định" className="btn bg-main-green rounded-0 border-0 py-2 text-white" onClick={handleMultDownloadBBExcel}>
                         <span className="d-sm-none">
                             <FontAwesomeIcon icon={faFileExcel} className="me-1"></FontAwesomeIcon> BB
                         </span>
@@ -380,7 +380,7 @@ export default function DetailKiemDinhNhomDongHo({ nhomDongHo }: DetailKiemDinhN
                                     </Link>
                                     {ketQua != null && <>
                                         <span style={{ cursor: "unset" }} className={`btn border-0 bg-grey text-white rounded-start rounded-end-0 ${(dongHo.so_giay_chung_nhan && dongHo.so_tem && ketQua == true) || (ketQua == false) ? "d-inline" : "d-none"}`}><FontAwesomeIcon icon={faDownload}></FontAwesomeIcon></span>
-                                        <button aria-label="Tải biên bản kiểm định" className={`btn border-top-0 border-bottom-0 bg-main-green rounded-0 ${(dongHo.so_giay_chung_nhan && dongHo.so_tem && ketQua == true) ? "" : "rounded-end"} text-white ${(dongHo.so_giay_chung_nhan && dongHo.so_tem && ketQua == true) || (ketQua == false) ? "d-inline" : "d-none"}`} onClick={() => handleDownloadBB(dongHo)}>
+                                        <button aria-label="Tải biên bản kiểm định" className={`btn border-top-0 border-bottom-0 bg-main-green rounded-0 ${(dongHo.so_giay_chung_nhan && dongHo.so_tem && ketQua == true) ? "" : "rounded-end"} text-white ${(dongHo.so_giay_chung_nhan && dongHo.so_tem && ketQua == true) || (ketQua == false) ? "d-inline" : "d-none"}`} onClick={() => handleDownloadBBExcel(dongHo)}>
                                             <span className="d-sm-none">
                                                 <FontAwesomeIcon icon={faFileExcel} className="me-1"></FontAwesomeIcon> BB
                                             </span>

@@ -8,7 +8,7 @@ import { DongHo, DuLieuChayDiemLuuLuong, DuLieuChayDongHo } from "@lib/types";
 import { Fragment, useEffect, useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faDownload, faEdit, faFileExcel } from "@fortawesome/free-solid-svg-icons";
-import { downloadBB, downloadGCN } from "@/app/api/download/route";
+import { downloadBBExcel, downloadBBPDF, downloadGCN } from "@/app/api/download/route";
 import Swal from "sweetalert2";
 import { ACCESS_LINKS, TITLE_LUU_LUONG } from "@lib/system-constant";
 import Link from "next/link";
@@ -145,9 +145,16 @@ export default function DetailKiemDinhDongHo({ dongHo }: DetailKiemDinhDongHoPro
         }
     }, [message]);
 
-    const handleDownloadBB = async () => {
+    const handleDownloadBBExcel = async () => {
         if (dongHo.id) {
-            const result = await downloadBB(dongHo);
+            const result = await downloadBBExcel(dongHo);
+            setMessage(result.msg);
+        }
+    }
+
+    const handleDownloadBBPDF = async () => {
+        if (dongHo.id) {
+            const result = await downloadBBPDF(dongHo);
             setMessage(result.msg);
         }
     }
@@ -173,7 +180,7 @@ export default function DetailKiemDinhDongHo({ dongHo }: DetailKiemDinhDongHoPro
                     </Link>
                     {ketQua != null && <>
                         <span style={{ cursor: "unset" }} className={`btn bg-grey text-white rounded-start rounded-end-0 ${(dongHo.so_giay_chung_nhan && dongHo.so_tem && ketQua == true) || (ketQua == false) ? "d-inline" : "d-none"}`}><FontAwesomeIcon icon={faDownload}></FontAwesomeIcon> Nhiều:</span>
-                        <button aria-label="Tải biên bản kiểm định" className={`btn bg-main-green rounded-0 ${(dongHo.so_giay_chung_nhan && dongHo.so_tem && ketQua == true) ? "" : "rounded-end"} text-white ${(dongHo.so_giay_chung_nhan && dongHo.so_tem && ketQua == true) || (ketQua == false) ? "d-inline" : "d-none"}`} onClick={handleDownloadBB}>
+                        <button aria-label="Tải biên bản kiểm định" className={`btn bg-main-green rounded-0 ${(dongHo.so_giay_chung_nhan && dongHo.so_tem && ketQua == true) ? "" : "rounded-end"} text-white ${(dongHo.so_giay_chung_nhan && dongHo.so_tem && ketQua == true) || (ketQua == false) ? "d-inline" : "d-none"}`} onClick={handleDownloadBBExcel}>
                             <FontAwesomeIcon icon={faFileExcel} className="me-1"></FontAwesomeIcon> Biên bản
                         </button>
                         <button aria-label="Tải giấy chứng nhận kiểm định" className={`btn border-start rounded-start-0 rounded-end bg-main-green text-white ${(dongHo.so_giay_chung_nhan && dongHo.so_tem && ketQua == true) ? "d-inline" : "d-none"}`} onClick={handleDownloadGCN}>
