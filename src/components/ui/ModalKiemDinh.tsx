@@ -250,7 +250,7 @@ export default function ModalKiemDinh({ show, isEditing = false, handleClose }: 
                                     <th colSpan={4}>Số chỉ trên đồng hồ</th>
                                     <th colSpan={!isUsingBinhChuan ? 4 : 2}>Số chỉ trên chuẩn</th>
                                     <th rowSpan={2}>δ</th>
-                                    <th rowSpan={2} style={{ maxWidth: "50px" }}>Hiệu sai số</th>
+                                    <th rowSpan={2} style={{ maxWidth: "75px" }}>Hiệu sai số</th>
                                 </tr>
                                 <tr>
                                     <th>V<sub>1</sub></th>

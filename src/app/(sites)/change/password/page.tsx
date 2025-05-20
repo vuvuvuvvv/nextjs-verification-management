@@ -14,11 +14,7 @@ import { logout } from '@/app/api/auth/logout/route';
 import Head from 'next/head';
 import { useUser } from "@/context/AppContext";
 
-interface FormProps {
-    className?: string
-}
-
-export default function ChangePassword({ className }: FormProps) {
+export default function ChangePassword() {
     const [error, setError] = useState('');
     const [newPassword, setNewPassword] = useState('');
     const [oldPassword, setOldPassword] = useState('');
@@ -111,7 +107,7 @@ export default function ChangePassword({ className }: FormProps) {
     return (
         <>
             <h5 className='text-center'>Đổi mật khẩu</h5>
-            <form className={`${className ? className : ""} ${reset['form']}`} onSubmit={handleSubmit}>
+            <form className={`${reset['form']}`} onSubmit={handleSubmit}>
                 <div className="mb-3">
                     <label htmlFor="password" className="form-label">Mật khẩu cũ:</label>
                     <input
