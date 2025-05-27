@@ -23,15 +23,14 @@ import {
     //  limitOptions 
 } from "@lib/system-constant";
 import Swal from "sweetalert2";
-import { getDongHoByFilter } from "@/app/api/dongho/route";
+import { getAllPhongBanByFilter } from "@/app/api/phongban/route";
 import { decode, getNameOfRole } from "@lib/system-function";
 import { useUser } from "@/context/AppContext";
-import ModalMultDongHoPermissionMng from "@/components/ui/ModalMultDongHoPermissionMng";
 
 const Loading = React.lazy(() => import("@/components/Loading"));
 
 
-interface DongHoNuocMngProps {
+interface PhongBanMngProps {
     className?: string,
     isAuthorizing?: boolean,
     setSelectedDongHo?: React.Dispatch<React.SetStateAction<DongHo | null>>;
@@ -39,7 +38,7 @@ interface DongHoNuocMngProps {
     dataList?: DongHo[]
 }
 
-export default function DongHoNuocMng({ className, isAuthorizing = false, setSelectedDongHo, clearNDHPropData, dataList = [] }: DongHoNuocMngProps) {
+export default function PhongBanMng({ className, isAuthorizing = false, setSelectedDongHo, clearNDHPropData, dataList = [] }: PhongBanMngProps) {
     const { user, permissions, isSuperAdmin, getCurrentRole } = useUser();
     const [data, setRootData] = useState<DongHo[]>([]);
     const rootData = useRef<DongHo[]>([]);
@@ -143,58 +142,6 @@ export default function DongHoNuocMng({ className, isAuthorizing = false, setSel
         }
     }, []);
     
-
-    // useEffect(() => {
-    //     const filteredData = rootData.current ? [...rootData.current].filter(_per => {
-    //         // Trim filter values once to avoid repeated operations
-    //         const trimmedFilters = {
-    //             so_giay_chung_nhan: filterForm.so_giay_chung_nhan?.trim().toLowerCase() || '',
-    //             seri_sensor: filterForm.seri_sensor?.trim().toLowerCase() || '',
-    //             ten_khach_hang: filterForm.ten_khach_hang?.trim().toLowerCase() || '',
-    //             nguoi_thuc_hien: filterForm.nguoi_thuc_hien?.trim().toLowerCase() || '',
-    //             ccx: filterForm.ccx?.trim().toLowerCase() || '',
-    //         };
-
-    //         // Skip filtering if all filter values are empty
-    //         if (!Object.values(trimmedFilters).some(value => value !== '') &&
-    //             !filterForm.ngay_kiem_dinh_from &&
-    //             !filterForm.ngay_kiem_dinh_to) {
-    //             return true;
-    //         }
-
-    //         const isSoGiayChungNhanMatch = !trimmedFilters.so_giay_chung_nhan ||
-    //             (_per.so_giay_chung_nhan?.trim().toLowerCase() || '').includes(trimmedFilters.so_giay_chung_nhan);
-
-    //         const isSeriSensorMatch = !trimmedFilters.seri_sensor ||
-    //             (_per.seri_sensor?.trim().toLowerCase() || '').includes(trimmedFilters.seri_sensor);
-
-    //         const isTenKhachHangMatch = !trimmedFilters.ten_khach_hang ||
-    //             (_per.ten_khach_hang?.trim().toLowerCase() || '').includes(trimmedFilters.ten_khach_hang);
-
-    //         const isnguoiThucHienMatch = !trimmedFilters.nguoi_thuc_hien ||
-    //             (_per.nguoi_thuc_hien?.trim().toLowerCase() || '').includes(trimmedFilters.nguoi_thuc_hien);
-
-    //         const isNgayKiemDinhFromMatch = !filterForm.ngay_kiem_dinh_from ||
-    //             (_per.ngay_thuc_hien && new Date(_per.ngay_thuc_hien) >= new Date(filterForm.ngay_kiem_dinh_from));
-
-    //         const isNgayKiemDinhToMatch = !filterForm.ngay_kiem_dinh_to ||
-    //             (_per.ngay_thuc_hien && new Date(_per.ngay_thuc_hien) <= new Date(filterForm.ngay_kiem_dinh_to));
-
-    //         const isCcxMatch = !trimmedFilters.ccx ||
-    //             (_per.ccx?.trim().toLowerCase() || '').includes(trimmedFilters.ccx);
-
-    //         return isSoGiayChungNhanMatch &&
-    //             isSeriSensorMatch &&
-    //             isTenKhachHangMatch &&
-    //             isnguoiThucHienMatch &&
-    //             isNgayKiemDinhFromMatch &&
-    //             isNgayKiemDinhToMatch &&
-    //             isCcxMatch;
-    //     }) : [];
-
-    //     setRootData(filteredData);
-    // }, [filterForm, rootData]);
-
     const handleFilterChange = (key: keyof DongHoFilterParameters, value: any) => {
         setFilterForm(prevForm => ({
             ...prevForm,
@@ -259,13 +206,7 @@ export default function DongHoNuocMng({ className, isAuthorizing = false, setSel
 
     return (
         <LocalizationProvider dateAdapter={AdapterDayjs} localeText={viVN.components.MuiLocalizationProvider.defaultProps.localeText}>
-            {isAuthorizing && dataList.length > 0 &&
-                <ModalMultDongHoPermissionMng
-                    show={isShow != null ? isShow : false}
-                    dongHoList={dataList}
-                    handleClose={handleCloseModal}
-                ></ModalMultDongHoPermissionMng>
-            }
+
             <div className={`${className ? className : ""} m-0 w-100`}>
                 <div className={`${c_vfml['wraper']} w-100`}>
 

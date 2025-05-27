@@ -122,7 +122,7 @@ function reducer(state: State, action: Action): State {
 }
 
 export default React.memo(function PDMManagement({ className, listDHNamesExist }: PDMManagementProps) {
-    const { isViewer } = useUser();
+    const { permissions } = useUser();
     const [state, dispatch] = useReducer(reducer, initialState);
     const fetchedRef = useRef(false);
 
@@ -544,7 +544,7 @@ export default React.memo(function PDMManagement({ className, listDHNamesExist }
                                         <FontAwesomeIcon icon={faRefresh}></FontAwesomeIcon>
                                     </button>
                                 </div>
-                                {!isViewer && <Link
+                                {permissions.CAN_VIEW && <Link
                                     aria-label="Thêm mới"
                                     href={ACCESS_LINKS.PDM_ADD.src}
                                     className={`btn bg-main-green text-white`}

@@ -21,9 +21,15 @@ export type AppContextType = {
     getCurrentRole: () => string;
     isSuperAdmin: boolean;
     isAdmin: boolean;
-    isDirector: boolean;
+    isKiemDinhVien: boolean;
     isManager: boolean;
     isViewer: boolean;
+    permissions: {
+        CAN_VIEW: boolean;
+        CAN_CREATE: boolean;
+        CAN_EDIT: boolean;
+        CAN_DELETE: boolean;
+    };
 };
 
 // Create context
@@ -38,11 +44,18 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
     const isAdmin = user?.role === PERMISSIONS.ADMIN || isSuperAdmin;
 
-    const isDirector = user?.role === PERMISSIONS.DIRECTOR || isAdmin;
+    const isManager = user?.role === PERMISSIONS.MANAGER || isAdmin;
 
-    const isManager = user?.role === PERMISSIONS.MANAGER || isDirector;
+    const isKiemDinhVien = user?.role === PERMISSIONS.KIEM_DINH_VIEN || isManager;
 
-    const isViewer = user?.role === PERMISSIONS.VIEWER || !isManager;
+    const isViewer = user?.role === PERMISSIONS.VIEWER || !isKiemDinhVien;
+    
+    const permissions = {
+        CAN_VIEW: isViewer,
+        CAN_CREATE: isKiemDinhVien,
+        CAN_EDIT: isKiemDinhVien,
+        CAN_DELETE: isManager,
+    };
 
     const _logout = () => {
         Swal.fire({
@@ -122,10 +135,11 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
             logoutUser,
             isSuperAdmin,
             isAdmin,
-            isDirector,
+            isKiemDinhVien,
             isManager,
             getCurrentRole,
-            isViewer
+            isViewer,
+            permissions
         }}>
             {children}
         </AppContext.Provider>

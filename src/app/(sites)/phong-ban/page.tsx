@@ -4,7 +4,7 @@ import dynamic from "next/dynamic";
 
 const NhomDongHoNuocManagement = dynamic(() => import("@/components/quan-ly/kiem-dinh/NhomDongHoNuocMng"), { ssr: false, loading: () => <Loading className="bg-transparent" /> })
 const DongHoNuocMng = dynamic(() => import("@/components/quan-ly/kiem-dinh/DongHoNuocMng"), { ssr: false, loading: () => <Loading className="bg-transparent" /> })
-const DongHoPermissionsManagement = dynamic(() => import("@/components/quan-ly/phan-quyen/DongHoPermissionsMng"), { ssr: false })
+const DongHoPermissionsManagement = dynamic(() => import("@/components/quan-ly/phong-ban/PhongBanMng"), { ssr: false })
 
 import { useEffect, useRef, useState } from "react";
 import { DongHo } from "@lib/types";

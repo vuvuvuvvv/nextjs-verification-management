@@ -132,7 +132,7 @@ function modalReducer(state: ModalState, action: ModalAction): ModalState {
 
 export default function KiemDinhNhomDongHoNuocForm({ className, generalInfoDongHo, isEditing = false }: KiemDinhNhomDongHoNuocFormProps) {
 
-    const { user, isManager } = useUser();
+    const { user } = useUser();
 
     const initialState: State = {
         phuongTienDo: generalInfoDongHo?.ten_phuong_tien_do || "",

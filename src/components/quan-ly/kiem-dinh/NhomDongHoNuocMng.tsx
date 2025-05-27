@@ -20,7 +20,7 @@ import Link from "next/link";
 
 import { ACCESS_LINKS, BASE_API_URL } from "@lib/system-constant";
 import Swal from "sweetalert2";
-import { getNhomDongHoByFilter, updatePaymentStatus } from "@/app/api/dongho/route";
+import { getNhomDongHoByFilter } from "@/app/api/dongho/route";
 import api from "@/app/api/route";
 import dynamic from "next/dynamic";
 import Pagination from "@/components/Pagination";
@@ -36,7 +36,7 @@ interface NhomDongHoNuocManagementProps {
 }
 
 export default function NhomDongHoNuocManagement({ className, isAuthorizing, setSelectedGroupId }: NhomDongHoNuocManagementProps) {
-    const { user, isAdmin, isSuperAdmin, isViewer } = useUser();
+    const { user, isAdmin, isSuperAdmin, permissions } = useUser();
     const [data, setRootData] = useState<NhomDongHo[]>([]);
     const rootData = useRef<NhomDongHo[]>([]);
 
@@ -257,33 +257,6 @@ export default function NhomDongHoNuocManagement({ className, isAuthorizing, set
             limit: limit,
             page: 1
         });
-    }
-
-    const handleUpdatePaymentStatus = (group_id: string, current_payment_status: boolean) => {
-        if (group_id) {
-            Swal.fire({
-                title: `Xác nhận!`,
-                text: !current_payment_status ? "Đã hoàn tất thanh toán?" : "Hủy hoàn tất thanh toán?",
-                icon: "warning",
-                showCancelButton: true,
-                cancelButtonColor: "#d33",
-                confirmButtonText: "Xác nhận",
-                cancelButtonText: "Hủy",
-            }).then(async (result) => {
-                if (result.isConfirmed) {
-                    try {
-                        const res = await updatePaymentStatus(group_id, !current_payment_status, user?.fullname || "");
-                        if (res.status == 200 || res.status == 201) {
-                            _fetchNhomDongHo(filterForm);
-                        } else {
-                            setError("Đã có lỗi xảy ra! Hãy thử lại sau.");
-                        }
-                    } catch (error) {
-                        setError("Đã có lỗi xảy ra! Hãy thử lại sau.");
-                    }
-                }
-            });
-        }
     }
 
     const handleSearch = () => {
@@ -511,7 +484,7 @@ export default function NhomDongHoNuocManagement({ className, isAuthorizing, set
                                         <FontAwesomeIcon icon={faRefresh}></FontAwesomeIcon>
                                     </button>
                                 </div>
-                                {!isViewer && !isAuthorizing && <Link
+                                {permissions.CAN_CREATE && !isAuthorizing && <Link
                                     style={{ minHeight: "42px" }}
                                     href={ACCESS_LINKS.DHN_ADD.src}
                                     className="btn bg-main-green text-white"
@@ -634,20 +607,6 @@ export default function NhomDongHoNuocManagement({ className, isAuthorizing, set
                                                     <td>{item.nguoi_thuc_hien}</td>
                                                     {/* </>} */}
                                                     <td>{dayjs(item.ngay_thuc_hien).format('DD-MM-YYYY')}</td>
-                                                    {/* {(isAdmin && !isAuthorizing) && <td>
-                                                        <div className="w-100 d-flex justify-content-center" onClick={() => handleUpdatePaymentStatus(item?.group_id || "", item?.is_paid ?? false)}>
-                                                            <Form.Check
-                                                                type="checkbox"
-                                                                style={{ width: "100px" }}
-                                                                className="d-flex justify-content-center"
-                                                                label={
-                                                                    <span className="ms-1" style={{ color: 'black', cursor: 'pointer' }}>{(item?.is_paid ?? false) ? "Đã thu" : "Chưa thu"}</span>
-                                                                }
-                                                                checked={item?.is_paid ?? false}
-                                                                onChange={() => handleUpdatePaymentStatus(item?.group_id || "", item?.is_paid ?? false)}
-                                                            />
-                                                        </div>
-                                                    </td>} */}
 
                                                     {!isAuthorizing ?
                                                         <td style={{ width: "90px" }}>

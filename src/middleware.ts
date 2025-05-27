@@ -21,7 +21,7 @@ const EXCLUDE_PATHS = [
 export async function middleware(req: NextRequest) {
     const { pathname, searchParams } = new URL(req.url);
 
-    const refreshTokenCookie = req.cookies.get('refreshToken')?.value;
+    // const refreshTokenCookie = req.cookies.get('refreshToken')?.value;
     const userCookie = req.cookies.get('user')?.value;
 
     const isConfirmed = (userCookie ? JSON.parse(userCookie)?.confirmed : "") == "1" ? true : false;

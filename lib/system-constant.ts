@@ -55,24 +55,24 @@ export const TITLE_LUU_LUONG = {
 }
 
 export const PERMISSIONS = {
-    VIEWER: "Viewer",
+    VIEWER: "User",
     MANAGER: "Manager",
-    DIRECTOR: "Director",
+    KIEM_DINH_VIEN: "Kiểm định viên",
     ADMIN: "Administrator",
     SUPERADMIN: "SuperAdministrator",
 }
 export const PERMISSION_VALUES : Record<string, number> = {
-    "Viewer" : 1,
-    "Manager" : 2,
-    "Director" : 3,
+    "User" : 1,
+    "Kiểm định viên" : 2,
+    "Manager" : 3,
     "Administrator" : 4,
     "SuperAdministrator" : 5,
 }
 
 export const PERMISSION_TITLES : Record<string, string> = {
-    "Viewer" : "Người xem",
+    "User" : "Người dùng",
+    "Kiểm định viên" : "Kiểm định viên",
     "Manager" : "Quản lý",
-    "Director" : "Giám đốc",
     "Administrator" : "Quản trị viên",
     "SuperAdministrator" : "Siêu quản trị viên",
 }
@@ -100,8 +100,8 @@ export const ACCESS_LINKS = {
         title: "Xuất báo cáo"
     },
     AD_PHAN_QUYEN : {
-        src: "/phan-quyen",
-        title: "Phân quyền"
+        src: "/phong-ban",
+        title: "Phòng ban"
     },
     AUTH_FORGOT_PW : {
         src: "/forgot-password",

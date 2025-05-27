@@ -310,6 +310,24 @@ export interface DongHoPermission {
     role: string,
 }
 
+export interface PhongBan {
+    ten_phong_ban: string | null;
+    truong_phong: User | null;
+    members: User[] | null;
+    ngay_tao: Date | null;
+}
+
+export interface PhongBanFilterParameters {
+    ten_phong_ban: string | null;
+    truong_phong: string | null;
+    ngay_tao_from: Date | null;
+    ngay_tao_to: Date | null;
+    limit: number;  // x
+    last_seen: string; // p => limit x offset x * (p-1)
+    next_from?: string;
+    prev_from?: string;
+}
+
 export interface RoleOption {
     value: string;
     label: string;

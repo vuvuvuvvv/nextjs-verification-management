@@ -4,29 +4,29 @@ import api from '../route';
 
 const API_DONGHO_URL = `${BASE_API_URL}/dongho`;
 
-export const getUserPermissionWithDongHo = async (dongHo: DongHo) => {
-    try {
-        const response = await api.get(API_DONGHO_URL.toString() + "/user-permissions/" + dongHo.id);
-        return {
-            "status": response.status,
-            "data": response.data,
-            "msg": "Thành công!"
-        };
+// export const getUserPermissionWithDongHo = async (dongHo: DongHo) => {
+//     try {
+//         const response = await api.get(API_DONGHO_URL.toString() + "/user-permissions/" + dongHo.id);
+//         return {
+//             "status": response.status,
+//             "data": response.data,
+//             "msg": "Thành công!"
+//         };
 
-    } catch (error: any) {
-        if (error.response?.data?.msg) {
-            return {
-                "status": error.response.status,
-                "msg": 'Có lỗi xảy ra khi lấy dữ liệu đồng hồ!'
-            };
-        } else {
-            return {
-                "status": error.response?.status || 500,
-                "msg": 'Có lỗi xảy ra khi lấy dữ liệu đồng hồ!'
-            };
-        }
-    }
-};
+//     } catch (error: any) {
+//         if (error.response?.data?.msg) {
+//             return {
+//                 "status": error.response.status,
+//                 "msg": 'Có lỗi xảy ra khi lấy dữ liệu đồng hồ!'
+//             };
+//         } else {
+//             return {
+//                 "status": error.response?.status || 500,
+//                 "msg": 'Có lỗi xảy ra khi lấy dữ liệu đồng hồ!'
+//             };
+//         }
+//     }
+// };
 
 export const getAllDongHoNamesExist = async () => {
     try {
@@ -434,45 +434,6 @@ export const updateDongHo = async (dongho: DongHo) => {
                 "status": error.response.status,
                 "data": error.response.data,
                 "msg": "Error: " + error.response.data.msg || 'Error creating DongHo!'
-            };
-        } else {
-            return {
-                "status": error.response?.status || 500,
-                "msg": 'Đã có lỗi xảy ra. Hãy thử lại sau!'
-            };
-        }
-    }
-};
-
-export const updatePaymentStatus = async (group_id: string, new_payment_status: boolean, username: string) => {
-    try {
-        const response = await api.put(API_DONGHO_URL + "/payment-status",
-            {
-                group_id: group_id,
-                new_payment_status: new_payment_status,
-                username: username
-            }, { withCredentials: true });
-
-        if (response.status == 200) {
-            return {
-                "status": response.status,
-                "msg": response.data.msg || "Cập nhật trạng thái thành công!",
-                "data": response.data
-            }
-        } else {
-            return {
-                "status": response.status,
-                "msg": response.data.msg || "Có lỗi đã xảy ra. Hãy thử lại!",
-
-            }
-        }
-
-    } catch (error: any) {
-        if (error.response?.data) {
-            return {
-                "status": error.response.status,
-                "data": error.response.data,
-                "msg": "Error: " + error.response.data.msg || 'Lỗi cập nhật trạng thái!'
             };
         } else {
             return {
