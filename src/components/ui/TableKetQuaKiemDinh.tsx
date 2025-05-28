@@ -2,7 +2,7 @@ import React, { useCallback, useEffect, useRef, useState } from 'react';
 import dynamic from "next/dynamic";
 const ToggleSwitchButton = dynamic(() => import('@/components/ui/ToggleSwitchButton'));
 
-import '@styles/scss/ui/modal-kiem-dinh.scss';
+import '@styles/scss/ui/general-modal.scss';
 import c_tbKD from "@styles/scss/components/table-kiem-dinh.module.scss";
 import { useDongHoList } from '@/context/ListDongHoContext';
 import { useKiemDinh } from '@/context/KiemDinhContext';

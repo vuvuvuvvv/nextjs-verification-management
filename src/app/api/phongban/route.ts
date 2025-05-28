@@ -1,14 +1,8 @@
 import api from '../route';
 import { BASE_API_URL } from "@lib/system-constant";
-import { PhongBanFilterParameters, User } from "@lib/types";
+import { PhongBan, PhongBanFilterParameters, User } from "@lib/types";
 
 const API_PHONGBAN_URL = `${BASE_API_URL}/phongban`;
-
-export interface PhongBan {
-    id: number;
-    ten_phong: string;
-    truong_phong_username?: string;
-}
 
 export interface UserInPhongBan {
     user: User;
@@ -24,7 +18,12 @@ interface APIResponse<T = any> {
 }
 
 // 1. Lấy danh sách tất cả phòng ban
-export const getAllPhongBanByFilter = async (parameters: PhongBanFilterParameters): Promise<APIResponse<PhongBan[]>> => {
+export const getAllPhongBanByFilter = async (parameters: PhongBanFilterParameters): Promise<APIResponse<
+    {
+        data: PhongBan[];
+        total_page: number;
+        total_records: number;
+    }>> => {
     try {
         const url = new URL(API_PHONGBAN_URL);
         if (parameters?.ten_phong_ban) {
@@ -58,7 +57,7 @@ export const getAllPhongBanByFilter = async (parameters: PhongBanFilterParameter
         if (parameters?.prev_from) {
             url.searchParams.append('prev_from', parameters.prev_from.toString());
         }
-
+        console.log(url.toString())
         const res = await api.get(url.toString(), { withCredentials: true });
         return {
             status: res.status,
@@ -66,6 +65,7 @@ export const getAllPhongBanByFilter = async (parameters: PhongBanFilterParameter
             msg: "Lấy danh sách phòng ban thành công!"
         };
     } catch (error: any) {
+        console.log(error);
         return handlePhongBanError(error, "danh sách phòng ban");
     }
 }
@@ -114,14 +114,14 @@ export async function getMembersByPhongBanId(id: number): Promise<APIResponse<an
 
 // 5. Lấy users đã/ chưa gia nhập phòng ban
 export async function getUsersByPhongBanStatus(): Promise<APIResponse<{
-    chua_gia_nhap: UserInPhongBan[];
-    da_gia_nhap: UserInPhongBan[];
+    chua_tham_gia: UserInPhongBan[];
+    da_tham_gia: UserInPhongBan[];
 }>> {
     try {
-        const res = await api.get(`${BASE_API_URL}/users/by-phongban`);
+        const res = await api.get(`${API_PHONGBAN_URL}/users/by-phongban`);
         return {
             status: res.status,
-            data: res.data,
+            data: res.data.data,
             msg: "Lấy users theo phòng ban thành công!"
         };
     } catch (error: any) {

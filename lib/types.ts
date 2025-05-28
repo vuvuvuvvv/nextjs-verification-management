@@ -311,10 +311,11 @@ export interface DongHoPermission {
 }
 
 export interface PhongBan {
+    id: number;
     ten_phong_ban: string | null;
     truong_phong: User | null;
     members: User[] | null;
-    ngay_tao: Date | null;
+    ngay_tao?: Date | null;
 }
 
 export interface PhongBanFilterParameters {

@@ -3,7 +3,7 @@ import { Dayjs } from "dayjs";
 import dynamic from "next/dynamic";
 import dayjs from "dayjs";
 import React, { useState, useReducer, useEffect, useRef } from "react";
-import c_tbIDHInf from "@styles/scss/components/table-input-dongho-info.module.scss";
+import c_tbGenf from "@styles/scss/components/table-general.module.scss";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faEdit, faCogs } from "@fortawesome/free-solid-svg-icons";
 import { getFullSoGiayCN } from "@lib/system-function";
@@ -258,25 +258,25 @@ const TableDongHoInfo: React.FC<TableDongHoInfoProps> = React.memo(({
                     </div>
                 </div>
             </div>
-            <div className={`w-100 m-0 p-0 mb-3 ${c_tbIDHInf['wrap-process-table']}`}>
-                <table className={`table table-bordered mb-0 table-hover ${c_tbIDHInf['process-table']}`}>
+            <div className={`w-100 m-0 p-0 mb-3 ${c_tbGenf['wrap-process-table']}`}>
+                <table className={`table table-bordered mb-0 table-hover ${c_tbGenf['process-table']}`}>
                     <thead className="shadow border">
-                        <tr className={`${c_tbIDHInf['table-header']}`}>
+                        <tr className={`${c_tbGenf['table-header']}`}>
                             <th>
-                                <div className={`${c_tbIDHInf['table-label']}`}>
+                                <div className={`${c_tbGenf['table-label']}`}>
                                     STT
                                 </div>
                             </th>
 
                             <th>
-                                <div className={`${c_tbIDHInf['table-label']}`}>
+                                <div className={`${c_tbGenf['table-label']}`}>
                                     <span>
                                         Số
                                     </span>
                                 </div>
                             </th>
                             {/* <th>
-                            <div className={`${c_tbIDHInf['table-label']}`}>
+                            <div className={`${c_tbGenf['table-label']}`}>
                                 <span>
                                     Trạng thái
                                 </span>
@@ -286,21 +286,21 @@ const TableDongHoInfo: React.FC<TableDongHoInfoProps> = React.memo(({
                             {!isHieuChuan &&
                                 <>
                                     <th>
-                                        <div className={`${c_tbIDHInf['table-label']}`}>
+                                        <div className={`${c_tbGenf['table-label']}`}>
                                             <span>
                                                 Vỏ ngoài
                                             </span>
                                         </div>
                                     </th>
                                     <th>
-                                        <div className={`${c_tbIDHInf['table-label']}`}>
+                                        <div className={`${c_tbGenf['table-label']}`}>
                                             <span>
                                                 Độ kín
                                             </span>
                                         </div>
                                     </th>
                                     <th>
-                                        <div className={`${c_tbIDHInf['table-label']}`}>
+                                        <div className={`${c_tbGenf['table-label']}`}>
                                             <span>
                                                 Độ ổn định chỉ số
                                             </span>
@@ -309,14 +309,14 @@ const TableDongHoInfo: React.FC<TableDongHoInfoProps> = React.memo(({
                                 </>}
 
                             <th>
-                                <div className={`${c_tbIDHInf['table-label']}`}>
+                                <div className={`${c_tbGenf['table-label']}`}>
                                     <span>
                                         Số giấy CN
                                     </span>
                                 </div>
                             </th>
                             <th>
-                                <div className={`${c_tbIDHInf['table-label']}`}>
+                                <div className={`${c_tbGenf['table-label']}`}>
                                     <span>
                                         Số Tem
                                     </span>

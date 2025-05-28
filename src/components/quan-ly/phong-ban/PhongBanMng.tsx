@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState, useCallback, useRef } from "react";
+import { useEffect, useState, useRef } from "react";
 import c_vfml from "@styles/scss/components/verification-management-layout.module.scss";
 
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
@@ -10,38 +10,34 @@ import dayjs, { Dayjs } from "dayjs";
 import { viVN } from "@mui/x-date-pickers/locales";
 
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faChevronDown, faChevronUp, faEdit, faCircleArrowRight, faArrowLeft, faSearch, faRefresh, faEye } from "@fortawesome/free-solid-svg-icons";
+import { faEdit, faSearch, faRefresh, faEye, faPlus } from "@fortawesome/free-solid-svg-icons";
 import React from "react";
-import { DongHo, DongHoFilterParameters, DongHoPermission, DuLieuChayDongHo } from "@lib/types";
+import { PhongBan, PhongBanFilterParameters } from "@lib/types";
 
 import Pagination from "@/components/Pagination";
-// import { usePathname } from "next/navigation";
 import Link from "next/link";
 
 import {
     ACCESS_LINKS,
-    //  limitOptions 
 } from "@lib/system-constant";
 import Swal from "sweetalert2";
 import { getAllPhongBanByFilter } from "@/app/api/phongban/route";
-import { decode, getNameOfRole } from "@lib/system-function";
 import { useUser } from "@/context/AppContext";
+import { Modal } from "react-bootstrap";
+import ModalAddPhongBan from "./ModalAddPhongBan";
 
 const Loading = React.lazy(() => import("@/components/Loading"));
 
 
 interface PhongBanMngProps {
     className?: string,
-    isAuthorizing?: boolean,
-    setSelectedDongHo?: React.Dispatch<React.SetStateAction<DongHo | null>>;
-    clearNDHPropData?: () => void;
-    dataList?: DongHo[]
+    dataList?: PhongBan[]
 }
 
-export default function PhongBanMng({ className, isAuthorizing = false, setSelectedDongHo, clearNDHPropData, dataList = [] }: PhongBanMngProps) {
+export default function PhongBanMng({ className, dataList = [] }: PhongBanMngProps) {
     const { user, permissions, isSuperAdmin, getCurrentRole } = useUser();
-    const [data, setRootData] = useState<DongHo[]>([]);
-    const rootData = useRef<DongHo[]>([]);
+    const [data, setRootData] = useState<PhongBan[]>([]);
+    const rootData = useRef<PhongBan[]>([]);
     const [filterLoading, setFilterLoading] = useState(true);
     const [limit, setLimit] = useState(10);
     const [error, setError] = useState("");
@@ -81,16 +77,13 @@ export default function PhongBanMng({ className, isAuthorizing = false, setSelec
 
     // const path = usePathname();
 
-    const [filterForm, setFilterForm] = useState<DongHoFilterParameters>({
-        so_giay_chung_nhan: "",
-        kieu_moden: "",
-        ccx: "",
-        nguoi_thuc_hien: "",
-        serial: "",
-        ngay_kiem_dinh_from: null,
-        ngay_kiem_dinh_to: null,
+    const [filterForm, setFilterForm] = useState<PhongBanFilterParameters>({
+        ten_phong_ban: "",
+        truong_phong: "",
+        ngay_tao_from: null,
+        ngay_tao_to: null,
         limit: limit,
-        last_seen: ""
+        last_seen: "",
     });
     const [currentPage, setCurrentPage] = useState(1);
 
@@ -99,7 +92,7 @@ export default function PhongBanMng({ className, isAuthorizing = false, setSelec
     const [totalPage, setTotalPage] = useState(1);
     const totalPageRef = useRef(totalPage);
 
-    const _fetchDongHo = async (filterFormProps?: DongHoFilterParameters) => {
+    const _fetchPhongban = async (filterFormProps?: PhongBanFilterParameters) => {
         setFilterLoading(true);
         if (dataList.length > 0) {
             setRootData(dataList);
@@ -107,21 +100,33 @@ export default function PhongBanMng({ className, isAuthorizing = false, setSelec
             setFilterLoading(false);
         } else {
             try {
-                const res = await getDongHoByFilter(filterFormProps ? filterFormProps : filterForm, !isSuperAdmin, (!isSuperAdmin ? (user?.username || "") : ""));
+                const res = await getAllPhongBanByFilter(filterFormProps ? filterFormProps : filterForm);
                 if (res.status === 200 || res.status === 201) {
-                    setRootData(res.data.donghos || []);
-                    if (totalPageRef.current != res.data.total_page) {
-                        setTotalPage(res.data.total_page || 1)
-                        totalPageRef.current = res.data.total_page || 1;
+                    // Ensure the data matches the PhongBan[] type
+                    const phongBanList: PhongBan[] = Array.isArray(res.data?.data)
+                        ? res.data.data.map((item: any) => ({
+                            id: item.id,
+                            ten_phong_ban: item.ten_phong_ban,
+                            truong_phong: item.truong_phong,
+                            members: item.members,
+                            ngay_tao: item.ngay_tao,
+                            // add other properties as needed
+                            ...item
+                        }))
+                        : [];
+                    setRootData(phongBanList);
+                    if (totalPageRef.current != res.data?.total_page) {
+                        setTotalPage(res.data?.total_page || 1)
+                        totalPageRef.current = res.data?.total_page || 1;
                     }
-                    if (totalRecordsRef.current != res.data.total_records) {
-                        setTotalRecords(res.data.total_records || 0)
-                        totalRecordsRef.current = res.data.total_records || 0;
+                    if (totalRecordsRef.current != res.data?.total_records) {
+                        setTotalRecords(res.data?.total_records || 0)
+                        totalRecordsRef.current = res.data?.total_records || 0;
                     }
                     if (filterFormProps) {
                         setFilterForm(filterFormProps);
                     }
-                    rootData.current = res.data.donghos || [];
+                    rootData.current = phongBanList;
                 } else {
                     console.error(res.msg);
                     setError("Có lỗi đã xảy ra!");
@@ -137,12 +142,12 @@ export default function PhongBanMng({ className, isAuthorizing = false, setSelec
 
     useEffect(() => {
         if (!fetchedRef.current) {
-            _fetchDongHo();
+            _fetchPhongban();
             fetchedRef.current = true;
         }
     }, []);
-    
-    const handleFilterChange = (key: keyof DongHoFilterParameters, value: any) => {
+
+    const handleFilterChange = (key: keyof PhongBanFilterParameters, value: any) => {
         setFilterForm(prevForm => ({
             ...prevForm,
             [key]: value
@@ -150,26 +155,18 @@ export default function PhongBanMng({ className, isAuthorizing = false, setSelec
     };
 
     const handleResetFilter = () => {
-        const blankFilterForm: DongHoFilterParameters = {
-            so_giay_chung_nhan: "",
-            serial: "",
-            kieu_moden: "",
-            ccx: "",
-            nguoi_thuc_hien: "",
-            ngay_kiem_dinh_from: null,
-            ngay_kiem_dinh_to: null,
+        const blankFilterForm: PhongBanFilterParameters = {
+            ten_phong_ban: "",
+            truong_phong: "",
+            ngay_tao_from: null,
+            ngay_tao_to: null,
             last_seen: "",
             next_from: "",
             prev_from: "",
             limit: limit
         };
-        _fetchDongHo(blankFilterForm);
+        _fetchPhongban(blankFilterForm);
         setCurrentPage(1);
-    }
-
-    const handleAddPermission = () => {
-        setIsShow(true);
-        isEditing.current = false;
     }
 
     const handleCloseModal = () => {
@@ -178,26 +175,26 @@ export default function PhongBanMng({ className, isAuthorizing = false, setSelec
 
     const handleSearch = () => {
         setCurrentPage(1);
-        _fetchDongHo({ ...filterForm, last_seen: "", next_from: "", prev_from: "" })
+        _fetchPhongban({ ...filterForm, last_seen: "", next_from: "", prev_from: "" })
     }
 
     const handlePageChange = (newPage: number) => {
         if (currentPage > newPage) {
-            const newFilterForm: DongHoFilterParameters = {
+            const newFilterForm: PhongBanFilterParameters = {
                 ...filterForm,
                 last_seen: "",
-                prev_from: data && data[0].id ? data[0].id || "" : "",
+                prev_from: data && data[0].id ? String(data[0].id) || "" : "",
                 next_from: ""
             }
-            _fetchDongHo(newFilterForm);
+            _fetchPhongban(newFilterForm);
         } else if (currentPage < newPage) {
-            const newFilterForm: DongHoFilterParameters = {
+            const newFilterForm: PhongBanFilterParameters = {
                 ...filterForm,
                 last_seen: "",
                 prev_from: "",
-                next_from: data[data.length - 1] && data[data.length - 1].id ? data[data.length - 1].id || "" : ""
+                next_from: data[data.length - 1] && data[data.length - 1].id ? data[data.length - 1].id.toString() || "" : ""
             }
-            _fetchDongHo(newFilterForm);
+            _fetchPhongban(newFilterForm);
         }
         setCurrentPage(newPage);
     };
@@ -206,118 +203,78 @@ export default function PhongBanMng({ className, isAuthorizing = false, setSelec
 
     return (
         <LocalizationProvider dateAdapter={AdapterDayjs} localeText={viVN.components.MuiLocalizationProvider.defaultProps.localeText}>
-
-            <div className={`${className ? className : ""} m-0 w-100`}>
+            <ModalAddPhongBan show={isShow} handleClose={handleCloseModal}/>
+            <div className={`${className ? className : ""} p-3 m-0 w-100`}>
                 <div className={`${c_vfml['wraper']} w-100`}>
 
                     <div className="bg-white w-100 shadow-sm mb-2 rounded pt-3 pb-1">
                         <div className={`row m-0 px-md-3 w-100 mb-3 ${c_vfml['search-process']}`}>
-                            {isAuthorizing ?
-                                <div className={`col-12 mb-3 col-xl-4 d-flex ${isAuthorizing ? "col-md-4 col-lg-4" : "col-md-6"}`}>
-                                    <label className={`${c_vfml['form-label']}`} htmlFor="serial">
-                                        Số:
+
+                            <div className="col-12 col-xl-8 row m-0 p-0">
+                                <div className="col-12 mb-3 col-md-6">
+                                    <label className={`${c_vfml['form-label']}`} htmlFor="kieu_moden">
+                                        Tên phòng ban:
                                         <input
                                             type="text"
-                                            id="serial"
+                                            id="kieu_moden"
                                             className="form-control"
-                                            placeholder="Nhập serial"
-                                            value={filterForm.serial}
-                                            onChange={(e) => handleFilterChange('serial', e.target.value)}
+                                            placeholder="Nhập tên khách hàng"
+                                            value={filterForm.ten_phong_ban ?? ""}
+                                            onChange={(e) => handleFilterChange('ten_phong_ban', e.target.value)}
                                         />
                                     </label>
-                                </div> : <>
-                                    <div className="col-12 mb-3 col-md-6 col-lg-4">
-                                        <label className={`${c_vfml['form-label']}`} htmlFor="kieu_moden">
-                                            Kiểu:
-                                            <input
-                                                type="text"
-                                                id="kieu_moden"
-                                                className="form-control"
-                                                placeholder="Nhập tên khách hàng"
-                                                value={filterForm.kieu_moden}
-                                                onChange={(e) => handleFilterChange('kieu_moden', e.target.value)}
-                                            />
-                                        </label>
-                                    </div>
-                                    <div className="col-12 mb-3 col-md-6 col-lg-4 d-flex">
-                                        <label className={`${c_vfml['form-label']}`} htmlFor="so_giay_chung_nhan">
-                                            Số giấy chứng nhận:
-                                            <input
-                                                type="text"
-                                                id="so_giay_chung_nhan"
-                                                className="form-control"
-                                                placeholder="Nhập số giấy"
-                                                value={filterForm.so_giay_chung_nhan}
-                                                onChange={(e) => handleFilterChange('so_giay_chung_nhan', e.target.value)}
-                                            />
-                                        </label>
-                                    </div>
-                                    <div className="col-12 d-md-none d-lg-flex mb-3 col-md-6 col-lg-4">
-                                        <label className={`${c_vfml['form-label']}`} htmlFor="nguoi_thuc_hien">
-                                            Người kiểm định:
-                                            <input
-                                                type="text"
-                                                id="nguoi_thuc_hien"
-                                                className="form-control"
-                                                placeholder="Nhập tên người kiểm định"
-                                                value={filterForm.nguoi_thuc_hien}
-                                                onChange={(e) => handleFilterChange('nguoi_thuc_hien', e.target.value)}
-                                            />
-                                        </label>
-                                    </div>
-                                </>
-                            }
-
-                            <div className={`col-12 ${isAuthorizing ? "col-md-8 col-lg-8" : "col-lg-8"} mb-3 m-0 row p-0 ${c_vfml['search-created-date']}`}>
-                                <label className={`${c_vfml['form-label']} col-12`}>
-                                    Ngày kiểm định:
-                                </label>
-                                <div className={`col-12 row m-0 mt-2 p-0 ${c_vfml['pick-created-date']}`}>
-                                    <div className={`col-12 col-md-6 mb-3 mb-md-0 ${c_vfml['picker-field']}`}>
-                                        <label>Từ:</label>
-
-                                        <DatePicker
-                                            className={`${c_vfml['date-picker']}`}
-                                            value={filterForm.ngay_kiem_dinh_from ? dayjs(filterForm.ngay_kiem_dinh_from) : null}
-                                            format="DD-MM-YYYY"
-
-                                            onChange={(newValue: Dayjs | null) => handleFilterChange('ngay_kiem_dinh_from', newValue ? newValue.toDate() : null)}
-                                            slotProps={{ textField: { fullWidth: true } }}
-                                            maxDate={filterForm.ngay_kiem_dinh_to ? dayjs(filterForm.ngay_kiem_dinh_to).subtract(1, 'day') : dayjs().endOf('day').subtract(1, 'day')}
+                                </div>
+                                <div className="col-12 mb-3 col-md-6 d-flex">
+                                    <label className={`${c_vfml['form-label']}`} htmlFor="so_giay_chung_nhan">
+                                        Tên trưởng phòng:
+                                        <input
+                                            type="text"
+                                            id="truong_phong"
+                                            className="form-control"
+                                            placeholder="Nhập số giấy"
+                                            value={filterForm.truong_phong ?? ""}
+                                            onChange={(e) => handleFilterChange('truong_phong', e.target.value)}
                                         />
-                                    </div>
+                                    </label>
+                                </div>
 
-                                    <div className={`col-12 col-md-6 ${c_vfml['picker-field']}`}>
-                                        <label>Đến:</label>
-                                        <DatePicker
-                                            className={`${c_vfml['date-picker']}`}
-                                            value={filterForm.ngay_kiem_dinh_to ? dayjs(filterForm.ngay_kiem_dinh_to) : undefined}
-                                            format="DD-MM-YYYY"
-                                            minDate={filterForm.ngay_kiem_dinh_from ? dayjs(filterForm.ngay_kiem_dinh_from).add(1, 'day') : undefined}
+                                <div className={`col-12 mb-3 m-0 row p-0 ${c_vfml['search-created-date']}`}>
+                                    <label className={`${c_vfml['form-label']} col-12`}>
+                                        Ngày tạo:
+                                    </label>
+                                    <div className={`col-12 row m-0 mt-2 p-0 ${c_vfml['pick-created-date']}`}>
+                                        <div className={`col-12 col-md-6 mb-3 mb-md-0 ${c_vfml['picker-field']}`}>
+                                            <label>Từ:</label>
 
-                                            maxDate={dayjs().endOf('day')}
-                                            onChange={(newValue: Dayjs | null) => handleFilterChange('ngay_kiem_dinh_to', newValue ? newValue.toDate() : undefined)}
-                                            slotProps={{ textField: { fullWidth: true } }}
-                                        />
+                                            <DatePicker
+                                                className={`${c_vfml['date-picker']}`}
+                                                value={filterForm.ngay_tao_from ? dayjs(filterForm.ngay_tao_from) : null}
+                                                format="DD-MM-YYYY"
+
+                                                onChange={(newValue: Dayjs | null) => handleFilterChange('ngay_tao_from', newValue ? newValue.toDate() : null)}
+                                                slotProps={{ textField: { fullWidth: true } }}
+                                                maxDate={filterForm.ngay_tao_to ? dayjs(filterForm.ngay_tao_to).subtract(1, 'day') : dayjs().endOf('day').subtract(1, 'day')}
+                                            />
+                                        </div>
+
+                                        <div className={`col-12 col-md-6 ${c_vfml['picker-field']}`}>
+                                            <label>Đến:</label>
+                                            <DatePicker
+                                                className={`${c_vfml['date-picker']}`}
+                                                value={filterForm.ngay_tao_to ? dayjs(filterForm.ngay_tao_to) : undefined}
+                                                format="DD-MM-YYYY"
+                                                minDate={filterForm.ngay_tao_from ? dayjs(filterForm.ngay_tao_from).add(1, 'day') : undefined}
+
+                                                maxDate={dayjs().endOf('day')}
+                                                onChange={(newValue: Dayjs | null) => handleFilterChange('ngay_tao_to', newValue ? newValue.toDate() : undefined)}
+                                                slotProps={{ textField: { fullWidth: true } }}
+                                            />
+                                        </div>
                                     </div>
                                 </div>
                             </div>
-                            {!isAuthorizing &&
-                                <div className="col-12 d-none d-md-flex d-lg-none mb-3 col-md-6 col-lg-4">
-                                    <label className={`${c_vfml['form-label']}`} htmlFor="nguoi_thuc_hien">
-                                        Người kiểm định:
-                                        <input
-                                            type="text"
-                                            id="nguoi_thuc_hien"
-                                            className="form-control"
-                                            placeholder="Nhập tên người kiểm định"
-                                            value={filterForm.nguoi_thuc_hien}
-                                            onChange={(e) => handleFilterChange('nguoi_thuc_hien', e.target.value)}
-                                        />
-                                    </label>
-                                </div>
-                            }
-                            <div className={`col-12 align-items-end pb-2 ${isAuthorizing ? "col-lg-12" : "col-md-6 col-lg-4"} m-0 my-2 d-flex justify-content-between`}>
+
+                            <div className="col-12 col-xl-4 m-0 py-0 pt-lg-4 align-items-start pb-2 m-0 my-2 d-flex gap-2">
                                 <div className="d-flex gap-2">
                                     <button aria-label="Tìm kiếm" type="button" className={`btn bg-main-blue text-white`} onClick={handleSearch}>
                                         <FontAwesomeIcon icon={faSearch}></FontAwesomeIcon> Tìm
@@ -326,164 +283,103 @@ export default function PhongBanMng({ className, isAuthorizing = false, setSelec
                                         <FontAwesomeIcon icon={faRefresh}></FontAwesomeIcon>
                                     </button>
                                 </div>
-                                {permissions.CAN_CREATE && !isAuthorizing &&
-                                    <Link
-                                        style={{ minHeight: "42px" }}
-                                        href={ACCESS_LINKS.DHN_ADD.src}
-                                        className="btn bg-main-green text-white"
-                                    >
-                                        Thêm mới
-                                    </Link>
-                                }
-                                {isAuthorizing && dataList.length > 0 &&
-                                    <button
-                                        className="btn bg-main-green text-white"
-                                        onClick={() => handleAddPermission()}
-                                    >
-                                        Thêm phân quyền
-                                    </button>
-                                }
+                                <button
+                                    style={{ minHeight: "42px" }}
+                                    className="btn bg-main-green text-white"
+                                    onClick={() => {
+                                        setIsShow(true);
+                                    }}
+                                >
+                                    <FontAwesomeIcon icon={faPlus} className="me-2"></FontAwesomeIcon>
+                                    Thêm mới 
+                                </button>
                             </div>
-
                         </div>
+
+
                     </div>
+                </div>
 
-                    {dataList.length > 0 &&
-                        <div className="alert alert-warning alert-dismissible shadow-sm mb-2 d-flex justify-content-end justify-content-sm-center position-relative px-3 px-md-4" role="alert">
-                            <h5 className="m-0 text-center"></h5>
-                            <button style={{ top: "50%", left: "20px", transform: "translateY(-50%)" }} className={`btn m-0 py-0 px-0 text-blue position-absolute d-flex align-items-center gap-1 border-0 shadow-0`} onClick={() => clearNDHPropData?.()}>
-                                <FontAwesomeIcon icon={faArrowLeft} style={{ fontSize: "22px" }}></FontAwesomeIcon> Quay lại
-                            </button>
-                            <span className={`fs-5 fw-bold d-none d-sm-block`} style={{ maxWidth: "calc(100% - 195px)", overflow: "hidden", WebkitLineClamp: "1", whiteSpace: "no-wrap", textOverflow: "ellipsis" }}>{dataList[0].group_id}</span>
-                            <span className={`fs-5 fw-bold d-sm-none`} style={{ maxWidth: "calc(100% - 115px)", overflow: "hidden", WebkitLineClamp: "1", whiteSpace: "no-wrap", textOverflow: "ellipsis" }}>{dataList[0].group_id}</span>
-                        </div>}
+                <div className="bg-white w-100 shadow-sm position-relative rounded overflow-hidden">
+                    {filterLoading && <Loading />}
+                    <div className={`m-0 p-0 w-100 w-100 position-relative ${c_vfml['wrap-process-table']}`}>
+                        {data && data.length > 0 ? (
+                            <table className={`table table-striped table-bordered table-hover ${c_vfml['process-table']}`}>
+                                <thead>
+                                    <tr className={`${c_vfml['table-header']}`}>
+                                        <th className="text-center">
+                                            ID
+                                        </th>
 
-                    <div className="bg-white w-100 shadow-sm position-relative rounded overflow-hidden">
-                        {filterLoading && <Loading />}
-                        <div className={`m-0 p-0 w-100 w-100 position-relative ${c_vfml['wrap-process-table']}`}>
-                            {data && data.length > 0 ? (
-                                <table className={`table table-striped table-bordered table-hover ${c_vfml['process-table']}`}>
-                                    <thead>
-                                        <tr className={`${c_vfml['table-header']}`}>
-                                            <th className="text-center">
-                                                ID
-                                            </th>
-                                            {isAuthorizing ?
-                                                <>
-                                                    <th>
-                                                        <div>
-                                                            <span>
-                                                                Kiểu
-                                                            </span>
-                                                        </div>
-                                                    </th>
-                                                    <th>
-                                                        <div>
-                                                            <span>
-                                                                Ngày thực hiện
-                                                            </span>
-                                                        </div>
-                                                    </th>
-                                                    <th>Vai trò của bạn</th>
-                                                    <th>Phân quyền</th>
-                                                </>
-                                                : <>
-                                                    <th>
-                                                        <div>
-                                                            <span>
-                                                                Số giấy CN
-                                                            </span>
-                                                        </div>
-                                                    </th>
-                                                    <th>
-                                                        <div>
-                                                            <span>
-                                                                Người kiểm định
-                                                            </span>
-                                                        </div>
-                                                    </th>
-                                                    <th>
-                                                        <div>
-                                                            <span>
-                                                                Ngày thực hiện
-                                                            </span>
-                                                        </div>
-                                                    </th>
-                                                    <th>
-                                                        <div>
-                                                            <span>
-                                                                Trạng thái
-                                                            </span>
-                                                        </div>
-                                                    </th>
-                                                    <th></th>
-                                                </>
-                                            }
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        {/* {data.map((dongHo, index) => { */}
-                                        {paginatedData.map((dongHo, index) => {
-                                            const duLieuKiemDinhJSON = dongHo.du_lieu_kiem_dinh;
-                                            const duLieuKiemDinh = duLieuKiemDinhJSON ?
-                                                ((typeof duLieuKiemDinhJSON != 'string') ?
-                                                    duLieuKiemDinhJSON : JSON.parse(duLieuKiemDinhJSON)
-                                                ) : null;
-                                            const ketQua = duLieuKiemDinh?.ket_qua;
-                                            const redirectLink = `${ACCESS_LINKS.DHN_DETAIL_DH.src}/${dongHo.id}`;
+                                        <th>
+                                            <div>
+                                                <span>Tên phòng ban</span>
+                                            </div>
+                                        </th>
+                                        <th>
+                                            <div>
+                                                <span>
+                                                    Trưởng phòng ban
+                                                </span>
+                                            </div>
+                                        </th>
+                                        <th>
+                                            <div>
+                                                <span>
+                                                    Số lượng nhân viên
+                                                </span>
+                                            </div>
+                                        </th>
+                                        <th>
+                                            <div>
+                                                <span>
+                                                    Trạng thái
+                                                </span>
+                                            </div>
+                                        </th>
+                                        <th></th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {/* {data.map((dongHo, index) => { */}
+                                    {paginatedData.map((phongBan, index) => {
+                                        const redirectLink = `${ACCESS_LINKS.DHN_DETAIL_DH.src}/${phongBan.id}`;
 
-                                            return (
-                                                <tr
-                                                    key={index}
-                                                    style={{ cursor: 'pointer' }}
-                                                >
-                                                    <td className="text-center">{decode(dongHo.id || "")}</td>
-                                                    {isAuthorizing ?
-                                                        <>
-                                                            {/* TODO */}
-                                                            <td onClick={() => setSelectedDongHo?.(dongHo)}>{dongHo.sensor || "Không có sensor"}</td>
-                                                            <td onClick={() => setSelectedDongHo?.(dongHo)}>{dayjs(dongHo.ngay_thuc_hien).format('DD-MM-YYYY')}</td>
-                                                            <td onClick={() => setSelectedDongHo?.(dongHo)}>{getNameOfRole(isSuperAdmin ? getCurrentRole() : (dongHo?.current_permission || ""))}</td>
-                                                            <td>
-                                                                <button aria-label="Phân quyền" onClick={() => setSelectedDongHo?.(dongHo)} className={`btn border-0 w-100 text-blue shadow-0`}>
-                                                                    <FontAwesomeIcon icon={faCircleArrowRight} style={{ fontSize: "26px" }}></FontAwesomeIcon>
-                                                                </button>
-                                                            </td>
-                                                        </> :
-                                                        <>
-                                                            <td>{dongHo.so_giay_chung_nhan}</td>
-                                                            <td>{dongHo.nguoi_thuc_hien}</td>
-                                                            <td>{dayjs(dongHo.ngay_thuc_hien).format('DD-MM-YYYY')}</td>
-                                                            <td>
-                                                                {ketQua != null ? (ketQua ? "Đạt" : "Không đạt") : "Chưa kiểm định"}
-                                                            </td>
-                                                            <td style={{ width: "90px" }}>
-                                                                <div className="w-100 m-0 p-0 d-flex align-items-center justify-content-center">
-                                                                    <Link aria-label="Xem" href={redirectLink} target="_blank" className={`btn p-1 w-100 text-blue shadow-0`}>
-                                                                        <FontAwesomeIcon icon={faEye}></FontAwesomeIcon>
-                                                                    </Link>
-                                                                    <Link aria-label="Chỉnh sửa" href={ACCESS_LINKS.DHN_EDIT_DH.src + "/" + dongHo.id} className={`btn p-1 w-100 text-blue shadow-0`}>
-                                                                        <FontAwesomeIcon icon={faEdit}></FontAwesomeIcon>
-                                                                    </Link>
-                                                                </div>
-                                                            </td>
-                                                        </>
-                                                    }
-                                                </tr>
-                                            )
-                                        })}
-                                    </tbody>
-                                </table>
-                            ) : (
-                                <p className="text-center py-3 m-0 w-100">Không có dữ liệu</p>
-                            )}
-                        </div>
-                        <div className="w-100 m-0 p-3 d-flex align-items-center justify-content-center">
-                            <Pagination currentPage={currentPage} totalPage={totalPage} totalRecords={totalRecords} handlePageChange={handlePageChange}></Pagination>
-                        </div>
+                                        return (
+                                            <tr
+                                                key={index}
+                                                style={{ cursor: 'pointer' }}
+                                            >
+                                                <td className="text-center">{phongBan.id || ""}</td>
+
+                                                <td>{phongBan.ten_phong_ban ?? ""}</td>
+                                                <td>{phongBan.truong_phong?.fullname ?? ""}</td>
+                                                <td>{dayjs(phongBan.ngay_tao).format('DD-MM-YYYY')}</td>
+                                                <td style={{ width: "90px" }}>
+                                                    <div className="w-100 m-0 p-0 d-flex align-items-center justify-content-center">
+                                                        <Link aria-label="Xem" href={redirectLink} target="_blank" className={`btn p-1 w-100 text-blue shadow-0`}>
+                                                            <FontAwesomeIcon icon={faEye}></FontAwesomeIcon>
+                                                        </Link>
+                                                        {/* TODO */}
+                                                        <Link aria-label="Chỉnh sửa" href={ACCESS_LINKS.DHN_EDIT_DH.src + "/" + phongBan.id} className={`btn p-1 w-100 text-blue shadow-0`}>
+                                                            <FontAwesomeIcon icon={faEdit}></FontAwesomeIcon>
+                                                        </Link>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        )
+                                    })}
+                                </tbody>
+                            </table>
+                        ) : (
+                            <p className="text-center py-3 m-0 w-100">Không có dữ liệu</p>
+                        )}
+                    </div>
+                    <div className="w-100 m-0 p-3 d-flex align-items-center justify-content-center">
+                        <Pagination currentPage={currentPage} totalPage={totalPage} totalRecords={totalRecords} handlePageChange={handlePageChange}></Pagination>
                     </div>
                 </div>
             </div>
-        </LocalizationProvider>
+        </LocalizationProvider >
     )
 }
