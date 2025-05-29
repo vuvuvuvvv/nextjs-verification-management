@@ -7,18 +7,11 @@ import {
     TextField,
 } from "@mui/material";
 import CheckIcon from "@mui/icons-material/Check";
-import { User } from "@lib/types";
-
-interface UserInPhongBan {
-    user: User | null;
-    is_manager: boolean | null;
-    phong_ban_id: number | null;
-    phong_ban: string | null;
-}
+import { User, UserInPhongBan } from "@lib/types";
 
 type UserAddAutocompleteMUIProps = {
     users: UserInPhongBan[];
-    selectedUser: User[]; // <-- array of user.id
+    value?: UserInPhongBan[]; // <== THÊM DÒNG NÀY
     onChange: (selectedIds: number[]) => void;
     isMultiple?: boolean;
     isDisabled?: boolean;
@@ -26,22 +19,30 @@ type UserAddAutocompleteMUIProps = {
 
 const UserAddAutocompleteMUI: React.FC<UserAddAutocompleteMUIProps> = ({
     users = [],
-    selectedUser,
+    value,
     onChange,
     isMultiple = false,
     isDisabled = false,
 }) => {
     return (
         <Autocomplete
+            value={
+                isMultiple
+                    ? value ?? []
+                    : value && value.length > 0
+                        ? value[0]
+                        : null
+            }
             multiple={isMultiple}
             disabled={isDisabled}
             id="user-autocomplete"
             options={users}
-            getOptionLabel={(option) =>
-                option.user?.fullname && option.user?.username ? `${option.user?.fullname} (${option.user?.username})` : "Không rõ tên"
+            getOptionLabel={(option) => {
+                return (option.user?.fullname && option.user?.username) ? `${option.user?.fullname} (${option.user?.username})` : "Không rõ tên";
+            }
             }
             isOptionEqualToValue={(option, value) =>
-                option?.user?.id === value?.user?.id
+                option?.user?.username == value?.user?.username
             }
             ListboxProps={{
                 sx: {
@@ -49,7 +50,7 @@ const UserAddAutocompleteMUI: React.FC<UserAddAutocompleteMUIProps> = ({
                     overflowY: 'auto',
                 },
             }}
-            disableCloseOnSelect
+            disableCloseOnSelect={isMultiple}
             onChange={(_event, selectedValues) => {
                 const values = Array.isArray(selectedValues)
                     ? selectedValues
@@ -62,7 +63,7 @@ const UserAddAutocompleteMUI: React.FC<UserAddAutocompleteMUIProps> = ({
                 onChange(ids);
             }}
             renderOption={(props, option, { selected }) =>
-                option?.user ? (
+                (option?.user && option.user?.id && option.user?.username) ? (
                     <MenuItem
                         {...props}
                         key={option.user?.id}

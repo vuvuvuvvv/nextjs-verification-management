@@ -127,6 +127,9 @@ export default function PhongBanMng({ className, dataList = [] }: PhongBanMngPro
                         setFilterForm(filterFormProps);
                     }
                     rootData.current = phongBanList;
+
+
+                    console.log(phongBanList);
                 } else {
                     console.error(res.msg);
                     setError("Có lỗi đã xảy ra!");
@@ -203,7 +206,7 @@ export default function PhongBanMng({ className, dataList = [] }: PhongBanMngPro
 
     return (
         <LocalizationProvider dateAdapter={AdapterDayjs} localeText={viVN.components.MuiLocalizationProvider.defaultProps.localeText}>
-            <ModalAddPhongBan show={isShow} handleClose={handleCloseModal}/>
+            <ModalAddPhongBan show={isShow} handleClose={handleCloseModal} />
             <div className={`${className ? className : ""} p-3 m-0 w-100`}>
                 <div className={`${c_vfml['wraper']} w-100`}>
 
@@ -291,7 +294,7 @@ export default function PhongBanMng({ className, dataList = [] }: PhongBanMngPro
                                     }}
                                 >
                                     <FontAwesomeIcon icon={faPlus} className="me-2"></FontAwesomeIcon>
-                                    Thêm mới 
+                                    Thêm mới
                                 </button>
                             </div>
                         </div>
@@ -333,11 +336,16 @@ export default function PhongBanMng({ className, dataList = [] }: PhongBanMngPro
                                         <th>
                                             <div>
                                                 <span>
-                                                    Trạng thái
+                                                    Ngày tạo
                                                 </span>
                                             </div>
                                         </th>
-                                        <th></th>
+                                        <th>
+                                            <div>
+                                                <span>
+                                                </span>
+                                            </div>
+                                        </th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -354,6 +362,7 @@ export default function PhongBanMng({ className, dataList = [] }: PhongBanMngPro
 
                                                 <td>{phongBan.ten_phong_ban ?? ""}</td>
                                                 <td>{phongBan.truong_phong?.fullname ?? ""}</td>
+                                                <td>{phongBan.members?.length ?? ""}</td>
                                                 <td>{dayjs(phongBan.ngay_tao).format('DD-MM-YYYY')}</td>
                                                 <td style={{ width: "90px" }}>
                                                     <div className="w-100 m-0 p-0 d-flex align-items-center justify-content-center">

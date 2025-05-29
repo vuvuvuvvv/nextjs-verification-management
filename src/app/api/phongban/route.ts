@@ -1,15 +1,8 @@
 import api from '../route';
 import { BASE_API_URL } from "@lib/system-constant";
-import { PhongBan, PhongBanFilterParameters, User } from "@lib/types";
+import { PhongBan, PhongBanFilterParameters, User, UserInPhongBan } from "@lib/types";
 
 const API_PHONGBAN_URL = `${BASE_API_URL}/phongban`;
-
-export interface UserInPhongBan {
-    user: User;
-    is_manager: boolean | null;
-    phong_ban_id: number | null;
-    phong_ban: string | null;
-}
 
 interface APIResponse<T = any> {
     status: number;
@@ -57,16 +50,15 @@ export const getAllPhongBanByFilter = async (parameters: PhongBanFilterParameter
         if (parameters?.prev_from) {
             url.searchParams.append('prev_from', parameters.prev_from.toString());
         }
-        console.log(url.toString())
         const res = await api.get(url.toString(), { withCredentials: true });
         return {
             status: res.status,
-            data: res.data,
+            data: res.data.data,
             msg: "Lấy danh sách phòng ban thành công!"
         };
     } catch (error: any) {
         console.log(error);
-        return handlePhongBanError(error, "danh sách phòng ban");
+        return handlePhongBanError(error, "lấy danh sách phòng ban");
     }
 }
 
@@ -80,7 +72,7 @@ export async function getPhongBanById(id: number): Promise<APIResponse<PhongBan>
             msg: "Lấy phòng ban thành công!"
         };
     } catch (error: any) {
-        return handlePhongBanError(error, `phòng ban ID ${id}`);
+        return handlePhongBanError(error, `lấy phòng ban ID ${id}`);
     }
 }
 
@@ -94,7 +86,7 @@ export async function getPhongBanByTruongPhong(username: string): Promise<APIRes
             msg: "Lấy phòng ban theo trưởng phòng thành công!"
         };
     } catch (error: any) {
-        return handlePhongBanError(error, `trưởng phòng ${username}`);
+        return handlePhongBanError(error, `lấy trưởng phòng ${username}`);
     }
 }
 
@@ -108,7 +100,7 @@ export async function getMembersByPhongBanId(id: number): Promise<APIResponse<an
             msg: "Lấy thành viên phòng ban thành công!"
         };
     } catch (error: any) {
-        return handlePhongBanError(error, `thành viên phòng ban ID ${id}`);
+        return handlePhongBanError(error, `lấy thành viên theo phòng ban`);
     }
 }
 
@@ -125,7 +117,7 @@ export async function getUsersByPhongBanStatus(): Promise<APIResponse<{
             msg: "Lấy users theo phòng ban thành công!"
         };
     } catch (error: any) {
-        return handlePhongBanError(error, "users theo phòng ban");
+        return handlePhongBanError(error, "lấy users theo phòng ban");
     }
 }
 
@@ -134,12 +126,29 @@ function handlePhongBanError(error: any, context: string): APIResponse {
     if (error.response?.data?.msg) {
         return {
             status: error.response.status,
-            msg: `Có lỗi xảy ra khi lấy dữ liệu ${context}!`
+            msg: `Có lỗi xảy ra khi ${context}!`
         };
     } else {
         return {
             status: error.response?.status || 500,
             msg: `Có lỗi đã xảy ra khi xử lý ${context}. Hãy thử lại!`
         };
+    }
+}
+
+export async function upsertPhongBan(data: {
+    ten_phong_ban: string;
+    truong_phong: UserInPhongBan;
+    members: UserInPhongBan[];
+}): Promise<APIResponse<PhongBan>> {
+    try {
+        const res = await api.post(API_PHONGBAN_URL, data, { withCredentials: true });
+        return {
+            status: res.status,
+            data: res.data,
+            msg: "Thêm hoặc cập nhật phòng ban thành công!"
+        };
+    } catch (error: any) {
+        return handlePhongBanError(error, "thêm/cập nhật phòng ban");
     }
 }

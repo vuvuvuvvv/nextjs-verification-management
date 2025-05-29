@@ -318,6 +318,66 @@ export interface PhongBan {
     ngay_tao?: Date | null;
 }
 
+// {
+//     "data": [
+//         {
+//             "id": 5,
+//             "members": [
+//                 {
+//                     "confirmed": 1,
+//                     "email": "dht_superadmin@gmail.com",
+//                     "fullname": "Super Administrator",
+//                     "id": "Nw==",
+//                     "permission": 5,
+//                     "role": "SuperAdministrator",
+//                     "username": "dht_superadmin"
+//                 },
+//                 {
+//                     "confirmed": 1,
+//                     "email": "user@gmail.com",
+//                     "fullname": "User Nguyễn",
+//                     "id": "NA==",
+//                     "permission": 1,
+//                     "role": "User",
+//                     "username": "user"
+//                 },
+//                 {
+//                     "confirmed": 1,
+//                     "email": "nguyenvu260502@gmail.com",
+//                     "fullname": "Nguyễn Thế Vũ",
+//                     "id": "Ng==",
+//                     "permission": 1,
+//                     "role": "User",
+//                     "username": "vuvuvuvvv"
+//                 },
+//                 {
+//                     "confirmed": 1,
+//                     "email": "hoangtrithao@gmail.com",
+//                     "fullname": "Hoàng Trí Thảo",
+//                     "id": "OA==",
+//                     "permission": 1,
+//                     "role": "User",
+//                     "username": "hoangtrithao"
+//                 }
+//             ],
+//             "ngay_tao": "2025-05-29T04:15:05.778097",
+//             "ten_phong": "123213",
+//             "truong_phong": {
+//                 "confirmed": 1,
+//                 "email": "dht_superadmin@gmail.com",
+//                 "fullname": "Super Administrator",
+//                 "id": "Nw==",
+//                 "permission": 5,
+//                 "role": "SuperAdministrator",
+//                 "username": "dht_superadmin"
+//             },
+//             "truong_phong_username": "dht_superadmin"
+//         }
+//     ],
+//     "total_page": 1,
+//     "total_records": 1
+// }
+
 export interface PhongBanFilterParameters {
     ten_phong_ban: string | null;
     truong_phong: string | null;
@@ -327,6 +387,13 @@ export interface PhongBanFilterParameters {
     last_seen: string; // p => limit x offset x * (p-1)
     next_from?: string;
     prev_from?: string;
+}
+
+export interface UserInPhongBan {
+    user: User;
+    is_manager: boolean | null;
+    phong_ban_id: number | null;
+    phong_ban: string | null;
 }
 
 export interface RoleOption {
