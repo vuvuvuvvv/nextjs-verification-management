@@ -62,8 +62,8 @@ const UserAddAutocompleteMUI: React.FC<UserAddAutocompleteMUIProps> = ({
                     .map((v) => v.user!.id);
                 onChange(ids);
             }}
-            renderOption={(props, option, { selected }) =>
-                (option?.user && option.user?.id && option.user?.username) ? (
+            renderOption={(props, option, { selected }) => {
+                return (option?.user && option.user?.username) ? (
                     <MenuItem
                         {...props}
                         key={option.user?.id}
@@ -119,6 +119,7 @@ const UserAddAutocompleteMUI: React.FC<UserAddAutocompleteMUIProps> = ({
                     </MenuItem>
 
                 ) : null
+            }
             }
             renderInput={(params) => (
                 <TextField

@@ -86,6 +86,7 @@ export const BASE_API_URL = process.env.NEXT_PUBLIC_API_URL;
 
 // Acess links:
 const _PDM = "/pdm"
+const _PB = '/phong-ban'
 const KD_DHN = "/kiem-dinh/dong-ho-nuoc"
 const HC_DHN = "/hieu-chuan/dong-ho-nuoc"
 // const KD_DHN = KD_DHN + "/q-bigger-than-15"
@@ -195,5 +196,23 @@ export const ACCESS_LINKS = {
     HC_DHN_DETAIL_NDH : {
         src: HC_DHN + "/chi-tiet/nhom",
         title: "Chi tiết hiệu chuẩn nhóm"
+    },
+
+    // Phòng ban
+    PB_DHN : {
+        src: _PB, 
+        title: "Đồng hồ nước"
+    },
+    PB_DHN_ADD : {
+        src: _PB + "/them-moi",
+        title: "Thêm mới hiệu chuẩn"
+    },
+    PB_DHN_EDIT: {
+        src: _PB + "/chinh-sua",
+        title: "Chỉnh sửa hiệu chuẩn"
+    },
+    PB_DHN_DETAIL : {
+        src: _PB + "/chi-tiet",
+        title: "Chi tiết hiệu chuẩn"
     },
 }

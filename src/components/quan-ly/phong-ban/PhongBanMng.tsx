@@ -174,6 +174,7 @@ export default function PhongBanMng({ className, dataList = [] }: PhongBanMngPro
 
     const handleCloseModal = () => {
         setIsShow(false);
+        _fetchPhongban(filterForm)
     }
 
     const handleSearch = () => {
@@ -303,7 +304,7 @@ export default function PhongBanMng({ className, dataList = [] }: PhongBanMngPro
                     </div>
                 </div>
 
-                <div className="bg-white w-100 shadow-sm position-relative rounded overflow-hidden">
+                <div className={`bg-white w-100 shadow-sm position-relative rounded overflow-hidden ${c_vfml['wraper']}`}>
                     {filterLoading && <Loading />}
                     <div className={`m-0 p-0 w-100 w-100 position-relative ${c_vfml['wrap-process-table']}`}>
                         {data && data.length > 0 ? (
@@ -340,18 +341,12 @@ export default function PhongBanMng({ className, dataList = [] }: PhongBanMngPro
                                                 </span>
                                             </div>
                                         </th>
-                                        <th>
-                                            <div>
-                                                <span>
-                                                </span>
-                                            </div>
-                                        </th>
+                                        <th></th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {/* {data.map((dongHo, index) => { */}
                                     {paginatedData.map((phongBan, index) => {
-                                        const redirectLink = `${ACCESS_LINKS.DHN_DETAIL_DH.src}/${phongBan.id}`;
+                                        const redirectLink = `${ACCESS_LINKS.PB_DHN.src}/${phongBan.id}`;
 
                                         return (
                                             <tr
@@ -369,10 +364,9 @@ export default function PhongBanMng({ className, dataList = [] }: PhongBanMngPro
                                                         <Link aria-label="Xem" href={redirectLink} target="_blank" className={`btn p-1 w-100 text-blue shadow-0`}>
                                                             <FontAwesomeIcon icon={faEye}></FontAwesomeIcon>
                                                         </Link>
-                                                        {/* TODO */}
-                                                        <Link aria-label="Chỉnh sửa" href={ACCESS_LINKS.DHN_EDIT_DH.src + "/" + phongBan.id} className={`btn p-1 w-100 text-blue shadow-0`}>
+                                                        {/* <Link aria-label="Chỉnh sửa" href={ACCESS_LINKS.DHN_EDIT_DH.src + "/" + phongBan.id} className={`btn p-1 w-100 text-blue shadow-0`}>
                                                             <FontAwesomeIcon icon={faEdit}></FontAwesomeIcon>
-                                                        </Link>
+                                                        </Link> */}
                                                     </div>
                                                 </td>
                                             </tr>
