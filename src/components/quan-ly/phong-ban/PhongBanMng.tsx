@@ -346,7 +346,7 @@ export default function PhongBanMng({ className, dataList = [] }: PhongBanMngPro
                                 </thead>
                                 <tbody>
                                     {paginatedData.map((phongBan, index) => {
-                                        const redirectLink = `${ACCESS_LINKS.PB_DHN.src}/${phongBan.id}`;
+                                        const redirectLink = `${ACCESS_LINKS.PB_DHN_DETAIL.src}/${phongBan.id}`;
 
                                         return (
                                             <tr

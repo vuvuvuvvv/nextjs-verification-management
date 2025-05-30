@@ -313,9 +313,10 @@ export interface DongHoPermission {
 export interface PhongBan {
     id: number;
     ten_phong_ban: string | null;
-    truong_phong: User | null;
-    members: User[] | null;
+    truong_phong: User;
+    members: User[];
     ngay_tao?: Date | null;
+    dong_hos?: DongHo[]
 }
 
 // {

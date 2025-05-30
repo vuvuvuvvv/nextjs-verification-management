@@ -68,7 +68,7 @@ export async function getPhongBanById(id: number): Promise<APIResponse<PhongBan>
         const res = await api.get(`${API_PHONGBAN_URL}/${id}`);
         return {
             status: res.status,
-            data: res.data,
+            data: res.data.data,
             msg: "Lấy phòng ban thành công!"
         };
     } catch (error: any) {
