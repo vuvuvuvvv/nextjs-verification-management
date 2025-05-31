@@ -9,7 +9,7 @@ interface PDFPreviewModalProps {
 
 export const PDFPreviewModal = ({ isOpen, onClose, pdfUrl }: PDFPreviewModalProps) => {
     return (
-        <Modal show={isOpen} onHide={onClose} size="xl" centered dialogClassName="modal-90w">
+        <Modal className="p-0" show={isOpen} onHide={onClose} size="xl" dialogClassName={`modal-kiem-dinh`}>
             <Modal.Header closeButton>
                 <Modal.Title>Xem trước biên bản</Modal.Title>
             </Modal.Header>

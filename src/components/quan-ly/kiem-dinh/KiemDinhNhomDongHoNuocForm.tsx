@@ -36,7 +36,7 @@ import { faCog } from "@fortawesome/free-solid-svg-icons";
 import ModalInputSoLuongDongHo from "@/components/ui/ModalInputSoLuongDongHo";
 
 const ModalInputSerialDongHo = dynamic(() => import('@/components/ui/ModalInputSerialDongHo'));
-const ModalKiemDinh = dynamic(() => import('@/components/ui/ModalKiemDinh'));
+const ModalKiemDinh = dynamic(() => import('@/components/quan-ly/ModalKiemDinh'));
 
 
 

@@ -105,6 +105,7 @@ const TableDongHoInfo: React.FC<TableDongHoInfoProps> = React.memo(({
 
             if (debounceDongHoRef.current) clearTimeout(debounceDongHoRef.current);
             debounceDongHoRef.current = setTimeout(() => {
+
                 setDongHoList([...updatedDongHoList]);
             }, 300);
 
@@ -112,6 +113,7 @@ const TableDongHoInfo: React.FC<TableDongHoInfoProps> = React.memo(({
             updatedDongHoList[index][field] = value.toString();
             if (debounceDongHoRef.current) clearTimeout(debounceDongHoRef.current);
             debounceDongHoRef.current = setTimeout(() => {
+
                 setDongHoList([...updatedDongHoList]);
             }, 300);
         }
@@ -154,7 +156,6 @@ const TableDongHoInfo: React.FC<TableDongHoInfoProps> = React.memo(({
                         [changedKey]: newValue
                     }))
                 ];
-
                 setDongHoList(newDHList);
             }
         } else if (JSON.stringify(dongHoListRef.current) !== JSON.stringify(dongHoList)) {

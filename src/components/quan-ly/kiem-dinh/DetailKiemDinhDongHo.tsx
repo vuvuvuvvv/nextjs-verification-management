@@ -38,7 +38,6 @@ export default function DetailKiemDinhDongHo({ dongHo }: DetailKiemDinhDongHoPro
             if (duLieuKiemDinh?.du_lieu) {
                 const dlKiemDinh = duLieuKiemDinh.du_lieu;
                 setDuLieuKiemDinhCacLuuLuong(dlKiemDinh);
-                console.log(dlKiemDinh);
             }
 
             if (duLieuKiemDinh?.hieu_sai_so) {
@@ -46,17 +45,14 @@ export default function DetailKiemDinhDongHo({ dongHo }: DetailKiemDinhDongHoPro
             }
 
             setKetQua(duLieuKiemDinh.ket_qua);
-            console.log(dongHo.q3 ? ["Q3", "Q2", "Q1"] : (dongHo.qn ? ['Qn', "Qt", "Qmin"] : null));
         }
     }, [dongHo]);
 
     const renderDulieuLuuLuong = () => {
         if (listKeys && duLieuKiemDinhCacLuuLuong) {
             return listKeys.map((key, index) => {
-                console.log(listKeys);
 
                 const value = duLieuKiemDinhCacLuuLuong[key] as DuLieuChayDiemLuuLuong;
-                console.log(value);
                 if (value?.value) {
                     let indexHead = true;
                     let jsxStart, jsxEnd;

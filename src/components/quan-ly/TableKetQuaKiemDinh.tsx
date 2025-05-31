@@ -7,6 +7,9 @@ import c_tbKD from "@styles/scss/components/table-kiem-dinh.module.scss";
 import { useDongHoList } from '@/context/ListDongHoContext';
 import { useKiemDinh } from '@/context/KiemDinhContext';
 import { isDongHoDatTieuChuan } from '@lib/system-function';
+import { DongHo } from '@lib/types';
+import { getBBPreviewUrl, getGCNPreviewUrl } from '@/app/api/download/route';
+import { PDFPreviewModal } from '../ui/ModalPDFReview';
 interface ModalKiemDinhProps {
     activeLL?: ActiveLL;
     isEditing?: boolean;
@@ -15,6 +18,28 @@ interface ModalKiemDinhProps {
 type ActiveLL = { title: string; value: string } | null;
 
 export default function TableKetQuaKiemDinh({ activeLL, isEditing = false }: ModalKiemDinhProps) {
+    const [pdfUrl, setPdfUrl] = useState<string | null>(null);
+    const [isPreviewOpen, setIsPreviewOpen] = useState(false);
+
+    const handlePreviewBB = async (dongHo: DongHo) => {
+        const url = await getBBPreviewUrl(dongHo);
+        if (url) {
+            setPdfUrl(url);
+            setIsPreviewOpen(true);
+        } else {
+            alert("Không thể tải xem trước biên bản.");
+        }
+    };
+
+    const handlePreviewGCN = async (dongHo: DongHo) => {
+        const url = await getGCNPreviewUrl(dongHo);
+        if (url) {
+            setPdfUrl(url);
+            setIsPreviewOpen(true);
+        } else {
+            alert("Không thể tải xem trước biên bản.");
+        }
+    };
 
     const { luuLuong } = useKiemDinh();
     const {
@@ -23,6 +48,14 @@ export default function TableKetQuaKiemDinh({ activeLL, isEditing = false }: Mod
 
     return (
         luuLuong && <>
+            <PDFPreviewModal
+                isOpen={isPreviewOpen}
+                onClose={() => {
+                    setIsPreviewOpen(false);
+                    setPdfUrl(null);
+                }}
+                pdfUrl={pdfUrl}
+            />
             <div className={`w-100 m-0 px-1 ${c_tbKD['wrap-process-table']} `}>
 
                 <table className={`table table-bordered mb-0 ${c_tbKD['process-table']}`}>
@@ -77,6 +110,7 @@ export default function TableKetQuaKiemDinh({ activeLL, isEditing = false }: Mod
                                             <button
                                                 className='btn btn-primary'
                                                 disabled={ket_qua == null}
+                                                onClick={() => handlePreviewBB(dongHo)}
                                             >
                                                 BB
                                             </button>
@@ -84,16 +118,14 @@ export default function TableKetQuaKiemDinh({ activeLL, isEditing = false }: Mod
                                         <td>
                                             <button
                                                 className='btn btn-primary'
-                                                disabled={ket_qua == null}
+                                                disabled={!ket_qua}
+                                                onClick={() => handlePreviewGCN(dongHo)}
                                             >
                                                 GCN
                                             </button>
                                         </td>
                                     </tr>
                                 );
-
-
-
                             }
 
                             return rows;

@@ -163,3 +163,55 @@ export async function downloadHC(dongHo: DongHo): Promise<DownloadResponse> {
         return { msg: "Mạng hoặc API không khả dụng! Hãy thử lại sau." };
     }
 }
+
+export async function getBBPreviewUrl(dongHo: DongHo): Promise<string | null> {
+    try {
+        const response = await axios.post(
+            `${API_DOWNLOAD_URL}/kiemdinh/bienban/preview/pdf`,
+            dongHo,
+            {
+                responseType: "blob",
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+            }
+        );
+
+        if (response.status === 200) {
+            const blob = new Blob([response.data], { type: "application/pdf" });
+            const url = window.URL.createObjectURL(blob);
+            return url;
+        } else {
+            throw new Error("Không lấy được PDF");
+        }
+    } catch (error) {
+        console.error("Lỗi khi lấy PDF preview:", error);
+        return null;
+    }
+}
+
+export async function getGCNPreviewUrl(dongHo: DongHo): Promise<string | null> {
+    try {
+        const response = await axios.post(
+            `${API_DOWNLOAD_URL}/kiemdinh/gcn/preview/pdf`,
+            dongHo,
+            {
+                responseType: "blob",
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+            }
+        );
+
+        if (response.status === 200) {
+            const blob = new Blob([response.data], { type: "application/pdf" });
+            const url = window.URL.createObjectURL(blob);
+            return url;
+        } else {
+            throw new Error("Không lấy được PDF");
+        }
+    } catch (error) {
+        console.error("Lỗi khi lấy PDF preview:", error);
+        return null;
+    }
+}

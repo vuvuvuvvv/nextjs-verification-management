@@ -9,9 +9,10 @@ import { getUsersByPhongBanStatus, upsertPhongBan } from "@/app/api/phongban/rou
 import Swal from "sweetalert2";
 import Loading from '@/components/Loading';
 
-interface ModalAddPhongBanProps {
+interface ModalAddNhanVienPhongBanProps {
     show: boolean | null;
     handleClose: () => void;
+    exceptPhongBanID?: number | null;
 }
 
 interface State {
@@ -25,6 +26,7 @@ const initialState: State = {
     truong_phong: null,
     members: [],
 };
+
 
 type Action =
     | { type: 'SET_TEN_PHONG_BAN'; payload: string }
@@ -47,7 +49,7 @@ function reducer(state: State, action: Action): State {
     }
 }
 
-export default function ModalAddPhongBan({ show, handleClose }: ModalAddPhongBanProps) {
+export default function ModalAddNhanVienPhongBan({ show, handleClose, exceptPhongBanID = null }: ModalAddNhanVienPhongBanProps) {
     const [membersState, setMembersState] = useState<{
         chua_tham_gia: UserInPhongBan[];
         da_tham_gia: UserInPhongBan[];
@@ -111,7 +113,7 @@ export default function ModalAddPhongBan({ show, handleClose }: ModalAddPhongBan
     const _fetchAllMembers = async () => {
         setFilterLoading(true);
         try {
-            const res = await getUsersByPhongBanStatus();
+            const res = await getUsersByPhongBanStatus(exceptPhongBanID);
             if (res.status === 200 && res.data && res.data) {
                 setMembersState({
                     chua_tham_gia: res.data.chua_tham_gia,

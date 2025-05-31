@@ -57,7 +57,6 @@ export const getAllPhongBanByFilter = async (parameters: PhongBanFilterParameter
             msg: "Lấy danh sách phòng ban thành công!"
         };
     } catch (error: any) {
-        console.log(error);
         return handlePhongBanError(error, "lấy danh sách phòng ban");
     }
 }
@@ -105,12 +104,12 @@ export async function getMembersByPhongBanId(id: number): Promise<APIResponse<an
 }
 
 // 5. Lấy users đã/ chưa gia nhập phòng ban
-export async function getUsersByPhongBanStatus(): Promise<APIResponse<{
+export async function getUsersByPhongBanStatus(exceptPbId: number | null = null): Promise<APIResponse<{
     chua_tham_gia: UserInPhongBan[];
     da_tham_gia: UserInPhongBan[];
 }>> {
     try {
-        const res = await api.get(`${API_PHONGBAN_URL}/users/by-phongban`);
+        const res = await api.get(`${API_PHONGBAN_URL}/users/by-phongban` + (exceptPbId ? "/except/" + exceptPbId : ""));
         return {
             status: res.status,
             data: res.data.data,

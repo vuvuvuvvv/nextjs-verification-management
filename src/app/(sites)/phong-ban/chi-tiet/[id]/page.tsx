@@ -17,7 +17,7 @@ import {
 import Swal from "sweetalert2";
 import { PhongBan, User } from "@lib/types";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faMinusCircle, faUserPlus } from "@fortawesome/free-solid-svg-icons";
+import { faMinusCircle, faUserPlus, faEye, faTimesCircle, faEdit } from "@fortawesome/free-solid-svg-icons";
 import c_vfml from "@styles/scss/components/verification-management-layout.module.scss";
 
 
@@ -128,7 +128,7 @@ export default function DetailPhongBanPage({ params }: { params: { id: number } 
         <Container fluid className="my-4">
             <div className="p-2 shadow-sm rounded row w-100 m-0 d-flex bg-white justify-content-between align-items-center mb-3">
                 <div className="col-12 col-lg-7 m-0 py-0 d-flex align-items-center mb-3 mb-lg-0">
-                    <p className="fs-5" style={{
+                    <p className="fs-4" style={{
                         maxWidth: "100%",
                         display: "-webkit-box",
                         WebkitLineClamp: 2,
@@ -137,13 +137,17 @@ export default function DetailPhongBanPage({ params }: { params: { id: number } 
                         textOverflow: "ellipsis",
                         whiteSpace: "normal",
                         margin: "0",
-                    }}><b className="fs-5">Phòng ban:</b> {phongBanData.ten_phong_ban}</p>
+                    }}><b className="fs-4">Phòng ban:</b> {phongBanData.ten_phong_ban}</p>
                 </div>
-                <div className="col-12 col-lg-5 d-flex justify-content-between justify-content-lg-end m-0 py-0">
-                    <Button variant="primary" onClick={() => setShowAddModal(true)} className="me-2">
-                        <FontAwesomeIcon icon={faUserPlus} className="me-2" />
-                        Thêm nhân viên
-                    </Button>
+                <div className="col-12 col-lg-5 d-flex justify-content-between gap-2 justify-content-lg-end m-0 py-0">
+                    <div className="d-flex gap-2">
+                        <Button variant="warning" onClick={() => setShowAddModal(true)}>
+                            <FontAwesomeIcon icon={faEdit} />
+                        </Button>
+                        <Button variant="success" onClick={() => setShowAddModal(true)}>
+                            <FontAwesomeIcon icon={faUserPlus} />
+                        </Button>
+                    </div>
                     <Button variant="danger">
                         <FontAwesomeIcon icon={faMinusCircle} className="me-2" />
                         Giải tán
@@ -215,14 +219,12 @@ export default function DetailPhongBanPage({ params }: { params: { id: number } 
                                     <td>{member.username}</td>
                                     <td>{member.email}</td>
                                     {!deletingMode && (
-                                        <td>
-                                            <Button
-                                                size="sm"
-                                                variant="danger"
-                                                onClick={() => handleSingleDelete(member.id.toString())}
-                                            >
-                                                X
-                                            </Button>
+                                        <td style={{ width: "90px" }}>
+                                            <div className="w-100 m-0 p-0 d-flex align-items-center justify-content-center">
+                                                <Button aria-label="Xem" className={`btn bg-transparent p-1 w-100 text-danger shadow-0`}
+                                                    onClick={() => handleSingleDelete(member.id.toString())}>
+                                                    <FontAwesomeIcon icon={faTimesCircle}></FontAwesomeIcon>
+                                                </Button></div>
                                         </td>
                                     )}
                                 </tr>

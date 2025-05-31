@@ -127,9 +127,6 @@ export default function PhongBanMng({ className, dataList = [] }: PhongBanMngPro
                         setFilterForm(filterFormProps);
                     }
                     rootData.current = phongBanList;
-
-
-                    console.log(phongBanList);
                 } else {
                     console.error(res.msg);
                     setError("Có lỗi đã xảy ra!");

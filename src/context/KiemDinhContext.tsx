@@ -86,12 +86,8 @@ export const KiemDinhProvider = ({ children }: { children: ReactNode }) => {
 
     const [duLieuKiemDinhCacLuuLuong, setDuLieuKiemDinhCacLuuLuong] = useState<DuLieuChayDongHo>(initialDuLieuKiemDinhCacLuuLuong);
 
-    const previousDuLieuRef = useRef<DuLieuChayDongHo>(duLieuKiemDinhCacLuuLuong);
-
     // Lưu dữ liệu Q1 2 3 if isDHDienTu hoặc Qn t min
     const [luuLuong, setLuuLuong] = useState<LuuLuong | null>(null);
-    const luuLuongRef = useRef(luuLuong);
-    const debounceLLRef = useRef<NodeJS.Timeout | null>(null);
 
     // useEffect(() => {
     //     console.log("1", dongHoList);
@@ -214,22 +210,20 @@ export const KiemDinhProvider = ({ children }: { children: ReactNode }) => {
                 hieu_sai_so: [...tmpHssDHList],
                 ket_qua: isDongHoDatTieuChuan(tmpHssDHList)
             };
-            
+
             const ngayThucHien: Date = dongHo.ngay_thuc_hien ?? dayjs().toDate();
-
-
-            return {
+            const newInfo = {
                 ...dh,
                 hieu_luc_bien_ban: isDongHoDatTieuChuan(tmpHssDH) ? getLastDayOfMonthInFuture((new_dl[TITLE_LUU_LUONG.q3] != null), dongHo.ngay_thuc_hien ?? ngayThucHien) : null,
                 du_lieu_kiem_dinh: JSON.stringify(newDLKDDHList)
             }
+            return newInfo;
         });
 
-        newDHList[indexDongHo] = { ...dongHo, du_lieu_kiem_dinh: JSON.stringify(newDLKD) };
+        newDHList[indexDongHo] = { ...newDHList[indexDongHo], du_lieu_kiem_dinh: JSON.stringify(newDLKD) };
         if (debounceSetDHListRef.current) {
             clearTimeout(debounceSetDHListRef.current);
         }
-
         setDongHoList(newDHList);
 
     };
@@ -442,7 +436,6 @@ export const KiemDinhProvider = ({ children }: { children: ReactNode }) => {
                         ? JSON.parse(esistsDongHo.du_lieu_kiem_dinh)
                         : esistsDongHo.du_lieu_kiem_dinh;
                     newDLC = Object.entries(dlkd.du_lieu).reduce((acc, [qTitle, value]) => {
-                        // console.log(dlkd);
                         const dlChay = value as DuLieuChayDiemLuuLuong;
                         if (dlChay && dlChay.lan_chay) {
                             const oldLanChay = dlChay.lan_chay;

@@ -282,7 +282,8 @@ export const DongHoListProvider = ({ dbName, children }: DongHoListProviderProps
         });
     };
 
-    const addToListDongHo = (dongHo: DongHo) => {
+    const addToListDongHo = (dongHo: DongHo) => {       
+
         setDongHoList(prevList => [...prevList ?? [], dongHo]);
     };
 
@@ -362,7 +363,6 @@ export const DongHoListProvider = ({ dbName, children }: DongHoListProviderProps
     }
 
     const getDongHoDaKiemDinh = (dongHoList: DongHo[]) => {
-        console.log(dongHoList);
         const combinedList = [...dongHoList];
 
         return combinedList.filter(dongHo => {

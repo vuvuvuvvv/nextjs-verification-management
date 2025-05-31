@@ -97,7 +97,7 @@ export default function AddNewDongHoNuoc({ className }: AddNewDongHoNuocProps) {
                 allowOutsideClick: false 
             }).then((result) => {
                 if (result.isConfirmed) {
-                    setDongHoList(oldDongHoData);
+                    // setDongHoList(oldDongHoData);
                     setSavedDongHoList(oldDongHoSavedData);
                     setModalOpen(false);
                 } else {

@@ -8,16 +8,16 @@ import c_tbKD from "@styles/scss/components/table-kiem-dinh.module.scss";
 import Swal from "sweetalert2";
 
 import { useDongHoList } from '@/context/ListDongHoContext';
-import InputField from './InputFieldTBDHInfo';
+import InputField from '../ui/InputFieldTBDHInfo';
 import { useKiemDinh } from '@/context/KiemDinhContext';
 import { DuLieuCacLanChay, DuLieuMotLanChay } from '@lib/types';
 import { getHieuSaiSo, getSaiSoDongHo } from '@lib/system-function';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faAdd, faCogs, faRemove, faSave } from '@fortawesome/free-solid-svg-icons';
-import ModalInputSoLuongDongHo from './ModalInputSoLuongDongHo';
+import ModalInputSoLuongDongHo from '../ui/ModalInputSoLuongDongHo';
 import { ACCESS_LINKS } from '@lib/system-constant';
 import TableKetQuaKiemDinh from './TableKetQuaKiemDinh';
-import NavTab from './NavTab';
+import NavTab from '../ui/NavTab';
 interface ModalKiemDinhProps {
     show: boolean;
     isEditing?: boolean;
@@ -126,7 +126,6 @@ export default function ModalKiemDinh({ show, isEditing = false, handleClose }: 
     }
 
     const handleSaveAllDongHo = () => {
-        console.log(dongHoList);
         const dongHoChuaKiemDinh = getDongHoChuaKiemDinh(dongHoList);
         const dongHoDaKiemDinhCount = dongHoList.length - dongHoChuaKiemDinh.length;
         if (dongHoChuaKiemDinh.length === 0) {
@@ -150,11 +149,11 @@ export default function ModalKiemDinh({ show, isEditing = false, handleClose }: 
                         allowOutsideClick: false,
                         didOpen: () => {
                             Swal.showLoading();
-                            createListDongHo(dongHoToSave).then((isSuccessful) => {
-                                if (isSuccessful) {
-                                    window.location.href = ACCESS_LINKS.DHN.src;
-                                }
-                            });
+                            // createListDongHo(dongHoToSave).then((isSuccessful) => {
+                            //     if (isSuccessful) {
+                            //         window.location.href = ACCESS_LINKS.DHN.src;
+                            //     }
+                            // });
                         }
                     });
                 }
@@ -170,7 +169,7 @@ export default function ModalKiemDinh({ show, isEditing = false, handleClose }: 
                 confirmButtonText: 'OK',
             });
         } else if (dongHoList.length == savedDongHoList.length) {
-
+            
         } else {
             Swal.fire({
                 title: 'Chú ý!',
@@ -318,7 +317,6 @@ export default function ModalKiemDinh({ show, isEditing = false, handleClose }: 
                                                         index={rowIndex}
                                                         isNumber={true}
                                                         value={dl.V2.toString()}
-                                                        className={`${(dl.V2 > dl.V1) ? "" : "bg-warning"}`}
                                                         onChange={(value) => { handleChange((i + 1), indexDongHo, { ...dl, V2: Number(value) }, "V2") }}
                                                         disabled={savedDongHoList.some(dh => JSON.stringify(dh) == JSON.stringify(dongHo)) || savedDongHoList.length == dongHoList.length}
                                                         // error={errorsList[index]?.serial}
@@ -367,7 +365,6 @@ export default function ModalKiemDinh({ show, isEditing = false, handleClose }: 
                                                         <InputField
                                                             index={rowIndex}
                                                             isNumber={true}
-                                                            className={`${(dl.Vc2 && dl.Vc1 && dl.Vc2 > dl.Vc1) ? "" : "bg-warning"}`}
                                                             value={(dl.Vc2 ? dl.Vc2 : 0).toString()}
                                                             // onChange={(value) => handleInputChange(index, "serial", value)}
                                                             onChange={(value) => { handleChange((i + 1), indexDongHo, { ...dl, Vc2: value }, "Vc2") }}
