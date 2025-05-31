@@ -1,6 +1,6 @@
 "use client";
 
-import { getPhongBanById } from "@/app/api/phongban/route";
+import { deleteNhanVienPhongBan, deletePhongBan, getPhongBanById } from "@/app/api/phongban/route";
 import { useEffect, useRef, useState } from "react";
 import dynamic from "next/dynamic";
 import {
@@ -19,11 +19,17 @@ import { PhongBan, User } from "@lib/types";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faMinusCircle, faUserPlus, faEye, faTimesCircle, faEdit } from "@fortawesome/free-solid-svg-icons";
 import c_vfml from "@styles/scss/components/verification-management-layout.module.scss";
+import ModalAddPhongBan from "@/components/quan-ly/phong-ban/ModalAddPhongBan";
+import ModalAddNhanVienPhongBan from "@/components/quan-ly/phong-ban/ModalAddNhanVienPhongBan";
+
+import { useRouter } from "next/navigation"; // nếu bạn dùng App Router (Next.js 13+)
+import { ACCESS_LINKS } from "@lib/system-constant";
 
 
 const Loading = dynamic(() => import("@/components/Loading"));
 
 export default function DetailPhongBanPage({ params }: { params: { id: number } }) {
+    const router = useRouter();
     const [phongBanData, setPhongBanData] = useState<PhongBan>();
     const [loading, setLoading] = useState(true);
     const [members, setMembers] = useState<User[]>([]);
@@ -32,28 +38,32 @@ export default function DetailPhongBanPage({ params }: { params: { id: number } 
     const [showAddModal, setShowAddModal] = useState(false);
     const [form, setForm] = useState({ fullname: "", email: "", username: "" });
 
+    const [showAddNhanVienModal, setShowAddNhanVienModal] = useState(false);
+    const [showEditPhongBanModal, setShowEditPhongBanModal] = useState(false);
+
+
     const [currentPage, setCurrentPage] = useState(1);
     const membersPerPage = 5;
 
     const fetchCalled = useRef(false);
 
+    const _fetchData = async () => {
+        try {
+            const res = await getPhongBanById(params.id);
+            setPhongBanData(res?.data);
+            setMembers(res?.data?.members || []);
+        } catch (error) {
+            console.error("Error fetching data!");
+        } finally {
+            setLoading(false);
+        }
+    };
+
     useEffect(() => {
         if (fetchCalled.current) return;
         fetchCalled.current = true;
 
-        const fetchData = async () => {
-            try {
-                const res = await getPhongBanById(params.id);
-                setPhongBanData(res?.data);
-                setMembers(res?.data?.members || []);
-            } catch (error) {
-                console.error("Error fetching data!");
-            } finally {
-                setLoading(false);
-            }
-        };
-
-        fetchData();
+        _fetchData();
     }, [params.id]);
 
     const toggleSelect = (id: string) => {
@@ -91,29 +101,90 @@ export default function DetailPhongBanPage({ params }: { params: { id: number } 
     const handleSingleDelete = async (id: string) => {
         const result = await Swal.fire({
             title: "Xác nhận xóa?",
-            text: "Nhân viên này sẽ bị xóa.",
+            text: "Nhân viên này sẽ bị gỡ khỏi phòng ban.",
             icon: "warning",
             showCancelButton: true,
             confirmButtonText: "Xóa",
             cancelButtonText: "Hủy",
+            reverseButtons: true,
         });
 
         if (result.isConfirmed) {
-            setMembers((prev) => prev.filter((m) => m.id.toString() !== id));
+            // Hiển thị loading
+            Swal.fire({
+                title: "Đang xử lý...",
+                allowOutsideClick: false,
+                didOpen: () => {
+                    Swal.showLoading();
+                },
+            });
+
+            const res = await deleteNhanVienPhongBan(id);
+
+            Swal.close(); // Tắt loading
+
+            if (res.status === 200) {
+                await Swal.fire({
+                    title: "Đã xóa!",
+                    text: res.msg,
+                    icon: "success",
+                    timer: 3000,
+                    showConfirmButton: true,
+                });
+
+                _fetchData?.(); // Reload danh sách
+            } else {
+                await Swal.fire({
+                    title: "Lỗi!",
+                    text: res.msg || "Xóa thất bại. Vui lòng thử lại.",
+                    icon: "error",
+                });
+            }
         }
     };
 
-    const handleAddMember = () => {
-        // const newMember: User = {
-        //     ...form,
-        //     id: Math.random().toString(36).substring(2),
-        //     confirmed: 1,
-        //     permission: 1,
-        //     role: "Member",
-        // };
-        // setMembers((prev) => [...prev, newMember]);
-        // setShowAddModal(false);
-        // setForm({ fullname: "", email: "", username: "" });
+    const handleDeletePhongBan = async () => {
+        const result = await Swal.fire({
+            title: "Xác nhận giải tán?",
+            text: "Phòng ban và toàn bộ nhân viên sẽ bị gỡ liên kết.",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonText: "Giải tán",
+            cancelButtonText: "Hủy",
+            reverseButtons: true,
+        });
+
+        if (result.isConfirmed) {
+            Swal.fire({
+                title: "Đang xử lý...",
+                allowOutsideClick: false,
+                didOpen: () => {
+                    Swal.showLoading();
+                },
+            });
+
+            const res = await deletePhongBan(params.id.toString());
+
+            Swal.close();
+
+            if (res.status === 200 || res.status === 201) {
+                await Swal.fire({
+                    title: "Thành công!",
+                    text: res.msg,
+                    icon: "success",
+                    timer: 2000,
+                    showConfirmButton: false,
+                });
+                
+                router.push(ACCESS_LINKS.PB_DHN.src); 
+            } else {
+                await Swal.fire({
+                    title: "Lỗi!",
+                    text: res.msg || "Không thể giải tán phòng ban. Vui lòng thử lại.",
+                    icon: "error",
+                });
+            }
+        }
     };
 
     // Pagination logic
@@ -126,6 +197,17 @@ export default function DetailPhongBanPage({ params }: { params: { id: number } 
 
     return (
         <Container fluid className="my-4">
+            <ModalAddPhongBan
+                show={showEditPhongBanModal}
+                handleClose={() => setShowEditPhongBanModal(false)}
+            />
+
+            <ModalAddNhanVienPhongBan
+                show={showAddNhanVienModal}
+                handleSuccess={() => _fetchData()}
+                handleClose={() => setShowAddNhanVienModal(false)}
+                exceptPhongBanID={params.id}
+            />
             <div className="p-2 shadow-sm rounded row w-100 m-0 d-flex bg-white justify-content-between align-items-center mb-3">
                 <div className="col-12 col-lg-7 m-0 py-0 d-flex align-items-center mb-3 mb-lg-0">
                     <p className="fs-4" style={{
@@ -141,14 +223,16 @@ export default function DetailPhongBanPage({ params }: { params: { id: number } 
                 </div>
                 <div className="col-12 col-lg-5 d-flex justify-content-between gap-2 justify-content-lg-end m-0 py-0">
                     <div className="d-flex gap-2">
-                        <Button variant="warning" onClick={() => setShowAddModal(true)}>
-                            <FontAwesomeIcon icon={faEdit} />
-                        </Button>
-                        <Button variant="success" onClick={() => setShowAddModal(true)}>
-                            <FontAwesomeIcon icon={faUserPlus} />
-                        </Button>
+                        <div className="d-flex gap-2">
+                            <Button variant="warning" onClick={() => setShowEditPhongBanModal(true)}>
+                                <FontAwesomeIcon icon={faEdit} />
+                            </Button>
+                            <Button variant="success" onClick={() => setShowAddNhanVienModal(true)}>
+                                <FontAwesomeIcon icon={faUserPlus} />
+                            </Button>
+                        </div>
                     </div>
-                    <Button variant="danger">
+                    <Button variant="danger" onClick={handleDeletePhongBan}>
                         <FontAwesomeIcon icon={faMinusCircle} className="me-2" />
                         Giải tán
                     </Button>
@@ -199,7 +283,7 @@ export default function DetailPhongBanPage({ params }: { params: { id: number } 
                         />
                     </label>
                 </div>
-                <div className={`m-0 p-0 w-100 w-100 border-bottom-0 ${c_vfml['wrap-process-table']}`}>
+                <div className={`m-0 mb-3 p-0 w-100 w-100 border-bottom-0 ${c_vfml['wrap-process-table']}`}>
 
                     <table className={`table table-striped table-bordered table-hover mb-0 ${c_vfml['process-table']}`}>
                         <thead>
@@ -221,10 +305,11 @@ export default function DetailPhongBanPage({ params }: { params: { id: number } 
                                     {!deletingMode && (
                                         <td style={{ width: "90px" }}>
                                             <div className="w-100 m-0 p-0 d-flex align-items-center justify-content-center">
-                                                <Button aria-label="Xem" className={`btn bg-transparent p-1 w-100 text-danger shadow-0`}
+                                                <button aria-label="Xem" className={`btn border-0 bg-transparent p-1 w-100 text-danger shadow-0`}
                                                     onClick={() => handleSingleDelete(member.id.toString())}>
                                                     <FontAwesomeIcon icon={faTimesCircle}></FontAwesomeIcon>
-                                                </Button></div>
+                                                </button>
+                                            </div>
                                         </td>
                                     )}
                                 </tr>
@@ -232,8 +317,11 @@ export default function DetailPhongBanPage({ params }: { params: { id: number } 
                         </tbody>
                     </table>
                 </div>
+                <small className="px-2 text-muted">
+                    <b>{phongBanData.members.length}</b> nhân viên
+                </small><br />
 
-                <Pagination className="m-0 px-2 pt-3">
+                <Pagination className="m-0 px-2 pt-2">
                     {[...Array(totalPages)].map((_, i) => (
                         <Pagination.Item
                             key={i + 1}
@@ -245,49 +333,6 @@ export default function DetailPhongBanPage({ params }: { params: { id: number } 
                     ))}
                 </Pagination>
             </div>
-
-            {/* Modal Thêm Nhân Viên */}
-            <Modal show={showAddModal} onHide={() => setShowAddModal(false)}>
-                <Modal.Header closeButton>
-                    <Modal.Title>Thêm nhân viên</Modal.Title>
-                </Modal.Header>
-                <Modal.Body>
-                    <Form>
-                        <Form.Group className="mb-3">
-                            <Form.Label>Họ tên</Form.Label>
-                            <Form.Control
-                                name="fullname"
-                                value={form.fullname}
-                                onChange={(e) => setForm({ ...form, fullname: e.target.value })}
-                            />
-                        </Form.Group>
-                        <Form.Group className="mb-3">
-                            <Form.Label>Email</Form.Label>
-                            <Form.Control
-                                name="email"
-                                value={form.email}
-                                onChange={(e) => setForm({ ...form, email: e.target.value })}
-                            />
-                        </Form.Group>
-                        <Form.Group>
-                            <Form.Label>Username</Form.Label>
-                            <Form.Control
-                                name="username"
-                                value={form.username}
-                                onChange={(e) => setForm({ ...form, username: e.target.value })}
-                            />
-                        </Form.Group>
-                    </Form>
-                </Modal.Body>
-                <Modal.Footer>
-                    <Button variant="secondary" onClick={() => setShowAddModal(false)}>
-                        Hủy
-                    </Button>
-                    <Button variant="primary" onClick={handleAddMember}>
-                        Thêm
-                    </Button>
-                </Modal.Footer>
-            </Modal>
         </Container>
     );
 }

@@ -136,9 +136,9 @@ function handlePhongBanError(error: any, context: string): APIResponse {
 }
 
 export async function upsertPhongBan(data: {
-    ten_phong_ban: string;
-    truong_phong: UserInPhongBan;
-    members: UserInPhongBan[];
+    ten_phong_ban?: string;
+    truong_phong?: UserInPhongBan;
+    members?: UserInPhongBan[];
 }): Promise<APIResponse<PhongBan>> {
     try {
         const res = await api.post(API_PHONGBAN_URL, data, { withCredentials: true });
@@ -149,5 +149,51 @@ export async function upsertPhongBan(data: {
         };
     } catch (error: any) {
         return handlePhongBanError(error, "thêm/cập nhật phòng ban");
+    }
+}
+
+
+export async function addNhanVienPhongBan(data: {
+    id: number; // ID của phòng ban muốn thêm vào
+    members: UserInPhongBan[]; // Danh sách nhân viên cần thêm
+}): Promise<APIResponse<PhongBan>> {
+    try {
+        const res = await api.post(`${API_PHONGBAN_URL}/nhan-vien`, data, { withCredentials: true });
+        return {
+            status: res.status,
+            data: res.data,
+            msg: "Thêm nhân viên vào phòng ban thành công!"
+        };
+    } catch (error: any) {
+        return handlePhongBanError(error, "thêm nhân viên vào phòng ban");
+    }
+}
+
+export async function deleteNhanVienPhongBan(id: string): Promise<APIResponse<null>> {
+    try {
+        const res = await api.delete(`${API_PHONGBAN_URL}/nhan-vien/${id}`, { withCredentials: true });
+
+        return {
+            status: res.status,
+            data: null,
+            msg: "Đã gỡ nhân viên khỏi phòng ban thành công!",
+        };
+    } catch (error: any) {
+        return handlePhongBanError(error, "gỡ nhân viên khỏi phòng ban");
+    }
+}
+
+
+export async function deletePhongBan(id: string): Promise<APIResponse<null>> {
+    try {
+        const res = await api.delete(`${API_PHONGBAN_URL}/${id}`, { withCredentials: true });
+
+        return {
+            status: res.status,
+            data: null,
+            msg: "Đã gỡ nhân viên khỏi phòng ban thành công!",
+        };
+    } catch (error: any) {
+        return handlePhongBanError(error, "gỡ nhân viên khỏi phòng ban");
     }
 }

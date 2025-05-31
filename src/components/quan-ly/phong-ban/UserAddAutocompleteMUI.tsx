@@ -66,7 +66,7 @@ const UserAddAutocompleteMUI: React.FC<UserAddAutocompleteMUIProps> = ({
                 return (option?.user && option.user?.username) ? (
                     <MenuItem
                         {...props}
-                        key={option.user?.id}
+                        key={`${option.user?.id ?? option.user?.username ?? 'unknown'}-${option.phong_ban ?? ''}`}
                         className="w-100"
                         sx={{
                             display: "block",

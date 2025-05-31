@@ -31,18 +31,15 @@ const Loading = React.lazy(() => import("@/components/Loading"));
 
 interface PhongBanMngProps {
     className?: string,
-    dataList?: PhongBan[]
 }
 
-export default function PhongBanMng({ className, dataList = [] }: PhongBanMngProps) {
-    const { user, permissions, isSuperAdmin, getCurrentRole } = useUser();
+export default function PhongBanMng({ className }: PhongBanMngProps) {
     const [data, setRootData] = useState<PhongBan[]>([]);
     const rootData = useRef<PhongBan[]>([]);
     const [filterLoading, setFilterLoading] = useState(true);
     const [limit, setLimit] = useState(10);
     const [error, setError] = useState("");
     const fetchedRef = useRef(false);
-    const isEditing = useRef<boolean>(false);
     // const perSelected = useRef<DongHoPermission | null>(null);
     const [isShow, setIsShow] = useState<boolean | null>(null);
 
@@ -94,49 +91,44 @@ export default function PhongBanMng({ className, dataList = [] }: PhongBanMngPro
 
     const _fetchPhongban = async (filterFormProps?: PhongBanFilterParameters) => {
         setFilterLoading(true);
-        if (dataList.length > 0) {
-            setRootData(dataList);
-            rootData.current = dataList;
-            setFilterLoading(false);
-        } else {
-            try {
-                const res = await getAllPhongBanByFilter(filterFormProps ? filterFormProps : filterForm);
-                if (res.status === 200 || res.status === 201) {
-                    // Ensure the data matches the PhongBan[] type
-                    const phongBanList: PhongBan[] = Array.isArray(res.data?.data)
-                        ? res.data.data.map((item: any) => ({
-                            id: item.id,
-                            ten_phong_ban: item.ten_phong_ban,
-                            truong_phong: item.truong_phong,
-                            members: item.members,
-                            ngay_tao: item.ngay_tao,
-                            // add other properties as needed
-                            ...item
-                        }))
-                        : [];
-                    setRootData(phongBanList);
-                    if (totalPageRef.current != res.data?.total_page) {
-                        setTotalPage(res.data?.total_page || 1)
-                        totalPageRef.current = res.data?.total_page || 1;
-                    }
-                    if (totalRecordsRef.current != res.data?.total_records) {
-                        setTotalRecords(res.data?.total_records || 0)
-                        totalRecordsRef.current = res.data?.total_records || 0;
-                    }
-                    if (filterFormProps) {
-                        setFilterForm(filterFormProps);
-                    }
-                    rootData.current = phongBanList;
-                } else {
-                    console.error(res.msg);
-                    setError("Có lỗi đã xảy ra!");
+
+        try {
+            const res = await getAllPhongBanByFilter(filterFormProps ? filterFormProps : filterForm);
+            if (res.status === 200 || res.status === 201) {
+                // Ensure the data matches the PhongBan[] type
+                const phongBanList: PhongBan[] = Array.isArray(res.data?.data)
+                    ? res.data.data.map((item: any) => ({
+                        id: item.id,
+                        ten_phong_ban: item.ten_phong_ban,
+                        truong_phong: item.truong_phong,
+                        members: item.members,
+                        ngay_tao: item.ngay_tao,
+                        // add other properties as needed
+                        ...item
+                    }))
+                    : [];
+                setRootData(phongBanList);
+                if (totalPageRef.current != res.data?.total_page) {
+                    setTotalPage(res.data?.total_page || 1)
+                    totalPageRef.current = res.data?.total_page || 1;
                 }
-            } catch (error) {
-                console.error('Error fetching PDM data:', error);
+                if (totalRecordsRef.current != res.data?.total_records) {
+                    setTotalRecords(res.data?.total_records || 0)
+                    totalRecordsRef.current = res.data?.total_records || 0;
+                }
+                if (filterFormProps) {
+                    setFilterForm(filterFormProps);
+                }
+                rootData.current = phongBanList;
+            } else {
+                console.error(res.msg);
                 setError("Có lỗi đã xảy ra!");
-            } finally {
-                setFilterLoading(false);
             }
+        } catch (error) {
+            console.error('Error fetching PDM data:', error);
+            setError("Có lỗi đã xảy ra!");
+        } finally {
+            setFilterLoading(false);
         }
     }
 

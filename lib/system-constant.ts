@@ -201,18 +201,18 @@ export const ACCESS_LINKS = {
     // Phòng ban
     PB_DHN : {
         src: _PB, 
-        title: "Đồng hồ nước"
+        title: "Phòng ban"
     },
     PB_DHN_ADD : {
         src: _PB + "/them-moi",
-        title: "Thêm mới hiệu chuẩn"
+        title: "Thêm phòng ban"
     },
     PB_DHN_EDIT: {
         src: _PB + "/chinh-sua",
-        title: "Chỉnh sửa hiệu chuẩn"
+        title: "Chỉnh sửa phòng ban"
     },
     PB_DHN_DETAIL : {
         src: _PB + "/chi-tiet",
-        title: "Chi tiết hiệu chuẩn"
+        title: "Chi tiết phòng ban"
     },
 }
