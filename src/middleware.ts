@@ -83,20 +83,22 @@ export async function middleware(req: NextRequest) {
         return NextResponse.redirect(new URL(ACCESS_LINKS.HOME.src, req.url));
     }
 
-    if (!isConfirmed) {
-        if (pathname.includes(ACCESS_LINKS.AUTH_UNVERIFIED.src)
-            || pathname.includes(ACCESS_LINKS.AUTH_VERIFY.src)
-        ) {
-            return NextResponse.next();
-        }
-        return NextResponse.redirect(new URL(ACCESS_LINKS.AUTH_UNVERIFIED.src, req.url));
-    } else {
+
+    // TODO: Check confirmed
+    // if (!isConfirmed) {
+    //     if (pathname.includes(ACCESS_LINKS.AUTH_UNVERIFIED.src)
+    //         || pathname.includes(ACCESS_LINKS.AUTH_VERIFY.src)
+    //     ) {
+    //         return NextResponse.next();
+    //     }
+    //     return NextResponse.redirect(new URL(ACCESS_LINKS.AUTH_UNVERIFIED.src, req.url));
+    // } else {
         if (pathname.includes(ACCESS_LINKS.AUTH_UNVERIFIED.src)
             || pathname.includes(ACCESS_LINKS.AUTH_VERIFY.src)
         ) {
             return NextResponse.redirect(new URL(ACCESS_LINKS.HOME.src, req.url));
         }
-    }
+    // }
 
     return NextResponse.next();
 }

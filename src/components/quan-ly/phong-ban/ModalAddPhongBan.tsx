@@ -5,7 +5,7 @@ import { useReducer, useState, useEffect, useMemo, useRef } from "react";
 import { UserInPhongBan } from "@lib/types";
 import { Modal, Button } from 'react-bootstrap';
 import UserAddAutocompleteMUI from "./UserAddAutocompleteMUI";
-import { getUsersByPhongBanStatus, upsertPhongBan } from "@/app/api/phongban/route";
+import { getPhongBanById, getUsersByPhongBanStatus, upsertPhongBan } from "@/app/api/phongban/route";
 import Swal from "sweetalert2";
 import Loading from '@/components/Loading';
 
@@ -44,10 +44,10 @@ interface ModalAddPhongBanProps {
     show: boolean | null;
     handleClose: () => void;
     isEditing?: boolean;
-    phong_ban_id?: number | null;
+    phongBanId?: number;
 }
 
-export default function ModalAddPhongBan({ show, handleClose, isEditing = false, phong_ban_id = null }: ModalAddPhongBanProps) {
+export default function ModalAddPhongBan({ show, handleClose, isEditing = false, phongBanId }: ModalAddPhongBanProps) {
     const [membersState, setMembersState] = useState<{ chua_tham_gia: UserInPhongBan[]; da_tham_gia: UserInPhongBan[] }>({
         chua_tham_gia: [],
         da_tham_gia: [],
@@ -64,27 +64,62 @@ export default function ModalAddPhongBan({ show, handleClose, isEditing = false,
         Swal.fire({ icon: "error", title: "Lỗi", text: message, confirmButtonColor: "#0980de" }).then(() => setError(""));
     };
 
-    const fetchUsers = async () => {
-        setLoading(true);
-        try {
-            const res = await getUsersByPhongBanStatus();
-            if (res.status === 200 && res.data) {
-                setMembersState(res.data);
-            } else {
-                showError("Lỗi khi lấy danh sách thành viên.");
-            }
-        } catch {
-            showError("Có lỗi đã xảy ra!");
-        } finally {
-            setLoading(false);
-        }
-    };
-
     useEffect(() => {
-        if (show) {
-            fetchUsers();
-            dispatch({ type: 'RESET_STATE' });
-        }
+        const fetchData = async () => {
+            if (!show) return;
+
+            setLoading(true);
+            try {
+                // 1. Fetch all users (cả đang có và chưa tham gia phòng ban)
+                const userRes = await getUsersByPhongBanStatus();
+                if (userRes.status === 200 && userRes.data) {
+                    setMembersState(userRes.data);
+                } else {
+                    showError("Lỗi khi lấy danh sách thành viên.");
+                    return;
+                }
+
+                // 2. Nếu là chỉnh sửa thì lấy thông tin phòng ban
+                if (isEditing && phongBanId) {
+                    const phongBanRes = await getPhongBanById(phongBanId);
+                    if (phongBanRes.status === 200 && phongBanRes.data) {
+                        const phongBan = phongBanRes.data;
+
+                        // Chuyển đổi trưởng phòng và member về dạng UserInPhongBan
+                        const truongPhongUser = {
+                            user: phongBan.truong_phong,
+                            is_manager: true,
+                            phong_ban_id: phongBan.id,
+                            phong_ban: phongBan.ten_phong_ban,
+                        };
+
+                        const members = phongBan.members
+                            .filter(m => m.id !== phongBan.truong_phong.id)
+                            .map(user => ({
+                                user,
+                                is_manager: false,
+                                phong_ban_id: phongBan.id,
+                                phong_ban: phongBan.ten_phong_ban,
+                            }));
+
+                        dispatch({ type: 'SET_TEN_PHONG_BAN', payload: phongBan.ten_phong_ban || '' });
+                        dispatch({ type: 'SET_TRUONG_PHONG', payload: truongPhongUser });
+                        dispatch({ type: 'SET_MEMBERS', payload: members });
+                    } else {
+                        showError("Không lấy được thông tin phòng ban.");
+                    }
+                } else {
+                    dispatch({ type: 'RESET_STATE' });
+                }
+
+            } catch (error) {
+                showError("Đã xảy ra lỗi khi tải dữ liệu.");
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchData();
     }, [show]);
 
     const validateBeforeSubmit = (): boolean => {
@@ -152,15 +187,15 @@ export default function ModalAddPhongBan({ show, handleClose, isEditing = false,
                 members: state.members,
             };
 
-            if (isEditing && phong_ban_id) {
-                upsertData.id_phong_ban = phong_ban_id;
+            if (isEditing && phongBanId) {
+                upsertData.id_phong_ban = phongBanId;
             }
 
             const res = await upsertPhongBan(upsertData);
-            if (res.status === 201) {
+            if (res.status === 201 || res.status === 200) {
                 Swal.fire({ icon: "success", title: "Thành công", confirmButtonColor: "#0980de" }).then(() => handleClose());
             } else {
-                showError("Lỗi khi thêm mới phòng ban.");
+                showError("Lỗi khi lưu phòng ban.");
             }
         } catch {
             showError("Có lỗi đã xảy ra!");
@@ -180,7 +215,7 @@ export default function ModalAddPhongBan({ show, handleClose, isEditing = false,
     return (
         <Modal backdrop="static" dialogClassName="modal-phong-ban" show={!!show} className="pe-0 d-flex justify-content-center" onHide={handleClose} scrollable>
             <Modal.Header closeButton>
-                <Modal.Title>Thêm mới Phòng ban</Modal.Title>
+                <Modal.Title>{isEditing ? "Sửa" : "Thêm mới"} Phòng ban</Modal.Title>
             </Modal.Header>
             <Modal.Body style={{ position: 'relative' }}>
                 {loading && <Loading />}
@@ -237,7 +272,7 @@ export default function ModalAddPhongBan({ show, handleClose, isEditing = false,
                 <div className="w-100 m-0 p-2 gap-2 d-flex justify-content-end">
                     <Button variant="secondary" onClick={handleClose}>Đóng</Button>
                     <Button variant="success" disabled={!state.ten_phong_ban || !state.truong_phong || state.members.length === 0} onClick={handleSubmit}>
-                        Thêm mới
+                        {isEditing ? "Lưu" : "Thêm mới"}
                     </Button>
                 </div>
             </Modal.Body>

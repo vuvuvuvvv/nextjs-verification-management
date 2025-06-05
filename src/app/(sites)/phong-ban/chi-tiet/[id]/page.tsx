@@ -28,19 +28,19 @@ import { ACCESS_LINKS } from "@lib/system-constant";
 
 const Loading = dynamic(() => import("@/components/Loading"));
 
-export default function DetailPhongBanPage({ params }: { params: { id: number } }) {
+export default function DetailPhongBanPage({ params }: { params: { id: string } }) {
     const router = useRouter();
     const [phongBanData, setPhongBanData] = useState<PhongBan>();
     const [loading, setLoading] = useState(true);
     const [members, setMembers] = useState<User[]>([]);
     const [deletingMode, setDeletingMode] = useState(false);
     const [selected, setSelected] = useState<Set<string>>(new Set());
-    const [showAddModal, setShowAddModal] = useState(false);
-    const [form, setForm] = useState({ fullname: "", email: "", username: "" });
 
     const [showAddNhanVienModal, setShowAddNhanVienModal] = useState(false);
     const [showEditPhongBanModal, setShowEditPhongBanModal] = useState(false);
 
+    const phongBanId = Number(params.id);
+    const isParamsReady = !isNaN(phongBanId);
 
     const [currentPage, setCurrentPage] = useState(1);
     const membersPerPage = 5;
@@ -49,7 +49,7 @@ export default function DetailPhongBanPage({ params }: { params: { id: number } 
 
     const _fetchData = async () => {
         try {
-            const res = await getPhongBanById(params.id);
+            const res = await getPhongBanById(phongBanId);
             setPhongBanData(res?.data);
             setMembers(res?.data?.members || []);
         } catch (error) {
@@ -65,21 +65,6 @@ export default function DetailPhongBanPage({ params }: { params: { id: number } 
 
         _fetchData();
     }, [params.id]);
-
-    const toggleSelect = (id: string) => {
-        const newSelected = new Set(selected);
-        newSelected.has(id) ? newSelected.delete(id) : newSelected.add(id);
-        setSelected(newSelected);
-    };
-
-    const toggleSelectAll = () => {
-        if (selected.size === currentMembers.length) {
-            setSelected(new Set());
-        } else {
-            const newSet = new Set(currentMembers.map((m) => m.id.toString()));
-            setSelected(newSet);
-        }
-    };
 
     const handleDeleteSelected = async () => {
         const result = await Swal.fire({
@@ -175,8 +160,8 @@ export default function DetailPhongBanPage({ params }: { params: { id: number } 
                     timer: 2000,
                     showConfirmButton: false,
                 });
-                
-                router.push(ACCESS_LINKS.PB_DHN.src); 
+
+                router.push(ACCESS_LINKS.PB_DHN.src);
             } else {
                 await Swal.fire({
                     title: "Lỗi!",
@@ -197,16 +182,19 @@ export default function DetailPhongBanPage({ params }: { params: { id: number } 
 
     return (
         <Container fluid className="my-4">
+
             <ModalAddPhongBan
                 show={showEditPhongBanModal}
                 handleClose={() => setShowEditPhongBanModal(false)}
+                isEditing={true}
+                phongBanId={phongBanId}
             />
 
             <ModalAddNhanVienPhongBan
                 show={showAddNhanVienModal}
                 handleSuccess={() => _fetchData()}
                 handleClose={() => setShowAddNhanVienModal(false)}
-                exceptPhongBanID={params.id}
+                exceptPhongBanID={phongBanId}
             />
             <div className="p-2 shadow-sm rounded row w-100 m-0 d-flex bg-white justify-content-between align-items-center mb-3">
                 <div className="col-12 col-lg-7 m-0 py-0 d-flex align-items-center mb-3 mb-lg-0">
