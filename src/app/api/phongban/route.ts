@@ -136,6 +136,7 @@ function handlePhongBanError(error: any, context: string): APIResponse {
 }
 
 export async function upsertPhongBan(data: {
+    id_phong_ban?: number;
     ten_phong_ban?: string;
     truong_phong?: UserInPhongBan;
     members?: UserInPhongBan[];

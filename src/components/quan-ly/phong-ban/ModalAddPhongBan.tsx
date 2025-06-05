@@ -11,12 +11,14 @@ import Loading from '@/components/Loading';
 
 
 interface State {
+    id_phong_ban?: number | null;
     ten_phong_ban: string;
     truong_phong: UserInPhongBan | null;
     members: UserInPhongBan[];
 }
 
 const initialState: State = {
+    id_phong_ban: null,
     ten_phong_ban: '',
     truong_phong: null,
     members: [],
@@ -41,9 +43,11 @@ function reducer(state: State, action: Action): State {
 interface ModalAddPhongBanProps {
     show: boolean | null;
     handleClose: () => void;
+    isEditing?: boolean;
+    phong_ban_id?: number | null;
 }
 
-export default function ModalAddPhongBan({ show, handleClose }: ModalAddPhongBanProps) {
+export default function ModalAddPhongBan({ show, handleClose, isEditing = false, phong_ban_id = null }: ModalAddPhongBanProps) {
     const [membersState, setMembersState] = useState<{ chua_tham_gia: UserInPhongBan[]; da_tham_gia: UserInPhongBan[] }>({
         chua_tham_gia: [],
         da_tham_gia: [],
@@ -130,12 +134,29 @@ export default function ModalAddPhongBan({ show, handleClose }: ModalAddPhongBan
     }, [state]);
 
     const submit = async () => {
+        if (!state.ten_phong_ban || !state.truong_phong || state.members.length === 0) {
+            showError("Vui lòng điền đầy đủ thông tin phòng ban.");
+            return
+        }
+
         setLoading(true);
         try {
-            const res = await upsertPhongBan({
-                ...state,
-                truong_phong: state.truong_phong ?? undefined,
-            });
+            const upsertData: {
+                id_phong_ban?: number;
+                ten_phong_ban: string;
+                truong_phong: UserInPhongBan;
+                members: UserInPhongBan[];
+            } = {
+                ten_phong_ban: state.ten_phong_ban,
+                truong_phong: state.truong_phong,
+                members: state.members,
+            };
+
+            if (isEditing && phong_ban_id) {
+                upsertData.id_phong_ban = phong_ban_id;
+            }
+
+            const res = await upsertPhongBan(upsertData);
             if (res.status === 201) {
                 Swal.fire({ icon: "success", title: "Thành công", confirmButtonColor: "#0980de" }).then(() => handleClose());
             } else {
