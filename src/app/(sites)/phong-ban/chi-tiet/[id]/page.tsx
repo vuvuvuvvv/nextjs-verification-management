@@ -185,6 +185,7 @@ export default function DetailPhongBanPage({ params }: { params: { id: string } 
 
             <ModalAddPhongBan
                 show={showEditPhongBanModal}
+                handleSuccess={() => _fetchData()}
                 handleClose={() => setShowEditPhongBanModal(false)}
                 isEditing={true}
                 phongBanId={phongBanId}

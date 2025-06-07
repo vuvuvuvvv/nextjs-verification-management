@@ -86,15 +86,10 @@ export default function ModalAddNhanVienPhongBan({ show, handleClose, exceptPhon
     };
 
     const showSuccess = async () => {
-        const rs = await Swal.fire({
-            icon: "success",
-            title: "Thành công",
-            confirmButtonColor: "#0980de"
-        });
-        if (rs.isConfirmed) {
+        Swal.fire({ icon: "success", title: "Thành công", confirmButtonColor: "#0980de" }).then(() => {
+            handleClose();
             handleSuccess && handleSuccess();
-        }
-        handleClose();
+        });
     };
 
     const confirmOverwrite = () => {

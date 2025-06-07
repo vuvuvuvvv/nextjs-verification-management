@@ -43,11 +43,12 @@ function reducer(state: State, action: Action): State {
 interface ModalAddPhongBanProps {
     show: boolean | null;
     handleClose: () => void;
+    handleSuccess?: () => void;
     isEditing?: boolean;
     phongBanId?: number;
 }
 
-export default function ModalAddPhongBan({ show, handleClose, isEditing = false, phongBanId }: ModalAddPhongBanProps) {
+export default function ModalAddPhongBan({ show, handleClose, isEditing = false, phongBanId, handleSuccess }: ModalAddPhongBanProps) {
     const [membersState, setMembersState] = useState<{ chua_tham_gia: UserInPhongBan[]; da_tham_gia: UserInPhongBan[] }>({
         chua_tham_gia: [],
         da_tham_gia: [],
@@ -193,7 +194,10 @@ export default function ModalAddPhongBan({ show, handleClose, isEditing = false,
 
             const res = await upsertPhongBan(upsertData);
             if (res.status === 201 || res.status === 200) {
-                Swal.fire({ icon: "success", title: "Thành công", confirmButtonColor: "#0980de" }).then(() => handleClose());
+                Swal.fire({ icon: "success", title: "Thành công", confirmButtonColor: "#0980de" }).then(() => {
+                    handleClose();
+                    handleSuccess && handleSuccess();
+                });
             } else {
                 showError("Lỗi khi lưu phòng ban.");
             }
