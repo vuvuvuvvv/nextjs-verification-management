@@ -15,7 +15,7 @@ import {
     Pagination,
 } from "react-bootstrap";
 import Swal from "sweetalert2";
-import { PhongBan, User } from "@lib/types";
+import { PhongBan, User } from "@/lib/types";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faMinusCircle, faUserPlus, faEye, faTimesCircle, faEdit } from "@fortawesome/free-solid-svg-icons";
 import c_vfml from "@styles/scss/components/verification-management-layout.module.scss";
@@ -23,7 +23,7 @@ import ModalAddPhongBan from "@/components/quan-ly/phong-ban/ModalAddPhongBan";
 import ModalAddNhanVienPhongBan from "@/components/quan-ly/phong-ban/ModalAddNhanVienPhongBan";
 
 import { useRouter } from "next/navigation"; // nếu bạn dùng App Router (Next.js 13+)
-import { ACCESS_LINKS } from "@lib/system-constant";
+import { ACCESS_LINKS } from "@/lib/system-constant";
 
 
 const Loading = dynamic(() => import("@/components/Loading"));

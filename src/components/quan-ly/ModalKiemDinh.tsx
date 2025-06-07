@@ -10,12 +10,12 @@ import Swal from "sweetalert2";
 import { useDongHoList } from '@/context/ListDongHoContext';
 import InputField from '../ui/InputFieldTBDHInfo';
 import { useKiemDinh } from '@/context/KiemDinhContext';
-import { DuLieuCacLanChay, DuLieuMotLanChay } from '@lib/types';
-import { getHieuSaiSo, getSaiSoDongHo } from '@lib/system-function';
+import { DuLieuCacLanChay, DuLieuMotLanChay } from '@/lib/types';
+import { getHieuSaiSo, getSaiSoDongHo } from '@/lib/system-function';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faAdd, faCogs, faRemove, faSave } from '@fortawesome/free-solid-svg-icons';
 import ModalInputSoLuongDongHo from '../ui/ModalInputSoLuongDongHo';
-import { ACCESS_LINKS } from '@lib/system-constant';
+import { ACCESS_LINKS } from '@/lib/system-constant';
 import TableKetQuaKiemDinh from './TableKetQuaKiemDinh';
 import NavTab from '../ui/NavTab';
 interface ModalKiemDinhProps {

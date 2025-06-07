@@ -2,12 +2,12 @@
 
 import { getDongHoById, getDongHoByGroupId } from "@/app/api/dongho/route";
 const Loading = dynamic(() => import('@/components/Loading'));
-import { DongHo } from "@lib/types";
+import { DongHo } from "@/lib/types";
 import { useEffect, useRef, useState } from "react";
 import dynamic from "next/dynamic";
 import { useRouter } from "next/navigation";
 import Swal from "sweetalert2";
-import { ACCESS_LINKS } from "@lib/system-constant";
+import { ACCESS_LINKS } from "@/lib/system-constant";
 import { useDongHoList } from "@/context/ListDongHoContext";
 
 const KiemDinhNhomDongHoNuocForm = dynamic(() => import("@/components/quan-ly/kiem-dinh/KiemDinhNhomDongHoNuocForm"), { ssr: false });

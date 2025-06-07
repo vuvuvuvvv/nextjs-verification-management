@@ -15,11 +15,11 @@ import React from "react";
 
 import Select, { GroupBase } from 'react-select';
 import Pagination from "@/components/Pagination";
-import { PDMData, PDMFilterParameters } from "@lib/types";
+import { PDMData, PDMFilterParameters } from "@/lib/types";
 
 import Link from "next/link";
 
-import { pdmStatusOptions, limitOptions, ACCESS_LINKS } from "@lib/system-constant";
+import { pdmStatusOptions, limitOptions, ACCESS_LINKS } from "@/lib/system-constant";
 import { getPDMByFilter } from "@/app/api/pdm/route";
 import Swal from "sweetalert2";
 import { useUser } from "@/context/AppContext";

@@ -1,32 +1,8 @@
 import { BASE_API_URL } from '@/lib/system-constant';
 import { DongHo, DongHoFilterParameters, NhomDongHo, NhomDongHoFilterParameters } from '@/lib/types';
-import api from '../route';
+import api from './instance';
 
 const API_DONGHO_URL = `${BASE_API_URL}/dongho`;
-
-// export const getUserPermissionWithDongHo = async (dongHo: DongHo) => {
-//     try {
-//         const response = await api.get(API_DONGHO_URL.toString() + "/user-permissions/" + dongHo.id);
-//         return {
-//             "status": response.status,
-//             "data": response.data,
-//             "msg": "Thành công!"
-//         };
-
-//     } catch (error: any) {
-//         if (error.response?.data?.msg) {
-//             return {
-//                 "status": error.response.status,
-//                 "msg": 'Có lỗi xảy ra khi lấy dữ liệu đồng hồ!'
-//             };
-//         } else {
-//             return {
-//                 "status": error.response?.status || 500,
-//                 "msg": 'Có lỗi xảy ra khi lấy dữ liệu đồng hồ!'
-//             };
-//         }
-//     }
-// };
 
 export const getAllDongHoNamesExist = async () => {
     try {

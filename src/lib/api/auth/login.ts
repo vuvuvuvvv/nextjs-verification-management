@@ -6,7 +6,7 @@ import { BASE_API_URL } from '@/lib/system-constant';
 
 const API_AUTH_URL = `${BASE_API_URL}/auth`;
 
-export const login = async (credentials: LoginCredentials) => {
+const login = async (credentials: LoginCredentials) => {
 
     try {
 
@@ -44,3 +44,5 @@ export const login = async (credentials: LoginCredentials) => {
         }
     }
 };
+
+export default login;

@@ -19,7 +19,7 @@ const AppProvider = dynamic(() => import("@/context/AppContext").then(mod => mod
 import { usePathname } from "next/navigation";
 import dynamic from "next/dynamic";
 import Navbar from "@/components/Navbar";
-import { ACCESS_LINKS } from "@lib/system-constant";
+import { ACCESS_LINKS } from "@/lib/system-constant";
 import { useEffect, useState } from "react";
 
 const routeTitles: { [key: string]: string } = {

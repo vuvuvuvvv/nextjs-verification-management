@@ -12,14 +12,14 @@ import { viVN } from "@mui/x-date-pickers/locales";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faEdit, faSearch, faRefresh, faEye, faPlus } from "@fortawesome/free-solid-svg-icons";
 import React from "react";
-import { PhongBan, PhongBanFilterParameters } from "@lib/types";
+import { PhongBan, PhongBanFilterParameters } from "@/lib/types";
 
 import Pagination from "@/components/Pagination";
 import Link from "next/link";
 
 import {
     ACCESS_LINKS,
-} from "@lib/system-constant";
+} from "@/lib/system-constant";
 import Swal from "sweetalert2";
 import { getAllPhongBanByFilter } from "@/app/api/phongban/route";
 import { useUser } from "@/context/AppContext";

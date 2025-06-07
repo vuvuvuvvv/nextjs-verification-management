@@ -12,7 +12,7 @@ import { faEnvelope, faLock, faUser } from '@fortawesome/free-solid-svg-icons';
 import { register } from '@/app/api/auth/register/route';
 import Swal from 'sweetalert2';
 
-import { RegisterCredentials } from '@lib/types';
+import { RegisterCredentials } from '@/lib/types';
 
 interface FormProps {
     className?: string

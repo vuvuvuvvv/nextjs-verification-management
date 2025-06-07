@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 
 import { jwtVerify } from 'jose';
-import { ACCESS_LINKS } from '@lib/system-constant';
+import { ACCESS_LINKS } from '@/lib/system-constant';
 
 const CUSTOM_AUTH_ERROR_TOKEN_PATH = '/error/error-token';
 
@@ -12,6 +12,15 @@ const AUTH_PATHS = [
     ACCESS_LINKS.AUTH_REGISTER.src,
     ACCESS_LINKS.AUTH_VERIFY.src,
 ];
+
+const VERIFY_PATHS = [
+    ACCESS_LINKS.AUTH_FORGOT_PW.src,
+    ACCESS_LINKS.AUTH_LOGIN.src,
+    ACCESS_LINKS.AUTH_REGISTER.src,
+    ACCESS_LINKS.AUTH_VERIFY.src,
+];
+
+
 
 const EXCLUDE_PATHS = [
     ACCESS_LINKS.HC_DHN.src,
@@ -85,20 +94,22 @@ export async function middleware(req: NextRequest) {
 
 
     // TODO: Check confirmed
-    // if (!isConfirmed) {
-    //     if (pathname.includes(ACCESS_LINKS.AUTH_UNVERIFIED.src)
-    //         || pathname.includes(ACCESS_LINKS.AUTH_VERIFY.src)
-    //     ) {
-    //         return NextResponse.next();
-    //     }
-    //     return NextResponse.redirect(new URL(ACCESS_LINKS.AUTH_UNVERIFIED.src, req.url));
-    // } else {
+    if (!isConfirmed) {
+        if (VERIFY_PATHS.some(vfPath => pathname.includes(vfPath))) {
+            console.log("11111")
+            return NextResponse.next();
+        }
+        console.log("22222")
+        return NextResponse.redirect(new URL(ACCESS_LINKS.AUTH_UNVERIFIED.src, req.url));
+    } else {
         if (pathname.includes(ACCESS_LINKS.AUTH_UNVERIFIED.src)
             || pathname.includes(ACCESS_LINKS.AUTH_VERIFY.src)
         ) {
+            console.log("3333")
             return NextResponse.redirect(new URL(ACCESS_LINKS.HOME.src, req.url));
         }
-    // }
+        console.log("4444")
+    }
 
     return NextResponse.next();
 }

@@ -5,7 +5,7 @@ import Cookies from 'js-cookie';
 
 const API_AUTH_URL = `${BASE_API_URL}/auth`;
 
-export const logout = async () => {
+const logout = async () => {
     try {
         const response = await api.post(`${API_AUTH_URL}/logout`, {}, { withCredentials: true });
 
@@ -43,5 +43,6 @@ export const logout = async () => {
             };
         }
     }
-    // eventEmitter.emit("logout");
 };
+
+export default logout;

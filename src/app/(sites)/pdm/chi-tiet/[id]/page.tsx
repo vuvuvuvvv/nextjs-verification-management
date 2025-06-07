@@ -2,7 +2,7 @@
 
 import { deletePDM, getPDMById, getPDMByMaTimDongHoPDM, updatePDM } from "@/app/api/pdm/route";
 import Loading from "@/components/Loading";
-import { PDM, PDMData } from "@lib/types";
+import { PDM, PDMData } from "@/lib/types";
 import { useEffect, useRef, useState } from "react";
 import { useUser } from "@/context/AppContext";
 import Swal from "sweetalert2";
@@ -13,10 +13,10 @@ import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { viVN } from "@mui/x-date-pickers/locales";
 import dayjs, { Dayjs } from "dayjs";
 import Select, { GroupBase } from 'react-select';
-import { ACCESS_LINKS, ccxOptions } from "@lib/system-constant";
+import { ACCESS_LINKS, ccxOptions } from "@/lib/system-constant";
 import vrfWm from "@styles/scss/ui/vfm.module.scss";
 import Link from "next/link";
-import { convertToUppercaseNonAccent } from "@lib/system-function";
+import { convertToUppercaseNonAccent } from "@/lib/system-function";
 
 export default function Page({ params }: { params: { id: string } }) {
     const { permissions } = useUser();

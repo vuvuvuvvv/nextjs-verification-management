@@ -6,8 +6,8 @@ import '@styles/scss/ui/general-modal.scss';
 import c_tbKD from "@styles/scss/components/table-kiem-dinh.module.scss";
 import { useDongHoList } from '@/context/ListDongHoContext';
 import { useKiemDinh } from '@/context/KiemDinhContext';
-import { isDongHoDatTieuChuan } from '@lib/system-function';
-import { DongHo } from '@lib/types';
+import { isDongHoDatTieuChuan } from '@/lib/system-function';
+import { DongHo } from '@/lib/types';
 import { getBBPreviewUrl, getGCNPreviewUrl } from '@/app/api/download/route';
 import { PDFPreviewModal } from '../ui/ModalPDFReview';
 interface ModalKiemDinhProps {

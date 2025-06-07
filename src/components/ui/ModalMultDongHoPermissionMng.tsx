@@ -1,13 +1,13 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { Modal, Button } from 'react-bootstrap';
-import { DongHo, DongHoPermission, RoleOption } from '@lib/types';
+import { DongHo, DongHoPermission, RoleOption } from '@/lib/types';
 import Swal from 'sweetalert2';
-import { getAvailableRolesOptions, getNameOfRole } from '@lib/system-function';
+import { getAvailableRolesOptions, getNameOfRole } from '@/lib/system-function';
 import Select, { GroupBase } from 'react-select';
 import "@styles/scss/ui/modal-dh-permissions-mng.scss";
 import { useUser } from '@/context/AppContext';
 import { checkDHPByUserInfoAndGroupId, checkDHPByUserInfoAndId, createDongHoPermission, createMultDongHoPermission } from '@/app/api/dongho/route';
-import { PERMISSION_VALUES, PERMISSIONS } from '@lib/system-constant';
+import { PERMISSION_VALUES, PERMISSIONS } from '@/lib/system-constant';
 import Loading from '../Loading';
 import { permission } from 'process';
 

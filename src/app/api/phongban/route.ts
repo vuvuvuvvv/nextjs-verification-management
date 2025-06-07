@@ -1,6 +1,6 @@
 import api from '../route';
-import { BASE_API_URL } from "@lib/system-constant";
-import { PhongBan, PhongBanFilterParameters, User, UserInPhongBan } from "@lib/types";
+import { BASE_API_URL } from "@/lib/system-constant";
+import { PhongBan, PhongBanFilterParameters, User, UserInPhongBan } from "@/lib/types";
 
 const API_PHONGBAN_URL = `${BASE_API_URL}/phongban`;
 

@@ -1,11 +1,11 @@
 import api from '@/app/api/route';
-import { logout } from '../../logout/route';
+import { logout } from '@/app/api/auth/logout/route';
 import { ResetPasswordCredentials } from '@/lib/types';
 import { BASE_API_URL } from '@/lib/system-constant';
 
 const API_AUTH_URL = `${BASE_API_URL}/auth`;
 
-export const resetPassword = async (credentials: ResetPasswordCredentials) => {
+const resetPassword = async (credentials: ResetPasswordCredentials) => {
 
     try {
         const response = await api.post(`${API_AUTH_URL}/reset/password`, credentials, { withCredentials: true });
@@ -38,3 +38,5 @@ export const resetPassword = async (credentials: ResetPasswordCredentials) => {
         }
     }
 };
+
+export default resetPassword;

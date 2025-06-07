@@ -10,23 +10,18 @@ import { viVN } from "@mui/x-date-pickers/locales";
 
 import dayjs, { Dayjs } from "dayjs";
 
-import { ACCESS_LINKS, BASE_API_URL, ccxOptions, phuongTienDoOptions, typeOptions } from "@lib/system-constant";
+import { ACCESS_LINKS, BASE_API_URL, ccxOptions, phuongTienDoOptions, typeOptions } from "@/lib/system-constant";
 
 import Select, { GroupBase } from 'react-select';
-import { PDM, PDMData } from "@lib/types";
+import { PDM, PDMData } from "@/lib/types";
 import Swal from "sweetalert2";
 import { createPDM, getPDMByMaTimDongHoPDM, getPDMBySoQDPDM } from "@/app/api/pdm/route";
 import { useRouter } from "next/navigation";
 import api from "@/app/api/route";
 import CreatableSelect from "react-select/creatable";
-import { convertToUppercaseNonAccent } from "@lib/system-function";
+import { convertToUppercaseNonAccent } from "@/lib/system-function";
 
-
-interface AddNewPDMProps {
-    className?: string,
-}
-
-export default function AddNewPDM({ className }: AddNewPDMProps) {
+export default function AddNewPDM() {
 
     const [deviceName, setDeviceName] = useState<string>("");                          
     const [tenDongHo, setTenDongHo] = useState<string>("");                             
@@ -381,7 +376,7 @@ export default function AddNewPDM({ className }: AddNewPDMProps) {
 
     return (
         <LocalizationProvider dateAdapter={AdapterDayjs} localeText={viVN.components.MuiLocalizationProvider.defaultProps.localeText}>
-            <div className={`${className ? className : ""} ${vrfWm['wraper']} container p-0 px-2 py-3 w-100`}>
+            <div className={`${vrfWm['wraper']} container p-0 px-2 py-3 w-100`}>
                 <div className={`row m-0 mb-3 p-3 w-100 bg-white shadow-sm`}>
                     <div className="w-100 m-0 p-0 mb-3 position-relative">
                         <h3 className="text-uppercase fw-bolder text-center mt-3 mb-0">thêm mới phê duyệt mẫu</h3>

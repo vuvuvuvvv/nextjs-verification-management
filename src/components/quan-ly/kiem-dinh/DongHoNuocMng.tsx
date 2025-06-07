@@ -12,7 +12,7 @@ import { viVN } from "@mui/x-date-pickers/locales";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faChevronDown, faChevronUp, faEdit, faCircleArrowRight, faArrowLeft, faSearch, faRefresh, faEye } from "@fortawesome/free-solid-svg-icons";
 import React from "react";
-import { DongHo, DongHoFilterParameters, DongHoPermission, DuLieuChayDongHo } from "@lib/types";
+import { DongHo, DongHoFilterParameters, DongHoPermission, DuLieuChayDongHo } from "@/lib/types";
 
 import Pagination from "@/components/Pagination";
 // import { usePathname } from "next/navigation";
@@ -21,10 +21,10 @@ import Link from "next/link";
 import {
     ACCESS_LINKS,
     //  limitOptions 
-} from "@lib/system-constant";
+} from "@/lib/system-constant";
 import Swal from "sweetalert2";
 import { getDongHoByFilter } from "@/app/api/dongho/route";
-import { decode, getNameOfRole } from "@lib/system-function";
+import { decode, getNameOfRole } from "@/lib/system-function";
 import { useUser } from "@/context/AppContext";
 import ModalMultDongHoPermissionMng from "@/components/ui/ModalMultDongHoPermissionMng";
 

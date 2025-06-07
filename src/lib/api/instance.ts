@@ -1,6 +1,6 @@
 import axios from 'axios';
 import Cookies from 'js-cookie';
-import { logout } from './auth/logout/route';
+import logout from './auth/logout';
 import { BASE_API_URL } from '@/lib/system-constant';
 import { eventEmitter } from '@/lib/eventEmitter';
 

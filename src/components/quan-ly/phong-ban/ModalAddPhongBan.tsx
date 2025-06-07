@@ -2,7 +2,7 @@
 
 import '@styles/scss/ui/general-modal.scss';
 import { useReducer, useState, useEffect, useMemo, useRef } from "react";
-import { UserInPhongBan } from "@lib/types";
+import { UserInPhongBan } from "@/lib/types";
 import { Modal, Button } from 'react-bootstrap';
 import UserAddAutocompleteMUI from "./UserAddAutocompleteMUI";
 import { getPhongBanById, getUsersByPhongBanStatus, upsertPhongBan } from "@/app/api/phongban/route";

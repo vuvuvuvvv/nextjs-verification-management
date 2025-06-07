@@ -6,7 +6,7 @@ import React, { useState, useReducer, useEffect, useRef } from "react";
 import c_tbGenf from "@styles/scss/components/table-general.module.scss";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faEdit, faCogs } from "@fortawesome/free-solid-svg-icons";
-import { getFullSoGiayCN } from "@lib/system-function";
+import { getFullSoGiayCN } from "@/lib/system-function";
 
 const ToggleSwitchButton = dynamic(() => import('@/components/ui/ToggleSwitchButton'));
 const InputField = dynamic(() => import('@/components/ui//InputFieldTBDHInfo'));

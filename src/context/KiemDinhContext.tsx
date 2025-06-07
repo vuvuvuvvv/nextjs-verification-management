@@ -1,6 +1,6 @@
-import { TITLE_LUU_LUONG } from '@lib/system-constant';
-import { getHieuSaiSo, getLastDayOfMonthInFuture, isDongHoDatTieuChuan } from '@lib/system-function';
-import { DuLieuChayDongHo, DuLieuChayDiemLuuLuong, DuLieuMotLanChay, DuLieuCacLanChay, VChuanDongBoCacLL, DongHo } from '@lib/types';
+import { TITLE_LUU_LUONG } from '@/lib/system-constant';
+import { getHieuSaiSo, getLastDayOfMonthInFuture, isDongHoDatTieuChuan } from '@/lib/system-function';
+import { DuLieuChayDongHo, DuLieuChayDiemLuuLuong, DuLieuMotLanChay, DuLieuCacLanChay, VChuanDongBoCacLL, DongHo } from '@/lib/types';
 import React, { createContext, useState, useContext, ReactNode, useRef, useEffect } from 'react';
 import { useDongHoList } from './ListDongHoContext';
 import dayjs from 'dayjs';

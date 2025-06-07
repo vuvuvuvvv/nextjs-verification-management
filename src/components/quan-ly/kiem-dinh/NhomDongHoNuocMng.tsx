@@ -14,11 +14,11 @@ import { faChevronDown, faChevronUp, faCircleArrowRight, faEdit, faEye, faRefres
 import React from "react";
 
 import Select, { GroupBase } from 'react-select';
-import { NhomDongHoFilterParameters, NhomDongHo, PDMData } from "@lib/types";
+import { NhomDongHoFilterParameters, NhomDongHo, PDMData } from "@/lib/types";
 
 import Link from "next/link";
 
-import { ACCESS_LINKS, BASE_API_URL } from "@lib/system-constant";
+import { ACCESS_LINKS, BASE_API_URL } from "@/lib/system-constant";
 import Swal from "sweetalert2";
 import { getNhomDongHoByFilter } from "@/app/api/dongho/route";
 import api from "@/app/api/route";

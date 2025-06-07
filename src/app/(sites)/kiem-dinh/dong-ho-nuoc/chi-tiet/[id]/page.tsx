@@ -2,7 +2,7 @@
 
 import { getDongHoById } from "@/app/api/dongho/route";
 const Loading = dynamic(() => import('@/components/Loading'));
-import { DongHo } from "@lib/types";
+import { DongHo } from "@/lib/types";
 import {  useEffect, useRef, useState } from "react";
 import dynamic from "next/dynamic";
 import DetailKiemDinhDongHo from "@/components/quan-ly/kiem-dinh/DetailKiemDinhDongHo";

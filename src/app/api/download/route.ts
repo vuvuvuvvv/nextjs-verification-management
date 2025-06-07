@@ -1,7 +1,7 @@
 import axios from "axios";
-import { BASE_API_URL } from '@lib/system-constant';
-import { getFullNameFileDownload } from "@lib/system-function";
-import { DongHo } from "@lib/types";
+import { BASE_API_URL } from '@/lib/system-constant';
+import { getFullNameFileDownload } from "@/lib/system-function";
+import { DongHo } from "@/lib/types";
 
 const API_DOWNLOAD_URL = `${BASE_API_URL}/download`;
 

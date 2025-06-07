@@ -4,7 +4,7 @@ import layout from "@styles/scss/ui/auth.module.scss";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faGoogle } from '@fortawesome/free-brands-svg-icons';
 import Link from 'next/link';
-import { ACCESS_LINKS } from '@lib/system-constant';
+import { ACCESS_LINKS } from '@/lib/system-constant';
 
 export const metadata: Metadata = {
     title: "Đăng nhập",

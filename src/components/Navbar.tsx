@@ -24,8 +24,8 @@ import { useUser } from "@/context/AppContext";
 
 import React from "react";
 import dynamic from "next/dynamic";
-import { ACCESS_LINKS } from "@lib/system-constant";
-import { getNameOfRole } from "@lib/system-function";
+import { ACCESS_LINKS } from "@/lib/system-constant";
+import { getNameOfRole } from "@/lib/system-function";
 
 interface NavbarProps {
     className?: string,

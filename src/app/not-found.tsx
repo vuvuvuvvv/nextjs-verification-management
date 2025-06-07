@@ -1,5 +1,5 @@
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { ACCESS_LINKS } from "@lib/system-constant";
+import { ACCESS_LINKS } from "@/lib/system-constant";
 import Link from "next/link";
 
 

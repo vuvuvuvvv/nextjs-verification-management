@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Modal, Button, Form } from 'react-bootstrap';
-import { DongHo } from '@lib/types';
+import { DongHo } from '@/lib/types';
 import { faCheck, faTimes } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { useDongHoList } from '@/context/ListDongHoContext';

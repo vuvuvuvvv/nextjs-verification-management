@@ -7,7 +7,7 @@ import {
     TextField,
 } from "@mui/material";
 import CheckIcon from "@mui/icons-material/Check";
-import { User, UserInPhongBan } from "@lib/types";
+import { User, UserInPhongBan } from "@/lib/types";
 
 type UserAddAutocompleteMUIProps = {
     users: UserInPhongBan[];

@@ -20,14 +20,14 @@ import Swal from "sweetalert2";
 import dayjs, { Dayjs } from "dayjs";
 import { useEffect, useMemo, useReducer, useRef, useState } from "react";
 
-import { convertToUppercaseNonAccent, getQ2OrtAndQ1OrQMin, isDongHoDatTieuChuan } from "@lib/system-function";
+import { convertToUppercaseNonAccent, getQ2OrtAndQ1OrQMin, isDongHoDatTieuChuan } from "@/lib/system-function";
 import {
     ACCESS_LINKS, BASE_API_URL, ccxOptions, DEFAULT_LOCATION,
     phuongTienDoOptions,
     TITLE_LUU_LUONG, typeOptions
-} from "@lib/system-constant";
+} from "@/lib/system-constant";
 
-import { DongHo, DuLieuChayDiemLuuLuong, GeneralInfoDongHo } from "@lib/types";
+import { DongHo, DuLieuChayDiemLuuLuong, GeneralInfoDongHo } from "@/lib/types";
 import { useDongHoList } from "@/context/ListDongHoContext";
 
 import dynamic from "next/dynamic";

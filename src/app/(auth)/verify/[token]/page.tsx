@@ -5,7 +5,7 @@ import Cookies from 'js-cookie';
 import Swal from 'sweetalert2';
 
 import axios from 'axios';
-import { ACCESS_LINKS } from '@lib/system-constant';
+import { ACCESS_LINKS } from '@/lib/system-constant';
 import { useEffect, useState } from 'react';
 
 export default function VerifyPage({ params }: { params: { token: string } }) {
@@ -52,6 +52,7 @@ export default function VerifyPage({ params }: { params: { token: string } }) {
                     }
                 }
             } catch (err) {
+                console.log(err);
                 handleErr();
             }
             setFetched(true);
@@ -81,13 +82,13 @@ export default function VerifyPage({ params }: { params: { token: string } }) {
             confirmButtonText: "OK"
         }).then((result) => {
             if (result.isConfirmed) {
-                router.push(ACCESS_LINKS.HOME.src);
+                // router.push(ACCESS_LINKS.HOME.src);
             }
         });
     }
 
     useEffect(() => {
-        handleVerify();
+        // handleVerify();
     }, []);
 
     return <div className='py-3 py-md-4 text-blue d-flex justify-content-center'>

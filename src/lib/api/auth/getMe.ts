@@ -4,7 +4,7 @@ import { BASE_API_URL } from '@/lib/system-constant';
 
 const API_AUTH_URL = `${BASE_API_URL}/auth`;
 
-export const getMe = async (accessToken: string) => {
+const getMe = async (accessToken: string) => {
 
     try {
         const response = await api.get(`${API_AUTH_URL}/me`, { withCredentials: true, headers: {
@@ -25,3 +25,5 @@ export const getMe = async (accessToken: string) => {
         }
     }
 };
+
+export default getMe;

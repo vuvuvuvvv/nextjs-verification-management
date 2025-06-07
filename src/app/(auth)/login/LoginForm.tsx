@@ -12,8 +12,8 @@ import { faLock, faUser } from '@fortawesome/free-solid-svg-icons';
 
 import { login } from '@/app/api/auth/login/route';
 import Swal from 'sweetalert2';
-import { LoginCredentials } from '@lib/types';
-import { ACCESS_LINKS } from '@lib/system-constant';
+import { LoginCredentials } from '@/lib/types';
+import { ACCESS_LINKS } from '@/lib/system-constant';
 
 interface FormProps {
     className?: string

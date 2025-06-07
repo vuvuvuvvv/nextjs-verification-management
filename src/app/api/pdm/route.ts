@@ -1,5 +1,5 @@
-import { BASE_API_URL } from '@lib/system-constant';
-import { PDM, PDMData, PDMFilterParameters } from '@lib/types';
+import { BASE_API_URL } from '@/lib/system-constant';
+import { PDM, PDMData, PDMFilterParameters } from '@/lib/types';
 import api from '../route';
 
 const API_PDM_URL = `${BASE_API_URL}/pdm`;

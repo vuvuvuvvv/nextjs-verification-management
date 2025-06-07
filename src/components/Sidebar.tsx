@@ -25,9 +25,9 @@ import Offcanvas from 'react-bootstrap/Offcanvas';
 
 import sb from "@styles/scss/ui/sidebar.module.scss";
 import Link from 'next/link';
-import { SideLink } from '@lib/types';
+import { SideLink } from '@/lib/types';
 import Loading from './Loading';
-import { ACCESS_LINKS } from '@lib/system-constant';
+import { ACCESS_LINKS } from '@/lib/system-constant';
 import { useUser } from '@/context/AppContext';
 
 interface SidebarProps {

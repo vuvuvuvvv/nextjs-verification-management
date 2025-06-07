@@ -1,25 +1,24 @@
-import Cookies from 'js-cookie';
 // import api from '@/app/api/route';
 import axios from 'axios';
-import { LoginCredentials } from '@/lib/types';
+import Cookies from 'js-cookie';
+
+import { RegisterCredentials } from '@/lib/types';
 import { BASE_API_URL } from '@/lib/system-constant';
 
 const API_AUTH_URL = `${BASE_API_URL}/auth`;
 
-export const login = async (credentials: LoginCredentials) => {
-
+const register = async (credentials: RegisterCredentials) => {
     try {
+        const response = await axios.post(`${API_AUTH_URL}/register`, credentials, { withCredentials: true });
 
-        const response = await axios.post(`${API_AUTH_URL}/login`, credentials, { withCredentials: true });
-
-        if (response.data.access_token && response.data.user && response.data.refresh_token) {
-            Cookies.set('accessToken', response.data.access_token, { expires: new Date(new Date().getTime() + 30 * 60 * 1000) });        //10 * 1000: 10s
-            Cookies.set('user', JSON.stringify(response.data.user), { expires: credentials.remember ? 7 : 1 });
-            Cookies.set('refreshToken', response.data.refresh_token, { expires: credentials.remember ? 7 : 1 });
+        if (response.status == 201) {
+            Cookies.set('accessToken', response.data.access_token, { expires: new Date(new Date().getTime() + 30 * 60 * 1000) }); 
+            Cookies.set('refreshToken', response.data.refresh_token, { expires: 1 });
+            Cookies.set('user', JSON.stringify(response.data.user), { expires: 1 });
 
             return {
                 "status": response.status,
-                "msg": response.data.msg || "Đăng nhập thành công!",
+                "msg": response.data.msg || "Đăng ký thành công!",
                 "user": response.data.user
             }
         } else {
@@ -44,3 +43,5 @@ export const login = async (credentials: LoginCredentials) => {
         }
     }
 };
+
+export default register;

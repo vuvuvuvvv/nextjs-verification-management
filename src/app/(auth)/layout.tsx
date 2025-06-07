@@ -1,6 +1,6 @@
 "use client"
 
-import { ACCESS_LINKS } from '@lib/system-constant';
+import { ACCESS_LINKS } from '@/lib/system-constant';
 import layout from '@styles/scss/layouts/auth-layout.module.scss'
 import { usePathname } from "next/navigation";
 

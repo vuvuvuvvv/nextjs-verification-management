@@ -1,9 +1,9 @@
 import Cookies from 'js-cookie';
 import api from '@/app/api/route';
 import { logout } from '../../logout/route';
-import { ResetEmailCredentials } from '@lib/types';
+import { ResetEmailCredentials } from '@/lib/types';
 import { useUser } from '@/context/AppContext';
-import { BASE_API_URL } from '@lib/system-constant';
+import { BASE_API_URL } from '@/lib/system-constant';
 
 const API_AUTH_URL = `${BASE_API_URL}/auth`;
 

@@ -2,8 +2,8 @@
 import axios from 'axios';
 import Cookies from 'js-cookie';
 
-import { RegisterCredentials } from '@lib/types';
-import { BASE_API_URL } from '@lib/system-constant';
+import { RegisterCredentials } from '@/lib/types';
+import { BASE_API_URL } from '@/lib/system-constant';
 
 const API_AUTH_URL = `${BASE_API_URL}/auth`;
 

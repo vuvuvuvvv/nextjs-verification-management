@@ -1,5 +1,5 @@
 "use client"
-import { ACCESS_LINKS } from "@lib/system-constant";
+import { ACCESS_LINKS } from "@/lib/system-constant";
 import Link from "next/link";
 
 export default function ErrorToken() {
