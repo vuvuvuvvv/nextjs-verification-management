@@ -5,7 +5,7 @@ import { useReducer, useState, useEffect, useRef } from "react";
 import { UserInPhongBan } from "@/lib/types";
 import { Modal, Button } from 'react-bootstrap';
 import UserAddAutocompleteMUI from "./UserAddAutocompleteMUI";
-import { getUsersByPhongBanStatus, addNhanVienPhongBan } from "@/app/api/phongban/route";
+import { getUsersByPhongBanStatus, addNhanVienPhongBan } from "@lib/api/phongban";
 import Swal from "sweetalert2";
 import Loading from '@/components/Loading';
 

@@ -1,6 +1,6 @@
 import dayjs from "dayjs";
 import { DongHo, DuLieuCacLanChay, DuLieuMotLanChay, PDMData, TinhSaiSoValueTabs } from "./types";
-import { getAllDongHoNamesExist } from "@/app/api/dongho/route";
+import { getAllDongHoNamesExist } from "@lib/api/dongho";
 import { INDEXED_DB_NAME, PERMISSION_TITLES, PERMISSION_VALUES, PERMISSIONS, TITLE_LUU_LUONG } from "./system-constant";
 
 export const getSaiSoDongHo = (formValue: DuLieuMotLanChay) => {

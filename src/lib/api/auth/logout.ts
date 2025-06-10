@@ -1,4 +1,4 @@
-import api from '@/app/api/route';
+import api from '@/lib/api/instance';
 import { eventEmitter } from '@/lib/eventEmitter';
 import { BASE_API_URL } from '@/lib/system-constant';
 import Cookies from 'js-cookie';
@@ -38,11 +38,11 @@ const logout = async () => {
             };
         } else {
             return {
-                "status": error.response?.status || error?.msg || error?.message  || 'Có lỗi đã xảy ra. Hãy thử lại!',
+                "status": error.response?.status || error?.msg || error?.message || 'Có lỗi đã xảy ra. Hãy thử lại!',
                 "msg": error.response?.data.message || error.response?.msg || error.response?.message || 'Có lỗi đã xảy ra. Hãy thử lại!'
             };
         }
     }
 };
 
-export default logout;
+export { logout };

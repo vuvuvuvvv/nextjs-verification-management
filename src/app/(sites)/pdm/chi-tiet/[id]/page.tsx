@@ -1,6 +1,6 @@
 "use client"
 
-import { deletePDM, getPDMById, getPDMByMaTimDongHoPDM, updatePDM } from "@/app/api/pdm/route";
+import { deletePDM, getPDMById, getPDMByMaTimDongHoPDM, updatePDM } from "@lib/api/pdm";
 import Loading from "@/components/Loading";
 import { PDM, PDMData } from "@/lib/types";
 import { useEffect, useRef, useState } from "react";

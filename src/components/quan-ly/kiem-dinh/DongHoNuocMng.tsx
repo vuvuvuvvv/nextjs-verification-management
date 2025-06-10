@@ -23,10 +23,10 @@ import {
     //  limitOptions 
 } from "@/lib/system-constant";
 import Swal from "sweetalert2";
-import { getDongHoByFilter } from "@/app/api/dongho/route";
+import { getDongHoByFilter } from "@lib/api/dongho";
 import { decode, getNameOfRole } from "@/lib/system-function";
 import { useUser } from "@/context/AppContext";
-import ModalMultDongHoPermissionMng from "@/components/ui/ModalMultDongHoPermissionMng";
+// import ModalMultDongHoPermissionMng from "@/components/ui/ModalMultDongHoPermissionMng";
 
 const Loading = React.lazy(() => import("@/components/Loading"));
 
@@ -259,13 +259,13 @@ export default function DongHoNuocMng({ className, isAuthorizing = false, setSel
 
     return (
         <LocalizationProvider dateAdapter={AdapterDayjs} localeText={viVN.components.MuiLocalizationProvider.defaultProps.localeText}>
-            {isAuthorizing && dataList.length > 0 &&
+            {/* {isAuthorizing && dataList.length > 0 &&
                 <ModalMultDongHoPermissionMng
                     show={isShow != null ? isShow : false}
                     dongHoList={dataList}
                     handleClose={handleCloseModal}
                 ></ModalMultDongHoPermissionMng>
-            }
+            } */}
             <div className={`${className ? className : ""} m-0 w-100`}>
                 <div className={`${c_vfml['wraper']} w-100`}>
 

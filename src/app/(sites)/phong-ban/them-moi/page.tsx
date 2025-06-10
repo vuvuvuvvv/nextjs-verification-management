@@ -1,4 +1,4 @@
-import { getUsersByPhongBanStatus } from "@/app/api/phongban/route"
+import { getUsersByPhongBanStatus } from "@lib/api/phongban"
 
 
 export default async function createPhongBanPage(){

@@ -1,5 +1,5 @@
-import api from '@/app/api/route';
-import { logout } from '@/app/api/auth/logout/route';
+import api from '../instance';
+import { logout } from '@lib/api/auth/logout';
 import { ResetPasswordCredentials } from '@/lib/types';
 import { BASE_API_URL } from '@/lib/system-constant';
 
@@ -39,4 +39,4 @@ const resetPassword = async (credentials: ResetPasswordCredentials) => {
     }
 };
 
-export default resetPassword;
+export { resetPassword };

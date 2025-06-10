@@ -8,7 +8,7 @@ import { DongHo, DuLieuChayDiemLuuLuong, DuLieuChayDongHo } from "@/lib/types";
 import { Fragment, useEffect, useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faDownload, faEdit, faFileExcel } from "@fortawesome/free-solid-svg-icons";
-import { downloadBBExcel, downloadBBPDF, downloadGCN } from "@/app/api/download/route";
+import { downloadBBExcel, downloadBBPDF, downloadGCN } from "@lib/api/download";
 import Swal from "sweetalert2";
 import { ACCESS_LINKS, TITLE_LUU_LUONG } from "@/lib/system-constant";
 import Link from "next/link";

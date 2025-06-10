@@ -9,8 +9,8 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faEnvelope, faLock } from '@fortawesome/free-solid-svg-icons';
 
 import Swal from 'sweetalert2';
-import { resetPassword } from '@/app/api/auth/change/password/route';
-import { logout } from '@/app/api/auth/logout/route';
+import { resetPassword } from '@lib/api/auth/changePassword';
+import { logout } from '@lib/api/auth/logout';
 import Head from 'next/head';
 import { useUser } from "@/context/AppContext";
 

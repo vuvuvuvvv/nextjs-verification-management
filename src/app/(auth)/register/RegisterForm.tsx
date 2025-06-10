@@ -6,10 +6,9 @@ import { useRouter } from 'next/navigation';
 import layout from "@styles/scss/layouts/auth-layout.module.scss";
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faGoogle } from '@fortawesome/free-brands-svg-icons';
 import { faEnvelope, faLock, faUser } from '@fortawesome/free-solid-svg-icons';
 
-import { register } from '@/app/api/auth/register/route';
+import { register } from '@lib/api/auth/register';
 import Swal from 'sweetalert2';
 
 import { RegisterCredentials } from '@/lib/types';
@@ -36,7 +35,6 @@ export default function RegisterForm({ className }: FormProps) {
     });
 
     const [error, setError] = useState('');
-    const router = useRouter();
 
     useEffect(() => {
         if (error) {

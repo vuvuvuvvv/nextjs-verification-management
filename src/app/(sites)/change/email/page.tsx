@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 
 import reset from "@styles/scss/ui/reset.module.scss";
-import { resetEmail } from '@/app/api/auth/change/email/route';
+import { resetEmail } from '@lib/api/auth/changeEmail';
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faEnvelope, faLock } from '@fortawesome/free-solid-svg-icons';

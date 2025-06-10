@@ -1,5 +1,5 @@
 import Cookies from 'js-cookie';
-// import api from '@/app/api/route';
+// import api from '@/lib/api/instance';
 import axios from 'axios';
 import { LoginCredentials } from '@/lib/types';
 import { BASE_API_URL } from '@/lib/system-constant';
@@ -45,4 +45,4 @@ const login = async (credentials: LoginCredentials) => {
     }
 };
 
-export default login;
+export { login };

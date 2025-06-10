@@ -20,8 +20,8 @@ import Link from "next/link";
 
 import { ACCESS_LINKS, BASE_API_URL } from "@/lib/system-constant";
 import Swal from "sweetalert2";
-import { getNhomDongHoByFilter } from "@/app/api/dongho/route";
-import api from "@/app/api/route";
+import { getNhomDongHoByFilter } from "@lib/api/dongho";
+import api from "@/lib/api/instance";
 import dynamic from "next/dynamic";
 import Pagination from "@/components/Pagination";
 import { useUser } from "@/context/AppContext";

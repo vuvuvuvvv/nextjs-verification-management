@@ -1,5 +1,5 @@
 import Cookies from 'js-cookie';
-import api from '@/app/api/route';
+import api from '@/lib/api/instance';
 import { ResetEmailCredentials } from '@/lib/types';
 import { useUser } from '@/context/AppContext';
 import { BASE_API_URL } from '@/lib/system-constant';
@@ -14,7 +14,7 @@ const resetEmail = async (credentials: ResetEmailCredentials) => {
             Cookies.set('accessToken', response.data.access_token, { expires: 1 });
             Cookies.set('user', JSON.stringify(response.data.user), { expires: 3 });
             Cookies.set('refreshToken', response.data.refresh_token, { expires: 3 });
-            
+
             return {
                 "status": response.status,
                 "msg": response.data.msg || "Email của bạn đã được đổi!",
@@ -44,4 +44,4 @@ const resetEmail = async (credentials: ResetEmailCredentials) => {
     }
 };
 
-export default resetEmail;
+export { resetEmail };

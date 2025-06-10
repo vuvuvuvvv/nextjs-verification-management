@@ -1,6 +1,6 @@
 "use client";
 
-import { deleteNhanVienPhongBan, deletePhongBan, getPhongBanById } from "@/app/api/phongban/route";
+import { deleteNhanVienPhongBan, deletePhongBan, getPhongBanById } from "@lib/api/phongban";
 import { useEffect, useRef, useState } from "react";
 import dynamic from "next/dynamic";
 import {

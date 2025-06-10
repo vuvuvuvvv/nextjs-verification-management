@@ -31,7 +31,7 @@ import { DongHo, DuLieuChayDiemLuuLuong, GeneralInfoDongHo } from "@/lib/types";
 import { useDongHoList } from "@/context/ListDongHoContext";
 
 import dynamic from "next/dynamic";
-import { getPDMByMaTimDongHoPDM } from "@/app/api/pdm/route";
+import { getPDMByMaTimDongHoPDM } from "@lib/api/pdm";
 import { faCog } from "@fortawesome/free-solid-svg-icons";
 import ModalInputSoLuongDongHo from "@/components/ui/ModalInputSoLuongDongHo";
 

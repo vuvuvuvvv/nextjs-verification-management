@@ -2,7 +2,7 @@
 
 import dynamic from "next/dynamic";
 import { useState, useEffect, useRef } from "react";
-import api from "@/app/api/route";
+import api from "@/lib/api/instance";
 import { BASE_API_URL } from "@/lib/system-constant";
 const Loading = dynamic(() => import("@/components/Loading"));
 import Swal from "sweetalert2";

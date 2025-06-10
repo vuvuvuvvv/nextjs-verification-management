@@ -1,4 +1,4 @@
-import { createDongHo, updateDongHo } from '@/app/api/dongho/route';
+import { createDongHo, updateDongHo } from '@lib/api/dongho';
 import { DEFAULT_LOCATION, INDEXED_DB_HIEU_CHUAN_NAME, TITLE_LUU_LUONG } from '@/lib/system-constant';
 import { DongHo, GeneralInfoDongHo } from '@/lib/types';
 

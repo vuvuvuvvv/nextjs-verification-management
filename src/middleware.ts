@@ -14,13 +14,9 @@ const AUTH_PATHS = [
 ];
 
 const VERIFY_PATHS = [
-    ACCESS_LINKS.AUTH_FORGOT_PW.src,
-    ACCESS_LINKS.AUTH_LOGIN.src,
-    ACCESS_LINKS.AUTH_REGISTER.src,
+    ACCESS_LINKS.AUTH_UNVERIFIED.src,
     ACCESS_LINKS.AUTH_VERIFY.src,
 ];
-
-
 
 const EXCLUDE_PATHS = [
     ACCESS_LINKS.HC_DHN.src,
@@ -30,7 +26,6 @@ const EXCLUDE_PATHS = [
 export async function middleware(req: NextRequest) {
     const { pathname, searchParams } = new URL(req.url);
 
-    // const refreshTokenCookie = req.cookies.get('refreshToken')?.value;
     const userCookie = req.cookies.get('user')?.value;
 
     const isConfirmed = (userCookie ? JSON.parse(userCookie)?.confirmed : "") == "1" ? true : false;
@@ -57,7 +52,6 @@ export async function middleware(req: NextRequest) {
     redirectUrl.searchParams.set('redirect', pathname + searchParams.toString());
 
     if (
-        // !refreshTokenCookie || 
         !userCookie
     ) {
         if (AUTH_PATHS.some(authPath => pathname.includes(authPath))) {
@@ -66,49 +60,25 @@ export async function middleware(req: NextRequest) {
         return NextResponse.redirect(redirectUrl);
     }
 
-    // // Check if refreshToken is expired
-    // if (refreshTokenCookie) {
-    //     try {
-    //         const { payload } = await jwtVerify(refreshTokenCookie, new TextEncoder().encode(process.env.NEXT_PUBLIC_JWT_SECRET));
-    //         if (payload.exp && payload.exp * 1000 < Date.now()) {
-    //             // logout();
-    //             return NextResponse.redirect(redirectUrl);
-    //         }
-    //     } catch (error) {
-    //         const response = NextResponse.redirect(redirectUrl);
-    //         response.cookies.delete('accessToken');
-    //         response.cookies.delete('refreshToken');
-    //         response.cookies.delete('user');
-    //         return response;
-    //     }
-    // } else {
-    //     return NextResponse.redirect(redirectUrl);
+    // if (
+    //     AUTH_PATHS.some(authPath => pathname.includes(authPath))
+    //     || EXCLUDE_PATHS.some(authPath => pathname.includes(authPath))
+    // ) {
+    //     return NextResponse.redirect(new URL(ACCESS_LINKS.HOME.src, req.url));
     // }
-
-    if (
-        AUTH_PATHS.some(authPath => pathname.includes(authPath))
-        || EXCLUDE_PATHS.some(authPath => pathname.includes(authPath))
-    ) {
-        return NextResponse.redirect(new URL(ACCESS_LINKS.HOME.src, req.url));
-    }
 
 
     // TODO: Check confirmed
     if (!isConfirmed) {
         if (VERIFY_PATHS.some(vfPath => pathname.includes(vfPath))) {
-            console.log("11111")
             return NextResponse.next();
         }
-        console.log("22222")
         return NextResponse.redirect(new URL(ACCESS_LINKS.AUTH_UNVERIFIED.src, req.url));
     } else {
-        if (pathname.includes(ACCESS_LINKS.AUTH_UNVERIFIED.src)
-            || pathname.includes(ACCESS_LINKS.AUTH_VERIFY.src)
-        ) {
-            console.log("3333")
+        if (VERIFY_PATHS.some(vfPath => pathname.includes(vfPath))
+        || EXCLUDE_PATHS.some(authPath => pathname.includes(authPath))) {
             return NextResponse.redirect(new URL(ACCESS_LINKS.HOME.src, req.url));
         }
-        console.log("4444")
     }
 
     return NextResponse.next();

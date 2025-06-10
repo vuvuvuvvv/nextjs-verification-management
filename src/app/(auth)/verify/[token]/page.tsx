@@ -21,7 +21,10 @@ export default function VerifyPage({ params }: { params: { token: string } }) {
                 if (response?.status == 200 || response?.status == 201) {
                     const user = response?.data.user;
                     if (user) {
-                        // Cookies.set('user', JSON.stringify(user));
+                        const existingUser = Cookies.get('user');
+                        if (!existingUser) {
+                            Cookies.set('user', JSON.stringify(user));
+                        }
                         Swal.fire({
                             title: "Thành công",
                             text: "Xác thực thành công!",
@@ -82,13 +85,13 @@ export default function VerifyPage({ params }: { params: { token: string } }) {
             confirmButtonText: "OK"
         }).then((result) => {
             if (result.isConfirmed) {
-                // router.push(ACCESS_LINKS.HOME.src);
+                router.push(ACCESS_LINKS.HOME.src);
             }
         });
     }
 
     useEffect(() => {
-        // handleVerify();
+        handleVerify();
     }, []);
 
     return <div className='py-3 py-md-4 text-blue d-flex justify-content-center'>

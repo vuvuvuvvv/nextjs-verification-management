@@ -15,9 +15,9 @@ import { ACCESS_LINKS, BASE_API_URL, ccxOptions, phuongTienDoOptions, typeOption
 import Select, { GroupBase } from 'react-select';
 import { PDM, PDMData } from "@/lib/types";
 import Swal from "sweetalert2";
-import { createPDM, getPDMByMaTimDongHoPDM, getPDMBySoQDPDM } from "@/app/api/pdm/route";
+import { createPDM, getPDMByMaTimDongHoPDM, getPDMBySoQDPDM } from "@lib/api/pdm";
 import { useRouter } from "next/navigation";
-import api from "@/app/api/route";
+import api from "@/lib/api/instance";
 import CreatableSelect from "react-select/creatable";
 import { convertToUppercaseNonAccent } from "@/lib/system-function";
 

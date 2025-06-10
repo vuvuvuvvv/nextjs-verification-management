@@ -7,7 +7,7 @@ import Swal from 'sweetalert2';
 import { User } from '@/lib/types';
 import Loading from '@/components/Loading';
 import { ACCESS_LINKS, PERMISSIONS } from '@/lib/system-constant';
-import { logout } from '@/app/api/auth/logout/route';
+import { logout } from '@lib/api/auth/logout';
 import { eventEmitter } from '@/lib/eventEmitter';
 
 // Define user type

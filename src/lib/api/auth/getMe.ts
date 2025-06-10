@@ -1,15 +1,13 @@
-import Cookies from 'js-cookie';
-import api from '@/app/api/route';
+
+import api from '@/lib/api/instance';
 import { BASE_API_URL } from '@/lib/system-constant';
 
 const API_AUTH_URL = `${BASE_API_URL}/auth`;
 
-const getMe = async (accessToken: string) => {
+const getMe = async () => {
 
     try {
-        const response = await api.get(`${API_AUTH_URL}/me`, { withCredentials: true, headers: {
-            'Authorization': `Bearer ${accessToken}`
-        } });
+        const response = await api.get(`${API_AUTH_URL}/me`);
         return response.data;
     } catch (error: any) {
         if (error.response?.data?.msg) {
@@ -26,4 +24,4 @@ const getMe = async (accessToken: string) => {
     }
 };
 
-export default getMe;
+export { getMe };

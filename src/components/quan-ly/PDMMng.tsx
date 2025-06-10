@@ -20,7 +20,7 @@ import { PDMData, PDMFilterParameters } from "@/lib/types";
 import Link from "next/link";
 
 import { pdmStatusOptions, limitOptions, ACCESS_LINKS } from "@/lib/system-constant";
-import { getPDMByFilter } from "@/app/api/pdm/route";
+import { getPDMByFilter } from "@lib/api/pdm";
 import Swal from "sweetalert2";
 import { useUser } from "@/context/AppContext";
 

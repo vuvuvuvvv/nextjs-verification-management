@@ -33,7 +33,7 @@
 // import { useDongHoList } from "@/context/ListDongHoContext";
 
 // import dynamic from "next/dynamic";
-// import api from "@/app/api/route";
+// import api from "@/lib/api/instance";
 
 
 // interface HieuChuanNhomDongHoNuocFormProps {

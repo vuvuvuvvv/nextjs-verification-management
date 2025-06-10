@@ -8,7 +8,7 @@ import { useDongHoList } from '@/context/ListDongHoContext';
 import { useKiemDinh } from '@/context/KiemDinhContext';
 import { isDongHoDatTieuChuan } from '@/lib/system-function';
 import { DongHo } from '@/lib/types';
-import { getBBPreviewUrl, getGCNPreviewUrl } from '@/app/api/download/route';
+import { getBBPreviewUrl, getGCNPreviewUrl } from '@lib/api/download';
 import { PDFPreviewModal } from '../ui/ModalPDFReview';
 interface ModalKiemDinhProps {
     activeLL?: ActiveLL;

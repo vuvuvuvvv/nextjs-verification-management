@@ -9,7 +9,7 @@ import { Fragment, useEffect, useRef, useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faDownload, faEdit, faFileExcel } from "@fortawesome/free-solid-svg-icons";
 import Swal from "sweetalert2";
-import { downloadBBExcel, downloadGCN } from "@/app/api/download/route";
+import { downloadBBExcel, downloadGCN } from "@lib/api/download";
 import { ACCESS_LINKS, TITLE_LUU_LUONG } from "@/lib/system-constant";
 import Link from "next/link";
 

@@ -1,36 +1,31 @@
 "use client"
 
 import { useEffect, useState } from 'react';
-import { useRouter, useSearchParams } from 'next/navigation';
 
 import layout from "@styles/scss/layouts/auth-layout.module.scss";
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faGoogle } from '@fortawesome/free-brands-svg-icons';
 import Link from 'next/link';
 import { faLock, faUser } from '@fortawesome/free-solid-svg-icons';
 
-import { login } from '@/app/api/auth/login/route';
+import { login } from '@lib/api/auth/login';
 import Swal from 'sweetalert2';
 import { LoginCredentials } from '@/lib/types';
 import { ACCESS_LINKS } from '@/lib/system-constant';
 
 interface FormProps {
     className?: string
+    redirectUrl: string;
 }
 
-export default function LoginForm({ className }: FormProps) {
+export default function LoginForm({ className, redirectUrl }: FormProps) {
     const [credentials, setCredentials] = useState<LoginCredentials>({
         username: '',
         password: '',
         remember: false
     });
 
-    const searchParams = useSearchParams();
-    const redirectUrl = searchParams.get('redirect') || '/';
-
     const [error, setError] = useState("");
-    const router = useRouter();
 
     useEffect(() => {
         if (error) {

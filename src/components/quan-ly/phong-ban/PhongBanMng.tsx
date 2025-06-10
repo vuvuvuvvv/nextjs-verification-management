@@ -21,7 +21,7 @@ import {
     ACCESS_LINKS,
 } from "@/lib/system-constant";
 import Swal from "sweetalert2";
-import { getAllPhongBanByFilter } from "@/app/api/phongban/route";
+import { getAllPhongBanByFilter } from "@lib/api/phongban";
 import { useUser } from "@/context/AppContext";
 import { Modal } from "react-bootstrap";
 import ModalAddPhongBan from "./ModalAddPhongBan";
