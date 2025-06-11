@@ -4,7 +4,7 @@ WORKDIR /app
 COPY package*.json ./
 RUN npm ci
 COPY . .
-# RUN npm run build
+RUN npm run build
 
 
 # Production Stage
@@ -20,4 +20,4 @@ EXPOSE 3000
 # Install polling for hot reaload
 ENV WATCHPACK_POLLING=true
 
-CMD ["npm", "run", "dev"]
+CMD ["npx", "next", "start"]
