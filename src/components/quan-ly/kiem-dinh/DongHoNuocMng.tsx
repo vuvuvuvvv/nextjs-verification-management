@@ -12,7 +12,7 @@ import { viVN } from "@mui/x-date-pickers/locales";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faChevronDown, faChevronUp, faEdit, faCircleArrowRight, faArrowLeft, faSearch, faRefresh, faEye } from "@fortawesome/free-solid-svg-icons";
 import React from "react";
-import { DongHo, DongHoFilterParameters, DongHoPermission, DuLieuChayDongHo } from "@lib/types";
+import { DongHo, DongHoFilterParameters, DongHoPermission, DuLieuChayDongHo } from "@/lib/types";
 
 import Pagination from "@/components/Pagination";
 // import { usePathname } from "next/navigation";
@@ -21,12 +21,12 @@ import Link from "next/link";
 import {
     ACCESS_LINKS,
     //  limitOptions 
-} from "@lib/system-constant";
+} from "@/lib/system-constant";
 import Swal from "sweetalert2";
-import { getDongHoByFilter } from "@/app/api/dongho/route";
-import { decode, getNameOfRole } from "@lib/system-function";
+import { getDongHoByFilter } from "@lib/api/dongho";
+import { decode, getNameOfRole } from "@/lib/system-function";
 import { useUser } from "@/context/AppContext";
-import ModalMultDongHoPermissionMng from "@/components/ui/ModalMultDongHoPermissionMng";
+// import ModalMultDongHoPermissionMng from "@/components/ui/ModalMultDongHoPermissionMng";
 
 const Loading = React.lazy(() => import("@/components/Loading"));
 
@@ -40,7 +40,7 @@ interface DongHoNuocMngProps {
 }
 
 export default function DongHoNuocMng({ className, isAuthorizing = false, setSelectedDongHo, clearNDHPropData, dataList = [] }: DongHoNuocMngProps) {
-    const { user, isViewer, isSuperAdmin, getCurrentRole } = useUser();
+    const { user, permissions, isSuperAdmin, getCurrentRole } = useUser();
     const [data, setRootData] = useState<DongHo[]>([]);
     const rootData = useRef<DongHo[]>([]);
     const [filterLoading, setFilterLoading] = useState(true);
@@ -259,13 +259,13 @@ export default function DongHoNuocMng({ className, isAuthorizing = false, setSel
 
     return (
         <LocalizationProvider dateAdapter={AdapterDayjs} localeText={viVN.components.MuiLocalizationProvider.defaultProps.localeText}>
-            {isAuthorizing && dataList.length > 0 &&
+            {/* {isAuthorizing && dataList.length > 0 &&
                 <ModalMultDongHoPermissionMng
                     show={isShow != null ? isShow : false}
                     dongHoList={dataList}
                     handleClose={handleCloseModal}
                 ></ModalMultDongHoPermissionMng>
-            }
+            } */}
             <div className={`${className ? className : ""} m-0 w-100`}>
                 <div className={`${c_vfml['wraper']} w-100`}>
 
@@ -385,7 +385,7 @@ export default function DongHoNuocMng({ className, isAuthorizing = false, setSel
                                         <FontAwesomeIcon icon={faRefresh}></FontAwesomeIcon>
                                     </button>
                                 </div>
-                                {!isViewer && !isAuthorizing &&
+                                {permissions.CAN_CREATE && !isAuthorizing &&
                                     <Link
                                         style={{ minHeight: "42px" }}
                                         href={ACCESS_LINKS.DHN_ADD.src}

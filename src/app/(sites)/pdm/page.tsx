@@ -2,18 +2,14 @@
 
 import dynamic from "next/dynamic";
 import { useState, useEffect, useRef } from "react";
-import api from "@/app/api/route";
-import { BASE_API_URL } from "@lib/system-constant";
+import api from "@/lib/api/instance";
+import { BASE_API_URL } from "@/lib/system-constant";
 const Loading = dynamic(() => import("@/components/Loading"));
 import Swal from "sweetalert2";
 
 const PDMManagement = dynamic(() => import("@/components/quan-ly/PDMMng"), { ssr: true });
 
-interface PDMProps {
-    className?: string,
-}
-
-export default function PDM({ className }: PDMProps) {
+export default function PDM() {
     const [loading, setLoading] = useState<boolean>(false);
     const [listDHNamesExist, setDHNameOptions] = useState<string[]>([]);
     const fetchCalled = useRef(false);

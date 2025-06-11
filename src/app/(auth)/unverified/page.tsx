@@ -2,10 +2,11 @@
 
 import { useEffect, useState } from 'react';
 import Swal from 'sweetalert2';
+import Cookies from 'js-cookie';
 import { useUser } from '@/context/AppContext';
-import { requestVerificationToken } from '@/app/api/auth/request-token/route';
+import { requestVerificationToken } from '@lib/api/auth/sendToken';
+import { getMe } from '@/lib/api/auth/getMe';
 import { useRouter } from 'next/navigation';
-import { logout } from '@/app/api/auth/logout/route';
 
 export default function UnverifiedPage() {
     const { user, logoutUser } = useUser();
@@ -80,6 +81,23 @@ export default function UnverifiedPage() {
         }
     }
 
+    useEffect(() => {
+        const _fetchUser = async () => {
+            try {
+                setLoading(true);
+                const user = await getMe();
+                if (user && user.confirmed) {
+                    Cookies.set('user', JSON.stringify(user));
+                    router.push('/');
+                }
+            } catch (err) {
+                setError("Có lỗi đã xảy ra khi lấy thông tin người dùng.");
+            } finally {
+                setLoading(false);
+            }
+        };
+        _fetchUser();
+    }, []);
 
     return <div className='w-100'>
         <h5 className='text-center text-uppercase'>

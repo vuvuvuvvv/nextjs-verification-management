@@ -4,19 +4,14 @@ import { useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 
 import reset from "@styles/scss/ui/reset.module.scss";
-import { resetEmail } from '@/app/api/auth/change/email/route';
+import { resetEmail } from '@lib/api/auth/changeEmail';
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faEnvelope, faLock } from '@fortawesome/free-solid-svg-icons';
 import Swal from 'sweetalert2';
 import { useUser } from '@/context/AppContext';
-import Head from 'next/head';
 
-interface FormProps {
-    className?: string
-}
-
-export default function ChangeEmail({ className }: FormProps) {
+export default function ChangeEmail() {
     const [newEmail, setNewEmail] = useState('');
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
@@ -94,11 +89,10 @@ export default function ChangeEmail({ className }: FormProps) {
         }
     };
 
-
     return (
         <>
             <h5 className='text-center'>Đổi Email</h5>
-            <form className={`${className ? className : ""} ${reset['form']}`} onSubmit={handleSubmit}>
+            <form className={`${reset['form']}`} onSubmit={handleSubmit}>
                 <div className="mb-3">
                     <label htmlFor="password" className="form-label">Nhập Email mới:</label>
                     <input

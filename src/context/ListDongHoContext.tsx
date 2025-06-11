@@ -1,11 +1,11 @@
-import { createDongHo, updateDongHo } from '@/app/api/dongho/route';
-import { DEFAULT_LOCATION, INDEXED_DB_HIEU_CHUAN_NAME, TITLE_LUU_LUONG } from '@lib/system-constant';
-import { DongHo, GeneralInfoDongHo } from '@lib/types';
+import { createDongHo, updateDongHo } from '@lib/api/dongho';
+import { DEFAULT_LOCATION, INDEXED_DB_HIEU_CHUAN_NAME, TITLE_LUU_LUONG } from '@/lib/system-constant';
+import { DongHo, GeneralInfoDongHo } from '@/lib/types';
 
 import React, { createContext, useState, useContext, useEffect, useRef } from 'react';
 import Swal from 'sweetalert2';
 import { useUser } from './AppContext';
-import { deleteDongHoDataFromIndexedDB, saveDongHoDataExistsToIndexedDB } from '@lib/system-function';
+import { deleteDongHoDataFromIndexedDB, saveDongHoDataExistsToIndexedDB } from '@/lib/system-function';
 
 interface DongHoListContextType {
     isHieuChuan: boolean,
@@ -282,7 +282,8 @@ export const DongHoListProvider = ({ dbName, children }: DongHoListProviderProps
         });
     };
 
-    const addToListDongHo = (dongHo: DongHo) => {
+    const addToListDongHo = (dongHo: DongHo) => {       
+
         setDongHoList(prevList => [...prevList ?? [], dongHo]);
     };
 
@@ -362,7 +363,6 @@ export const DongHoListProvider = ({ dbName, children }: DongHoListProviderProps
     }
 
     const getDongHoDaKiemDinh = (dongHoList: DongHo[]) => {
-        console.log(dongHoList);
         const combinedList = [...dongHoList];
 
         return combinedList.filter(dongHo => {

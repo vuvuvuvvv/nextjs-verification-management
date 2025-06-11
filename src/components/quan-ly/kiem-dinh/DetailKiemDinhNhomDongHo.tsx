@@ -1,16 +1,16 @@
 "use client"
 
-import { getFullSoGiayCN, getSaiSoDongHo } from "@lib/system-function";
+import { getFullSoGiayCN, getSaiSoDongHo } from "@/lib/system-function";
 import dtp from "@styles/scss/ui/q-bgt-15.detail.module.scss";
 import dayjs from "dayjs";
 import dynamic from "next/dynamic";
-import { DongHo, DuLieuChayDiemLuuLuong, DuLieuChayDongHo, GeneralInfoDongHo } from "@lib/types";
+import { DongHo, DuLieuChayDiemLuuLuong, DuLieuChayDongHo, GeneralInfoDongHo } from "@/lib/types";
 import { Fragment, useEffect, useRef, useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faDownload, faEdit, faFileExcel } from "@fortawesome/free-solid-svg-icons";
 import Swal from "sweetalert2";
-import { downloadBBExcel, downloadGCN } from "@/app/api/download/route";
-import { ACCESS_LINKS, TITLE_LUU_LUONG } from "@lib/system-constant";
+import { downloadBBExcel, downloadGCN } from "@lib/api/download";
+import { ACCESS_LINKS, TITLE_LUU_LUONG } from "@/lib/system-constant";
 import Link from "next/link";
 
 const Loading = dynamic(() => import('@/components/Loading'));

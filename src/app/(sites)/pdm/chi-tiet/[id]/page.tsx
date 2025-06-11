@@ -1,8 +1,8 @@
 "use client"
 
-import { deletePDM, getPDMById, getPDMByMaTimDongHoPDM, updatePDM } from "@/app/api/pdm/route";
+import { deletePDM, getPDMById, getPDMByMaTimDongHoPDM, updatePDM } from "@lib/api/pdm";
 import Loading from "@/components/Loading";
-import { PDM, PDMData } from "@lib/types";
+import { PDM, PDMData } from "@/lib/types";
 import { useEffect, useRef, useState } from "react";
 import { useUser } from "@/context/AppContext";
 import Swal from "sweetalert2";
@@ -13,13 +13,13 @@ import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { viVN } from "@mui/x-date-pickers/locales";
 import dayjs, { Dayjs } from "dayjs";
 import Select, { GroupBase } from 'react-select';
-import { ACCESS_LINKS, ccxOptions } from "@lib/system-constant";
+import { ACCESS_LINKS, ccxOptions } from "@/lib/system-constant";
 import vrfWm from "@styles/scss/ui/vfm.module.scss";
 import Link from "next/link";
-import { convertToUppercaseNonAccent } from "@lib/system-function";
+import { convertToUppercaseNonAccent } from "@/lib/system-function";
 
 export default function Page({ params }: { params: { id: string } }) {
-    const { isManager } = useUser();
+    const { permissions } = useUser();
     const [pdmData, setPDMData] = useState<PDMData | null>(null);
     const [oldPdmData, setOldPDMData] = useState<PDMData | null>(null);
     const pdmDataPrev = useRef(pdmData);
@@ -601,7 +601,7 @@ export default function Page({ params }: { params: { id: string } }) {
                             </div>
                             <div className="w-100 px-3 d-flex justify-content-end gap-3">
 
-                                {isManager && (
+                                {permissions.CAN_EDIT && (
                                     <button aria-label="Chỉnh sửa" type="button" onClick={() => setIsEditing(!isEditing)} className="btn text-white bg-warning">
                                         Chỉnh sửa
                                     </button>

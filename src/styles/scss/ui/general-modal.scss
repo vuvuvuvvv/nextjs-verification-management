@@ -1,0 +1,31 @@
+@import "@styles/scss/variables/global.variables.scss";
+
+
+.modal-kiem-dinh {
+    width: calc(100vw - 20px) !important;
+    height: calc(100vh - 20px) !important;
+    margin: 10px;
+
+    max-width: unset !important;
+    max-height: unset !important;
+
+    .modal-content {
+        width: 100% !important;
+        height: calc(100% - $footer_height) !important;
+        max-width: unset !important;
+        max-height: unset !important;
+    }
+
+    .modal-header {
+        padding: 10px 18px;
+    }
+
+}
+.modal-phong-ban {
+    width: calc(50vw) !important;
+    margin: 10px;
+
+    max-width: unset !important;
+    max-height: unset !important;
+    min-width: 500px !important;
+}

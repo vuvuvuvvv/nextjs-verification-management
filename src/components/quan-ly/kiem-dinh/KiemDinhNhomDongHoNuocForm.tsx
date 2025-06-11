@@ -20,23 +20,23 @@ import Swal from "sweetalert2";
 import dayjs, { Dayjs } from "dayjs";
 import { useEffect, useMemo, useReducer, useRef, useState } from "react";
 
-import { convertToUppercaseNonAccent, getQ2OrtAndQ1OrQMin, isDongHoDatTieuChuan } from "@lib/system-function";
+import { convertToUppercaseNonAccent, getQ2OrtAndQ1OrQMin, isDongHoDatTieuChuan } from "@/lib/system-function";
 import {
     ACCESS_LINKS, BASE_API_URL, ccxOptions, DEFAULT_LOCATION,
     phuongTienDoOptions,
     TITLE_LUU_LUONG, typeOptions
-} from "@lib/system-constant";
+} from "@/lib/system-constant";
 
-import { DongHo, DuLieuChayDiemLuuLuong, GeneralInfoDongHo } from "@lib/types";
+import { DongHo, DuLieuChayDiemLuuLuong, GeneralInfoDongHo } from "@/lib/types";
 import { useDongHoList } from "@/context/ListDongHoContext";
 
 import dynamic from "next/dynamic";
-import { getPDMByMaTimDongHoPDM } from "@/app/api/pdm/route";
+import { getPDMByMaTimDongHoPDM } from "@lib/api/pdm";
 import { faCog } from "@fortawesome/free-solid-svg-icons";
 import ModalInputSoLuongDongHo from "@/components/ui/ModalInputSoLuongDongHo";
 
 const ModalInputSerialDongHo = dynamic(() => import('@/components/ui/ModalInputSerialDongHo'));
-const ModalKiemDinh = dynamic(() => import('@/components/ui/ModalKiemDinh'));
+const ModalKiemDinh = dynamic(() => import('@/components/quan-ly/ModalKiemDinh'));
 
 
 
@@ -132,7 +132,7 @@ function modalReducer(state: ModalState, action: ModalAction): ModalState {
 
 export default function KiemDinhNhomDongHoNuocForm({ className, generalInfoDongHo, isEditing = false }: KiemDinhNhomDongHoNuocFormProps) {
 
-    const { user, isManager } = useUser();
+    const { user } = useUser();
 
     const initialState: State = {
         phuongTienDo: generalInfoDongHo?.ten_phuong_tien_do || "",

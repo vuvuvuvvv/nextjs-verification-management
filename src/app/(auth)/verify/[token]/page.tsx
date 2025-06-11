@@ -5,7 +5,7 @@ import Cookies from 'js-cookie';
 import Swal from 'sweetalert2';
 
 import axios from 'axios';
-import { ACCESS_LINKS } from '@lib/system-constant';
+import { ACCESS_LINKS } from '@/lib/system-constant';
 import { useEffect, useState } from 'react';
 
 export default function VerifyPage({ params }: { params: { token: string } }) {
@@ -21,7 +21,10 @@ export default function VerifyPage({ params }: { params: { token: string } }) {
                 if (response?.status == 200 || response?.status == 201) {
                     const user = response?.data.user;
                     if (user) {
-                        // Cookies.set('user', JSON.stringify(user));
+                        const existingUser = Cookies.get('user');
+                        if (!existingUser) {
+                            Cookies.set('user', JSON.stringify(user));
+                        }
                         Swal.fire({
                             title: "Thành công",
                             text: "Xác thực thành công!",
@@ -52,6 +55,7 @@ export default function VerifyPage({ params }: { params: { token: string } }) {
                     }
                 }
             } catch (err) {
+                console.log(err);
                 handleErr();
             }
             setFetched(true);

@@ -6,18 +6,14 @@ import uiQSm from "@/styles/scss/ui/q-smt-15.module.scss";
 import Loading from "@/components/Loading";
 import { useDongHoList } from "@/context/ListDongHoContext";
 import Swal from "sweetalert2";
-import { DongHo } from "@lib/types";
-import { deleteDongHoDataFromIndexedDB, getDongHoDataExistsFromIndexedDB } from "@lib/system-function";
+import { DongHo } from "@/lib/types";
+import { deleteDongHoDataFromIndexedDB, getDongHoDataExistsFromIndexedDB } from "@/lib/system-function";
 import { useUser } from "@/context/AppContext";
-import { INDEXED_DB_KIEM_DINH_NAME } from "@lib/system-constant";
+import { INDEXED_DB_KIEM_DINH_NAME } from "@/lib/system-constant";
 
 const KiemDinhNhomDongHoNuocForm = dynamic(() => import("@/components/quan-ly/kiem-dinh/KiemDinhNhomDongHoNuocForm"), { ssr: false });
 
-interface AddNewDongHoNuocProps {
-    className?: string,
-}
-
-export default function AddNewDongHoNuoc({ className }: AddNewDongHoNuocProps) {
+export default function AddNewDongHoNuoc() {
     const { user } = useUser();
     const { setAmount, setDongHoList, setSavedDongHoList } = useDongHoList();
 
@@ -97,7 +93,7 @@ export default function AddNewDongHoNuoc({ className }: AddNewDongHoNuocProps) {
                 allowOutsideClick: false 
             }).then((result) => {
                 if (result.isConfirmed) {
-                    setDongHoList(oldDongHoData);
+                    // setDongHoList(oldDongHoData);
                     setSavedDongHoList(oldDongHoSavedData);
                     setModalOpen(false);
                 } else {

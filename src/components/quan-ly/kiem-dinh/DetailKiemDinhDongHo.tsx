@@ -1,16 +1,16 @@
 "use client"
 
-import { getFullSoGiayCN, getSaiSoDongHo } from "@lib/system-function";
+import { getFullSoGiayCN, getSaiSoDongHo } from "@/lib/system-function";
 import dtp from "@styles/scss/ui/q-bgt-15.detail.module.scss";
 import dayjs from "dayjs";
 import dynamic from "next/dynamic";
-import { DongHo, DuLieuChayDiemLuuLuong, DuLieuChayDongHo } from "@lib/types";
+import { DongHo, DuLieuChayDiemLuuLuong, DuLieuChayDongHo } from "@/lib/types";
 import { Fragment, useEffect, useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faDownload, faEdit, faFileExcel } from "@fortawesome/free-solid-svg-icons";
-import { downloadBBExcel, downloadBBPDF, downloadGCN } from "@/app/api/download/route";
+import { downloadBBExcel, downloadBBPDF, downloadGCN } from "@lib/api/download";
 import Swal from "sweetalert2";
-import { ACCESS_LINKS, TITLE_LUU_LUONG } from "@lib/system-constant";
+import { ACCESS_LINKS, TITLE_LUU_LUONG } from "@/lib/system-constant";
 import Link from "next/link";
 
 const Loading = dynamic(() => import('@/components/Loading'));
@@ -38,7 +38,6 @@ export default function DetailKiemDinhDongHo({ dongHo }: DetailKiemDinhDongHoPro
             if (duLieuKiemDinh?.du_lieu) {
                 const dlKiemDinh = duLieuKiemDinh.du_lieu;
                 setDuLieuKiemDinhCacLuuLuong(dlKiemDinh);
-                console.log(dlKiemDinh);
             }
 
             if (duLieuKiemDinh?.hieu_sai_so) {
@@ -46,17 +45,14 @@ export default function DetailKiemDinhDongHo({ dongHo }: DetailKiemDinhDongHoPro
             }
 
             setKetQua(duLieuKiemDinh.ket_qua);
-            console.log(dongHo.q3 ? ["Q3", "Q2", "Q1"] : (dongHo.qn ? ['Qn', "Qt", "Qmin"] : null));
         }
     }, [dongHo]);
 
     const renderDulieuLuuLuong = () => {
         if (listKeys && duLieuKiemDinhCacLuuLuong) {
             return listKeys.map((key, index) => {
-                console.log(listKeys);
 
                 const value = duLieuKiemDinhCacLuuLuong[key] as DuLieuChayDiemLuuLuong;
-                console.log(value);
                 if (value?.value) {
                     let indexHead = true;
                     let jsxStart, jsxEnd;

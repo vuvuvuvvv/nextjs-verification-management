@@ -8,12 +8,8 @@ import vrfWm from "@styles/scss/ui/vfm.module.scss"
 
 import NavTab from "@/components/ui/NavTab";
 
-interface DongHoNuocPageProps {
-    className?: string
-}
 
-
-export default function DongHoNuocPage({ className }: DongHoNuocPageProps) {
+export default function DongHoNuocPage() {
 
     const tabContent = [
         {
@@ -27,7 +23,7 @@ export default function DongHoNuocPage({ className }: DongHoNuocPageProps) {
     ]
 
     return (
-        <div className={`${className ? className : ""} ${vrfWm['wraper']} m-0 w-100 p-2`}>
+        <div className={`${vrfWm['wraper']} m-0 w-100 p-2`}>
             <NavTab tabContent={tabContent} className="bg-white" />
         </div>
     )

@@ -7,10 +7,10 @@ import layout from "@styles/scss/layouts/auth-layout.module.scss";
 import Link from 'next/link';
 import Swal from 'sweetalert2';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faEnvelope, faLock } from '@fortawesome/free-solid-svg-icons';
+import { faLock } from '@fortawesome/free-solid-svg-icons';
 
 import axios from 'axios';
-import { ACCESS_LINKS } from '@lib/system-constant';
+import { ACCESS_LINKS } from '@/lib/system-constant';
 
 export default function ResetPassword({ params }: { params: { token: string } }) {
     const [newPassword, setNewPassword] = useState('');
