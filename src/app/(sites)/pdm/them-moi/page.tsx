@@ -21,21 +21,41 @@ import api from "@/lib/api/instance";
 import CreatableSelect from "react-select/creatable";
 import { convertToUppercaseNonAccent } from "@/lib/system-function";
 
+interface State {
+
+}
+
+type Action =
+    | { type: 'SET_FIELD', field: keyof State, value: any }
+    | { type: 'SET_MULTIPLE_FIELDS', fields: Partial<State> };
+
+function reducer(state: State, action: Action): State {
+    switch (action.type) {
+        case 'SET_FIELD':
+            return { ...state, [action.field]: action.value };
+        case 'SET_MULTIPLE_FIELDS':
+            return { ...state, ...action.fields };
+        default:
+            return state;
+    }
+}
+
 export default function AddNewPDM() {
 
-    const [deviceName, setDeviceName] = useState<string>("");                          
-    const [tenDongHo, setTenDongHo] = useState<string>("");                             
-    const [kieuSensor, setKieuSensor] = useState<string>("");                            
-    const [noiSanXuat, setNoiSanXuat] = useState<string>("");                           
-    const [DN, setDN] = useState<string>("");                                      
-    const [CCX, setCCX] = useState<string | null>(null); 
+    const [phuongTienDo, setPhuongTienDo] = useState<string>("");                          
+    const [sensor, setSensor] = useState<string>("");                            
+    const [coSoSanXuat, setCoSoSanXuat] = useState<string>("");                           
+    const [dn, setdn] = useState<string>("");                   
+
+    const [ccx, setccx] = useState<string | null>(null); 
     const [q3, setQ3] = useState<string>("");                                 
-    const [R, setR] = useState<string>("");                                      
+    const [r, setR] = useState<string>("");                                      
     const [qn, setQN] = useState<string>("");                                          
     const [donViPDM, setDonViPDM] = useState<string>("");                               
     const [soQDPDM, setSoQDPDM] = useState<string>("");                                    
     const [ngayQuyetDinh, setNgayQuyetDinh] = useState<Date | null>(null);                
-    const [ngayHetHan, setNgayHetHan] = useState<Date | null>(null);                      
+    const [ngayHetHan, setNgayHetHan] = useState<Date | null>(null);       
+
     const [errorSoQDPDM, setErrorSoQDPDM] = useState("");
     const [errorMaTimDHPDM, setErrorMaTimDHPDM] = useState("");
 
@@ -49,7 +69,6 @@ export default function AddNewPDM() {
     const [canSave, setCanSave] = useState(false);
     const router = useRouter();
 
-    const fetchDHNameCalled = useRef(false);
     const [selectedTenDHOption, setSelectedTenDHOption] = useState('');
     const [DHNameOptions, setDHNameOptions] = useState<{ value: string, label: string }[]>([]);
     const [selectedCssxOption, setSelectedCssxOption] = useState('');
@@ -57,13 +76,12 @@ export default function AddNewPDM() {
 
     useEffect(() => {
         const isFormValid = 
-            deviceName.trim() !== "" && 
-            tenDongHo.trim() !== "" &&
-            kieuSensor.trim() !== "" && 
-            noiSanXuat.trim() !== "" && 
-            DN.trim() !== "" && 
-            CCX !== null && 
-            ((q3.trim() !== "" && R.trim() !== "") || qn.trim() !== "") && 
+            phuongTienDo.trim() !== "" && 
+            sensor.trim() !== "" && 
+            coSoSanXuat.trim() !== "" && 
+            dn.trim() !== "" && 
+            ccx !== null && 
+            ((q3.trim() !== "" && r.trim() !== "") || qn.trim() !== "") && 
             donViPDM.trim() !== "" && 
             soQDPDM.trim() !== "" && 
             ngayQuyetDinh !== null && 
@@ -72,14 +90,13 @@ export default function AddNewPDM() {
             errorMaTimDHPDM === "";
         setCanSave(isFormValid);
     }, [
-        deviceName, 
-        tenDongHo, 
-        kieuSensor, 
-        noiSanXuat, 
-        DN, 
-        CCX, 
+        phuongTienDo, 
+        sensor, 
+        coSoSanXuat, 
+        dn, 
+        ccx, 
         q3, 
-        R, 
+        r, 
         qn, 
         donViPDM, 
         soQDPDM, 
@@ -120,17 +137,16 @@ export default function AddNewPDM() {
     useEffect(() => {
         const formatString = (str: string) => str.replace(/\s+/g, '').toUpperCase();
         const newMaTimDongHoPDM = [
-            tenDongHo,
-            DN,
-            CCX,
-            kieuSensor,
+            dn,
+            ccx,
+            sensor,
             kieuChiThi,
             qn,
             q3,
-            R
+            r
         ].map((value) => formatString(value || '')).join('');
         setMaTimDongHoPDM(newMaTimDongHoPDM);
-    }, [tenDongHo, DN, CCX, kieuSensor, kieuChiThi, qn, q3, R]);
+    }, [dn, ccx, sensor, kieuChiThi, qn, q3, r]);
 
     // truyền setter vào để lưu giá trị vào state
     const handleNumberChange = (setter: (value: string) => void) => (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -143,15 +159,15 @@ export default function AddNewPDM() {
     const handleSubmit = async () => {
         const pdm: PDM = {
             ma_tim_dong_ho_pdm: maTimDongHoPDM,
-            ten_dong_ho: tenDongHo,
-            noi_san_xuat: noiSanXuat,
-            dn: DN,
-            ccx: CCX,
-            sensor: kieuSensor,
+            ten_phuong_tien_do: "",
+            co_so_san_xuat: coSoSanXuat,
+            dn: dn,
+            ccx: ccx,
+            sensor: sensor,
             transmitter: kieuChiThi,
             qn: qn,
             q3: q3,
-            r: R,
+            r: r,
             don_vi_pdm: donViPDM,
             dia_chi: address,
             so_qd_pdm: soQDPDM,
@@ -229,15 +245,15 @@ export default function AddNewPDM() {
         setQ3("");
         setR("");
         setQN("");
-        setKieuSensor("");
+        setSensor("");
         setKieuChiThi("");
-        setDHDienTu(deviceName !== "" && phuongTienDoOptions.find(option => option.label == deviceName)?.value == "1");
-    }, [CCX, deviceName]);
+        setDHDienTu(phuongTienDo !== "" && phuongTienDoOptions.find(option => option.label == phuongTienDo)?.value == "1");
+    }, [ccx, phuongTienDo]);
 
 
-    const renderCCXFields = () => {
+    const renderccxFields = () => {
         // Check có phải đồng hồ đtu hay không : value: "1"
-        if ((CCX && (CCX == "1" || CCX == "2")) || isDHDienTu) {
+        if ((ccx && (ccx == "1" || ccx == "2")) || isDHDienTu) {
             return <>
                 <div className="mb-3 col-12 col-md-6">
                     <label htmlFor="q3" className="form-label">- Q<sub>3</sub>:</label>
@@ -261,7 +277,7 @@ export default function AddNewPDM() {
                         className="form-control"
                         id="R"
                         placeholder="Tỷ số Q3/Q1 (R)"
-                        value={R}
+                        value={r}
                         onChange={handleNumberChange(setR)}
                         pattern="\d*"
                     />
@@ -282,22 +298,21 @@ export default function AddNewPDM() {
                         onChange={handleNumberChange(setQN)}
                         pattern="\d*"
                     />
-                    <span className="input-group-text">m<sup>3</sup>/h</span>
+                    <span>(m<sup>3</sup>/h)</span>
                 </div>
             </div>
         </>
     }
 
     const filterMaTimDHPDM = useMemo(() => ({
-        tenDongHo: tenDongHo,
-        dn: DN,
-        ccx: CCX,
-        kieuSensor: kieuSensor,
+        dn: dn,
+        ccx: ccx,
+        sensor: sensor,
         kieuChiThi: kieuChiThi,
         qn: qn,
         q3: q3,
-        r: R
-    }), [tenDongHo, DN, CCX, kieuSensor, kieuChiThi, qn, q3, R]);
+        r: r
+    }), [dn, ccx, sensor, kieuChiThi, qn, q3, r]);
 
     const soQDPDMRef = useRef(soQDPDM);
 
@@ -313,8 +328,8 @@ export default function AddNewPDM() {
 
     useEffect(() => {
         if (filterMaTimDHPDMRef.current !== filterMaTimDHPDM) {
-            if (filterMaTimDHPDM.tenDongHo && filterMaTimDHPDM.dn && filterMaTimDHPDM.ccx && (filterMaTimDHPDM.kieuSensor || filterMaTimDHPDM.kieuChiThi) && ((filterMaTimDHPDM.q3 && filterMaTimDHPDM.r) || filterMaTimDHPDM.qn)) {
-                const ma_tim_dong_ho_pdm = convertToUppercaseNonAccent(filterMaTimDHPDM.tenDongHo + filterMaTimDHPDM.dn + filterMaTimDHPDM.ccx + filterMaTimDHPDM.kieuSensor + filterMaTimDHPDM.kieuChiThi + filterMaTimDHPDM.q3 + filterMaTimDHPDM.r + filterMaTimDHPDM.qn);
+            if (filterMaTimDHPDM.dn && filterMaTimDHPDM.ccx && (filterMaTimDHPDM.sensor || filterMaTimDHPDM.kieuChiThi) && ((filterMaTimDHPDM.q3 && filterMaTimDHPDM.r) || filterMaTimDHPDM.qn)) {
+                const ma_tim_dong_ho_pdm = convertToUppercaseNonAccent(filterMaTimDHPDM.dn + filterMaTimDHPDM.ccx + filterMaTimDHPDM.sensor + filterMaTimDHPDM.kieuChiThi + filterMaTimDHPDM.q3 + filterMaTimDHPDM.r + filterMaTimDHPDM.qn);
 
                 const handler = setTimeout(async () => {
                     const res = await getPDMByMaTimDongHoPDM(ma_tim_dong_ho_pdm);
@@ -387,7 +402,7 @@ export default function AddNewPDM() {
                             <div className="row mx-0 w-100 mb-3">
                                 <div className="mb-3 col-12 col-md-6">
                                     <label htmlFor="tenDongHo" className="form-label">Tên đồng hồ:</label>
-                                    <CreatableSelect
+                                    {/* <CreatableSelect
                                         options={DHNameOptions as unknown as readonly GroupBase<never>[]}
                                         className="basic-multi-select"
                                         placeholder="Tên đồng hồ"
@@ -446,17 +461,17 @@ export default function AddNewPDM() {
                                                 color: state.isDisabled ? '#000' : provided.color,
                                             })
                                         }}
-                                    />
+                                    /> */}
                                 </div>
                                 <div className="mb-3 col-12 col-md-6">
-                                    <label htmlFor="noiSanXuat" className="form-label">Cơ sở sản xuất:</label>
+                                    <label htmlFor="coSoSanXuat" className="form-label">Cơ sở sản xuất:</label>
                                     <CreatableSelect
                                         options={CSSXOptions as unknown as readonly GroupBase<never>[]}
                                         className="basic-multi-select"
                                         placeholder="Cơ sở sản xuất"
                                         classNamePrefix="select"
                                         isClearable
-                                        id="noi_san_xuat"
+                                        id="co_so_san_xuat"
                                         value={selectedCssxOption}
                                         isSearchable
                                         onChange={(selectedOptions: any) => {
@@ -464,10 +479,10 @@ export default function AddNewPDM() {
                                                 const values = selectedOptions.value;
 
                                                 setSelectedCssxOption(selectedOptions);
-                                                setNoiSanXuat(values);
+                                                setCoSoSanXuat(values);
                                             } else {
                                                 setSelectedCssxOption('');
-                                                setNoiSanXuat("");
+                                                setCoSoSanXuat("");
                                             }
                                         }}
                                         styles={{
@@ -516,16 +531,16 @@ export default function AddNewPDM() {
 
                             <div className="row mx-0 w-100 mb-3">
                                 <div className="mb-3 col-12 col-md-6">
-                                    <label htmlFor="deviceName" className="form-label">Tên phương tiện đo:</label>
+                                    <label htmlFor="phuongTienDo" className="form-label">Tên phương tiện đo:</label>
                                     <Select
-                                        name="deviceName"
+                                        name="phuongTienDo"
                                         options={phuongTienDoOptions as unknown as readonly GroupBase<never>[]}
                                         className="basic-multi-select"
                                         classNamePrefix="select"
                                         placeholder="-- Chọn tên --"
                                         isClearable
-                                        value={phuongTienDoOptions.find(option => option.label == deviceName) || null}
-                                        onChange={(selectedOptions: any) => setDeviceName(selectedOptions ? selectedOptions.label : "")}
+                                        value={phuongTienDoOptions.find(option => option.label == phuongTienDo) || null}
+                                        onChange={(selectedOptions: any) => setPhuongTienDo(selectedOptions ? selectedOptions.label : "")}
                                         styles={{
                                             control: (provided) => ({
                                                 ...provided,
@@ -556,16 +571,16 @@ export default function AddNewPDM() {
                                     />
                                 </div>
                                 <div className="mb-3 col-12 col-md-6">
-                                    <label htmlFor="CCX" className="form-label">- Cấp chính xác:</label>
+                                    <label htmlFor="ccx" className="form-label">- Cấp chính xác:</label>
                                     <Select
-                                        name="CCX"
+                                        name="ccx"
                                         options={ccxOptions as unknown as readonly GroupBase<never>[]}
                                         className="basic-multi-select"
                                         classNamePrefix="select"
                                         placeholder="-- Chọn cấp --"
                                         isClearable
-                                        value={ccxOptions.find(option => option.value === CCX) || null}
-                                        onChange={(selectedOptions: any) => setCCX(selectedOptions ? selectedOptions.value : "")}
+                                        value={ccxOptions.find(option => option.value === ccx) || null}
+                                        onChange={(selectedOptions: any) => setccx(selectedOptions ? selectedOptions.value : "")}
                                         styles={{
                                             control: (provided) => ({
                                                 ...provided,
@@ -596,30 +611,30 @@ export default function AddNewPDM() {
                                     />
                                 </div>
                                 <div className="mb-3 col-12 col-md-6">
-                                    <label htmlFor="DN" className="form-label">- Đường kính danh định (DN):</label>
+                                    <label htmlFor="dn" className="form-label">- Đường kính danh định (dn):</label>
                                     <div className="input-group">
                                         <input
                                             type="text"
                                             className="form-control"
-                                            id="DN"
-                                            placeholder="DN"
-                                            value={DN}
-                                            onChange={handleNumberChange(setDN)}
+                                            id="dn"
+                                            placeholder="dn"
+                                            value={dn}
+                                            onChange={handleNumberChange(setdn)}
                                             pattern="\d*"
                                         />
-                                        <span className="input-group-text">mm</span>
+                                        <span>(mm)</span>
                                     </div>
                                 </div>
-                                {renderCCXFields()}
+                                {renderccxFields()}
                                 <div className="mb-3 col-12 col-md-6">
-                                    <label htmlFor="kieuSensor" className="form-label">-  Kiểu sensor:</label>
+                                    <label htmlFor="sensor" className="form-label">-  Kiểu sensor:</label>
                                     <input
                                         type="text"
                                         className="form-control"
-                                        id="kieuSensor"
+                                        id="sensor"
                                         placeholder="Kiểu sensor"
-                                        value={kieuSensor}
-                                        onChange={(e) => setKieuSensor(e.target.value)}
+                                        value={sensor}
+                                        onChange={(e) => setSensor(e.target.value)}
                                     />
                                 </div>
                                 <div className="mb-3 col-12 col-md-6">
@@ -701,7 +716,7 @@ export default function AddNewPDM() {
                                     />
                                 </div>
                             </div>
-                            <label className="w-100 fs-5 fw-bold">Mã tìm đồng hồ:</label>
+                            {/* <label className="w-100 fs-5 fw-bold">Mã tìm đồng hồ:</label>
                             <div className="row mx-0 w-100 mb-3">
 
                                 <div className="mb-3 col-12 col-md-6">
@@ -721,7 +736,8 @@ export default function AddNewPDM() {
                                         </div>
                                     )}
                                 </div>
-                            </div>
+                            </div> */}
+
                         </form>
                     </div>
                     <div className={`w-100 mt-2 p-0 d-flex justify-content-end`}>

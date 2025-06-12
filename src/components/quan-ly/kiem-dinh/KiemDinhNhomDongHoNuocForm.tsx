@@ -14,7 +14,6 @@ const TableDongHoInfo = dynamic(() => import('@/components/TableInputDongHoInfo'
 import { useKiemDinh } from "@/context/KiemDinhContext";
 import { useUser } from "@/context/AppContext";
 
-import CreatableSelect from 'react-select/creatable';
 import Select, { GroupBase } from 'react-select';
 import Swal from "sweetalert2";
 import dayjs, { Dayjs } from "dayjs";
@@ -22,16 +21,15 @@ import { useEffect, useMemo, useReducer, useRef, useState } from "react";
 
 import { convertToUppercaseNonAccent, getQ2OrtAndQ1OrQMin, isDongHoDatTieuChuan } from "@/lib/system-function";
 import {
-    ACCESS_LINKS, BASE_API_URL, ccxOptions, DEFAULT_LOCATION,
+    ccxOptions, DEFAULT_LOCATION,
     phuongTienDoOptions,
-    TITLE_LUU_LUONG, typeOptions
+    TITLE_LUU_LUONG
 } from "@/lib/system-constant";
 
-import { DongHo, DuLieuChayDiemLuuLuong, GeneralInfoDongHo } from "@/lib/types";
+import { DongHo, DuLieuChayDiemLuuLuong } from "@/lib/types";
 import { useDongHoList } from "@/context/ListDongHoContext";
 
 import dynamic from "next/dynamic";
-import { getPDMByMaTimDongHoPDM } from "@lib/api/pdm";
 import { faCog } from "@fortawesome/free-solid-svg-icons";
 import ModalInputSoLuongDongHo from "@/components/ui/ModalInputSoLuongDongHo";
 
@@ -80,9 +78,6 @@ interface State {
 
     nguoiSoatLai: string;
 
-    // viTri: string;
-    // nhietDo: string;
-    // doAm: string;
     noiSuDung: string;
     tenKhachHang: string;
 
@@ -771,7 +766,7 @@ export default function KiemDinhNhomDongHoNuocForm({ className, generalInfoDongH
                                             classNamePrefix="select"
                                             isClearable
                                             isDisabled={savedDongHoList.length != 0}
-                                            id="noi_san_xuat"
+                                            id="co_so_san_xuat"
                                             value={selectedCssxOption || null}
                                             isSearchable
                                             onChange={(selectedOptions: any) => {

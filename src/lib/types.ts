@@ -41,8 +41,8 @@ export interface RegisterCredentials {
 
 export interface PDM {
     ma_tim_dong_ho_pdm: string | null,
-    ten_dong_ho: string | null,
-    noi_san_xuat: string | null,
+    ten_phuong_tien_do: string | null,
+    co_so_san_xuat: string | null,
     dn: string | null,
     ccx: string | null,
     sensor: string | null,
@@ -102,7 +102,7 @@ export interface PDMData {
     "id": number,
     "ma_tim_dong_ho_pdm": string,
     "ten_dong_ho": string,
-    "noi_san_xuat": string,
+    "co_so_san_xuat": string,
     "dn": string,
     "ccx": string,
     "sensor": string,

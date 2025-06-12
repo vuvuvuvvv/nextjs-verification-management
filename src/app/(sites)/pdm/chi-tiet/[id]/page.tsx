@@ -256,15 +256,15 @@ export default function Page({ params }: { params: { id: string } }) {
                                             />
                                         </div>
                                     )}
-                                    {pdmData?.noi_san_xuat && (
+                                    {pdmData?.co_so_san_xuat && (
                                         <div className="mb-3 col-12 col-md-6">
-                                            <label htmlFor="noi_san_xuat" className="form-label">Cơ sở sản xuất:</label>
+                                            <label htmlFor="co_so_san_xuat" className="form-label">Cơ sở sản xuất:</label>
                                             <input
                                                 type="text"
                                                 className="form-control"
-                                                id="noi_san_xuat"
-                                                name="noi_san_xuat"
-                                                value={pdmData.noi_san_xuat}
+                                                id="co_so_san_xuat"
+                                                name="co_so_san_xuat"
+                                                value={pdmData.co_so_san_xuat}
                                                 onChange={handleInputChange}
                                             />
                                         </div>
@@ -522,7 +522,7 @@ export default function Page({ params }: { params: { id: string } }) {
                                     {pdmData?.ten_dong_ho && (
                                         <div className="mb-3 col-12">
                                             <label className="form-label fw-bold me-3">Tên đồng hồ:</label>
-                                            <span className="fs-5 fw-light">{pdmData.noi_san_xuat}</span>
+                                            <span className="fs-5 fw-light">{pdmData.co_so_san_xuat}</span>
                                         </div>
                                     )}
                                 </div>

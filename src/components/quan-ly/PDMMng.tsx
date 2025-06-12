@@ -544,7 +544,7 @@ export default React.memo(function PDMManagement({ className, listDHNamesExist }
                                         <FontAwesomeIcon icon={faRefresh}></FontAwesomeIcon>
                                     </button>
                                 </div>
-                                {permissions.CAN_VIEW && <Link
+                                {!permissions.CAN_VIEW && <Link
                                     aria-label="Thêm mới"
                                     href={ACCESS_LINKS.PDM_ADD.src}
                                     className={`btn bg-main-green text-white`}

@@ -10,26 +10,31 @@ import Swal from "sweetalert2";
 import { useDongHoList } from '@/context/ListDongHoContext';
 import InputField from '../ui/InputFieldTBDHInfo';
 import { useKiemDinh } from '@/context/KiemDinhContext';
-import { DuLieuCacLanChay, DuLieuMotLanChay } from '@/lib/types';
+import { DongHo, DuLieuCacLanChay, DuLieuMotLanChay } from '@/lib/types';
 import { getHieuSaiSo, getSaiSoDongHo } from '@/lib/system-function';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faAdd, faCogs, faRemove, faSave } from '@fortawesome/free-solid-svg-icons';
 import ModalInputSoLuongDongHo from '../ui/ModalInputSoLuongDongHo';
-import { ACCESS_LINKS } from '@/lib/system-constant';
 import TableKetQuaKiemDinh from './TableKetQuaKiemDinh';
 import NavTab from '../ui/NavTab';
+import Loading from '../Loading';
+import { ACCESS_LINKS } from '@./src/lib/system-constant';
 interface ModalKiemDinhProps {
     show: boolean;
     isEditing?: boolean;
+    isHieuChuan?: boolean;
     handleClose: () => void;
 }
 
 type ActiveLL = { title: string; value: string } | null;
 
-export default function ModalKiemDinh({ show, isEditing = false, handleClose }: ModalKiemDinhProps) {
+export default function ModalKiemDinh({ show, isEditing = false, isHieuChuan = false, handleClose }: ModalKiemDinhProps) {
     const [showModal, setShowModal] = useState(show);
     const [showModalNhapSoLuong, setShowModalNhapSoLuong] = useState(false);
     const { luuLuong, getDuLieuChayCuaLuuLuong, updateLuuLuong, themLanChayCuaLuuLuong, xoaLanChayCuaLuuLuong } = useKiemDinh();
+
+    const [isPreviewing, setPreviewing] = useState(false);
+
     const {
         createListDongHo,
         dongHoList,
@@ -149,11 +154,11 @@ export default function ModalKiemDinh({ show, isEditing = false, handleClose }: 
                         allowOutsideClick: false,
                         didOpen: () => {
                             Swal.showLoading();
-                            // createListDongHo(dongHoToSave).then((isSuccessful) => {
-                            //     if (isSuccessful) {
-                            //         window.location.href = ACCESS_LINKS.DHN.src;
-                            //     }
-                            // });
+                            createListDongHo(dongHoToSave).then((isSuccessful) => {
+                                if (isSuccessful) {
+                                    window.location.href = ACCESS_LINKS.DHN.src;
+                                }
+                            });
                         }
                     });
                 }
@@ -169,7 +174,7 @@ export default function ModalKiemDinh({ show, isEditing = false, handleClose }: 
                 confirmButtonText: 'OK',
             });
         } else if (dongHoList.length == savedDongHoList.length) {
-            
+
         } else {
             Swal.fire({
                 title: 'Chú ý!',
@@ -417,7 +422,7 @@ export default function ModalKiemDinh({ show, isEditing = false, handleClose }: 
         },
         {
             title: "Kết quả",
-            content: <TableKetQuaKiemDinh activeLL={activeLL} isEditing={isEditing} />
+            content: <TableKetQuaKiemDinh isHieuChuan={isHieuChuan} setPreviewing={(e: boolean) => setPreviewing(e)} activeLL={activeLL} isEditing={isEditing} />
         }
     ]
 
@@ -430,13 +435,14 @@ export default function ModalKiemDinh({ show, isEditing = false, handleClose }: 
                 }
             } />
             <Modal show={showModal} dialogClassName={`modal-kiem-dinh`} onHide={handleClose}>
+                {isPreviewing && <Loading />}
                 <Modal.Header closeButton>
                     <Modal.Title>Kiểm định</Modal.Title>
                 </Modal.Header>
                 <Modal.Body className='p-0 overflow-hidden'>
 
                     <NavTab tabContent={tabContent} className="bg-white" />
-                    
+
                 </Modal.Body>
                 <Modal.Footer className={`d-flex align-items-center justify-content-end`}>
                     <button

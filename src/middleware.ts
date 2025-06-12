@@ -19,7 +19,7 @@ const VERIFY_PATHS = [
 ];
 
 const EXCLUDE_PATHS = [
-    ACCESS_LINKS.HC_DHN.src,
+    // ACCESS_LINKS.HC_DHN.src,
     ACCESS_LINKS.PDM.src,
 ];
 

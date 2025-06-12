@@ -45,6 +45,7 @@ const KiemDinhContext = createContext<KiemDinhContextType | undefined>(undefined
 export const KiemDinhProvider = ({ children }: { children: ReactNode }) => {
     const { dongHoList, setDongHoList } = useDongHoList();
 
+    const { isHieuChuan } = useDongHoList();
     const [randomT, setRandomT] = useState(parseFloat((Math.random() * (25 - 22) + 22).toFixed(1)));
 
     const debounceSetDHListRef = useRef<NodeJS.Timeout | null>(null)
@@ -152,8 +153,10 @@ export const KiemDinhProvider = ({ children }: { children: ReactNode }) => {
         const index = indexMap[q.title];
         tmpHssDH[index].hss = duLieuChay ? getHieuSaiSo(duLieuChay) : null;
 
+        const mf = duLieuKiemDinh.mf;
         // Cập nhật dữ liệu cho Dữ liệu kiểm định
         const newDLKD = {
+            mf: mf || initialFormMf,
             du_lieu: du_lieu,
             hieu_sai_so: [...tmpHssDH],
             ket_qua: isDongHoDatTieuChuan(tmpHssDH)
@@ -203,14 +206,35 @@ export const KiemDinhProvider = ({ children }: { children: ReactNode }) => {
             const tmpHssDHList = dlkd.hieu_sai_so;
             const index = indexMap[q.title];
             tmpHssDHList[index].hss = duLieuChay ? getHieuSaiSo(newDLC) : null;
+            const newFormMf = [...formMf];
+
+            if (isHieuChuan) {
+                let totalMf = 0;
+                let count = 0;
+
+                Object.values(newDLC).forEach(({ V1, V2, Vc1, Vc2, Vc }) => {
+                    const Vdh = V2 ? parseFloat(V2.toString()) : 0 - V1 ? parseFloat(V1.toString()) : 0;
+                    if (Vdh > 0 && Number(Vc) > 0) {
+                        const mf = parseFloat((Number(Vc) / Vdh).toFixed(4));
+                        totalMf += mf;
+                        count += 1;
+                    }
+                });
+
+                const avgMf = count > 0 ? parseFloat((totalMf / count).toFixed(4)) : null;
+
+                newFormMf[index] = { mf: avgMf };
+                setFormMf(newFormMf);
+            }
 
             // Cập nhật dữ liệu cho Dữ liệu kiểm định
             const newDLKDDHList = {
                 du_lieu: new_dl,
                 hieu_sai_so: [...tmpHssDHList],
-                ket_qua: isDongHoDatTieuChuan(tmpHssDHList)
+                ket_qua: isDongHoDatTieuChuan(tmpHssDHList),
+                mf: newFormMf
             };
-
+            
             const ngayThucHien: Date = dongHo.ngay_thuc_hien ?? dayjs().toDate();
             const newInfo = {
                 ...dh,
